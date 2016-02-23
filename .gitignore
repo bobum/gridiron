@@ -26,7 +26,7 @@ Icon
 *.ipr
 *.iws
 .idea/
-.bak
+*.bak
 
 # --------------------
 # Netbeans Files
