@@ -1,7 +1,7 @@
 {
-  "name": "game",
+  "name": "player",
   "version": "0.0.1",
-  "description": "Some description of game",
+  "description": "Some description of player",
   "author": {
     "name": "mean scaffold"
   },

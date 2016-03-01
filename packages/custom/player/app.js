@@ -5,32 +5,32 @@
  */
 var Module = require('meanio').Module;
 
-var Game = new Module('game');
+var Player = new Module('player');
 
 /*
  * All MEAN packages require registration
  * Dependency injection is used to define required modules
  */
-Game.register(function(app, auth, database) {
+Player.register(function(app, auth, database) {
 
   //We enable routing. By default the Package Object is passed to the routes
-  Game.routes(app, auth, database);
+  Player.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  Game.menus.add({
-    title: 'game example page',
-    link: 'game example page',
+  Player.menus.add({
+    title: 'player example page',
+    link: 'player example page',
     roles: ['authenticated'],
     menu: 'main'
   });
   
-  Game.aggregateAsset('css', 'game.css');
+  Player.aggregateAsset('css', 'player.css');
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above
     // Save settings with callback
     // Use this for saving data from administration pages
-    Game.settings({
+    Player.settings({
         'someSetting': 'some value'
     }, function(err, settings) {
         //you now have the settings object
@@ -38,15 +38,15 @@ Game.register(function(app, auth, database) {
 
     // Another save settings example this time with no callback
     // This writes over the last settings.
-    Game.settings({
+    Player.settings({
         'anotherSettings': 'some value'
     });
 
     // Get settings. Retrieves latest saved settigns
-    Game.settings(function(err, settings) {
+    Player.settings(function(err, settings) {
         //you now have the settings object
     });
     */
 
-  return Game;
+  return Player;
 });
