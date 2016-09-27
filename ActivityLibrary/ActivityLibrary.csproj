@@ -46,7 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoinToss.cs" />
+    <Compile Include="PenaltyCheck.cs" />
     <Compile Include="PreGame.cs" />
+    <Compile Include="PrePlay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

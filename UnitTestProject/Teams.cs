@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using DomainObjects;
 using Newtonsoft.Json;
 
@@ -15,19 +11,6 @@ namespace UnitTestProject
 
         public Teams()
         {
-//            string json = @"{
-            //  'Name': 'Bad Boys',
-            //  'ReleaseDate': '1995-4-7T00:00:00',
-            //  'Genres': [
-            //    'Action',
-            //    'Comedy'
-            //  ]
-            //}";
-//
-//            Movie m = JsonConvert.DeserializeObject<Movie>(json);
-//
-//            string name = m.Name;
-
             string homeJson =
                 @"[{'number':23,'lastName':'Alford ','firstName':'Robert','position':'CB','height':'5-10','weight':186,'age':27,'exp':'4','college':'Southeastern Louisiana'},
                     { 'number':37,'lastName':'Allen ','firstName':'Ricardo','position':'S','height':'5-9','weight':186,'age':24,'exp':'2','college':'Purdue'},

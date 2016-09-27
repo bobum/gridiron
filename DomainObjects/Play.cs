@@ -13,5 +13,8 @@ namespace DomainObjects
 
         public int StartTime { get; set; }
         public int StopTime { get; set; }
+
+        public PlayType PlayType { get; set; }
+        public Penalty Penalty { get; set; }
     }
 }

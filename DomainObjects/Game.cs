@@ -10,6 +10,7 @@ namespace DomainObjects
     {
         public Team HomeTeam { get; set; }
         public Team AwayTeam { get; set; }
+        public Play CurrentPlay { get; set; }
 
         public List<Play> Plays { get; set; }
 
@@ -20,6 +21,13 @@ namespace DomainObjects
         {
             TimeRemaining = 3600;
             Posession = Posession.Home;
+            CurrentPlay = new Play
+            {
+                Down = Downs.None,
+                StartTime = 0,
+                PlayType = PlayType.Kickoff
+                
+            };
         }
     }
 
@@ -63,5 +71,14 @@ namespace DomainObjects
     {
         Home,
         Away
+    }
+
+    public enum PlayType
+    {
+        Kickoff,
+        FieldGoal,
+        Punt,
+        Pass,
+        Run
     }
 }

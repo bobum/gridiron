@@ -26,6 +26,7 @@ namespace UnitTestProject
             Assert.AreEqual(53, game.AwayTeam.Players.Count);
             Assert.AreEqual(3600, game.TimeRemaining);
             Assert.AreEqual(Posession.Home, game.Posession);
+            Assert.IsNull(game.CurrentPlay.Penalty);
         }
 
         [TestMethod]
@@ -45,7 +46,6 @@ namespace UnitTestProject
             };
 
             Game game = WorkflowInvoker.Invoke<Game>(act);
-            Console.WriteLine(game.Posession);
             Assert.IsInstanceOfType(game.Posession, typeof(Posession));
         }
 
@@ -64,6 +64,32 @@ namespace UnitTestProject
 
             var nextDouble = rng.NextDouble();
             Assert.IsInstanceOfType(nextDouble, typeof(Double));
+        }
+
+        [TestMethod]
+        public void ItHasPenalties()
+        {
+            Assert.IsTrue(Penalties.List.Count > 0);
+        }
+
+        [TestMethod]
+        public void ItDoesAPenaltyCheck()
+        {
+            var teams = new Teams();
+
+            Game newGame = new Game()
+            {
+                HomeTeam = teams.HomeTeam,
+                AwayTeam = teams.VisitorTeam
+            };
+
+            var act = new PenaltyCheck()
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+
+            Game game = WorkflowInvoker.Invoke<Game>(act);
+            Assert.IsNotNull(game.CurrentPlay.Penalty);
         }
     }
 }
