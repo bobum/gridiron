@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Activities;
 using DomainObjects;
 
@@ -16,6 +14,8 @@ namespace ActivityLibrary
             var game = Game.Get(context);
 
             //later we will wire in a real penalty check and allow for offsetting penalties,
+            //all penalties that are appropriate for the type of play,
+            //penalties that stop the play (like false start)
             //declined penalties etc, multiple penalties etc...
             //for now - if we already have a penalty, skip it...
             if (game.CurrentPlay.Penalty == null ||
@@ -23,6 +23,8 @@ namespace ActivityLibrary
             {
                 CryptoRandom rng = new CryptoRandom();
                 var didItHappen = rng.NextDouble();
+                var homeAway = rng.NextDouble();
+                Console.WriteLine(homeAway);
                 var havePenalty = false;
 
                 switch (game.CurrentPlay.PlayType)
@@ -83,6 +85,13 @@ namespace ActivityLibrary
                 {
                     game.CurrentPlay.Penalty = Penalties.List.Single(p =>
                             p.Name == PenaltyNames.NoPenalty);
+                }
+                else
+                {
+                    game.CurrentPlay.Penalty.CalledOn = 
+                        homeAway <= game.CurrentPlay.Penalty.AwayOdds ? 
+                        Posession.Away : Posession.Home;
+                    Console.WriteLine(game.CurrentPlay.Penalty.CalledOn);
                 }
             }
 
