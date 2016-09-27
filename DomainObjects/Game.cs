@@ -14,10 +14,12 @@ namespace DomainObjects
         public List<Play> Plays { get; set; }
 
         public int TimeRemaining { get; set; }
+        public Posession Posession { get; set; }
 
         public Game()
         {
             TimeRemaining = 3600;
+            Posession = Posession.Home;
         }
     }
 
@@ -55,5 +57,11 @@ namespace DomainObjects
         Third,
         Fourth,
         None
+    }
+
+    public enum Posession
+    {
+        Home,
+        Away
     }
 }
