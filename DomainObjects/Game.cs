@@ -23,24 +23,29 @@ namespace DomainObjects
 
     public enum Positions
     {
-        Quarterback,
-        Center,
-        OffensiveRightGuard,
-        OffensiveLeftGuard,
-        OffensiveRightTackle,
-        OffensiveLeftTackle,
-        TightEnd,
-        WideReceiver,
-        RunningBack,        
-        DefensiveLeftTackle,
-        DefensiveRightTackle,
-        DefensiveLeftEnd,
-        DefenseiveRightEnd,
-        MiddleLinebacker,
-        LeftOutsideLinebacker,
-        RightOutsideLinebacker,
-        Cornerback,
-        Safety
+        QB,//Quarterback,
+        C,//Center,
+        G,//OffensiveRightGuard,
+        //OffensiveLeftGuard,
+        T,//OffensiveRightTackle,
+        //OffensiveLeftTackle,
+        TE,//TightEnd,
+        WR,//WideReceiver,
+        RB,//RunningBack,        
+        DT,//DefensiveLeftTackle,
+        //DefensiveRightTackle,
+        DE,//DefensiveLeftEnd,
+        //DefenseiveRightEnd,
+        LB,//MiddleLinebacker,
+        OLB,//LeftOutsideLinebacker,
+        //RightOutsideLinebacker,
+        CB,//Cornerback,
+        S,//Safety
+        K,//Kicker,
+        P,//Punter,
+        FB,//Fullback,
+        FS,//FreeSafety,
+        LS,//LongSnapper
     }
 
     public enum Downs

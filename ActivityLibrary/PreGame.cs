@@ -20,9 +20,11 @@ namespace ActivityLibrary
         protected override Game Execute(CodeActivityContext context)
         {
             // Obtain the runtime value of the Text input argument
-            var game = new Game();
-            game.AwayTeam = AwayTeam.Get(context);
-            game.HomeTeam = HomeTeam.Get(context);
+            var game = new Game
+            {
+                AwayTeam = AwayTeam.Get(context),
+                HomeTeam = HomeTeam.Get(context)
+            };
             return game;
         }
     }
