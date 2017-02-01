@@ -60,13 +60,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <XamlAppDef Include="GameFlow.xaml">
+    <XamlAppDef Include="Flows\GameFlow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </XamlAppDef>
   </ItemGroup>
   <ItemGroup>
-    <XamlAppDef Include="PlayFlow.xaml">
+    <XamlAppDef Include="Flows\PlayFlow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </XamlAppDef>
