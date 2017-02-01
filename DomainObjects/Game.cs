@@ -20,7 +20,7 @@ namespace DomainObjects
         public Game()
         {
             TimeRemaining = 3600;
-            Posession = Posession.Home;
+            Posession = Posession.None;
             CurrentPlay = new Play
             {
                 Down = Downs.None,
@@ -70,7 +70,8 @@ namespace DomainObjects
     public enum Posession
     {
         Home,
-        Away
+        Away,
+        None
     }
 
     public enum PlayType

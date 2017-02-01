@@ -80,10 +80,22 @@
             </local:CoinToss.Result>
           </local:CoinToss>
         </Sequence>
+        <FlowStep.Next>
+          <FlowStep x:Name="__ReferenceID1" sap2010:WorkflowViewState.IdRef="FlowStep_2">
+            <local:PlayFlow sap2010:WorkflowViewState.IdRef="PlayFlow_1">
+              <local:PlayFlow.Game>
+                <InOutArgument x:TypeArguments="d:Game">
+                  <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                </InOutArgument>
+              </local:PlayFlow.Game>
+            </local:PlayFlow>
+          </FlowStep>
+        </FlowStep.Next>
       </FlowStep>
     </Flowchart.StartNode>
     <x:Reference>__ReferenceID0</x:Reference>
-    <sads:DebugSymbol.Symbol>dzJDOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcR2FtZUZsb3cueGFtbAkxA1cPAgEBNAlSFAIBAjULRRsCAQxGC1EcAgEDPRE9VQIBFTgROFUCARFCEUJZAgENThFOWQIBCEkRSVECAQQ=</sads:DebugSymbol.Symbol>
+    <x:Reference>__ReferenceID1</x:Reference>
+    <sads:DebugSymbol.Symbol>dzJDOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcR2FtZUZsb3cueGFtbAsxA2MPAgEBNAlSFAIBB1UNWx4CAQI1C0UbAgERRgtRHAIBCFgTWFsCAQM9ET1VAgEaOBE4VQIBFkIRQlkCARJOEU5ZAgENSRFJUQIBCQ==</sads:DebugSymbol.Symbol>
   </Flowchart>
   <sap2010:WorkflowViewState.ViewStateManager>
     <sap2010:ViewStateManager>
@@ -96,11 +108,27 @@
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="PlayFlow_1" sap:VirtualizedContainerService.HintSize="200,22">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="FlowStep_2">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <av:Point x:Key="ShapeLocation">200,229</av:Point>
+            <av:Size x:Key="ShapeSize">200,22</av:Size>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
       <sap2010:ViewStateData Id="FlowStep_1">
         <sap:WorkflowViewStateService.ViewState>
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
             <av:Point x:Key="ShapeLocation">200,133.666666666667</av:Point>
             <av:Size x:Key="ShapeSize">200,52.6666666666667</av:Size>
+            <av:PointCollection x:Key="ConnectorLocation">300,186.333333333334 300,229</av:PointCollection>
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
