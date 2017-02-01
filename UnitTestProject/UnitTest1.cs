@@ -3,6 +3,7 @@ using System.Activities;
 using ActivityLibrary;
 using DomainObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace UnitTestProject
 {
@@ -90,6 +91,20 @@ namespace UnitTestProject
 
             Game game = WorkflowInvoker.Invoke<Game>(act);
             Assert.IsNotNull(game.CurrentPlay.Penalty);
+        }
+
+        [TestMethod]
+        public void GameFlowDoesCoinToss()
+        {
+            var teams = new Teams();
+
+            var result = WorkflowInvoker.Invoke(new GameFlow(),
+                new Dictionary<string, object>
+                { {"HomeTeam", teams.HomeTeam },
+                    {"AwayTeam", teams.VisitorTeam }
+                });
+            var game = result["Game"] as Game;
+            Assert.IsInstanceOfType(game.Posession, typeof(Posession));
         }
     }
 }

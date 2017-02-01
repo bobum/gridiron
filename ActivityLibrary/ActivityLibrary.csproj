@@ -47,6 +47,8 @@
   <ItemGroup>
     <Compile Include="CoinToss.cs" />
     <Compile Include="PenaltyCheck.cs" />
+    <Compile Include="Play.cs" />
+    <Compile Include="PostPlaycs.cs" />
     <Compile Include="PreGame.cs" />
     <Compile Include="PrePlay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,6 +58,12 @@
       <Project>{14763801-2e98-48ef-8bf7-e819decce4f6}</Project>
       <Name>DomainObjects</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <XamlAppDef Include="GameFlow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </XamlAppDef>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
