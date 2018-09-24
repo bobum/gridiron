@@ -25,8 +25,8 @@ namespace DomainObjects
             {
                 Down = Downs.None,
                 StartTime = 0,
-                PlayType = PlayType.Kickoff
-                
+                PlayType = PlayType.Kickoff,
+                PossessionChange = false                
             };
         }
     }

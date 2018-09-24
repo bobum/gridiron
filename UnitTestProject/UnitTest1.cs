@@ -41,13 +41,34 @@ namespace UnitTestProject
                 AwayTeam = teams.VisitorTeam
             };
 
-            var act = new CoinToss
+            var activity = new CoinToss
             {
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            Game game = WorkflowInvoker.Invoke<Game>(act);
+            Game game = WorkflowInvoker.Invoke<Game>(activity);
             Assert.IsInstanceOfType(game.Posession, typeof(Posession));
+        }
+
+        [TestMethod]
+        public void FumbleChangesPosession()
+        {
+            var teams = new Teams();
+
+            Game newGame = new Game()
+            {
+                HomeTeam = teams.HomeTeam,
+                AwayTeam = teams.VisitorTeam
+            };
+
+            var activity = new Fumble
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+
+            Game game = WorkflowInvoker.Invoke<Game>(activity);
+            Assert.IsTrue(game.Posession != Posession.None);
+            Assert.IsTrue(game.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
