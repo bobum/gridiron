@@ -72,6 +72,27 @@ namespace UnitTestProject
         }
 
         [TestMethod]
+        public void InterceptionChangesPosession()
+        {
+            var teams = new Teams();
+
+            Game newGame = new Game()
+            {
+                HomeTeam = teams.HomeTeam,
+                AwayTeam = teams.VisitorTeam
+            };
+
+            var activity = new Interception
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+
+            Game game = WorkflowInvoker.Invoke<Game>(activity);
+            Assert.IsTrue(game.Posession != Posession.None);
+            Assert.IsTrue(game.CurrentPlay.PossessionChange);
+        }
+
+        [TestMethod]
         public void ItMakesARandomNumber()
         {
             CryptoRandom rng = new CryptoRandom();
