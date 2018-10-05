@@ -13,6 +13,9 @@ namespace ActivityLibrary
             //inside here we will do things like check for injuries
             var game = Game.Get(context);
 
+            //add the currnet play to the plays list
+            game.Plays.Add(game.CurrentPlay);
+
             return game;
         }
     }

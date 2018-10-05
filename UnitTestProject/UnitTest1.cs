@@ -3,7 +3,7 @@ using System.Activities;
 using ActivityLibrary;
 using DomainObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+
 
 namespace UnitTestProject
 {
@@ -11,7 +11,7 @@ namespace UnitTestProject
     public class UnitTest1
     {
         [TestMethod]
-        public void ItMakesAGame()
+        public void Activity_PreGameMakesAGame()
         {
             var teams = new Teams();
 
@@ -27,11 +27,11 @@ namespace UnitTestProject
             Assert.AreEqual(53, game.AwayTeam.Players.Count);
             Assert.AreEqual(3600, game.TimeRemaining);
             Assert.AreEqual(Posession.None, game.Posession);
-            Assert.IsNull(game.CurrentPlay.Penalty);
+            Assert.IsNull(game.CurrentPlay);
         }
 
         [TestMethod]
-        public void ItDoesTheCoinTossAndChangesPosession()
+        public void Activity_CoinTossDoesTheCoinTossAndChangesPosession()
         {
             var teams = new Teams();
 
@@ -46,33 +46,43 @@ namespace UnitTestProject
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            Game game = WorkflowInvoker.Invoke<Game>(activity);
-            Assert.IsInstanceOfType(game.Posession, typeof(Posession));
+            WorkflowInvoker.Invoke<Game>(activity);
+            Assert.IsInstanceOfType(newGame.Posession, typeof(Posession));
+            Assert.AreNotEqual(newGame.Posession, DomainObjects.Posession.None);
         }
 
         [TestMethod]
-        public void FumbleChangesPosession()
+        public void Activity_FumbleChangesPosession()
         {
-            var teams = new Teams();
-
-            Game newGame = new Game()
-            {
-                HomeTeam = teams.HomeTeam,
-                AwayTeam = teams.VisitorTeam
-            };
+            Game newGame = GetNewGame();
 
             var activity = new Fumble
             {
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            Game game = WorkflowInvoker.Invoke<Game>(activity);
-            Assert.IsTrue(game.Posession != Posession.None);
-            Assert.IsTrue(game.CurrentPlay.PossessionChange);
+            WorkflowInvoker.Invoke(activity);
+            Assert.IsTrue(newGame.Posession != Posession.None);
+            Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
-        public void InterceptionChangesPosession()
+        public void Activity_InterceptionChangesPosession()
+        {
+            Game newGame = GetNewGame();
+
+            var activity = new Interception
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+
+            WorkflowInvoker.Invoke<Game>(activity);
+            Assert.IsTrue(newGame.Posession != Posession.None);
+            Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
+        }
+
+        [TestMethod]
+        public void Activity_PrePlaySetsFirstPlayToKickoffChangesPosession()
         {
             var teams = new Teams();
 
@@ -82,18 +92,37 @@ namespace UnitTestProject
                 AwayTeam = teams.VisitorTeam
             };
 
-            var activity = new Interception
+            var activity = new PrePlay
             {
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            Game game = WorkflowInvoker.Invoke<Game>(activity);
-            Assert.IsTrue(game.Posession != Posession.None);
-            Assert.IsTrue(game.CurrentPlay.PossessionChange);
+            WorkflowInvoker.Invoke<Game>(activity);
+            Assert.AreEqual(newGame.CurrentPlay.PlayType, PlayType.Kickoff);
         }
 
         [TestMethod]
-        public void ItMakesARandomNumber()
+        public void Activity_PrePlayHasNoPlaysOnKickoffChangesPosession()
+        {
+            var teams = new Teams();
+
+            Game newGame = new Game()
+            {
+                HomeTeam = teams.HomeTeam,
+                AwayTeam = teams.VisitorTeam
+            };
+
+            var activity = new PrePlay
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+
+            WorkflowInvoker.Invoke<Game>(activity);
+            Assert.AreEqual(newGame.Plays.Count, 0);
+        }
+
+        [TestMethod]
+        public void DomainObject_GeneratorMakesARandomNumber()
         {
             CryptoRandom rng = new CryptoRandom();
             var nextInt = rng.Next();
@@ -110,47 +139,26 @@ namespace UnitTestProject
         }
 
         [TestMethod]
-        public void ItHasPenalties()
+        public void DomainObject_PenaltiesHasPenalties()
         {
             Assert.IsTrue(Penalties.List.Count > 0);
         }
 
         [TestMethod]
-        public void ItDoesAPenaltyCheck()
+        public void Activity_PenaltyCheckDoesAPenaltyCheck()
         {
-            var teams = new Teams();
-
-            Game newGame = new Game()
-            {
-                HomeTeam = teams.HomeTeam,
-                AwayTeam = teams.VisitorTeam
-            };
+            Game newGame = GetNewGame();
 
             var act = new PenaltyCheck()
             {
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            Game game = WorkflowInvoker.Invoke<Game>(act);
-            Assert.IsNotNull(game.CurrentPlay.Penalty);
+            WorkflowInvoker.Invoke<Game>(act);
+            Assert.IsNotNull(newGame.CurrentPlay.Penalty);
         }
 
-        [TestMethod]
-        public void GameFlowDoesCoinToss()
-        {
-            var teams = new Teams();
-
-            var result = WorkflowInvoker.Invoke(new GameFlow(),
-                new Dictionary<string, object>
-                { {"HomeTeam", teams.HomeTeam },
-                    {"AwayTeam", teams.VisitorTeam }
-                });
-            var game = result["Game"] as Game;
-            Assert.IsTrue(game.Posession != Posession.None);
-        }
-
-        [TestMethod]
-        public void PlayFlowPerformsPenaltyCheck()
+        public Game GetNewGame()
         {
             var teams = new Teams();
 
@@ -160,12 +168,12 @@ namespace UnitTestProject
                 AwayTeam = teams.VisitorTeam
             };
 
-            var result = WorkflowInvoker.Invoke(new PlayFlow(),
-                new Dictionary<string, object> {
-                    { "Game", newGame }
-                });
-            var game = result["Game"] as Game;
-            Assert.IsNotNull(game.CurrentPlay.Penalty);
+            var prePlayActivity = new PrePlay
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+            
+            return WorkflowInvoker.Invoke<Game>(prePlayActivity);
         }
     }
 }

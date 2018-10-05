@@ -12,22 +12,18 @@ namespace DomainObjects
         public Team AwayTeam { get; set; }
         public Play CurrentPlay { get; set; }
 
-        public List<Play> Plays { get; set; }
+        public List<Play> Plays { get; set; } = new List<Play>();
 
         public int TimeRemaining { get; set; }
         public Posession Posession { get; set; }
 
+        //a game is created with 3600 seconds to go, 
+        //and the first type of play is a kickoff
         public Game()
         {
             TimeRemaining = 3600;
             Posession = Posession.None;
-            CurrentPlay = new Play
-            {
-                Down = Downs.None,
-                StartTime = 0,
-                PlayType = PlayType.Kickoff,
-                PossessionChange = false                
-            };
+
         }
     }
 
