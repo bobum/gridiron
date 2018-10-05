@@ -10,6 +10,7 @@ namespace DomainObjects
         //public float HomeOdds { get; set; }
         public float AwayOdds { get; set; }
         public Posession CalledOn { get; set; }
+        public PenaltyOccured Occured { get; set; }
     }
 
     public static class Penalties
@@ -77,6 +78,7 @@ namespace DomainObjects
 
     public enum PenaltyNames
     {
+        NoPenalty,
         OffensiveHolding,
         FalseStart,
         DefensivePassInterference,
@@ -126,7 +128,13 @@ namespace DomainObjects
         InvalidFairCatchSignal,
         Disqualification,
         InterferencewithOpportunitytoCatch,
-        Leverage,
-        NoPenalty
+        Leverage
+    }
+
+    public enum PenaltyOccured
+    {
+        Before,
+        During,
+        After
     }
 }

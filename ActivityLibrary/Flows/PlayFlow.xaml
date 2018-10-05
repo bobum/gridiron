@@ -67,6 +67,11 @@
                   <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
                 </InArgument>
               </local:PenaltyCheck.Game>
+              <local:PenaltyCheck.Occured>
+                <InArgument x:TypeArguments="d:PenaltyOccured">
+                  <mca:CSharpValue x:TypeArguments="d:PenaltyOccured">PenaltyOccured.Before</mca:CSharpValue>
+                </InArgument>
+              </local:PenaltyCheck.Occured>
               <local:PenaltyCheck.Result>
                 <OutArgument x:TypeArguments="d:Game">
                   <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
@@ -88,19 +93,23 @@
                   </local:Play.Result>
                 </local:Play>
                 <FlowStep.Next>
-                  <FlowStep x:Name="__ReferenceID4">
-                    <local:PenaltyCheck>
+                  <FlowStep x:Name="__ReferenceID4" sap2010:WorkflowViewState.IdRef="FlowStep_5">
+                    <local:PenaltyCheck sap2010:WorkflowViewState.IdRef="PenaltyCheck_2">
                       <local:PenaltyCheck.Game>
                         <InArgument x:TypeArguments="d:Game">
                           <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
                         </InArgument>
                       </local:PenaltyCheck.Game>
+                      <local:PenaltyCheck.Occured>
+                        <InArgument x:TypeArguments="d:PenaltyOccured">
+                          <mca:CSharpValue x:TypeArguments="d:PenaltyOccured">PenaltyOccured.After</mca:CSharpValue>
+                        </InArgument>
+                      </local:PenaltyCheck.Occured>
                       <local:PenaltyCheck.Result>
                         <OutArgument x:TypeArguments="d:Game">
                           <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
                         </OutArgument>
                       </local:PenaltyCheck.Result>
-                      <sap2010:WorkflowViewState.IdRef>PenaltyCheck_2</sap2010:WorkflowViewState.IdRef>
                     </local:PenaltyCheck>
                     <FlowStep.Next>
                       <FlowStep x:Name="__ReferenceID3" sap2010:WorkflowViewState.IdRef="FlowStep_4">
@@ -118,7 +127,6 @@
                         </local:PostPlay>
                       </FlowStep>
                     </FlowStep.Next>
-                    <sap2010:WorkflowViewState.IdRef>FlowStep_5</sap2010:WorkflowViewState.IdRef>
                   </FlowStep>
                 </FlowStep.Next>
               </FlowStep>
@@ -132,7 +140,7 @@
     <x:Reference>__ReferenceID2</x:Reference>
     <x:Reference>__ReferenceID3</x:Reference>
     <x:Reference>__ReferenceID4</x:Reference>
-    <sads:DebugSymbol.Symbol>dzhEOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcRmxvd3NcUGxheUZsb3cueGFtbBAvA4gBDwIBATIJPRkCARZADUsiAgERThFZHgIBDFwVaCoCAQdrGXYqAgECOg86VwIBGTUPNU8CARdIE0hbAgEUQxNDUwIBElYXVl8CAQ9RF1FXAgENZBtkYwIBCl8bX1sCAQhzH3NnAgEFbh9uXwIBAw==</sads:DebugSymbol.Symbol>
+    <sads:DebugSymbol.Symbol>dzhEOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcRmxvd3NcUGxheUZsb3cueGFtbBIvA5ABDwIBATIJPRkCARpADVAiAgETUxFeHgIBDmEVcSoCAQd0GX8qAgECOg86VwIBHTUPNU8CARtIE0huAgEYTRNNWwIBFkMTQ1MCARRbF1tfAgERVhdWVwIBD2kbaXUCAQxuG25jAgEKZBtkWwIBCHwffGcCAQV3H3dfAgED</sads:DebugSymbol.Symbol>
   </Flowchart>
   <sap2010:WorkflowViewState.ViewStateManager>
     <sap2010:ViewStateManager>

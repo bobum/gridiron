@@ -65,9 +65,9 @@ namespace DomainObjects
 
     public enum Posession
     {
+        None,
         Home,
-        Away,
-        None
+        Away
     }
 
     public enum PlayType
