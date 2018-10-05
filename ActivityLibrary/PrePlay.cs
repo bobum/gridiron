@@ -14,19 +14,18 @@ namespace ActivityLibrary
             //substitute players for the new play,
             //substitute for players that have been injured in the post play
             var game = Game.Get(context);
+            var currentPlay = new DomainObjects.Play();
 
             //if there are 0 plays - we have a new game
             if (game.Plays.Count == 0)
             {
-                game.CurrentPlay = new DomainObjects.Play()
-                {
-                    Down = Downs.None,
-                    StartTime = 0,
-                    PlayType = PlayType.Kickoff,
-                    PossessionChange = false
-                };
+                currentPlay.Down = Downs.None;
+                currentPlay.StartTime = 0;
+                currentPlay.PlayType = PlayType.Kickoff;
+                currentPlay.PossessionChange = false;
             }
 
+            game.CurrentPlay = currentPlay;
             return game;
         }
     }
