@@ -23,6 +23,22 @@ namespace ActivityLibrary
                 currentPlay.StartTime = 0;
                 currentPlay.PlayType = PlayType.Kickoff;
                 currentPlay.PossessionChange = false;
+            } else
+            {
+                CryptoRandom rng = new CryptoRandom();
+                var whatKindofPlay = rng.NextDouble();
+
+                //for now - a 50/50 shot of run or pass
+                if (whatKindofPlay <= 0.5)
+                {
+                    //run
+                    currentPlay.PlayType = PlayType.Run;
+                }
+                else
+                {
+                    //pass
+                    currentPlay.PlayType = PlayType.Pass;
+                }
             }
 
             game.CurrentPlay = currentPlay;

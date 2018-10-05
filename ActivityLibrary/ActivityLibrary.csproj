@@ -49,7 +49,12 @@
     <Compile Include="Fumble.cs" />
     <Compile Include="Interception.cs" />
     <Compile Include="PenaltyCheck.cs" />
-    <Compile Include="Play.cs" />
+    <Compile Include="Snap.cs" />
+    <Compile Include="Plays\FieldGoal.cs" />
+    <Compile Include="Plays\Kickoff.cs" />
+    <Compile Include="Plays\Pass.cs" />
+    <Compile Include="Plays\Punt.cs" />
+    <Compile Include="Plays\Run.cs" />
     <Compile Include="PostPlaycs.cs" />
     <Compile Include="PreGame.cs" />
     <Compile Include="PrePlay.cs" />

@@ -23,7 +23,6 @@ namespace ActivityLibrary
             CryptoRandom rng = new CryptoRandom();
             var didItHappen = rng.NextDouble();
             var homeAway = rng.NextDouble();
-            Console.WriteLine(homeAway);
             var havePenalty = false;
             var currentPenalty = new DomainObjects.Penalty() { Occured = occurred };
 
@@ -86,7 +85,6 @@ namespace ActivityLibrary
                 currentPenalty.CalledOn =
                     homeAway <= currentPenalty.AwayOdds ?
                     Posession.Away : Posession.Home;
-                Console.WriteLine(currentPenalty.CalledOn);
                 game.CurrentPlay.Penalties.Add(currentPenalty);
             }
 

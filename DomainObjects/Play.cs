@@ -11,6 +11,8 @@ namespace DomainObjects
         public string Result { get; set; }
         public Downs Down { get; set; }
 
+        public bool GoodSnap { get; set; }
+
         public bool PossessionChange { get; set; }
 
         public int StartTime { get; set; }
