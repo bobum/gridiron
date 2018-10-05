@@ -17,6 +17,6 @@ namespace DomainObjects
         public int StopTime { get; set; }
 
         public PlayType PlayType { get; set; }
-        public Penalty Penalty { get; set; }
+        public List<Penalty> Penalties { get; set; } = new List<Penalty>();
     }
 }

@@ -54,6 +54,7 @@
     <Compile Include="PreGame.cs" />
     <Compile Include="PrePlay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScoreCheck.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DomainObjects\DomainObjects.csproj">

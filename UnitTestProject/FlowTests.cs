@@ -54,7 +54,7 @@ namespace UnitTestProject
                     { "Game", newGame }
                 });
             var game = result["Game"] as Game;
-            Assert.IsNotNull(game.CurrentPlay.Penalty);
+            Assert.IsNotNull(game.CurrentPlay.Penalties);
         }
     }
 }

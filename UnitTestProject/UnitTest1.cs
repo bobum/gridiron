@@ -155,7 +155,7 @@ namespace UnitTestProject
             };
 
             WorkflowInvoker.Invoke<Game>(act);
-            Assert.IsNotNull(newGame.CurrentPlay.Penalty);
+            Assert.IsNotNull(newGame.CurrentPlay.Penalties);
         }
 
         public Game GetNewGame()

@@ -18,14 +18,14 @@ namespace ActivityLibrary
             //penalties that stop the play (like false start)
             //declined penalties etc, multiple penalties etc...
             //for now - if we already have a penalty, skip it...
-            if (game.CurrentPlay.Penalty == null ||
-                game.CurrentPlay.Penalty.Name == PenaltyNames.NoPenalty)
+            if (game.CurrentPlay.Penalties.Count == 0)
             {
                 CryptoRandom rng = new CryptoRandom();
                 var didItHappen = rng.NextDouble();
                 var homeAway = rng.NextDouble();
                 Console.WriteLine(homeAway);
                 var havePenalty = false;
+                var currentPenalty = new DomainObjects.Penalty();
 
                 switch (game.CurrentPlay.PlayType)
                 {
@@ -34,7 +34,7 @@ namespace ActivityLibrary
                             Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.IllegalBlockAbovetheWaist).Odds)
                         {
-                            game.CurrentPlay.Penalty = Penalties.List.Single(p =>
+                            currentPenalty = Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.IllegalBlockAbovetheWaist);
                             havePenalty = true;
                         }
@@ -44,7 +44,7 @@ namespace ActivityLibrary
                             Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.RoughingtheKicker).Odds)
                         {
-                            game.CurrentPlay.Penalty = Penalties.List.Single(p =>
+                            currentPenalty = Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.RoughingtheKicker);
                             havePenalty = true;
                         }
@@ -54,7 +54,7 @@ namespace ActivityLibrary
                             Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.OffensiveHolding).Odds)
                         {
-                            game.CurrentPlay.Penalty = Penalties.List.Single(p =>
+                            currentPenalty = Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.OffensiveHolding);
                             havePenalty = true;
                         }
@@ -64,7 +64,7 @@ namespace ActivityLibrary
                             Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.RoughingtheKicker).Odds)
                         {
-                            game.CurrentPlay.Penalty = Penalties.List.Single(p =>
+                            currentPenalty = Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.RoughingtheKicker);
                             havePenalty = true;
                         }
@@ -74,7 +74,7 @@ namespace ActivityLibrary
                             Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.OffensiveHolding).Odds)
                         {
-                            game.CurrentPlay.Penalty = Penalties.List.Single(p =>
+                            currentPenalty = Penalties.List.Single(p =>
                                     p.Name == PenaltyNames.OffensiveHolding);
                             havePenalty = true;
                         }
@@ -83,16 +83,18 @@ namespace ActivityLibrary
 
                 if (!havePenalty)
                 {
-                    game.CurrentPlay.Penalty = Penalties.List.Single(p =>
+                    currentPenalty = Penalties.List.Single(p =>
                             p.Name == PenaltyNames.NoPenalty);
                 }
                 else
                 {
-                    game.CurrentPlay.Penalty.CalledOn = 
-                        homeAway <= game.CurrentPlay.Penalty.AwayOdds ? 
+                    currentPenalty.CalledOn = 
+                        homeAway <= currentPenalty.AwayOdds ? 
                         Posession.Away : Posession.Home;
-                    Console.WriteLine(game.CurrentPlay.Penalty.CalledOn);
+                    Console.WriteLine(currentPenalty.CalledOn);
                 }
+
+                game.CurrentPlay.Penalties.Add(currentPenalty);
             }
 
             return game;
