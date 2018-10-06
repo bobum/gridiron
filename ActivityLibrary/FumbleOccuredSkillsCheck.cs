@@ -19,10 +19,6 @@ namespace ActivityLibrary
 
             //was there a fumble? Totally random for now...
             var fumble = rng.Next(2);
-            if (fumble == 1)
-            {
-                
-            }
 
             return fumble == 1;
         }

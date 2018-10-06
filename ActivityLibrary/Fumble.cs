@@ -35,7 +35,6 @@ namespace ActivityLibrary
                 game.CurrentPlay.Result.Add(string.Format("{0} keeps possesion", game.Posession));
             }
 
-
             return game;
         }
     }
