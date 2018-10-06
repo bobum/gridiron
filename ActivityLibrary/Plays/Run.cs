@@ -16,6 +16,8 @@ namespace ActivityLibrary.Plays
         {
             var game = Game.Get(context);
 
+            game.CurrentPlay.ElapsedTime += 6.5;
+
             return game;
         }
     }

@@ -14,6 +14,10 @@ namespace ActivityLibrary.Plays
         {
             var game = Game.Get(context);
 
+            //need to determine if this is an extra point or a field goal attempt
+            //to assign time correctly...
+            game.CurrentPlay.ElapsedTime += 1.5;
+
             return game;
         }
     }

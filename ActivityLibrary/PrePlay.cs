@@ -10,6 +10,7 @@ namespace ActivityLibrary
 
         protected override Game Execute(CodeActivityContext context)
         {
+            //consider this class, the huddle
             //inside here we will do things like decide the next play,
             //substitute players for the new play,
             //substitute for players that have been injured in the post play
@@ -23,6 +24,7 @@ namespace ActivityLibrary
                 currentPlay.StartTime = 0;
                 currentPlay.PlayType = PlayType.Kickoff;
                 currentPlay.PossessionChange = false;
+                currentPlay.Result.Add("Players are lined up for the kickoff");
             } else
             {
                 CryptoRandom rng = new CryptoRandom();
@@ -33,11 +35,15 @@ namespace ActivityLibrary
                 {
                     //run
                     currentPlay.PlayType = PlayType.Run;
+                    currentPlay.ElapsedTime += 1.5;
+                    currentPlay.Result.Add("The big package is in, looks like a run formation");
                 }
                 else
                 {
                     //pass
                     currentPlay.PlayType = PlayType.Pass;
+                    currentPlay.ElapsedTime += 1.5;
+                    currentPlay.Result.Add("Recievers are spread wide, could be a passing down");
                 }
             }
 

@@ -16,6 +16,7 @@ namespace ActivityLibrary
             var didItHappen = rng.NextDouble();
 
             game.CurrentPlay.GoodSnap = didItHappen <= .01 ? false : true;
+            game.CurrentPlay.ElapsedTime += didItHappen <= .01 ? 0.2 : 0.5;
 
             return game;
         }

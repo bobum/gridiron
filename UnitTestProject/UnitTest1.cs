@@ -63,7 +63,7 @@ namespace UnitTestProject
 
             WorkflowInvoker.Invoke(activity);
             Assert.IsTrue(newGame.Posession != Posession.None);
-            Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
+            //Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]

@@ -11,7 +11,11 @@ namespace ActivityLibrary
         protected override Game Execute(CodeActivityContext context)
         {
             //inside here we will do things like check for injuries
+            //deterine if it's a hurry up offense or if they are trying to
+            //kill the clock and add time appropriately
             var game = Game.Get(context);
+
+            game.CurrentPlay.ElapsedTime += 8.0;
 
             //add the currnet play to the plays list
             game.Plays.Add(game.CurrentPlay);

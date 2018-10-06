@@ -8,7 +8,7 @@ namespace DomainObjects
 {
     public class Play
     {
-        public string Result { get; set; }
+        public List<string> Result { get; set; } = new List<string>();
         public Downs Down { get; set; }
 
         public bool GoodSnap { get; set; }
@@ -20,5 +20,7 @@ namespace DomainObjects
 
         public PlayType PlayType { get; set; }
         public List<Penalty> Penalties { get; set; } = new List<Penalty>();
+
+        public Double ElapsedTime { get; set; } = 0.0;
     }
 }
