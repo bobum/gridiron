@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainObjects", "DomainObjects\DomainObjects.csproj", "{14763801-2E98-48EF-8BF7-E819DECCE4F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityLibrary", "ActivityLibrary\ActivityLibrary.csproj", "{082396A9-B8C7-4E1F-9B94-AE97524532B7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject", "UnitTestProject\UnitTestProject.csproj", "{2C74BE0B-D9B8-47BC-8FB2-A2E0403CA127}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6579C18-0875-4E83-A92C-9D914FAEA822}"
+	ProjectSection(SolutionItems) = preProject
+		states.png = states.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
