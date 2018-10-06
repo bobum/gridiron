@@ -55,15 +55,17 @@ namespace UnitTestProject
         public void Activity_FumbleChangesPosession()
         {
             Game newGame = GetNewGame();
+            newGame.Posession = Posession.Home;
 
             var activity = new Fumble
             {
-                Game = new InArgument<Game>((ctx) => newGame)
+                Game = new InArgument<Game>((ctx) => newGame),
+                CurrentPosession = new InArgument<Posession>((ctx) => Posession.Away)
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.IsTrue(newGame.Posession != Posession.None);
-            //Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
+            Assert.AreNotEqual(newGame.Posession, Posession.Home);
+            Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]

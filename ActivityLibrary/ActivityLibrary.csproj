@@ -47,6 +47,8 @@
   <ItemGroup>
     <Compile Include="CoinToss.cs" />
     <Compile Include="Fumble.cs" />
+    <Compile Include="FumblePossesionSkillsCheck.cs" />
+    <Compile Include="FumbleOccuredSkillsCheck.cs" />
     <Compile Include="Interception.cs" />
     <Compile Include="PenaltyCheck.cs" />
     <Compile Include="Snap.cs" />

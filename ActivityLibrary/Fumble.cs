@@ -3,36 +3,39 @@ using DomainObjects;
 
 namespace ActivityLibrary
 {
-
+    //we have a fumble on the play
+    //and we should now know who has the ball
+    //determine the result of the fumble and add it to the 
+    //current play
     public sealed class Fumble : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }
+        public InArgument<Posession> CurrentPosession { get; set; }
 
         protected override Game Execute(CodeActivityContext context)
         {
             var game = Game.Get(context);
+            var currentPosession = CurrentPosession.Get(context);
 
-            CryptoRandom rng = new CryptoRandom();
+            //first determine if there was a posession change on the play
+            game.CurrentPlay.PossessionChange = currentPosession != game.Posession;
 
-            //was there a fumble? Totally random for now...
-            var fumble = rng.Next(2);
-            if (fumble == 1)
+            //set the correct posession in the game
+            game.Posession = currentPosession;
+
+            game.CurrentPlay.ElapsedTime += 0.5;
+            game.CurrentPlay.Result.Add("Fumble on the play");
+            if (game.CurrentPlay.PossessionChange)
             {
-                //for now this is a totally random determination of who gets
-                //the ball after a fumble and we change the possestion of the game
-                var toss = rng.Next(2);
-                var preFumble = game.Posession;
-                game.Posession = toss == 1 ? Posession.Away : Posession.Home;
-                game.CurrentPlay.PossessionChange = preFumble != game.Posession;
-                game.CurrentPlay.ElapsedTime += 0.5;
-                game.CurrentPlay.Result.Add("Fumble on the play");
-                if (game.CurrentPlay.PossessionChange)
-                {
-                    game.CurrentPlay.Result.Add("Possesion changes hands");
-                }
-                game.CurrentPlay.Result.Add(string.Format("{0} has possesion", game.Posession));
-            }           
-            
+                game.CurrentPlay.Result.Add("Possesion changes hands");
+                game.CurrentPlay.Result.Add(string.Format("{0} now has possesion", game.Posession));
+            }
+            else
+            {
+                game.CurrentPlay.Result.Add(string.Format("{0} keeps possesion", game.Posession));
+            }
+
+
             return game;
         }
     }
