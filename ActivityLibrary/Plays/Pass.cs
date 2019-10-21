@@ -16,6 +16,7 @@ namespace ActivityLibrary.Plays
             var game = Game.Get(context);
 
             game.CurrentPlay.ElapsedTime += 6.5;
+            game.CurrentPlay.Result.Add("Pass downfield!");
 
             return game;
         }

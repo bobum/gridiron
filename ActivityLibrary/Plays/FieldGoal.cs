@@ -17,6 +17,7 @@ namespace ActivityLibrary.Plays
             //need to determine if this is an extra point or a field goal attempt
             //to assign time correctly...
             game.CurrentPlay.ElapsedTime += 1.5;
+            game.CurrentPlay.Result.Add("The kick is up...");
 
             return game;
         }

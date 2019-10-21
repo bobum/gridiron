@@ -1,7 +1,7 @@
 ﻿using DomainObjects;
 using System.Activities;
 
-namespace ActivityLibrary
+namespace ActivityLibrary.SkillsChecks
 {
     //this class will look a the two teams and determine if a fumble
     //occured on any given play based on the skills of the player

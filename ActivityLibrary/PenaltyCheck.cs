@@ -86,6 +86,7 @@ namespace ActivityLibrary
                     homeAway <= currentPenalty.AwayOdds ?
                     Posession.Away : Posession.Home;
                 game.CurrentPlay.Penalties.Add(currentPenalty);
+                game.CurrentPlay.Result.Add("Flag on the play");
             }
 
             return game;

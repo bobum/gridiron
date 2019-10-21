@@ -33,8 +33,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Activities" />
+    <Reference Include="System.Activities.Presentation" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -43,14 +46,17 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoinToss.cs" />
     <Compile Include="Fumble.cs" />
-    <Compile Include="FumblePossesionSkillsCheck.cs" />
-    <Compile Include="FumbleOccuredSkillsCheck.cs" />
+    <Compile Include="SkillsCheckResults\FumblePossesionSkillsCheckResult.cs" />
+    <Compile Include="SkillsChecks\FumbleOccuredSkillsCheck.cs" />
     <Compile Include="Interception.cs" />
     <Compile Include="PenaltyCheck.cs" />
+    <Compile Include="SkillsChecks\InterceptionOccurredSkillsCheck.cs" />
+    <Compile Include="SkillsChecks\PuntBlockOccurredSkillsCheck.cs" />
     <Compile Include="Snap.cs" />
     <Compile Include="Plays\FieldGoal.cs" />
     <Compile Include="Plays\Kickoff.cs" />
@@ -77,6 +83,12 @@
   </ItemGroup>
   <ItemGroup>
     <XamlAppDef Include="Flows\PlayFlow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </XamlAppDef>
+  </ItemGroup>
+  <ItemGroup>
+    <XamlAppDef Include="Flows\FumbleCheckSequence.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </XamlAppDef>
