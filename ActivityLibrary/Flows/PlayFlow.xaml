@@ -32,8 +32,11 @@
   <TextExpression.ReferencesForImplementation>
     <sco:Collection x:TypeArguments="AssemblyReference">
       <AssemblyReference>Microsoft.CSharp</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
       <AssemblyReference>System</AssemblyReference>
       <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Activities.Presentation</AssemblyReference>
       <AssemblyReference>System.Core</AssemblyReference>
       <AssemblyReference>System.Data</AssemblyReference>
       <AssemblyReference>System.Runtime.Serialization</AssemblyReference>
@@ -42,11 +45,8 @@
       <AssemblyReference>System.Xaml</AssemblyReference>
       <AssemblyReference>System.Xml</AssemblyReference>
       <AssemblyReference>System.Xml.Linq</AssemblyReference>
-      <AssemblyReference>DomainObjects</AssemblyReference>
-      <AssemblyReference>PresentationFramework</AssemblyReference>
-      <AssemblyReference>PresentationCore</AssemblyReference>
-      <AssemblyReference>System.Activities.Presentation</AssemblyReference>
       <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>DomainObjects</AssemblyReference>
       <AssemblyReference>mscorlib</AssemblyReference>
       <AssemblyReference>ActivityLibrary</AssemblyReference>
     </sco:Collection>
@@ -173,19 +173,43 @@
                                     </local:ScoreCheck.Result>
                                   </local:ScoreCheck>
                                   <FlowStep.Next>
-                                    <FlowStep x:Name="__ReferenceID3" sap2010:WorkflowViewState.IdRef="FlowStep_4">
-                                      <local:PostPlay sap2010:WorkflowViewState.IdRef="PostPlay_1">
-                                        <local:PostPlay.Game>
-                                          <InArgument x:TypeArguments="d:Game">
-                                            <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
-                                          </InArgument>
-                                        </local:PostPlay.Game>
-                                        <local:PostPlay.Result>
-                                          <OutArgument x:TypeArguments="d:Game">
-                                            <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
-                                          </OutArgument>
-                                        </local:PostPlay.Result>
-                                      </local:PostPlay>
+                                    <FlowStep x:Name="__ReferenceID13">
+                                      <local:QuarterExpireCheck Game="{x:Null}" sap2010:WorkflowViewState.IdRef="QuarterExpireCheck_1" />
+                                      <FlowStep.Next>
+                                        <FlowStep x:Name="__ReferenceID14">
+                                          <local:HalfExpireCheck Game="{x:Null}" sap2010:WorkflowViewState.IdRef="HalfExpireCheck_1" />
+                                          <FlowStep.Next>
+                                            <FlowStep x:Name="__ReferenceID15">
+                                              <local:GameExpireCheck Game="{x:Null}" sap2010:WorkflowViewState.IdRef="GameExpireCheck_1" />
+                                              <FlowStep.Next>
+                                                <FlowStep x:Name="__ReferenceID3" sap2010:WorkflowViewState.IdRef="FlowStep_4">
+                                                  <local:PostPlay sap2010:WorkflowViewState.IdRef="PostPlay_1">
+                                                    <local:PostPlay.Game>
+                                                      <InArgument x:TypeArguments="d:Game">
+                                                        <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
+                                                      </InArgument>
+                                                    </local:PostPlay.Game>
+                                                    <local:PostPlay.Result>
+                                                      <OutArgument x:TypeArguments="d:Game">
+                                                        <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                                                      </OutArgument>
+                                                    </local:PostPlay.Result>
+                                                  </local:PostPlay>
+                                                  <FlowStep.Next>
+                                                    <FlowStep x:Name="__ReferenceID16">
+                                                      <local:PenaltyCheck Game="{x:Null}" Occured="{x:Null}" sap2010:WorkflowViewState.IdRef="PenaltyCheck_3" />
+                                                      <sap2010:WorkflowViewState.IdRef>FlowStep_18</sap2010:WorkflowViewState.IdRef>
+                                                    </FlowStep>
+                                                  </FlowStep.Next>
+                                                </FlowStep>
+                                              </FlowStep.Next>
+                                              <sap2010:WorkflowViewState.IdRef>FlowStep_19</sap2010:WorkflowViewState.IdRef>
+                                            </FlowStep>
+                                          </FlowStep.Next>
+                                          <sap2010:WorkflowViewState.IdRef>FlowStep_20</sap2010:WorkflowViewState.IdRef>
+                                        </FlowStep>
+                                      </FlowStep.Next>
+                                      <sap2010:WorkflowViewState.IdRef>FlowStep_21</sap2010:WorkflowViewState.IdRef>
                                     </FlowStep>
                                   </FlowStep.Next>
                                 </FlowStep>
@@ -283,7 +307,12 @@
                               </InArgument>
                             </If.Condition>
                             <If.Then>
-                              <local2:FumbleCheckSequence CurrentPosessionResult="{x:Null}" Game="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityLibrary.Flows.FumbleCheckSequence_1">
+                              <local2:FumbleCheckSequence CurrentPosessionResult="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityLibrary.Flows.FumbleCheckSequence_1">
+                                <local2:FumbleCheckSequence.Game>
+                                  <InOutArgument x:TypeArguments="d:Game">
+                                    <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                                  </InOutArgument>
+                                </local2:FumbleCheckSequence.Game>
                                 <sap2010:WorkflowViewState.ViewStateManager>
                                   <sap2010:ViewStateManager>
                                     <sap2010:ViewStateData Id="FumbleOccuredSkillsCheck_3" sap2010:WorkflowViewState.IdRef="ViewStateData_10" />
@@ -327,7 +356,11 @@
     <x:Reference>__ReferenceID11</x:Reference>
     <x:Reference>__ReferenceID12</x:Reference>
     <x:Reference>__ReferenceID0</x:Reference>
-    <sads:DebugSymbol.Symbol>dzhDOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcRmxvd3NcUGxheUZsb3cueGFtbDA2A8sCDwIBATkJRBkCAU5HDVciAgFHWhFlHgIBQmkXaXACAUD6ARewAiICASp6G40BOAIBJ5ABH6ABNAIBIKMBI64BNgIBG7EBJ7wBOAIBFukBF/QBJAIBEdgBF+MBJQIBDMcBF9IBKgIBB2wXdygCAQJBD0FXAgFRPA88TwIBT08TT24CAUxUE1RbAgFKShNKUwIBSGIXYl8CAUVdF11XAgFD/AFJ/AFQAgEr/gEZiQInAgE5igIZrwIkAgEsfSF9aQIBKJgBJZgBfwIBJZ0BJZ0BbQIBI5MBJZMBZQIBIasBKasBcQIBHqYBKaYBaQIBHLkBLbkBdQIBGbQBLbQBbQIBF/EBHfEBZQIBFOwBHewBXQIBEuABHeABZQIBD9sBHdsBXQIBDc8BHc8BZQIBCsoBHcoBXQIBCHQddGUCAQVvHW9dAgEDhgIfhgJnAgE9gQIfgQJfAgE6iwIblgJBAgEylwIbrgIgAgEtkwIhkwKEAQIBNo4CIY4CYQIBM5oCIZoCfAIBLp4CH6wCPAIBMQ==</sads:DebugSymbol.Symbol>
+    <x:Reference>__ReferenceID13</x:Reference>
+    <x:Reference>__ReferenceID14</x:Reference>
+    <x:Reference>__ReferenceID15</x:Reference>
+    <x:Reference>__ReferenceID16</x:Reference>
+    <sads:DebugSymbol.Symbol>dzhDOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcRmxvd3NcUGxheUZsb3cueGFtbDU2A+wCDwIBATkJRBkCAVVHDVciAgFOWhFlHgIBSWkXaXACAUeSAhfNAiICAS56G40BOAIBK5ABH6ABNAIBJKMBI64BNgIBH7EBJ7EBigECAR60ASu0AYgBAgEdtwEvtwGMAQIBHLoBM8UBRAIBF8gBN8gBoQECARaBAheMAiQCARHwARf7ASUCAQzfARfqASoCAQdsF3coAgECQQ9BVwIBWDwPPE8CAVZPE09uAgFTVBNUWwIBUUoTSlMCAU9iF2JfAgFMXRddVwIBSpQCSZQCUAIBL5YCGaECJwIBQKICGcwCJAIBMH0hfWkCASyYASWYAX8CASmdASWdAW0CASeTASWTAWUCASWrASmrAXECASKmASmmAWkCASDCATnCAYEBAgEavQE5vQF5AgEYiQIdiQJlAgEUhAIdhAJdAgES+AEd+AFlAgEP8wEd8wFdAgEN5wEd5wFlAgEK4gEd4gFdAgEIdB10ZQIBBW8db10CAQOeAh+eAmcCAUSZAh+ZAl8CAUGjAhuuAkECATmvAhvLAiACATGrAiGrAoQBAgE9pgIhpgJhAgE6sgIhsgJ8AgEytgIfyQI8AgE1uQIluQJtAgE2</sads:DebugSymbol.Symbol>
   </Flowchart>
   <sap2010:WorkflowViewState.ViewStateManager>
     <sap2010:ViewStateManager>
@@ -413,6 +446,27 @@
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="QuarterExpireCheck_1" sap:VirtualizedContainerService.HintSize="200,22">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="HalfExpireCheck_1" sap:VirtualizedContainerService.HintSize="200,22">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="GameExpireCheck_1" sap:VirtualizedContainerService.HintSize="200,22">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
       <sap2010:ViewStateData Id="PostPlay_1" sap:VirtualizedContainerService.HintSize="200,22">
         <sap:WorkflowViewStateService.ViewState>
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
@@ -420,29 +474,72 @@
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="PenaltyCheck_3" sap:VirtualizedContainerService.HintSize="200,22">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="FlowStep_18">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <av:Point x:Key="ShapeLocation">430,819</av:Point>
+            <av:Size x:Key="ShapeSize">200,22</av:Size>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
       <sap2010:ViewStateData Id="FlowStep_4">
         <sap:WorkflowViewStateService.ViewState>
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
-            <av:Point x:Key="ShapeLocation">430,769</av:Point>
+            <av:Point x:Key="ShapeLocation">430,779</av:Point>
             <av:Size x:Key="ShapeSize">200,22</av:Size>
+            <av:PointCollection x:Key="ConnectorLocation">530,801 530,819</av:PointCollection>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="FlowStep_19">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <av:Point x:Key="ShapeLocation">430,739</av:Point>
+            <av:Size x:Key="ShapeSize">200,22</av:Size>
+            <av:PointCollection x:Key="ConnectorLocation">530,761 530,779</av:PointCollection>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="FlowStep_20">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <av:Point x:Key="ShapeLocation">430,699</av:Point>
+            <av:Size x:Key="ShapeSize">200,22</av:Size>
+            <av:PointCollection x:Key="ConnectorLocation">530,721 530,739</av:PointCollection>
+          </scg:Dictionary>
+        </sap:WorkflowViewStateService.ViewState>
+      </sap2010:ViewStateData>
+      <sap2010:ViewStateData Id="FlowStep_21">
+        <sap:WorkflowViewStateService.ViewState>
+          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+            <av:Point x:Key="ShapeLocation">430,659</av:Point>
+            <av:Size x:Key="ShapeSize">200,22</av:Size>
+            <av:PointCollection x:Key="ConnectorLocation">530,681 530,699</av:PointCollection>
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
       <sap2010:ViewStateData Id="FlowStep_13">
         <sap:WorkflowViewStateService.ViewState>
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
-            <av:Point x:Key="ShapeLocation">430,730</av:Point>
+            <av:Point x:Key="ShapeLocation">430,619</av:Point>
             <av:Size x:Key="ShapeSize">200,22</av:Size>
-            <av:PointCollection x:Key="ConnectorLocation">530,752 530,769</av:PointCollection>
+            <av:PointCollection x:Key="ConnectorLocation">530,641 530,659</av:PointCollection>
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
       <sap2010:ViewStateData Id="FlowStep_5">
         <sap:WorkflowViewStateService.ViewState>
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
-            <av:Point x:Key="ShapeLocation">430,689</av:Point>
+            <av:Point x:Key="ShapeLocation">430,579</av:Point>
             <av:Size x:Key="ShapeSize">200,22</av:Size>
-            <av:PointCollection x:Key="ConnectorLocation">530,711 530,730</av:PointCollection>
+            <av:PointCollection x:Key="ConnectorLocation">530,601 530,619</av:PointCollection>
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
@@ -451,7 +548,7 @@
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
             <av:Point x:Key="ShapeLocation">430,539</av:Point>
             <av:Size x:Key="ShapeSize">200,22</av:Size>
-            <av:PointCollection x:Key="ConnectorLocation">530,561 530,689</av:PointCollection>
+            <av:PointCollection x:Key="ConnectorLocation">530,561 530,579</av:PointCollection>
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
@@ -618,19 +715,19 @@
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
-      <sap2010:ViewStateData Id="Flowchart_1" sap:VirtualizedContainerService.HintSize="1165.2,872">
+      <sap2010:ViewStateData Id="Flowchart_1" sap:VirtualizedContainerService.HintSize="1074,1044.8">
         <sap:WorkflowViewStateService.ViewState>
           <scg:Dictionary x:TypeArguments="x:String, x:Object">
             <x:Boolean x:Key="IsExpanded">False</x:Boolean>
             <av:Point x:Key="ShapeLocation">500,2.5</av:Point>
             <av:Size x:Key="ShapeSize">60,75.2</av:Size>
             <av:PointCollection x:Key="ConnectorLocation">530,77.5 530,99</av:PointCollection>
-            <x:Double x:Key="Width">1151</x:Double>
-            <x:Double x:Key="Height">836</x:Double>
+            <x:Double x:Key="Width">1060</x:Double>
+            <x:Double x:Key="Height">1008.6600000000002</x:Double>
           </scg:Dictionary>
         </sap:WorkflowViewStateService.ViewState>
       </sap2010:ViewStateData>
-      <sap2010:ViewStateData Id="ActivityLibrary.PlayFlow_1" sap:VirtualizedContainerService.HintSize="1205.2,952" />
+      <sap2010:ViewStateData Id="ActivityLibrary.PlayFlow_1" sap:VirtualizedContainerService.HintSize="1114,1124.8" />
     </sap2010:ViewStateManager>
   </sap2010:WorkflowViewState.ViewStateManager>
 </Activity>

@@ -2,6 +2,7 @@
 using System.Activities;
 using ActivityLibrary;
 using DomainObjects;
+using DomainObjects.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
@@ -176,6 +177,27 @@ namespace UnitTestProject
             WorkflowInvoker.Invoke<Game>(act);
             Assert.IsNotNull(newGame.CurrentPlay.Penalties);
         }
+
+        [TestMethod]
+        public void FirstHalf_CreatesProperQuarters()
+        {
+            var half = new FirstHalf();
+
+            Assert.IsTrue(half.Quarters[0].QuarterType == QuarterType.First);
+            Assert.IsTrue(half.Quarters[1].QuarterType == QuarterType.Second);
+
+        }
+
+        [TestMethod]
+        public void SecondHalf_CreatesProperQuarters()
+        {
+            var half = new SecondHalf();
+
+            Assert.IsTrue(half.Quarters[0].QuarterType == QuarterType.Third);
+            Assert.IsTrue(half.Quarters[1].QuarterType == QuarterType.Fourth);
+
+        }
+
 
         public Game GetNewGame()
         {

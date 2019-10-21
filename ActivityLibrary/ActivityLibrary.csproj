@@ -51,6 +51,9 @@
   <ItemGroup>
     <Compile Include="CoinToss.cs" />
     <Compile Include="Fumble.cs" />
+    <Compile Include="GameExpireCheck.cs" />
+    <Compile Include="HalfExpireCheck.cs" />
+    <Compile Include="QuarterExpireCheck.cs" />
     <Compile Include="SkillsCheckResults\FumblePossesionSkillsCheckResult.cs" />
     <Compile Include="SkillsChecks\FumbleOccuredSkillsCheck.cs" />
     <Compile Include="Interception.cs" />

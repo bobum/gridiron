@@ -46,12 +46,16 @@
   <ItemGroup>
     <Compile Include="CryptoRandom.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Time\FirstHalf.cs" />
+    <Compile Include="Time\Half.cs" />
     <Compile Include="Penalty.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="Play.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Time\Quarter.cs" />
     <Compile Include="Team.cs" />
+    <Compile Include="Time\SecondHalf.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
