@@ -15,7 +15,7 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <x:Members>
     <x:Property Name="Game" Type="InOutArgument(d:Game)" />
-    <x:Property Name="CurrentPosessionResult" Type="InOutArgument(d:Posession)" />
+    <x:Property Name="CurrentPossessionResult" Type="InOutArgument(d:Possession)" />
   </x:Members>
   <sap2010:ExpressionActivityEditor.ExpressionActivityEditor>C#</sap2010:ExpressionActivityEditor.ExpressionActivityEditor>
   <sap2010:WorkflowViewState.IdRef>ActivityLibrary.Flows.FumbleCheckSequence_1</sap2010:WorkflowViewState.IdRef>
@@ -86,15 +86,15 @@
                       </InArgument>
                     </local1:FumblePossesionSkillsCheckResult.Game>
                     <local1:FumblePossesionSkillsCheckResult.Result>
-                      <OutArgument x:TypeArguments="d:Posession">
-                        <mca:CSharpReference x:TypeArguments="d:Posession">CurrentPosessionResult</mca:CSharpReference>
+                      <OutArgument x:TypeArguments="d:Possession">
+                        <mca:CSharpReference x:TypeArguments="d:Possession">CurrentPossessionResult</mca:CSharpReference>
                       </OutArgument>
                     </local1:FumblePossesionSkillsCheckResult.Result>
                   </local1:FumblePossesionSkillsCheckResult>
                   <local2:Fumble sap2010:WorkflowViewState.IdRef="Fumble_3">
                     <local2:Fumble.CurrentPosession>
-                      <InArgument x:TypeArguments="d:Posession">
-                        <mca:CSharpValue x:TypeArguments="d:Posession">CurrentPosessionResult</mca:CSharpValue>
+                      <InArgument x:TypeArguments="d:Possession">
+                        <mca:CSharpValue x:TypeArguments="d:Possession">CurrentPossessionResult</mca:CSharpValue>
                       </InArgument>
                     </local2:Fumble.CurrentPosession>
                     <local2:Fumble.Game>

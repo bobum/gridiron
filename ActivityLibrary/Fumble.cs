@@ -10,7 +10,7 @@ namespace ActivityLibrary
     public sealed class Fumble : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }
-        public InArgument<Posession> CurrentPosession { get; set; }
+        public InArgument<Possession> CurrentPosession { get; set; }
 
         protected override Game Execute(CodeActivityContext context)
         {

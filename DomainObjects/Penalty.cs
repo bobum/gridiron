@@ -9,7 +9,7 @@ namespace DomainObjects
         public float Odds { get; set; }
         //public float HomeOdds { get; set; }
         public float AwayOdds { get; set; }
-        public Posession CalledOn { get; set; }
+        public Possession CalledOn { get; set; }
         public PenaltyOccured Occured { get; set; }
     }
 

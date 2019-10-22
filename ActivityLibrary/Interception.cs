@@ -16,7 +16,7 @@ namespace ActivityLibrary
             var game = Game.Get(context);
             var toss = rng.Next(2);
             var preInterception = game.Possession;
-            game.Possession = toss == 1 ? Posession.Away : Posession.Home;
+            game.Possession = toss == 1 ? Possession.Away : Possession.Home;
             game.CurrentPlay.PossessionChange = preInterception != game.Possession;
             return game;
         }

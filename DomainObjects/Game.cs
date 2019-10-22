@@ -21,7 +21,7 @@ namespace DomainObjects
             Halves[1].Quarters[0].TimeRemaining +
             Halves[1].Quarters[1].TimeRemaining;
 
-        public Posession Possession { get; set; }
+        public Possession Possession { get; set; }
 
         public List<Half> Halves { get; } = new List<Half>() {
             new FirstHalf(),
@@ -35,7 +35,7 @@ namespace DomainObjects
         //and the first type of play is a kickoff
         public Game()
         {
-            Possession = Posession.None;
+            Possession = Possession.None;
             CurrentQuarter = Halves[0].Quarters[0];
             CurrentHalf = Halves[0];
         }
@@ -77,7 +77,7 @@ namespace DomainObjects
         None
     }
 
-    public enum Posession
+    public enum Possession
     {
         None,
         Home,

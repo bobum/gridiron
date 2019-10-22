@@ -119,7 +119,7 @@
                       </local1:Kickoff>
                       <FlowStep.Next>
                         <FlowStep x:Name="__ReferenceID0" sap2010:WorkflowViewState.IdRef="FlowStep_17">
-                          <local2:FumbleCheckSequence CurrentPosessionResult="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityLibrary.Flows.FumbleCheckSequence_1">
+                          <local2:FumbleCheckSequence CurrentPossessionResult="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityLibrary.Flows.FumbleCheckSequence_1">
                             <local2:FumbleCheckSequence.Game>
                               <InOutArgument x:TypeArguments="d:Game">
                                 <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
@@ -352,7 +352,7 @@
                               </InArgument>
                             </If.Condition>
                             <If.Then>
-                              <local2:FumbleCheckSequence CurrentPosessionResult="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityLibrary.Flows.FumbleCheckSequence_1">
+                              <local2:FumbleCheckSequence CurrentPossessionResult="{x:Null}" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityLibrary.Flows.FumbleCheckSequence_1">
                                 <local2:FumbleCheckSequence.Game>
                                   <InOutArgument x:TypeArguments="d:Game">
                                     <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>

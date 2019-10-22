@@ -28,7 +28,7 @@ namespace UnitTestProject
             Assert.AreEqual(52, game.HomeTeam.Players.Count);
             Assert.AreEqual(53, game.AwayTeam.Players.Count);
             Assert.AreEqual(3600, game.TimeRemaining);
-            Assert.AreEqual(Posession.None, game.Possession);
+            Assert.AreEqual(Possession.None, game.Possession);
             Assert.IsNull(game.CurrentPlay);
         }
 
@@ -49,24 +49,24 @@ namespace UnitTestProject
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.IsInstanceOfType(newGame.Possession, typeof(Posession));
-            Assert.AreNotEqual(newGame.Possession, DomainObjects.Posession.None);
+            Assert.IsInstanceOfType(newGame.Possession, typeof(Possession));
+            Assert.AreNotEqual(newGame.Possession, DomainObjects.Possession.None);
         }
 
         [TestMethod]
         public void Activity_FumbleKeepsPossession()
         {
             Game newGame = GameHelper.GetNewGame();
-            newGame.Possession = Posession.Home;
+            newGame.Possession = Possession.Home;
 
             var activity = new Fumble
             {
                 Game = new InArgument<Game>((ctx) => newGame),
-                CurrentPosession = new InArgument<Posession>((ctx) => Posession.Home)
+                CurrentPosession = new InArgument<Possession>((ctx) => Possession.Home)
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.AreEqual(newGame.Possession, Posession.Home);
+            Assert.AreEqual(newGame.Possession, Possession.Home);
             Assert.IsFalse(newGame.CurrentPlay.PossessionChange);
         }
 
@@ -74,16 +74,16 @@ namespace UnitTestProject
         public void Activity_FumbleChangesPossession()
         {
             Game newGame = GameHelper.GetNewGame();
-            newGame.Possession = Posession.Home;
+            newGame.Possession = Possession.Home;
 
             var activity = new Fumble
             {
                 Game = new InArgument<Game>((ctx) => newGame),
-                CurrentPosession = new InArgument<Posession>((ctx) => Posession.Away)
+                CurrentPosession = new InArgument<Possession>((ctx) => Possession.Away)
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.AreNotEqual(newGame.Possession, Posession.Home);
+            Assert.AreNotEqual(newGame.Possession, Possession.Home);
             Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
@@ -98,7 +98,7 @@ namespace UnitTestProject
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.IsTrue(newGame.Possession != Posession.None);
+            Assert.IsTrue(newGame.Possession != Possession.None);
             Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
