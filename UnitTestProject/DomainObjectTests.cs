@@ -74,5 +74,15 @@ namespace UnitTestProject
             Assert.AreEqual(quarter.TimeRemaining, 900);
 
         }
+
+        [TestMethod]
+        public void DomainObject_Quarter_SetsProperTimeRemaining()
+        {
+            var quarter = new Quarter(QuarterType.First);
+            quarter.TimeRemaining -= 20;
+
+            Assert.AreEqual(quarter.TimeRemaining, 880);
+
+        }
     }
 }

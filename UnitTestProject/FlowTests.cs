@@ -36,7 +36,7 @@ namespace UnitTestProject
                     {"AwayTeam", teams.VisitorTeam }
                 });
             var game = result["Game"] as Game;
-            Assert.AreEqual(game.CurrentPlay.PlayType, PlayType.Kickoff);
+            Assert.AreEqual(game.Plays[0].PlayType, PlayType.Kickoff);
         }
 
         [TestMethod]

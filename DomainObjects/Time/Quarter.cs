@@ -21,12 +21,16 @@ namespace DomainObjects.Time
                 if (value >= 900)
                 {
                     timeRemaining = 900;
+                    return;
                 }
 
                 if (value <= 0)
                 {
                     timeRemaining = 0;
+                    return;
                 }
+
+                timeRemaining = value;
             }
         }
 

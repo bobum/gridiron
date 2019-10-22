@@ -30,10 +30,10 @@ namespace ActivityLibrary
                         game.CurrentQuarter = game.Halves[1].Quarters[1];
                         break;
                     case DomainObjects.Time.QuarterType.Fourth:
-                        //TODO check if tied & moive to OT
+                        //TODO check if tied & move to OT
                         break;
                     case DomainObjects.Time.QuarterType.Overtime:
-                        //TODO check if tied & moive to another OT
+                        //TODO check if tied & move to another OT
                         break;
                     default:
                         break;
