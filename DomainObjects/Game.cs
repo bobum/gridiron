@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DomainObjects.Time;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,16 +15,29 @@ namespace DomainObjects
 
         public List<Play> Plays { get; set; } = new List<Play>();
 
-        public int TimeRemaining { get; set; }
-        public Posession Posession { get; set; }
+        public int TimeRemaining =>
+            Halves[0].Quarters[0].TimeRemaining +
+            Halves[0].Quarters[1].TimeRemaining +
+            Halves[1].Quarters[0].TimeRemaining +
+            Halves[1].Quarters[1].TimeRemaining;
+
+        public Posession Possession { get; set; }
+
+        public List<Half> Halves { get; } = new List<Half>() {
+            new FirstHalf(),
+            new SecondHalf()
+        };
+
+        public Quarter CurrentQuarter { get; set; }
+        public Half CurrentHalf { get; set; }
 
         //a game is created with 3600 seconds to go, 
         //and the first type of play is a kickoff
         public Game()
         {
-            TimeRemaining = 3600;
-            Posession = Posession.None;
-
+            Possession = Posession.None;
+            CurrentQuarter = Halves[0].Quarters[0];
+            CurrentHalf = Halves[0];
         }
     }
 

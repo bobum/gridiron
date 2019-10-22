@@ -4,12 +4,13 @@ using ActivityLibrary;
 using DomainObjects;
 using DomainObjects.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using UnitTestProject.Helpers;
 
 
 namespace UnitTestProject
 {
     [TestClass]
-    public class UnitTest1
+    public class ActivityTests
     {
         [TestMethod]
         public void Activity_PreGameMakesAGame()
@@ -22,17 +23,17 @@ namespace UnitTestProject
                 AwayTeam = new InArgument<Team>((ctx) => teams.VisitorTeam)
             };
 
-            Game game = WorkflowInvoker.Invoke<Game>(act);
+            Game game = WorkflowInvoker.Invoke(act);
 
             Assert.AreEqual(52, game.HomeTeam.Players.Count);
             Assert.AreEqual(53, game.AwayTeam.Players.Count);
             Assert.AreEqual(3600, game.TimeRemaining);
-            Assert.AreEqual(Posession.None, game.Posession);
+            Assert.AreEqual(Posession.None, game.Possession);
             Assert.IsNull(game.CurrentPlay);
         }
 
         [TestMethod]
-        public void Activity_CoinTossDoesTheCoinTossAndChangesPosession()
+        public void Activity_CoinTossDoesTheCoinTossAndChangesPossession()
         {
             var teams = new Teams();
 
@@ -47,16 +48,16 @@ namespace UnitTestProject
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            WorkflowInvoker.Invoke<Game>(activity);
-            Assert.IsInstanceOfType(newGame.Posession, typeof(Posession));
-            Assert.AreNotEqual(newGame.Posession, DomainObjects.Posession.None);
+            WorkflowInvoker.Invoke(activity);
+            Assert.IsInstanceOfType(newGame.Possession, typeof(Posession));
+            Assert.AreNotEqual(newGame.Possession, DomainObjects.Posession.None);
         }
 
         [TestMethod]
-        public void Activity_FumbleKeepsPosession()
+        public void Activity_FumbleKeepsPossession()
         {
-            Game newGame = GetNewGame();
-            newGame.Posession = Posession.Home;
+            Game newGame = GameHelper.GetNewGame();
+            newGame.Possession = Posession.Home;
 
             var activity = new Fumble
             {
@@ -65,15 +66,15 @@ namespace UnitTestProject
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.AreEqual(newGame.Posession, Posession.Home);
+            Assert.AreEqual(newGame.Possession, Posession.Home);
             Assert.IsFalse(newGame.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
-        public void Activity_FumbleChangesPosession()
+        public void Activity_FumbleChangesPossession()
         {
-            Game newGame = GetNewGame();
-            newGame.Posession = Posession.Home;
+            Game newGame = GameHelper.GetNewGame();
+            newGame.Possession = Posession.Home;
 
             var activity = new Fumble
             {
@@ -82,27 +83,27 @@ namespace UnitTestProject
             };
 
             WorkflowInvoker.Invoke(activity);
-            Assert.AreNotEqual(newGame.Posession, Posession.Home);
+            Assert.AreNotEqual(newGame.Possession, Posession.Home);
             Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
-        public void Activity_InterceptionChangesPosession()
+        public void Activity_InterceptionChangesPossession()
         {
-            Game newGame = GetNewGame();
+            Game newGame = GameHelper.GetNewGame();
 
             var activity = new Interception
             {
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            WorkflowInvoker.Invoke<Game>(activity);
-            Assert.IsTrue(newGame.Posession != Posession.None);
+            WorkflowInvoker.Invoke(activity);
+            Assert.IsTrue(newGame.Possession != Posession.None);
             Assert.IsTrue(newGame.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
-        public void Activity_PrePlaySetsFirstPlayToKickoffChangesPosession()
+        public void Activity_PrePlaySetsFirstPlayToKickoffChangesPossession()
         {
             var teams = new Teams();
 
@@ -117,12 +118,12 @@ namespace UnitTestProject
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            WorkflowInvoker.Invoke<Game>(activity);
+            WorkflowInvoker.Invoke(activity);
             Assert.AreEqual(newGame.CurrentPlay.PlayType, PlayType.Kickoff);
         }
 
         [TestMethod]
-        public void Activity_PrePlayHasNoPlaysOnKickoffChangesPosession()
+        public void Activity_PrePlayHasNoPlaysOnKickoffChangesPossession()
         {
             var teams = new Teams();
 
@@ -137,37 +138,14 @@ namespace UnitTestProject
                 Game = new InArgument<Game>((ctx) => newGame)
             };
 
-            WorkflowInvoker.Invoke<Game>(activity);
+            WorkflowInvoker.Invoke(activity);
             Assert.AreEqual(newGame.Plays.Count, 0);
-        }
-
-        [TestMethod]
-        public void DomainObject_GeneratorMakesARandomNumber()
-        {
-            CryptoRandom rng = new CryptoRandom();
-            var nextInt = rng.Next();
-            Assert.IsInstanceOfType(nextInt, typeof(Int32));
-
-            var nextUnder10 = rng.Next(10);
-            Assert.IsTrue(nextUnder10 < 10);
-
-            var nextBetween18And22 = rng.Next(18, 22);
-            Assert.IsTrue(nextBetween18And22 >= 18 && nextBetween18And22 < 22);
-
-            var nextDouble = rng.NextDouble();
-            Assert.IsInstanceOfType(nextDouble, typeof(Double));
-        }
-
-        [TestMethod]
-        public void DomainObject_PenaltiesHasPenalties()
-        {
-            Assert.IsTrue(Penalties.List.Count > 0);
         }
 
         [TestMethod]
         public void Activity_PenaltyCheckDoesAPenaltyCheck()
         {
-            Game newGame = GetNewGame();
+            Game newGame = GameHelper.GetNewGame();
 
             var act = new PenaltyCheck()
             {
@@ -179,42 +157,44 @@ namespace UnitTestProject
         }
 
         [TestMethod]
-        public void FirstHalf_CreatesProperQuarters()
+        public void Activity_QuarterExpiresQuarters()
         {
-            var half = new FirstHalf();
+            Game newGame = GameHelper.GetNewGame();
 
-            Assert.IsTrue(half.Quarters[0].QuarterType == QuarterType.First);
-            Assert.IsTrue(half.Quarters[1].QuarterType == QuarterType.Second);
-
-        }
-
-        [TestMethod]
-        public void SecondHalf_CreatesProperQuarters()
-        {
-            var half = new SecondHalf();
-
-            Assert.IsTrue(half.Quarters[0].QuarterType == QuarterType.Third);
-            Assert.IsTrue(half.Quarters[1].QuarterType == QuarterType.Fourth);
-
-        }
-
-
-        public Game GetNewGame()
-        {
-            var teams = new Teams();
-
-            Game newGame = new Game()
-            {
-                HomeTeam = teams.HomeTeam,
-                AwayTeam = teams.VisitorTeam
-            };
-
-            var prePlayActivity = new PrePlay
+            var act = new QuarterExpireCheck()
             {
                 Game = new InArgument<Game>((ctx) => newGame)
             };
-            
-            return WorkflowInvoker.Invoke<Game>(prePlayActivity);
+            newGame.CurrentQuarter.TimeRemaining = 0;
+            WorkflowInvoker.Invoke(act);
+            Assert.AreEqual(newGame.CurrentQuarter.QuarterType, QuarterType.Second);
+
+            newGame.CurrentQuarter.TimeRemaining = 0;
+            WorkflowInvoker.Invoke(act);
+            Assert.AreEqual(newGame.CurrentQuarter.QuarterType, QuarterType.Third);
+
+            newGame.CurrentQuarter.TimeRemaining = 0;
+            WorkflowInvoker.Invoke(act);
+            Assert.AreEqual(newGame.CurrentQuarter.QuarterType, QuarterType.Fourth);
         }
+
+        [TestMethod]
+        public void Activity_HalfExpiresHalves()
+        {
+            Game newGame = GameHelper.GetNewGame();
+
+            var act = new HalfExpireCheck()
+            {
+                Game = new InArgument<Game>((ctx) => newGame)
+            };
+
+            Assert.AreEqual(newGame.CurrentHalf.HalfType, HalfType.First);
+
+            newGame.CurrentQuarter = newGame.Halves[1].Quarters[0];
+            WorkflowInvoker.Invoke(act);
+            Assert.AreEqual(newGame.CurrentHalf.HalfType, HalfType.Second);
+
+        }
+
     }
 }

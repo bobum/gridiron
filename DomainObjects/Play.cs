@@ -13,7 +13,7 @@ namespace DomainObjects
 
         public bool GoodSnap { get; set; }
 
-        public bool PossessionChange { get; set; }
+        public bool PossessionChange { get; set; } = false;
 
         public int StartTime { get; set; }
         public int StopTime { get; set; }

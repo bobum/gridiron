@@ -13,7 +13,7 @@ namespace ActivityLibrary
             CryptoRandom rng = new CryptoRandom();
             var game = Game.Get(context);
             var toss = rng.Next(2);
-            game.Posession = toss == 1 ? Posession.Away : Posession.Home;
+            game.Possession = toss == 1 ? Posession.Away : Posession.Home;
             return game;
         }
     }

@@ -55,8 +55,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DomainObjectTests.cs" />
+    <Compile Include="Helpers\GameHelper.cs" />
     <Compile Include="Teams.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="ActivityTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FlowTests.cs" />
   </ItemGroup>
@@ -73,6 +75,7 @@
       <Name>DomainObjects</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

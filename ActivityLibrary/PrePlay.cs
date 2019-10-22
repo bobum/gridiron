@@ -23,7 +23,6 @@ namespace ActivityLibrary
                 currentPlay.Down = Downs.None;
                 currentPlay.StartTime = 0;
                 currentPlay.PlayType = PlayType.Kickoff;
-                currentPlay.PossessionChange = false;
                 currentPlay.Result.Add("Players are lined up for the kickoff");
             } else
             {

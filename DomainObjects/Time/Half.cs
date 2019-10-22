@@ -9,7 +9,13 @@ namespace DomainObjects.Time
     public abstract class Half
     {
         public List<Quarter> Quarters { get; private set; }
-        public int TimeRemaining { get; private set; }
+        public int TimeRemaining
+        {
+            get
+            {
+                return Quarters[0].TimeRemaining + Quarters[1].TimeRemaining;
+            }
+        }
 
         public HalfType HalfType { get; set; }
 

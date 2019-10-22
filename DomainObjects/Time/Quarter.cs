@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,25 @@ namespace DomainObjects.Time
 
     public class Quarter
     {
-        public int TimeRemaining { get; set; }
+        private int timeRemaining;
+
+        [RangeAttribute(0, 900, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        public int TimeRemaining
+        {
+            get => timeRemaining;
+            set
+            {
+                if (value >= 900)
+                {
+                    timeRemaining = 900;
+                }
+
+                if (value <= 0)
+                {
+                    timeRemaining = 0;
+                }
+            }
+        }
 
         public QuarterType QuarterType { get; private set; }
 

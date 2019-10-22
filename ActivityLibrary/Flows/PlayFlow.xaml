@@ -149,7 +149,7 @@
                                 </local:PenaltyCheck.Game>
                                 <local:PenaltyCheck.Occured>
                                   <InArgument x:TypeArguments="d:PenaltyOccured">
-                                    <mca:CSharpValue x:TypeArguments="d:PenaltyOccured">PenaltyOccured.After</mca:CSharpValue>
+                                    <mca:CSharpValue x:TypeArguments="d:PenaltyOccured">PenaltyOccured.During</mca:CSharpValue>
                                   </InArgument>
                                 </local:PenaltyCheck.Occured>
                                 <local:PenaltyCheck.Result>
@@ -173,14 +173,47 @@
                                     </local:ScoreCheck.Result>
                                   </local:ScoreCheck>
                                   <FlowStep.Next>
-                                    <FlowStep x:Name="__ReferenceID13">
-                                      <local:QuarterExpireCheck Game="{x:Null}" sap2010:WorkflowViewState.IdRef="QuarterExpireCheck_1" />
+                                    <FlowStep x:Name="__ReferenceID13" sap2010:WorkflowViewState.IdRef="FlowStep_21">
+                                      <local:QuarterExpireCheck sap2010:WorkflowViewState.IdRef="QuarterExpireCheck_1">
+                                        <local:QuarterExpireCheck.Game>
+                                          <InArgument x:TypeArguments="d:Game">
+                                            <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
+                                          </InArgument>
+                                        </local:QuarterExpireCheck.Game>
+                                        <local:QuarterExpireCheck.Result>
+                                          <OutArgument x:TypeArguments="d:Game">
+                                            <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                                          </OutArgument>
+                                        </local:QuarterExpireCheck.Result>
+                                      </local:QuarterExpireCheck>
                                       <FlowStep.Next>
-                                        <FlowStep x:Name="__ReferenceID14">
-                                          <local:HalfExpireCheck Game="{x:Null}" sap2010:WorkflowViewState.IdRef="HalfExpireCheck_1" />
+                                        <FlowStep x:Name="__ReferenceID14" sap2010:WorkflowViewState.IdRef="FlowStep_20">
+                                          <local:HalfExpireCheck sap2010:WorkflowViewState.IdRef="HalfExpireCheck_1">
+                                            <local:HalfExpireCheck.Game>
+                                              <InArgument x:TypeArguments="d:Game">
+                                                <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
+                                              </InArgument>
+                                            </local:HalfExpireCheck.Game>
+                                            <local:HalfExpireCheck.Result>
+                                              <OutArgument x:TypeArguments="d:Game">
+                                                <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                                              </OutArgument>
+                                            </local:HalfExpireCheck.Result>
+                                          </local:HalfExpireCheck>
                                           <FlowStep.Next>
-                                            <FlowStep x:Name="__ReferenceID15">
-                                              <local:GameExpireCheck Game="{x:Null}" sap2010:WorkflowViewState.IdRef="GameExpireCheck_1" />
+                                            <FlowStep x:Name="__ReferenceID15" sap2010:WorkflowViewState.IdRef="FlowStep_19">
+                                              <local:GameExpireCheck sap2010:WorkflowViewState.IdRef="GameExpireCheck_1">
+                                                <local:GameExpireCheck.Game>
+                                                  <InArgument x:TypeArguments="d:Game">
+                                                    <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
+                                                  </InArgument>
+                                                </local:GameExpireCheck.Game>
+                                                <local:GameExpireCheck.Result>
+                                                  <OutArgument x:TypeArguments="d:Game">
+                                                    <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                                                  </OutArgument>
+                                                </local:GameExpireCheck.Result>
+                                              </local:GameExpireCheck>
                                               <FlowStep.Next>
                                                 <FlowStep x:Name="__ReferenceID3" sap2010:WorkflowViewState.IdRef="FlowStep_4">
                                                   <local:PostPlay sap2010:WorkflowViewState.IdRef="PostPlay_1">
@@ -196,20 +229,32 @@
                                                     </local:PostPlay.Result>
                                                   </local:PostPlay>
                                                   <FlowStep.Next>
-                                                    <FlowStep x:Name="__ReferenceID16">
-                                                      <local:PenaltyCheck Game="{x:Null}" Occured="{x:Null}" sap2010:WorkflowViewState.IdRef="PenaltyCheck_3" />
-                                                      <sap2010:WorkflowViewState.IdRef>FlowStep_18</sap2010:WorkflowViewState.IdRef>
+                                                    <FlowStep x:Name="__ReferenceID16" sap2010:WorkflowViewState.IdRef="FlowStep_18">
+                                                      <local:PenaltyCheck sap2010:WorkflowViewState.IdRef="PenaltyCheck_3">
+                                                        <local:PenaltyCheck.Game>
+                                                          <InArgument x:TypeArguments="d:Game">
+                                                            <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
+                                                          </InArgument>
+                                                        </local:PenaltyCheck.Game>
+                                                        <local:PenaltyCheck.Occured>
+                                                          <InArgument x:TypeArguments="d:PenaltyOccured">
+                                                            <mca:CSharpValue x:TypeArguments="d:PenaltyOccured">PenaltyOccured.After</mca:CSharpValue>
+                                                          </InArgument>
+                                                        </local:PenaltyCheck.Occured>
+                                                        <local:PenaltyCheck.Result>
+                                                          <OutArgument x:TypeArguments="d:Game">
+                                                            <mca:CSharpReference x:TypeArguments="d:Game">Game</mca:CSharpReference>
+                                                          </OutArgument>
+                                                        </local:PenaltyCheck.Result>
+                                                      </local:PenaltyCheck>
                                                     </FlowStep>
                                                   </FlowStep.Next>
                                                 </FlowStep>
                                               </FlowStep.Next>
-                                              <sap2010:WorkflowViewState.IdRef>FlowStep_19</sap2010:WorkflowViewState.IdRef>
                                             </FlowStep>
                                           </FlowStep.Next>
-                                          <sap2010:WorkflowViewState.IdRef>FlowStep_20</sap2010:WorkflowViewState.IdRef>
                                         </FlowStep>
                                       </FlowStep.Next>
-                                      <sap2010:WorkflowViewState.IdRef>FlowStep_21</sap2010:WorkflowViewState.IdRef>
                                     </FlowStep>
                                   </FlowStep.Next>
                                 </FlowStep>
@@ -360,7 +405,7 @@
     <x:Reference>__ReferenceID14</x:Reference>
     <x:Reference>__ReferenceID15</x:Reference>
     <x:Reference>__ReferenceID16</x:Reference>
-    <sads:DebugSymbol.Symbol>dzhDOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcRmxvd3NcUGxheUZsb3cueGFtbDU2A+wCDwIBATkJRBkCAVVHDVciAgFOWhFlHgIBSWkXaXACAUeSAhfNAiICAS56G40BOAIBK5ABH6ABNAIBJKMBI64BNgIBH7EBJ7EBigECAR60ASu0AYgBAgEdtwEvtwGMAQIBHLoBM8UBRAIBF8gBN8gBoQECARaBAheMAiQCARHwARf7ASUCAQzfARfqASoCAQdsF3coAgECQQ9BVwIBWDwPPE8CAVZPE09uAgFTVBNUWwIBUUoTSlMCAU9iF2JfAgFMXRddVwIBSpQCSZQCUAIBL5YCGaECJwIBQKICGcwCJAIBMH0hfWkCASyYASWYAX8CASmdASWdAW0CASeTASWTAWUCASWrASmrAXECASKmASmmAWkCASDCATnCAYEBAgEavQE5vQF5AgEYiQIdiQJlAgEUhAIdhAJdAgES+AEd+AFlAgEP8wEd8wFdAgEN5wEd5wFlAgEK4gEd4gFdAgEIdB10ZQIBBW8db10CAQOeAh+eAmcCAUSZAh+ZAl8CAUGjAhuuAkECATmvAhvLAiACATGrAiGrAoQBAgE9pgIhpgJhAgE6sgIhsgJ8AgEytgIfyQI8AgE1uQIluQJtAgE2</sads:DebugSymbol.Symbol>
+    <sads:DebugSymbol.Symbol>dzhDOlxwcm9qZWN0c1xncmlkaXJvblxBY3Rpdml0eUxpYnJhcnlcRmxvd3NcUGxheUZsb3cueGFtbD42A5kDDwIBATkJRBkCAWdHDVciAgFgWhFlHgIBW2kXaXACAVm/Ahf6AiICAUB6G40BOAIBPZABH6ABNAIBNqMBI64BNgIBMbEBJ7wBQgIBLL8BK8oBQwIBJ80BL9gBRwIBItsBM+YBRAIBHekBN/kBTAIBFq4CF7kCJAIBEZ0CF6gCJQIBDIwCF5cCKgIBB2wXdygCAQJBD0FXAgFqPA88TwIBaE8TT24CAWVUE1RbAgFjShNKUwIBYWIXYl8CAV5dF11XAgFcwQJJwQJQAgFBwwIZzgInAgFSzwIZ+QIkAgFCfSF9aQIBPpgBJZgBgAECATudASWdAW0CATmTASWTAWUCATerASmrAXECATSmASmmAWkCATK5AS25AXUCAS+0AS20AW0CAS3HATHHAXkCASrCATHCAXECASjVATXVAX0CASXQATXQAXUCASPjATnjAYEBAgEg3gE53gF5AgEe8QE98QGXAQIBG/YBPfYBhQECARnsAT3sAX0CARe2Ah22AmUCARSxAh2xAl0CARKlAh2lAmUCAQ+gAh2gAl0CAQ2UAh2UAmUCAQqPAh2PAl0CAQh0HXRlAgEFbx1vXQIBA8sCH8sCZwIBVsYCH8YCXwIBU9ACG9sCQQIBS9wCG/gCIAIBQ9gCIdgChAECAU/TAiHTAmECAUzfAiHfAnwCAUTjAh/2AjwCAUfmAiXmAm0CAUg=</sads:DebugSymbol.Symbol>
   </Flowchart>
   <sap2010:WorkflowViewState.ViewStateManager>
     <sap2010:ViewStateManager>

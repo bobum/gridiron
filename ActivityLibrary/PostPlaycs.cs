@@ -15,9 +15,7 @@ namespace ActivityLibrary
             //kill the clock and add time appropriately
             var game = Game.Get(context);
 
-            game.CurrentPlay.ElapsedTime += 8.0;
-
-            //add the currnet play to the plays list
+            //add the current play to the plays list
             game.Plays.Add(game.CurrentPlay);
 
             return game;

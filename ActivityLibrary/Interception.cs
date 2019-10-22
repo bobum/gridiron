@@ -15,9 +15,9 @@ namespace ActivityLibrary
             CryptoRandom rng = new CryptoRandom();
             var game = Game.Get(context);
             var toss = rng.Next(2);
-            var preInterception = game.Posession;
-            game.Posession = toss == 1 ? Posession.Away : Posession.Home;
-            game.CurrentPlay.PossessionChange = preInterception != game.Posession;
+            var preInterception = game.Possession;
+            game.Possession = toss == 1 ? Posession.Away : Posession.Home;
+            game.CurrentPlay.PossessionChange = preInterception != game.Possession;
             return game;
         }
     }

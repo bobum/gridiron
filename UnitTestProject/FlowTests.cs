@@ -21,7 +21,7 @@ namespace UnitTestProject
                     {"AwayTeam", teams.VisitorTeam }
                 });
             var game = result["Game"] as Game;
-            Assert.IsTrue(game.Posession != Posession.None);
+            Assert.IsTrue(game.Possession != Posession.None);
         }
 
         [TestMethod]

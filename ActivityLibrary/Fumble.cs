@@ -18,21 +18,21 @@ namespace ActivityLibrary
             var currentPosession = CurrentPosession.Get(context);
 
             //first determine if there was a posession change on the play
-            game.CurrentPlay.PossessionChange = currentPosession != game.Posession;
+            game.CurrentPlay.PossessionChange = currentPosession != game.Possession;
 
             //set the correct posession in the game
-            game.Posession = currentPosession;
+            game.Possession = currentPosession;
 
             game.CurrentPlay.ElapsedTime += 0.5;
             game.CurrentPlay.Result.Add("Fumble on the play");
             if (game.CurrentPlay.PossessionChange)
             {
                 game.CurrentPlay.Result.Add("Possesion changes hands");
-                game.CurrentPlay.Result.Add(string.Format("{0} now has possesion", game.Posession));
+                game.CurrentPlay.Result.Add(string.Format("{0} now has possesion", game.Possession));
             }
             else
             {
-                game.CurrentPlay.Result.Add(string.Format("{0} keeps possesion", game.Posession));
+                game.CurrentPlay.Result.Add(string.Format("{0} keeps possesion", game.Possession));
             }
 
             return game;
