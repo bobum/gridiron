@@ -3,7 +3,7 @@
  xmlns:av="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:d="clr-namespace:DomainObjects;assembly=DomainObjects"
  xmlns:local="clr-namespace:ActivityLibrary.SkillsChecks"
- xmlns:local1="clr-namespace:ActivityLibrary.SkillsCheckResult"
+ xmlns:local1="clr-namespace:ActivityLibrary.SkillsCheckResults"
  xmlns:local2="clr-namespace:ActivityLibrary"
  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
  xmlns:mca="clr-namespace:Microsoft.CSharp.Activities;assembly=System.Activities"
@@ -79,24 +79,24 @@
               </If.Condition>
               <If.Then>
                 <Sequence DisplayName="FumblePossessionCheck" sap2010:WorkflowViewState.IdRef="Sequence_5">
-                  <local1:FumblePossesionSkillsCheckResult sap2010:WorkflowViewState.IdRef="FumblePossesionSkillsCheckResult_3">
-                    <local1:FumblePossesionSkillsCheckResult.Game>
+                  <local1:FumblePossessionSkillsCheckResult sap2010:WorkflowViewState.IdRef="FumblePossesionSkillsCheckResult_3">
+                    <local1:FumblePossessionSkillsCheckResult.Game>
                       <InArgument x:TypeArguments="d:Game">
                         <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>
                       </InArgument>
-                    </local1:FumblePossesionSkillsCheckResult.Game>
-                    <local1:FumblePossesionSkillsCheckResult.Result>
+                    </local1:FumblePossessionSkillsCheckResult.Game>
+                    <local1:FumblePossessionSkillsCheckResult.Result>
                       <OutArgument x:TypeArguments="d:Possession">
                         <mca:CSharpReference x:TypeArguments="d:Possession">CurrentPossessionResult</mca:CSharpReference>
                       </OutArgument>
-                    </local1:FumblePossesionSkillsCheckResult.Result>
-                  </local1:FumblePossesionSkillsCheckResult>
+                    </local1:FumblePossessionSkillsCheckResult.Result>
+                  </local1:FumblePossessionSkillsCheckResult>
                   <local2:Fumble sap2010:WorkflowViewState.IdRef="Fumble_3">
-                    <local2:Fumble.CurrentPosession>
+                    <local2:Fumble.CurrentPossession>
                       <InArgument x:TypeArguments="d:Possession">
                         <mca:CSharpValue x:TypeArguments="d:Possession">CurrentPossessionResult</mca:CSharpValue>
                       </InArgument>
-                    </local2:Fumble.CurrentPosession>
+                    </local2:Fumble.CurrentPossession>
                     <local2:Fumble.Game>
                       <InArgument x:TypeArguments="d:Game">
                         <mca:CSharpValue x:TypeArguments="d:Game">Game</mca:CSharpValue>

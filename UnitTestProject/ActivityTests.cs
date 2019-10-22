@@ -62,7 +62,7 @@ namespace UnitTestProject
             var activity = new Fumble
             {
                 Game = new InArgument<Game>((ctx) => newGame),
-                CurrentPosession = new InArgument<Possession>((ctx) => Possession.Home)
+                CurrentPossession = new InArgument<Possession>((ctx) => Possession.Home)
             };
 
             WorkflowInvoker.Invoke(activity);
@@ -79,7 +79,7 @@ namespace UnitTestProject
             var activity = new Fumble
             {
                 Game = new InArgument<Game>((ctx) => newGame),
-                CurrentPosession = new InArgument<Possession>((ctx) => Possession.Away)
+                CurrentPossession = new InArgument<Possession>((ctx) => Possession.Away)
             };
 
             WorkflowInvoker.Invoke(activity);

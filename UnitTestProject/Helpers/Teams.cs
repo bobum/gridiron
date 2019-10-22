@@ -2,7 +2,7 @@
 using DomainObjects;
 using Newtonsoft.Json;
 
-namespace UnitTestProject
+namespace UnitTestProject.Helpers
 {
     public class Teams
     {

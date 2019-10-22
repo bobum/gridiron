@@ -10,29 +10,29 @@ namespace ActivityLibrary
     public sealed class Fumble : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }
-        public InArgument<Possession> CurrentPosession { get; set; }
+        public InArgument<Possession> CurrentPossession { get; set; }
 
         protected override Game Execute(CodeActivityContext context)
         {
             var game = Game.Get(context);
-            var currentPosession = CurrentPosession.Get(context);
+            var possession = CurrentPossession.Get(context);
 
-            //first determine if there was a posession change on the play
-            game.CurrentPlay.PossessionChange = currentPosession != game.Possession;
+            //first determine if there was a possession change on the play
+            game.CurrentPlay.PossessionChange = possession != game.Possession;
 
-            //set the correct posession in the game
-            game.Possession = currentPosession;
+            //set the correct possession in the game
+            game.Possession = possession;
 
             game.CurrentPlay.ElapsedTime += 0.5;
             game.CurrentPlay.Result.Add("Fumble on the play");
             if (game.CurrentPlay.PossessionChange)
             {
-                game.CurrentPlay.Result.Add("Possesion changes hands");
-                game.CurrentPlay.Result.Add(string.Format("{0} now has possesion", game.Possession));
+                game.CurrentPlay.Result.Add("Possession changes hands");
+                game.CurrentPlay.Result.Add($"{game.Possession} now has possession");
             }
             else
             {
-                game.CurrentPlay.Result.Add(string.Format("{0} keeps possesion", game.Possession));
+                game.CurrentPlay.Result.Add($"{game.Possession} keeps possession");
             }
 
             return game;

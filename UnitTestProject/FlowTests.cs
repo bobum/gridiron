@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Activities;
 using ActivityLibrary;
 using DomainObjects;
+using UnitTestProject.Helpers;
 
 namespace UnitTestProject
 {

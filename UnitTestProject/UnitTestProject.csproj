@@ -57,7 +57,7 @@
   <ItemGroup>
     <Compile Include="DomainObjectTests.cs" />
     <Compile Include="Helpers\GameHelper.cs" />
-    <Compile Include="Teams.cs" />
+    <Compile Include="Helpers\Teams.cs" />
     <Compile Include="ActivityTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FlowTests.cs" />
