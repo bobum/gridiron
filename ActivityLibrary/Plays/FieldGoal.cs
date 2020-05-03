@@ -6,6 +6,7 @@ namespace ActivityLibrary.Plays
     //field goal or extra points
     //also a blocked field goal
     //fake field goal, which can be a run or a pass
+    //a muffed snap
     public sealed class FieldGoal : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }

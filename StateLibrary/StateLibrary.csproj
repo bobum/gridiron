@@ -12,4 +12,10 @@
     <ProjectReference Include="..\DomainObjects\DomainObjects.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SkillsCheckResults\" />
+    <Folder Include="SkillsChecks\" />
+    <Folder Include="Plays\" />
+  </ItemGroup>
+
 </Project>

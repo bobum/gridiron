@@ -7,6 +7,7 @@ namespace ActivityLibrary.Plays
     //a lateral
     //a halfback pass
     //a fake punt would be in the Punt class - those could be run or pass...
+    //a muffed snap
     public sealed class Pass : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }

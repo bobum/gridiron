@@ -7,6 +7,7 @@ namespace ActivityLibrary.Plays
     //or a fake punt pass
     //or a fake punt run
     //blocked punt
+    //a muffed snap
     public sealed class Punt : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }

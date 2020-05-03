@@ -131,6 +131,7 @@ namespace DomainObjects
         Leverage
     }
 
+    //when did the penalty occur - before the snap, during or after the play
     public enum PenaltyOccured
     {
         Before,

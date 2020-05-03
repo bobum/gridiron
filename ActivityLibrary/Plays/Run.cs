@@ -8,6 +8,7 @@ namespace ActivityLibrary.Plays
     //or a 2-pt conversion
     //or a kneel
     //a fake punt would be in the Punt class - those could be run or pass...
+    //a muffed snap
     public sealed class Run : CodeActivity<Game>
     {
         public InArgument<Game> Game { get; set; }
