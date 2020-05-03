@@ -47,6 +47,8 @@
   <ItemGroup>
     <Compile Include="CryptoRandom.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Helpers\GameHelper.cs" />
+    <Compile Include="Helpers\Teams.cs" />
     <Compile Include="Time\FirstHalf.cs" />
     <Compile Include="Time\Half.cs" />
     <Compile Include="Penalty.cs" />
