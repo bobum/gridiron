@@ -1,22 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using DomainObjects;
 using Stateless;
-using Stateless.Graph;
 using StateLibrary.Actions;
 
 namespace StateLibrary
 {
     public class GameFlow
     {
-        private Game _game;
+        private readonly Game _game;
         enum Trigger
         {
             Snap,
             TeamsSelected,
             CoinTossed,
-            Fumble
+            Fumble,
+            PlayResult,
+            FieldGoalBlocked,
+            PuntBlocked,
+            Intercepted
         }
 
         enum State
@@ -37,7 +38,7 @@ namespace StateLibrary
             RunPlayResult,
             KickoffResult,
             PuntResult,
-            PassResult,
+            PassPlayResult,
             PostPlay,
             PostGame
         }
@@ -45,11 +46,8 @@ namespace StateLibrary
         //we start in the PreGame state
         private State _state = State.PreGame;
 
-        StateMachine<State, Trigger> _machine;
-
-        StateMachine<State, Trigger>.TriggerWithParameters<Game> _coinTossedTrigger;
-        StateMachine<State, Trigger>.TriggerWithParameters<Game> _setSnapTrigger;
-
+        private readonly StateMachine<State, Trigger> _machine;
+        
         public GameFlow(Game game)
         {
             _game = game;
@@ -67,15 +65,60 @@ namespace StateLibrary
                 .Permit(Trigger.CoinTossed, State.PrePlay);
 
             _machine.Configure(State.PrePlay)
-                .OnEntry(DoPrePlay, "Determine play, preplay penalty and snap the ball")
+                .OnEntry(DoPrePlay, "Determine play, pre-play penalty and snap the ball")
                 .PermitIf(Trigger.Snap, State.FieldGoal, () => _game.CurrentPlay.PlayType == PlayType.FieldGoal)
                 .PermitIf(Trigger.Snap, State.RunPlay, () => _game.CurrentPlay.PlayType == PlayType.Run)
                 .PermitIf(Trigger.Snap, State.Kickoff, () => _game.CurrentPlay.PlayType == PlayType.Kickoff)
                 .PermitIf(Trigger.Snap, State.Punt, () => _game.CurrentPlay.PlayType == PlayType.Punt)
                 .PermitIf(Trigger.Snap, State.PassPlay, () => _game.CurrentPlay.PlayType == PlayType.Pass);
 
+            //every play state should end in a fumble check state
+
+            //field goal, punt and pass go to interim states of FGBlock, PuntBlocked and Interception
+            _machine.Configure(State.FieldGoal)
+                .OnEntry(DoFieldGoal, "Check if there was a block")
+                .PermitIf(Trigger.FieldGoalBlocked, State.FieldGoalBlock, () => _game.CurrentPlay.FieldGoalBlockOccurred)
+                .PermitIf(Trigger.Fumble, State.FumbleReturn, () => !_game.CurrentPlay.FieldGoalBlockOccurred);
+
+            _machine.Configure(State.FieldGoalBlock)
+                .OnEntry(DoFieldGoalBlockResult, "Check the result of the FG block")
+                .Permit(Trigger.Fumble, State.FumbleReturn);
+
+            _machine.Configure(State.Punt)
+                .OnEntry(DoPunt, "Check if there was a block")
+                .PermitIf(Trigger.PuntBlocked, State.PuntBlock, () => _game.CurrentPlay.PuntBlockOccurred)
+                .PermitIf(Trigger.Fumble, State.FumbleReturn, () => !_game.CurrentPlay.PuntBlockOccurred);
+
+            _machine.Configure(State.PuntBlock)
+                .OnEntry(DoPuntBlockResult, "Check the result of the punt block")
+                .Permit(Trigger.Fumble, State.FumbleReturn);
+
+            _machine.Configure(State.PassPlay)
+                .OnEntry(DoPunt, "Check if there was an Interception")
+                .PermitIf(Trigger.Intercepted, State.InterceptionReturn, () => _game.CurrentPlay.InterceptionOccurred)
+                .PermitIf(Trigger.Fumble, State.FumbleReturn, () => !_game.CurrentPlay.InterceptionOccurred);
+
+            _machine.Configure(State.InterceptionReturn)
+                .OnEntry(DoPuntInterceptionResult, "Check the result of the interception")
+                .Permit(Trigger.Fumble, State.FumbleReturn);
+
+            _machine.Configure(State.RunPlay)
+                .OnEntry(DoRunPlay, "We're Running")
+                .Permit(Trigger.Fumble, State.FumbleReturn);
+
             _machine.Configure(State.Kickoff)
-                .OnEntry(DoKickoff, "Kicking off the ball");
+                .OnEntry(DoKickoff, "Kicking off the ball")
+                .Permit(Trigger.Fumble, State.FumbleReturn);
+
+            //after block checks, interception checks and interception checks - lets pull the play results all together
+            //every "Result" action should end in the POST PLAY state
+            _machine.Configure(State.FumbleReturn)
+                .OnEntry(DoFumbleCheck, "was there a fumble on the play")
+                .PermitIf(Trigger.PlayResult, State.FieldGoalResult, () => _game.CurrentPlay.PlayType == PlayType.FieldGoal)
+                .PermitIf(Trigger.PlayResult, State.RunPlayResult, () => _game.CurrentPlay.PlayType == PlayType.Run)
+                .PermitIf(Trigger.PlayResult, State.KickoffResult, () => _game.CurrentPlay.PlayType == PlayType.Kickoff)
+                .PermitIf(Trigger.PlayResult, State.PuntResult, () => _game.CurrentPlay.PlayType == PlayType.Punt)
+                .PermitIf(Trigger.PlayResult, State.PassPlayResult, () => _game.CurrentPlay.PlayType == PlayType.Pass);
 
             _machine.OnTransitioned(t =>
                 Console.WriteLine(
@@ -85,8 +128,44 @@ namespace StateLibrary
             _machine.Fire(Trigger.TeamsSelected);
         }
 
+        private void DoFieldGoalBlockResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoPuntInterceptionResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoPuntBlockResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoPunt()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoRunPlay()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoFieldGoal()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoFumbleCheck()
+        {
+            throw new NotImplementedException();
+        }
+
         private void DoKickoff()
         {
+            //gotta do the kickoff in here
             throw new NotImplementedException();
         }
 
