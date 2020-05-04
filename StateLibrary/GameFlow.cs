@@ -1,6 +1,7 @@
 ﻿using System;
 using DomainObjects;
 using Stateless;
+using Stateless.Graph;
 using StateLibrary.Actions;
 
 namespace StateLibrary
@@ -123,6 +124,8 @@ namespace StateLibrary
             _machine.OnTransitioned(t =>
                 Console.WriteLine(
                     $"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
+
+            string graph = UmlDotGraph.Format(_machine.GetInfo());
 
             //fire the teams Selected trigger, which should change the state to CoinToss and launch the DoCoinToss method
             _machine.Fire(Trigger.TeamsSelected);
