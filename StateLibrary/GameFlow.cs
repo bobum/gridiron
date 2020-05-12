@@ -18,7 +18,11 @@ namespace StateLibrary
             PlayResult,
             FieldGoalBlocked,
             PuntBlocked,
-            Intercepted
+            Intercepted,
+            HalfExpired,
+            HalftimeOver,
+            GameExpired,
+            NextPlay
         }
 
         enum State
@@ -41,6 +45,7 @@ namespace StateLibrary
             PuntResult,
             PassPlayResult,
             PostPlay,
+            Halftime,
             PostGame
         }
 
@@ -62,7 +67,7 @@ namespace StateLibrary
 
             //when we enter the coin toss state from the TeamsSelected trigger then DoCoinToss!
             _machine.Configure(State.CoinToss)
-                .OnEntryFrom(Trigger.TeamsSelected, DoCoinToss, "Teams Chosen")
+                .OnEntry(DoCoinToss, "Teams Chosen")
                 .Permit(Trigger.CoinTossed, State.PrePlay);
 
             _machine.Configure(State.PrePlay)
@@ -77,30 +82,30 @@ namespace StateLibrary
 
             //field goal, punt and pass go to interim states of FGBlock, PuntBlocked and Interception
             _machine.Configure(State.FieldGoal)
-                .OnEntry(DoFieldGoal, "Check if there was a block")
-                .PermitIf(Trigger.FieldGoalBlocked, State.FieldGoalBlock, () => _game.CurrentPlay.FieldGoalBlockOccurred)
-                .PermitIf(Trigger.Fumble, State.FumbleReturn, () => !_game.CurrentPlay.FieldGoalBlockOccurred);
+                .OnEntry(DoFieldGoalBlockCheck, "Check if there was a block")
+                .Permit(Trigger.FieldGoalBlocked, State.FieldGoalBlock)
+                .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.FieldGoalBlock)
                 .OnEntry(DoFieldGoalBlockResult, "Check the result of the FG block")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.Punt)
-                .OnEntry(DoPunt, "Check if there was a block")
-                .PermitIf(Trigger.PuntBlocked, State.PuntBlock, () => _game.CurrentPlay.PuntBlockOccurred)
-                .PermitIf(Trigger.Fumble, State.FumbleReturn, () => !_game.CurrentPlay.PuntBlockOccurred);
+                .OnEntry(DoPuntBlockCheck, "Check if there was a block")
+                .Permit(Trigger.PuntBlocked, State.PuntBlock)
+                .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.PuntBlock)
                 .OnEntry(DoPuntBlockResult, "Check the result of the punt block")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.PassPlay)
-                .OnEntry(DoPunt, "Check if there was an Interception")
-                .PermitIf(Trigger.Intercepted, State.InterceptionReturn, () => _game.CurrentPlay.InterceptionOccurred)
-                .PermitIf(Trigger.Fumble, State.FumbleReturn, () => !_game.CurrentPlay.InterceptionOccurred);
+                .OnEntry(DoInterceptionCheck, "Check if there was an Interception")
+                .Permit(Trigger.Intercepted, State.InterceptionReturn)
+                .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.InterceptionReturn)
-                .OnEntry(DoPuntInterceptionResult, "Check the result of the interception")
+                .OnEntry(DoInterceptionResult, "Check the result of the interception")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.RunPlay)
@@ -121,6 +126,36 @@ namespace StateLibrary
                 .PermitIf(Trigger.PlayResult, State.PuntResult, () => _game.CurrentPlay.PlayType == PlayType.Punt)
                 .PermitIf(Trigger.PlayResult, State.PassPlayResult, () => _game.CurrentPlay.PlayType == PlayType.Pass);
 
+            _machine.Configure(State.FieldGoalResult)
+                .OnEntry(DoFieldGoalResult, "the kick is up...")
+                .Permit(Trigger.PlayResult, State.PostPlay);
+
+            _machine.Configure(State.RunPlayResult)
+                .OnEntry(DoRunPlayResult, "the runner is brought down")
+                .Permit(Trigger.PlayResult, State.PostPlay);
+
+            _machine.Configure(State.KickoffResult)
+                .OnEntry(DoKickoffResult, "the kick is away...")
+                .Permit(Trigger.PlayResult, State.PostPlay);
+
+            _machine.Configure(State.PuntResult)
+                .OnEntry(DoPuntResult, "the punt is high...")
+                .Permit(Trigger.PlayResult, State.PostPlay);
+
+            _machine.Configure(State.PassPlayResult)
+                .OnEntry(DoPassPlayResult, "the receiver is brought down...")
+                .Permit(Trigger.PlayResult, State.PostPlay);
+
+            _machine.Configure(State.PostPlay)
+                .OnEntry(DoPostPlay, "play is over")
+                .Permit(Trigger.HalfExpired, State.Halftime)
+                .Permit(Trigger.GameExpired, State.PostGame)
+                .Permit(Trigger.NextPlay, State.PrePlay);
+
+            _machine.Configure(State.Halftime)
+                .OnEntry(DoHalftime, "The band takes the field at halftime")
+                .PermitIf(Trigger.HalftimeOver, State.PrePlay);
+
             _machine.OnTransitioned(t =>
                 Console.WriteLine(
                     $"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
@@ -131,12 +166,52 @@ namespace StateLibrary
             _machine.Fire(Trigger.TeamsSelected);
         }
 
+        private void DoHalftime()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoPassPlayResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoPuntResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoKickoffResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoRunPlayResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoFieldGoalResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoInterceptionCheck()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoPostPlay()
+        {
+            throw new NotImplementedException();
+        }
+
         private void DoFieldGoalBlockResult()
         {
             throw new NotImplementedException();
         }
 
-        private void DoPuntInterceptionResult()
+        private void DoInterceptionResult()
         {
             throw new NotImplementedException();
         }
@@ -146,7 +221,7 @@ namespace StateLibrary
             throw new NotImplementedException();
         }
 
-        private void DoPunt()
+        private void DoPuntBlockCheck()
         {
             throw new NotImplementedException();
         }
@@ -156,7 +231,7 @@ namespace StateLibrary
             throw new NotImplementedException();
         }
 
-        private void DoFieldGoal()
+        private void DoFieldGoalBlockCheck()
         {
             throw new NotImplementedException();
         }
