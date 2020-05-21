@@ -22,7 +22,8 @@ namespace StateLibrary
             HalfExpired,
             HalftimeOver,
             GameExpired,
-            NextPlay
+            NextPlay,
+            StartGameFlow
         }
 
         enum State
@@ -46,11 +47,12 @@ namespace StateLibrary
             PassPlayResult,
             PostPlay,
             Halftime,
-            PostGame
+            PostGame,
+            InitializeGame
         }
 
-        //we start in the PreGame state
-        private State _state = State.PreGame;
+        //we start in the InitializeGame state
+        private State _state = State.InitializeGame;
 
         private readonly StateMachine<State, Trigger> _machine;
         
@@ -60,9 +62,12 @@ namespace StateLibrary
 
             _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
 
+            _machine.Configure(State.InitializeGame)
+                .Permit(Trigger.StartGameFlow, State.PreGame);
 
             //in the PreGame state, on TeamsSelected - transition to CoinTossState
             _machine.Configure(State.PreGame)
+                .OnEntry(DoPreGame, "Pregame festivities")
                 .Permit(Trigger.TeamsSelected, State.CoinToss);
 
             //when we enter the coin toss state from the TeamsSelected trigger then DoCoinToss!
@@ -163,7 +168,12 @@ namespace StateLibrary
             string graph = UmlDotGraph.Format(_machine.GetInfo());
 
             //fire the teams Selected trigger, which should change the state to CoinToss and launch the DoCoinToss method
-            _machine.Fire(Trigger.TeamsSelected);
+            _machine.Fire(Trigger.StartGameFlow);
+        }
+
+        private void DoPreGame()
+        {
+            throw new NotImplementedException();
         }
 
         private void DoHalftime()
