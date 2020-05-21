@@ -3,6 +3,7 @@ using DomainObjects;
 using Stateless;
 using Stateless.Graph;
 using StateLibrary.Actions;
+using StateLibrary.Plays;
 
 namespace StateLibrary
 {
@@ -173,7 +174,9 @@ namespace StateLibrary
 
         private void DoPreGame()
         {
-            throw new NotImplementedException();
+            var preGame = new PreGame();
+            preGame.Execute(_game);
+            _machine.Fire(Trigger.TeamsSelected);
         }
 
         private void DoHalftime()
@@ -254,7 +257,9 @@ namespace StateLibrary
         private void DoKickoff()
         {
             //gotta do the kickoff in here
-            throw new NotImplementedException();
+            var kickoff = new Kickoff();
+            kickoff.Execute(_game);
+            _machine.Fire(Trigger.Fumble);
         }
 
         private void DoPrePlay()
