@@ -4,15 +4,21 @@ using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
 {
-    class PenaltyCheck : IPenaltyAction
+    class PenaltyCheck : IGameAction
     {
-        public void Execute(Game game, PenaltyOccured occurred)
+        private readonly PenaltyOccured _penaltyOccured;
+        public PenaltyCheck(PenaltyOccured penaltyOccured)
+        {
+            _penaltyOccured = penaltyOccured;
+        }
+
+        public void Execute(Game game)
         {
             CryptoRandom rng = new CryptoRandom();
             var didItHappen = rng.NextDouble();
             var homeAway = rng.NextDouble();
             var havePenalty = false;
-            var currentPenalty = new Penalty() { Occured = occurred };
+            var currentPenalty = new Penalty() { Occured = _penaltyOccured };
 
             switch (game.CurrentPlay.PlayType)
             {

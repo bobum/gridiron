@@ -4,6 +4,7 @@ using DomainObjects;
 using Stateless;
 using Stateless.Graph;
 using StateLibrary.Actions;
+using StateLibrary.PlayResults;
 using StateLibrary.Plays;
 using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
@@ -27,7 +28,9 @@ namespace StateLibrary
             HalftimeOver,
             GameExpired,
             NextPlay,
-            StartGameFlow
+            StartGameFlow,
+            QuarterExpired,
+            QuarterOver
         }
 
         enum State
@@ -52,8 +55,11 @@ namespace StateLibrary
             PostPlay,
             Halftime,
             PostGame,
-            InitializeGame
+            InitializeGame,
+            QuarterExpired
         }
+
+        private readonly StateMachine<State, Trigger>.TriggerWithParameters<bool> _nextPlayTrigger;
 
         //we start in the InitializeGame state
         private State _state = State.InitializeGame;
@@ -65,6 +71,7 @@ namespace StateLibrary
             _game = game;
 
             _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
+            _nextPlayTrigger = _machine.SetTriggerParameters<bool>(Trigger.NextPlay);
 
             _machine.Configure(State.InitializeGame)
                 .Permit(Trigger.StartGameFlow, State.PreGame);
@@ -148,7 +155,7 @@ namespace StateLibrary
                 .Permit(Trigger.PlayResult, State.PostPlay);
 
             _machine.Configure(State.PuntResult)
-                .OnEntry(DoPuntResult, "the punt is high...")
+                .OnEntry(DoPuntResult, "Punt team exits the field...")
                 .Permit(Trigger.PlayResult, State.PostPlay);
 
             _machine.Configure(State.PassPlayResult)
@@ -156,14 +163,22 @@ namespace StateLibrary
                 .Permit(Trigger.PlayResult, State.PostPlay);
 
             _machine.Configure(State.PostPlay)
-                .OnEntry(DoPostPlay, "play is over")
-                .Permit(Trigger.HalfExpired, State.Halftime)
-                .Permit(Trigger.GameExpired, State.PostGame)
-                .Permit(Trigger.NextPlay, State.PrePlay);
+                .OnEntry(DoPostPlay, "play is over, check for penalty, score, quarter expiration")
+                .PermitDynamic(_nextPlayTrigger,
+                    quarterExpired => quarterExpired ? State.QuarterExpired : State.PrePlay);
+
+            _machine.Configure(State.QuarterExpired)
+                .OnEntry(DoQuarterExpire, "The teams change endzones...")
+                .Permit(Trigger.QuarterOver, State.PrePlay)
+                .Permit(Trigger.HalfExpired, State.Halftime);
 
             _machine.Configure(State.Halftime)
                 .OnEntry(DoHalftime, "The band takes the field at halftime")
-                .PermitIf(Trigger.HalftimeOver, State.PrePlay);
+                .Permit(Trigger.HalftimeOver, State.PrePlay)
+                .Permit(Trigger.GameExpired, State.PostGame);
+
+            _machine.Configure(State.PostGame)
+                .OnEntry(DoPostGame, "Game over folks!");
 
             _machine.OnTransitioned(t =>
                 Console.WriteLine(
@@ -173,6 +188,16 @@ namespace StateLibrary
 
             //fire the teams Selected trigger, which should change the state to CoinToss and launch the DoCoinToss method
             _machine.Fire(Trigger.StartGameFlow);
+        }
+
+        private void DoPostGame()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoQuarterExpire()
+        {
+            throw new NotImplementedException();
         }
 
         private void DoPreGame()
@@ -199,7 +224,9 @@ namespace StateLibrary
 
         private void DoKickoffResult()
         {
-            throw new NotImplementedException();
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(_game);
+            _machine.Fire(Trigger.PlayResult);
         }
 
         private void DoRunPlayResult()
@@ -219,7 +246,25 @@ namespace StateLibrary
 
         private void DoPostPlay()
         {
-            throw new NotImplementedException();
+            //check for penalties during and after the play, scores, injuries, quarter expiration
+            //Trigger.QuarterExpired or Trigger.NextPlay
+            var penaltyCheck = new PenaltyCheck(PenaltyOccured.During);
+            penaltyCheck.Execute(_game);
+
+            penaltyCheck = new PenaltyCheck(PenaltyOccured.After);
+            penaltyCheck.Execute(_game);
+
+            var scoreCheck = new ScoreCheck();
+            scoreCheck.Execute(_game);
+
+            var quarterExpireCheck = new QuarterExpireCheck();
+            quarterExpireCheck.Execute(_game);
+            
+            var postPlay = new PostPlay();
+            postPlay.Execute(_game);
+
+            _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
+            
         }
 
         private void DoFieldGoalBlockResult()
@@ -254,9 +299,6 @@ namespace StateLibrary
 
         private void DoFumbleCheck()
         {
-            //fumble occurred skills check
-            //if true - possession skills check and fumble action
-            //if false - move on
             var fumbleCheck = new FumbleOccurredSkillsCheck();
             fumbleCheck.Execute(_game);
             if (fumbleCheck.Occurred)
@@ -269,7 +311,6 @@ namespace StateLibrary
                 fumbleResult.Execute(_game);
             }
             _machine.Fire(Trigger.PlayResult);
-
         }
 
         private void DoKickoff()
@@ -287,8 +328,8 @@ namespace StateLibrary
             var prePlay = new PrePlay();
             prePlay.Execute(_game);
 
-            var penaltyCheck = new PenaltyCheck();
-            penaltyCheck.Execute(_game, PenaltyOccured.Before);
+            var penaltyCheck = new PenaltyCheck(PenaltyOccured.Before);
+            penaltyCheck.Execute(_game);
 
             var snap = new Snap();
             snap.Execute(_game);

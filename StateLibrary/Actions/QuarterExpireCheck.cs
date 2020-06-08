@@ -7,12 +7,15 @@ namespace StateLibrary.Actions
     {
         public void Execute(Game game)
         {
-            //remove the current play elapsed time and 
+            //remove the current play elapsed time from the current quarter
             game.CurrentQuarter.TimeRemaining -= (int)game.CurrentPlay.ElapsedTime;
-            
+
             //see if we need to advance to the next quarter
-            if(game.CurrentQuarter.TimeRemaining == 0)
+            if (game.CurrentQuarter.TimeRemaining == 0)
             {
+                game.CurrentPlay.Result.Add($"last play of the {game.CurrentQuarter.QuarterType} quarter");
+                game.CurrentPlay.QuarterExpired = true;
+
                 switch (game.CurrentQuarter.QuarterType)
                 {
                     case DomainObjects.Time.QuarterType.First:
@@ -29,8 +32,6 @@ namespace StateLibrary.Actions
                         break;
                     case DomainObjects.Time.QuarterType.Overtime:
                         //TODO check if tied & move to another OT
-                        break;
-                    default:
                         break;
                 }
             }

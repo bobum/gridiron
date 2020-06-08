@@ -17,5 +17,9 @@ namespace DomainObjects
         public PlayType PlayType { get; set; }
         public List<Penalty> Penalties { get; set; } = new List<Penalty>();
         public Double ElapsedTime { get; set; } = 0.0;
+        public bool QuarterExpired { get; set; } = false;
+        public bool HalfExpired { get; set; } = false;
+        public bool GameExpired { get; set; } = false;
+
     }
 }
