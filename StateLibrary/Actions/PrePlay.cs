@@ -3,7 +3,7 @@ using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
 {
-    class PrePlay : IGameAction
+    public class PrePlay : IGameAction
     {
         public void Execute(Game game)
         {

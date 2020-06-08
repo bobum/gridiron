@@ -3,7 +3,6 @@ using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
 {
-
     public sealed class Interception : IGameAction
     {
         public void Execute(Game game)

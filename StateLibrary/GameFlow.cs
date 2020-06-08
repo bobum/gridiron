@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Text;
 using DomainObjects;
 using Stateless;
 using Stateless.Graph;
 using StateLibrary.Actions;
 using StateLibrary.Plays;
+using StateLibrary.SkillsCheckResults;
+using StateLibrary.SkillsChecks;
 
 namespace StateLibrary
 {
@@ -13,7 +16,7 @@ namespace StateLibrary
         enum Trigger
         {
             Snap,
-            TeamsSelected,
+            WarmupsCompleted,
             CoinTossed,
             Fumble,
             PlayResult,
@@ -66,12 +69,12 @@ namespace StateLibrary
             _machine.Configure(State.InitializeGame)
                 .Permit(Trigger.StartGameFlow, State.PreGame);
 
-            //in the PreGame state, on TeamsSelected - transition to CoinTossState
+            //in the PreGame state, on WarmupsCompleted - transition to CoinTossState
             _machine.Configure(State.PreGame)
                 .OnEntry(DoPreGame, "Pregame festivities")
-                .Permit(Trigger.TeamsSelected, State.CoinToss);
+                .Permit(Trigger.WarmupsCompleted, State.CoinToss);
 
-            //when we enter the coin toss state from the TeamsSelected trigger then DoCoinToss!
+            //when we enter the coin toss state from the WarmupsCompleted trigger then DoCoinToss!
             _machine.Configure(State.CoinToss)
                 .OnEntry(DoCoinToss, "Teams Chosen")
                 .Permit(Trigger.CoinTossed, State.PrePlay);
@@ -176,7 +179,7 @@ namespace StateLibrary
         {
             var preGame = new PreGame();
             preGame.Execute(_game);
-            _machine.Fire(Trigger.TeamsSelected);
+            _machine.Fire(Trigger.WarmupsCompleted);
         }
 
         private void DoHalftime()
@@ -251,7 +254,22 @@ namespace StateLibrary
 
         private void DoFumbleCheck()
         {
-            throw new NotImplementedException();
+            //fumble occurred skills check
+            //if true - possession skills check and fumble action
+            //if false - move on
+            var fumbleCheck = new FumbleOccurredSkillsCheck();
+            fumbleCheck.Execute(_game);
+            if (fumbleCheck.Occurred)
+            {
+                //if true - possession skills check and fumble action
+                var possessionChangeResult = new FumblePossessionChangeSkillsCheckResult();
+                possessionChangeResult.Execute(_game);
+
+                var fumbleResult = new Fumble(possessionChangeResult.Possession);
+                fumbleResult.Execute(_game);
+            }
+            _machine.Fire(Trigger.PlayResult);
+
         }
 
         private void DoKickoff()
