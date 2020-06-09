@@ -275,7 +275,7 @@ namespace StateLibrary
             else
             {
                 //no block, kick is up...
-                var punt = new Punt();();
+                var punt = new Punt();
                 punt.Execute(_game);
             }
 

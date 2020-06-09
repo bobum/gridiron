@@ -1,8 +1,8 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StateLibrary;
 using StateLibrary.Actions;
+using Fumble = StateLibrary.Actions.Fumble;
 
 namespace UnitTestProject1
 {
