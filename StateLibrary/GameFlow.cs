@@ -29,7 +29,6 @@ namespace StateLibrary
             GameExpired,
             NextPlay,
             StartGameFlow,
-            QuarterExpired,
             QuarterOver
         }
 
@@ -183,11 +182,18 @@ namespace StateLibrary
             _machine.OnTransitioned(t =>
                 Console.WriteLine(
                     $"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
+        }
 
-            string graph = UmlDotGraph.Format(_machine.GetInfo());
-
+        public Game Execute()
+        {
             //fire the teams Selected trigger, which should change the state to CoinToss and launch the DoCoinToss method
             _machine.Fire(Trigger.StartGameFlow);
+            return _game;
+        }
+
+        public string GetGraph()
+        {
+            return UmlDotGraph.Format(_machine.GetInfo());
         }
 
         private void DoPostGame()
@@ -248,23 +254,10 @@ namespace StateLibrary
         {
             //check for penalties during and after the play, scores, injuries, quarter expiration
             //Trigger.QuarterExpired or Trigger.NextPlay
-            var penaltyCheck = new PenaltyCheck(PenaltyOccured.During);
-            penaltyCheck.Execute(_game);
-
-            penaltyCheck = new PenaltyCheck(PenaltyOccured.After);
-            penaltyCheck.Execute(_game);
-
-            var scoreCheck = new ScoreCheck();
-            scoreCheck.Execute(_game);
-
-            var quarterExpireCheck = new QuarterExpireCheck();
-            quarterExpireCheck.Execute(_game);
-            
             var postPlay = new PostPlay();
             postPlay.Execute(_game);
 
             _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
-            
         }
 
         private void DoFieldGoalBlockResult()
