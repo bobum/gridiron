@@ -85,6 +85,9 @@ namespace StateLibrary
                 .OnEntry(DoCoinToss, "Teams Chosen")
                 .Permit(Trigger.CoinTossed, State.PrePlay);
 
+            //PrePlay state = huddle.  It is where the offensive and defensive plays are determined
+            //we check for motion and substitution penalties etc
+            //we then snap the ball and make sure the snap was good
             _machine.Configure(State.PrePlay)
                 .OnEntry(DoPrePlay, "Determine play, pre-play penalty and snap the ball")
                 .PermitIf(Trigger.Snap, State.FieldGoal, () => _game.CurrentPlay.PlayType == PlayType.FieldGoal)
@@ -96,6 +99,13 @@ namespace StateLibrary
             //every play state should end in a fumble check state
 
             //field goal, punt and pass go to interim states of FGBlock, PuntBlocked and Interception
+            //their flow is like this:
+            //DoPlay - this initiates the play and is akin to saying "the ball is in the air..."
+            //ActionCheck - this asks "was there a block/interception?"
+            //ActionResult - if there was a block/interception what happened?
+            //FumbleCheck - after any action, we always could fumble
+            //FumbleResult - what happened?
+            //PlayResult - tie it all together and close out the play
             _machine.Configure(State.FieldGoal)
                 .OnEntry(DoFieldGoalBlockCheck, "Check if there was a block")
                 .Permit(Trigger.FieldGoalBlocked, State.FieldGoalBlock)
@@ -131,7 +141,6 @@ namespace StateLibrary
                 .OnEntry(DoKickoff, "Kicking off the ball")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
-            //after block checks, interception checks and interception checks - lets pull the play results all together
             //every "Result" action should end in the POST PLAY state
             _machine.Configure(State.FumbleReturn)
                 .OnEntry(DoFumbleCheck, "was there a fumble on the play")
@@ -282,7 +291,9 @@ namespace StateLibrary
 
         private void DoRunPlay()
         {
-            throw new NotImplementedException();
+            var runPlay = new Run();
+            runPlay.Execute(_game);
+            _machine.Fire(Trigger.Fumble);
         }
 
         private void DoFieldGoalBlockCheck()
@@ -316,8 +327,9 @@ namespace StateLibrary
 
         private void DoPrePlay()
         {
-            //in here we will need to do a pre-snap penalty check, which could move the line of scrimmage, ejection of a player etc...
-            //we will also determine which kind of play happens
+            //PrePlay state = huddle.  It is where the offensive and defensive plays are determined
+            //we check for motion and substitution penalties etc
+            //we then snap the ball and make sure the snap was good
             var prePlay = new PrePlay();
             prePlay.Execute(_game);
 
