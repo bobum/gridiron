@@ -35,6 +35,9 @@ namespace StateLibrary.Actions
             {
                 game.CurrentPlay.Result.Add($"{game.Possession} keeps possession");
             }
+
+            //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records
+            game.CurrentPlay.Fumbles.Add(new DomainObjects.Fumble());
         }
     }
 }

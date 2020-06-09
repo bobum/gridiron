@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using DomainObjects;
 using Stateless;
 using Stateless.Graph;
@@ -8,6 +7,8 @@ using StateLibrary.PlayResults;
 using StateLibrary.Plays;
 using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
+using Fumble = StateLibrary.Actions.Fumble;
+using Interception = StateLibrary.Actions.Interception;
 
 namespace StateLibrary
 {
@@ -21,9 +22,6 @@ namespace StateLibrary
             CoinTossed,
             Fumble,
             PlayResult,
-            FieldGoalBlocked,
-            PuntBlocked,
-            Intercepted,
             HalfExpired,
             HalftimeOver,
             GameExpired,
@@ -42,9 +40,6 @@ namespace StateLibrary
             Kickoff,
             Punt,
             PassPlay,
-            FieldGoalBlock,
-            PuntBlock,
-            InterceptionReturn,
             FumbleReturn,
             FieldGoalResult,
             RunPlayResult,
@@ -107,30 +102,15 @@ namespace StateLibrary
             //FumbleResult - what happened?
             //PlayResult - tie it all together and close out the play
             _machine.Configure(State.FieldGoal)
-                .OnEntry(DoFieldGoalBlockCheck, "Check if there was a block")
-                .Permit(Trigger.FieldGoalBlocked, State.FieldGoalBlock)
-                .Permit(Trigger.Fumble, State.FumbleReturn);
-
-            _machine.Configure(State.FieldGoalBlock)
-                .OnEntry(DoFieldGoalBlockResult, "Check the result of the FG block")
+                .OnEntry(DoFieldGoal, "Check if there was a block")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.Punt)
-                .OnEntry(DoPuntBlockCheck, "Check if there was a block")
-                .Permit(Trigger.PuntBlocked, State.PuntBlock)
-                .Permit(Trigger.Fumble, State.FumbleReturn);
-
-            _machine.Configure(State.PuntBlock)
-                .OnEntry(DoPuntBlockResult, "Check the result of the punt block")
+                .OnEntry(DoPunt, "Check if there was a block")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.PassPlay)
-                .OnEntry(DoInterceptionCheck, "Check if there was an Interception")
-                .Permit(Trigger.Intercepted, State.InterceptionReturn)
-                .Permit(Trigger.Fumble, State.FumbleReturn);
-
-            _machine.Configure(State.InterceptionReturn)
-                .OnEntry(DoInterceptionResult, "Check the result of the interception")
+                .OnEntry(DoPassPlay, "Check if there was an Interception")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.RunPlay)
@@ -219,6 +199,7 @@ namespace StateLibrary
         {
             var preGame = new PreGame();
             preGame.Execute(_game);
+
             _machine.Fire(Trigger.WarmupsCompleted);
         }
 
@@ -241,6 +222,7 @@ namespace StateLibrary
         {
             var kickoffResult = new KickoffResult();
             kickoffResult.Execute(_game);
+
             _machine.Fire(Trigger.PlayResult);
         }
 
@@ -254,74 +236,110 @@ namespace StateLibrary
             throw new NotImplementedException();
         }
 
-        private void DoInterceptionCheck()
+        private void DoPassPlay()
         {
-            throw new NotImplementedException();
+            //Check if there was a block & if there was, assemble the result
+            var interceptionCheck = new InterceptionOccurredSkillsCheck();
+            interceptionCheck.Execute(_game);
+
+            if (interceptionCheck.Occurred)
+            {
+                //Intercepted!!!
+                var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
+                possessionChangeResult.Execute(_game);
+
+                var interceptionResult = new Interception();
+                interceptionResult.Execute(_game);
+            }
+            else
+            {
+                //no block, kick is up...
+                var fieldGoal = new FieldGoal();
+                fieldGoal.Execute(_game);
+            }
+
+            _machine.Fire(Trigger.Fumble);
         }
 
-        private void DoPostPlay()
+        private void DoPunt()
         {
-            //check for penalties during and after the play, scores, injuries, quarter expiration
-            //Trigger.QuarterExpired or Trigger.NextPlay
-            var postPlay = new PostPlay();
-            postPlay.Execute(_game);
+            //Check if there was a block & if there was, assemble the result
+            var blockedCheck = new PuntBlockOccurredSkillsCheck();
+            blockedCheck.Execute(_game);
 
-            _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
-        }
+            if (blockedCheck.Occurred)
+            {
+                //Blocked!  Ball is loose!!
+                FumbleOccurred();
+            }
+            else
+            {
+                //no block, kick is up...
+                var punt = new Punt();();
+                punt.Execute(_game);
+            }
 
-        private void DoFieldGoalBlockResult()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void DoInterceptionResult()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void DoPuntBlockResult()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void DoPuntBlockCheck()
-        {
-            throw new NotImplementedException();
+            _machine.Fire(Trigger.Fumble);
         }
 
         private void DoRunPlay()
         {
             var runPlay = new Run();
             runPlay.Execute(_game);
+
             _machine.Fire(Trigger.Fumble);
         }
 
-        private void DoFieldGoalBlockCheck()
+        private void DoFieldGoal()
         {
-            throw new NotImplementedException();
+            //Check if there was a block & if there was, assemble the result
+            var blockedCheck = new FieldGoalBlockOccurredSkillsCheck();
+            blockedCheck.Execute(_game);
+
+            if (blockedCheck.Occurred)
+            {
+                //Blocked!  Ball is loose!!
+                FumbleOccurred();
+            }
+            else
+            {
+                //no block, kick is up...
+                var fieldGoal = new FieldGoal();
+                fieldGoal.Execute(_game);
+            }
+
+            _machine.Fire(Trigger.Fumble);
+        }
+
+        private void DoPostPlay()
+        {
+            //check for penalties during and after the play, scores, injuries, quarter expiration
+            var postPlay = new PostPlay();
+            postPlay.Execute(_game);
+
+            _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
         }
 
         private void DoFumbleCheck()
         {
             var fumbleCheck = new FumbleOccurredSkillsCheck();
             fumbleCheck.Execute(_game);
+            
+            //if true - possession skills check and fumble action
             if (fumbleCheck.Occurred)
             {
-                //if true - possession skills check and fumble action
-                var possessionChangeResult = new FumblePossessionChangeSkillsCheckResult();
-                possessionChangeResult.Execute(_game);
-
-                var fumbleResult = new Fumble(possessionChangeResult.Possession);
-                fumbleResult.Execute(_game);
+                FumbleOccurred();
             }
+
             _machine.Fire(Trigger.PlayResult);
         }
-
+        
         private void DoKickoff()
         {
             //gotta do the kickoff in here
             var kickoff = new Kickoff();
             kickoff.Execute(_game);
+
             _machine.Fire(Trigger.Fumble);
         }
 
@@ -338,6 +356,7 @@ namespace StateLibrary
 
             var snap = new Snap();
             snap.Execute(_game);
+
             _machine.Fire(Trigger.Snap);
         }
 
@@ -345,7 +364,26 @@ namespace StateLibrary
         {
             var coinToss = new CoinToss();
             coinToss.Execute(_game);
+
             _machine.Fire(Trigger.CoinTossed);
         }
+
+
+
+        #region NON STATE MACHINE METHODS
+        
+        /// <summary>
+        /// If we determine at anytime there has been a fumble, we use this method to determine who took possession
+        /// </summary>
+        private void FumbleOccurred()
+        {
+            var possessionChangeResult = new FumblePossessionChangeSkillsCheckResult();
+            possessionChangeResult.Execute(_game);
+
+            var fumbleResult = new Fumble(possessionChangeResult.Possession);
+            fumbleResult.Execute(_game);
+        }
+
+        #endregion
     }
 }

@@ -16,6 +16,7 @@ namespace DomainObjects
         public int StopTime { get; set; }
         public PlayType PlayType { get; set; }
         public List<Penalty> Penalties { get; set; } = new List<Penalty>();
+        public List<Fumble> Fumbles { get; set; } = new List<Fumble>();
         public Double ElapsedTime { get; set; } = 0.0;
         public bool QuarterExpired { get; set; } = false;
         public bool HalfExpired { get; set; } = false;
