@@ -102,11 +102,11 @@ namespace StateLibrary
             //FumbleResult - what happened?
             //PlayResult - tie it all together and close out the play
             _machine.Configure(State.FieldGoal)
-                .OnEntry(DoFieldGoal, "Check if there was a block")
+                .OnEntry(DoFieldGoalPlay, "Check if there was a block")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.Punt)
-                .OnEntry(DoPunt, "Check if there was a block")
+                .OnEntry(DoPuntPlay, "Check if there was a block")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.PassPlay)
@@ -118,7 +118,7 @@ namespace StateLibrary
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             _machine.Configure(State.Kickoff)
-                .OnEntry(DoKickoff, "Kicking off the ball")
+                .OnEntry(DoKickoffPlay, "Kicking off the ball")
                 .Permit(Trigger.Fumble, State.FumbleReturn);
 
             //every "Result" action should end in the POST PLAY state
@@ -180,20 +180,7 @@ namespace StateLibrary
             return _game;
         }
 
-        public string GetGraph()
-        {
-            return UmlDotGraph.Format(_machine.GetInfo());
-        }
-
-        private void DoPostGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void DoQuarterExpire()
-        {
-            throw new NotImplementedException();
-        }
+        #region GAME EVENT METHODS
 
         private void DoPreGame()
         {
@@ -203,37 +190,65 @@ namespace StateLibrary
             _machine.Fire(Trigger.WarmupsCompleted);
         }
 
+        private void DoCoinToss()
+        {
+            var coinToss = new CoinToss();
+            coinToss.Execute(_game);
+
+            _machine.Fire(Trigger.CoinTossed);
+        }
+
+        private void DoQuarterExpire()
+        {
+            throw new NotImplementedException();
+        }
+
         private void DoHalftime()
         {
             throw new NotImplementedException();
         }
 
-        private void DoPassPlayResult()
+        private void DoPostGame()
         {
             throw new NotImplementedException();
         }
 
-        private void DoPuntResult()
+        #endregion
+
+        #region PLAY EVENT METHODS
+
+        private void DoPrePlay()
         {
-            throw new NotImplementedException();
+            //PrePlay state = huddle.  It is where the offensive and defensive plays are determined
+            //we check for motion and substitution penalties etc
+            //we then snap the ball and make sure the snap was good
+            var prePlay = new PrePlay();
+            prePlay.Execute(_game);
+
+            var penaltyCheck = new PenaltyCheck(PenaltyOccured.Before);
+            penaltyCheck.Execute(_game);
+
+            var snap = new Snap();
+            snap.Execute(_game);
+
+            _machine.Fire(Trigger.Snap);
         }
 
-        private void DoKickoffResult()
+        private void DoKickoffPlay()
         {
-            var kickoffResult = new KickoffResult();
-            kickoffResult.Execute(_game);
+            //gotta do the kickoff in here
+            var kickoff = new Kickoff();
+            kickoff.Execute(_game);
 
-            _machine.Fire(Trigger.PlayResult);
+            _machine.Fire(Trigger.Fumble);
         }
 
-        private void DoRunPlayResult()
+        private void DoRunPlay()
         {
-            throw new NotImplementedException();
-        }
+            var runPlay = new Run();
+            runPlay.Execute(_game);
 
-        private void DoFieldGoalResult()
-        {
-            throw new NotImplementedException();
+            _machine.Fire(Trigger.Fumble);
         }
 
         private void DoPassPlay()
@@ -261,7 +276,7 @@ namespace StateLibrary
             _machine.Fire(Trigger.Fumble);
         }
 
-        private void DoPunt()
+        private void DoPuntPlay()
         {
             //Check if there was a block & if there was, assemble the result
             var blockedCheck = new PuntBlockOccurredSkillsCheck();
@@ -282,15 +297,7 @@ namespace StateLibrary
             _machine.Fire(Trigger.Fumble);
         }
 
-        private void DoRunPlay()
-        {
-            var runPlay = new Run();
-            runPlay.Execute(_game);
-
-            _machine.Fire(Trigger.Fumble);
-        }
-
-        private void DoFieldGoal()
+        private void DoFieldGoalPlay()
         {
             //Check if there was a block & if there was, assemble the result
             var blockedCheck = new FieldGoalBlockOccurredSkillsCheck();
@@ -310,6 +317,19 @@ namespace StateLibrary
 
             _machine.Fire(Trigger.Fumble);
         }
+        private void DoFumbleCheck()
+        {
+            var fumbleCheck = new FumbleOccurredSkillsCheck();
+            fumbleCheck.Execute(_game);
+
+            //if true - possession skills check and fumble action
+            if (fumbleCheck.Occurred)
+            {
+                FumbleOccurred();
+            }
+
+            _machine.Fire(Trigger.PlayResult);
+        }
 
         private void DoPostPlay()
         {
@@ -320,58 +340,59 @@ namespace StateLibrary
             _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
         }
 
-        private void DoFumbleCheck()
+        #endregion
+
+        #region PLAY RESULT METHODS
+
+        private void DoPassPlayResult()
         {
-            var fumbleCheck = new FumbleOccurredSkillsCheck();
-            fumbleCheck.Execute(_game);
-            
-            //if true - possession skills check and fumble action
-            if (fumbleCheck.Occurred)
-            {
-                FumbleOccurred();
-            }
+            var passResult = new PassResult();
+            passResult.Execute(_game);
 
             _machine.Fire(Trigger.PlayResult);
         }
-        
-        private void DoKickoff()
-        {
-            //gotta do the kickoff in here
-            var kickoff = new Kickoff();
-            kickoff.Execute(_game);
 
-            _machine.Fire(Trigger.Fumble);
+        private void DoPuntResult()
+        {
+            var puntResult = new PuntResult();
+            puntResult.Execute(_game);
+
+            _machine.Fire(Trigger.PlayResult);
         }
 
-        private void DoPrePlay()
+        private void DoKickoffResult()
         {
-            //PrePlay state = huddle.  It is where the offensive and defensive plays are determined
-            //we check for motion and substitution penalties etc
-            //we then snap the ball and make sure the snap was good
-            var prePlay = new PrePlay();
-            prePlay.Execute(_game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(_game);
 
-            var penaltyCheck = new PenaltyCheck(PenaltyOccured.Before);
-            penaltyCheck.Execute(_game);
-
-            var snap = new Snap();
-            snap.Execute(_game);
-
-            _machine.Fire(Trigger.Snap);
+            _machine.Fire(Trigger.PlayResult);
         }
 
-        private void DoCoinToss()
+        private void DoRunPlayResult()
         {
-            var coinToss = new CoinToss();
-            coinToss.Execute(_game);
+            var runResult = new RunResult();
+            runResult.Execute(_game);
 
-            _machine.Fire(Trigger.CoinTossed);
+            _machine.Fire(Trigger.PlayResult);
         }
 
+        private void DoFieldGoalResult()
+        {
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(_game);
 
+            _machine.Fire(Trigger.PlayResult);
+        }
+
+        #endregion
 
         #region NON STATE MACHINE METHODS
         
+        public string GetGraph()
+        {
+            return UmlDotGraph.Format(_machine.GetInfo());
+        }
+
         /// <summary>
         /// If we determine at anytime there has been a fumble, we use this method to determine who took possession
         /// </summary>
