@@ -1,24 +1,55 @@
 ﻿using System.Linq;
 using DomainObjects;
-using StateLibrary.Interfaces;
+using StateLibrary.BaseClasses;
 
-namespace StateLibrary.Actions
+namespace StateLibrary.SkillsChecks
 {
-    class PenaltyCheck : IGameAction
+    public class PenaltyOccurredSkillsCheck : ActionOccurredSkillsCheck
     {
-        private readonly PenaltyOccured _penaltyOccured;
-        public PenaltyCheck(PenaltyOccured penaltyOccured)
+        private readonly PenaltyOccuredWhen _penaltyOccuredWhen;
+
+        public Penalty Penalty { get; private set; }
+
+        public PenaltyOccurredSkillsCheck(PenaltyOccuredWhen penaltyOccuredWhen)
         {
-            _penaltyOccured = penaltyOccured;
+            _penaltyOccuredWhen = penaltyOccuredWhen;
         }
 
-        public void Execute(Game game)
+        public override void Execute(Game game)
+        {
+            CryptoRandom rng = new CryptoRandom();
+
+            //was there a penalty? Totally random for now...
+            //in the future - we will determine, based on skills, who a penalty was called on and add that to the game object
+            //there might be more than 1 penalty on a play
+            Occurred = throwawayfakecodetodetermineoccurance(game);
+
+            //let's start to populate a penalty if it occurred
+            if (Occurred)
+            {
+                //aha - we have a penalty - let's make a new empty one...
+                Penalty = new Penalty();
+
+                //what team did the offender play for?
+                var homeAway = rng.NextDouble();
+                var calledOn = homeAway <= Penalty.AwayOdds ? Possession.Away : Possession.Home;
+
+                //who was it on that team?
+                var index = rng.Next(50);
+                var player = calledOn == Possession.Away ? game.AwayTeam.Players[index] : game.HomeTeam.Players[index];
+
+                //fill in the blanks
+                Penalty.OccuredWhen = _penaltyOccuredWhen;
+                Penalty.Player = player;
+                Penalty.CalledOn = calledOn;
+            }
+        }
+
+        private bool throwawayfakecodetodetermineoccurance(Game game)
         {
             CryptoRandom rng = new CryptoRandom();
             var didItHappen = rng.NextDouble();
-            var homeAway = rng.NextDouble();
             var havePenalty = false;
-            var currentPenalty = new Penalty() { Occured = _penaltyOccured };
 
             switch (game.CurrentPlay.PlayType)
             {
@@ -27,8 +58,6 @@ namespace StateLibrary.Actions
                         Penalties.List.Single(p =>
                                 p.Name == PenaltyNames.IllegalBlockAbovetheWaist).Odds)
                     {
-                        currentPenalty = Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.IllegalBlockAbovetheWaist);
                         havePenalty = true;
                     }
                     break;
@@ -37,8 +66,6 @@ namespace StateLibrary.Actions
                         Penalties.List.Single(p =>
                                 p.Name == PenaltyNames.RoughingtheKicker).Odds)
                     {
-                        currentPenalty = Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.RoughingtheKicker);
                         havePenalty = true;
                     }
                     break;
@@ -47,8 +74,6 @@ namespace StateLibrary.Actions
                         Penalties.List.Single(p =>
                                 p.Name == PenaltyNames.OffensiveHolding).Odds)
                     {
-                        currentPenalty = Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.OffensiveHolding);
                         havePenalty = true;
                     }
                     break;
@@ -57,8 +82,6 @@ namespace StateLibrary.Actions
                         Penalties.List.Single(p =>
                                 p.Name == PenaltyNames.RoughingtheKicker).Odds)
                     {
-                        currentPenalty = Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.RoughingtheKicker);
                         havePenalty = true;
                     }
                     break;
@@ -67,21 +90,12 @@ namespace StateLibrary.Actions
                         Penalties.List.Single(p =>
                                 p.Name == PenaltyNames.OffensiveHolding).Odds)
                     {
-                        currentPenalty = Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.OffensiveHolding);
                         havePenalty = true;
                     }
                     break;
             }
 
-            if (havePenalty)
-            {
-                currentPenalty.CalledOn =
-                    homeAway <= currentPenalty.AwayOdds ?
-                    Possession.Away : Possession.Home;
-                game.CurrentPlay.Penalties.Add(currentPenalty);
-                game.CurrentPlay.Result.Add("Flag on the play");
-            }
+            return havePenalty;
         }
     }
 }

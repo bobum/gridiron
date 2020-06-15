@@ -9,6 +9,7 @@ using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
 using Fumble = StateLibrary.Actions.Fumble;
 using Interception = StateLibrary.Actions.Interception;
+using Penalty = StateLibrary.Actions.Penalty;
 
 namespace StateLibrary
 {
@@ -228,8 +229,9 @@ namespace StateLibrary
             var prePlay = new PrePlay();
             prePlay.Execute(_game);
 
-            var penaltyCheck = new PenaltyCheck(PenaltyOccured.Before);
-            penaltyCheck.Execute(_game);
+            PenaltyCheck(PenaltyOccuredWhen.Before);
+
+            //in here - at some point - if there is a presnap penalty - we need to handle it and go all the way to post play
 
             var snap = new Snap();
             snap.Execute(_game);
@@ -333,6 +335,9 @@ namespace StateLibrary
 
         private void DoPostPlay()
         {
+            PenaltyCheck(PenaltyOccuredWhen.During);
+            PenaltyCheck(PenaltyOccuredWhen.After);
+
             //check for penalties during and after the play, scores, injuries, quarter expiration
             var postPlay = new PostPlay();
             postPlay.Execute(_game);
@@ -403,6 +408,18 @@ namespace StateLibrary
 
             var fumbleResult = new Fumble(possessionChangeResult.Possession);
             fumbleResult.Execute(_game);
+        }
+
+        private void PenaltyCheck(PenaltyOccuredWhen penaltyOccuredWhen)
+        {
+            var penaltyOccurredSkillsCheck = new PenaltyOccurredSkillsCheck(penaltyOccuredWhen);
+            penaltyOccurredSkillsCheck.Execute(_game);
+
+            if (penaltyOccurredSkillsCheck.Occurred)
+            {
+                var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penaltyOccurredSkillsCheck.Penalty);
+                penaltySkillsCheckResult.Execute(_game);
+            }
         }
 
         /// <summary>

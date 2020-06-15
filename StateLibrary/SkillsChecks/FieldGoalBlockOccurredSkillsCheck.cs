@@ -10,9 +10,9 @@ namespace StateLibrary.SkillsChecks
             CryptoRandom rng = new CryptoRandom();
 
             //was there a fumble? Totally random for now...
-            var bock = rng.Next(2);
+            var block = rng.Next(2);
 
-            Occurred = bock == 1;
+            Occurred = block == 1;
         }
     }
 }
