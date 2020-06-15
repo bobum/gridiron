@@ -1,7 +1,7 @@
 ﻿using DomainObjects;
 using StateLibrary.Interfaces;
 
-namespace StateLibrary.Actions
+namespace StateLibrary.Actions.EventChecks
 {
     public sealed class GameExpireCheck : IGameAction
     {

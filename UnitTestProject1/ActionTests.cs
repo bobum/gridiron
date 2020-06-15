@@ -2,6 +2,7 @@
 using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
+using StateLibrary.Actions.EventChecks;
 using Fumble = StateLibrary.Actions.Fumble;
 
 namespace UnitTestProject1

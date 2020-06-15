@@ -210,7 +210,10 @@ namespace StateLibrary
 
         private void DoPostGame()
         {
-            throw new NotImplementedException();
+            var postGame = new PostGame();
+            postGame.Execute(_game);
+
+            //TODO: Game has ended - what happens now that we have a complete _game object ready to go?
         }
 
         #endregion
