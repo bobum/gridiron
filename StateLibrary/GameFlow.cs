@@ -260,17 +260,13 @@ namespace StateLibrary
             if (interceptionCheck.Occurred)
             {
                 //Intercepted!!!
-                var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
-                possessionChangeResult.Execute(_game);
-
-                var interceptionResult = new Interception();
-                interceptionResult.Execute(_game);
+                InterceptionOccurred();
             }
             else
             {
-                //no block, kick is up...
-                var fieldGoal = new FieldGoal();
-                fieldGoal.Execute(_game);
+                //no interception, kick is up...
+                var passPlay = new Pass();
+                passPlay.Execute(_game);
             }
 
             _machine.Fire(Trigger.Fumble);
@@ -317,6 +313,7 @@ namespace StateLibrary
 
             _machine.Fire(Trigger.Fumble);
         }
+
         private void DoFumbleCheck()
         {
             var fumbleCheck = new FumbleOccurredSkillsCheck();
@@ -403,6 +400,18 @@ namespace StateLibrary
 
             var fumbleResult = new Fumble(possessionChangeResult.Possession);
             fumbleResult.Execute(_game);
+        }
+
+        /// <summary>
+        /// If we determine at anytime there has been an interception, we use this method to determine who took possession
+        /// </summary>
+        private void InterceptionOccurred()
+        {
+            var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
+            possessionChangeResult.Execute(_game);
+
+            var interceptionResult = new Interception();
+            interceptionResult.Execute(_game);
         }
 
         #endregion
