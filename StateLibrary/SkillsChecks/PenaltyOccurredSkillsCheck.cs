@@ -21,16 +21,70 @@ namespace StateLibrary.SkillsChecks
 
         public override void Execute(Game game)
         {
-            //was there a penalty? Totally random for now...
+            //was there a penalty? Totally random for now...eventually we will care if it was before during or after tha play...
             //in the future - we will determine, based on skills, who a penalty was called on and add that to the game object
             //there might be more than 1 penalty on a play
-            Occurred = throwawayfakecodetodetermineoccurance(game);
+            var didItHappen = _rng.NextDouble();
+            var havePenalty = false;
+            PenaltyNames penaltyName = PenaltyNames.NoPenalty;
+
+            switch (game.CurrentPlay.PlayType)
+            {
+                case PlayType.Kickoff:
+                    if (didItHappen <=
+                        Penalties.List.Single(p =>
+                            p.Name == PenaltyNames.IllegalBlockAbovetheWaist).Odds)
+                    {
+                        havePenalty = true;
+                        penaltyName = PenaltyNames.IllegalBlockAbovetheWaist;
+                    }
+                    break;
+                case PlayType.FieldGoal:
+                    if (didItHappen <=
+                        Penalties.List.Single(p =>
+                            p.Name == PenaltyNames.RoughingtheKicker).Odds)
+                    {
+                        havePenalty = true;
+                        penaltyName = PenaltyNames.RoughingtheKicker;
+                    }
+                    break;
+                case PlayType.Pass:
+                    if (didItHappen <=
+                        Penalties.List.Single(p =>
+                            p.Name == PenaltyNames.OffensiveHolding).Odds)
+                    {
+                        havePenalty = true;
+                        penaltyName = PenaltyNames.OffensiveHolding;
+                    }
+                    break;
+                case PlayType.Punt:
+                    if (didItHappen <=
+                        Penalties.List.Single(p =>
+                            p.Name == PenaltyNames.RoughingtheKicker).Odds)
+                    {
+                        havePenalty = true;
+                        penaltyName = PenaltyNames.RoughingtheKicker;
+                    }
+                    break;
+                case PlayType.Run:
+                    if (didItHappen <=
+                        Penalties.List.Single(p =>
+                            p.Name == PenaltyNames.OffensiveHolding).Odds)
+                    {
+                        havePenalty = true;
+                        penaltyName = PenaltyNames.OffensiveHolding;
+                    }
+                    break;
+            }
+
+            Occurred = havePenalty;
 
             //let's start to populate a penalty if it occurred
             if (Occurred)
             {
                 //aha - we have a penalty - let's make a new empty one...
-                Penalty = new Penalty();
+                Penalty = Penalties.List.Single(p =>
+                    p.Name == penaltyName);
 
                 //what team did the offender play for?
                 var homeAway = _rng.NextDouble();
@@ -45,58 +99,6 @@ namespace StateLibrary.SkillsChecks
                 Penalty.Player = player;
                 Penalty.CalledOn = calledOn;
             }
-        }
-
-        private bool throwawayfakecodetodetermineoccurance(Game game)
-        {
-            var didItHappen = _rng.NextDouble();
-            var havePenalty = false;
-
-            switch (game.CurrentPlay.PlayType)
-            {
-                case PlayType.Kickoff:
-                    if (didItHappen <=
-                        Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.IllegalBlockAbovetheWaist).Odds)
-                    {
-                        havePenalty = true;
-                    }
-                    break;
-                case PlayType.FieldGoal:
-                    if (didItHappen <=
-                        Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.RoughingtheKicker).Odds)
-                    {
-                        havePenalty = true;
-                    }
-                    break;
-                case PlayType.Pass:
-                    if (didItHappen <=
-                        Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.OffensiveHolding).Odds)
-                    {
-                        havePenalty = true;
-                    }
-                    break;
-                case PlayType.Punt:
-                    if (didItHappen <=
-                        Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.RoughingtheKicker).Odds)
-                    {
-                        havePenalty = true;
-                    }
-                    break;
-                case PlayType.Run:
-                    if (didItHappen <=
-                        Penalties.List.Single(p =>
-                                p.Name == PenaltyNames.OffensiveHolding).Odds)
-                    {
-                        havePenalty = true;
-                    }
-                    break;
-            }
-
-            return havePenalty;
         }
     }
 }

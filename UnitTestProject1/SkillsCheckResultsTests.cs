@@ -15,7 +15,7 @@ namespace UnitTestProject1
         public void FumblePossessionChangeSkillsCheckResultAwayTeamTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto { __NextInt = 1 };
+            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
 
             var fumbleResult = new FumblePossessionChangeSkillsCheckResult(rng);
             fumbleResult.Execute(game);
@@ -27,7 +27,7 @@ namespace UnitTestProject1
         public void FumblePossessionChangeSkillsCheckResultHomeTeamTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto { __NextInt = 2 };
+            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2}};
 
             var fumbleResult = new FumblePossessionChangeSkillsCheckResult(rng);
             fumbleResult.Execute(game);

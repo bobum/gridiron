@@ -4,8 +4,10 @@ namespace UnitTestProject1.Helpers
 {
     public class TestCrypto : ICryptoRandom
     {
-        public double __NextDouble { get; set; }
-        public int __NextInt { get; set; }
+        private int _intIndex = 0;
+        private int _doubleIndex = 0;
+        public double[] __NextDouble { get; set; } = new double[99];
+        public int[] __NextInt { get; set; } = new int[99];
         public void GetBytes(byte[] buffer)
         {
             throw new System.NotImplementedException();
@@ -13,22 +15,26 @@ namespace UnitTestProject1.Helpers
 
         public double NextDouble()
         {
-            return __NextDouble;
+            var returnVal = __NextDouble[_doubleIndex];
+            _doubleIndex++;
+            return returnVal;
         }
 
         public int Next(int minValue, int maxValue)
         {
-            return __NextInt;
+            return Next();
         }
 
         public int Next()
         {
-            return __NextInt;
+            var returnVal = __NextInt[_intIndex];
+            _intIndex++;
+            return returnVal;
         }
 
         public int Next(int maxValue)
         {
-            return __NextInt;
+            return Next();
         }
 
         public void Dispose()
