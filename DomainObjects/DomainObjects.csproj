@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CryptoRandom.cs" />
+    <Compile Include="Helpers\CryptoRandom.cs" />
     <Compile Include="Fumble.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Helpers\GameHelper.cs" />

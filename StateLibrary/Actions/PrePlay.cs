@@ -1,10 +1,16 @@
 ﻿using DomainObjects;
+using DomainObjects.Helpers;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
 {
     public class PrePlay : IGameAction
     {
+        private ICryptoRandom _rng;
+        public PrePlay(ICryptoRandom rng)
+        {
+            _rng = rng;
+        }
         public void Execute(Game game)
         {
             //consider this class, the huddle
@@ -23,8 +29,7 @@ namespace StateLibrary.Actions
             }
             else
             {
-                CryptoRandom rng = new CryptoRandom();
-                var kindOfPlay = rng.NextDouble();
+                var kindOfPlay = _rng.NextDouble();
 
                 //for now - a 50/50 shot of run or pass
                 if (kindOfPlay <= 0.5)

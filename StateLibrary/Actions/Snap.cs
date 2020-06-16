@@ -1,14 +1,20 @@
 ﻿using DomainObjects;
+using DomainObjects.Helpers;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
 {
     public class Snap : IGameAction
     {
+        private ICryptoRandom _rng;
+        public Snap(ICryptoRandom rng)
+        {
+            _rng = rng;
+        }
+
         public void Execute(Game game)
         {
-            CryptoRandom rng = new CryptoRandom();
-            var didItHappen = rng.NextDouble();
+            var didItHappen = _rng.NextDouble();
 
             //we can't have a muffed snap on a kick off - so don't even check
             game.CurrentPlay.GoodSnap = true;

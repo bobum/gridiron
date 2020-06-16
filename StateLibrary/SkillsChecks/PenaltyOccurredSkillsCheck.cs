@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using DomainObjects;
+using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
 
 namespace StateLibrary.SkillsChecks
@@ -10,15 +11,16 @@ namespace StateLibrary.SkillsChecks
 
         public Penalty Penalty { get; private set; }
 
-        public PenaltyOccurredSkillsCheck(PenaltyOccuredWhen penaltyOccuredWhen)
+        private ICryptoRandom _rng;
+
+        public PenaltyOccurredSkillsCheck(PenaltyOccuredWhen penaltyOccuredWhen, ICryptoRandom rng)
         {
             _penaltyOccuredWhen = penaltyOccuredWhen;
+            _rng = rng;
         }
 
         public override void Execute(Game game)
         {
-            CryptoRandom rng = new CryptoRandom();
-
             //was there a penalty? Totally random for now...
             //in the future - we will determine, based on skills, who a penalty was called on and add that to the game object
             //there might be more than 1 penalty on a play
@@ -31,11 +33,11 @@ namespace StateLibrary.SkillsChecks
                 Penalty = new Penalty();
 
                 //what team did the offender play for?
-                var homeAway = rng.NextDouble();
+                var homeAway = _rng.NextDouble();
                 var calledOn = homeAway <= Penalty.AwayOdds ? Possession.Away : Possession.Home;
 
                 //who was it on that team?
-                var index = rng.Next(50);
+                var index = _rng.Next(50);
                 var player = calledOn == Possession.Away ? game.AwayTeam.Players[index] : game.HomeTeam.Players[index];
 
                 //fill in the blanks
@@ -47,8 +49,7 @@ namespace StateLibrary.SkillsChecks
 
         private bool throwawayfakecodetodetermineoccurance(Game game)
         {
-            CryptoRandom rng = new CryptoRandom();
-            var didItHappen = rng.NextDouble();
+            var didItHappen = _rng.NextDouble();
             var havePenalty = false;
 
             switch (game.CurrentPlay.PlayType)

@@ -1,16 +1,20 @@
 ﻿using DomainObjects;
+using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
 
 namespace StateLibrary.SkillsChecks
 {
     public class FieldGoalBlockOccurredSkillsCheck : ActionOccurredSkillsCheck
     {
+        private ICryptoRandom _rng;
+        public FieldGoalBlockOccurredSkillsCheck(ICryptoRandom rng)
+        {
+            _rng = rng;
+        }
         public override void Execute(Game game)
         {
-            CryptoRandom rng = new CryptoRandom();
-
             //was there a fumble? Totally random for now...
-            var block = rng.Next(2);
+            var block = _rng.Next(2);
 
             Occurred = block == 1;
         }

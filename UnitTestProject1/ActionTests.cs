@@ -54,5 +54,10 @@ namespace UnitTestProject1
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);
         }
+
+        public void CoinTossTest()
+        {
+
+        }
     }
 }

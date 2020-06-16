@@ -1,5 +1,6 @@
 ﻿using System;
 using DomainObjects;
+using DomainObjects.Helpers;
 using DomainObjects.Time;
 using Stateless;
 using Stateless.Graph;
@@ -17,6 +18,8 @@ namespace StateLibrary
     public class GameFlow
     {
         private readonly Game _game;
+
+        private CryptoRandom _rng = new CryptoRandom();
         enum Trigger
         {
             Snap,
@@ -195,7 +198,7 @@ namespace StateLibrary
 
         private void DoCoinToss()
         {
-            var coinToss = new CoinToss();
+            var coinToss = new CoinToss(_rng);
             coinToss.Execute(_game);
 
             _machine.Fire(Trigger.CoinTossed);
@@ -246,7 +249,7 @@ namespace StateLibrary
             //PrePlay state = huddle.  It is where the offensive and defensive plays are determined
             //we check for motion and substitution penalties etc
             //we then snap the ball and make sure the snap was good
-            var prePlay = new PrePlay();
+            var prePlay = new PrePlay(_rng);
             prePlay.Execute(_game);
 
             PenaltyCheck(PenaltyOccuredWhen.Before);
@@ -258,7 +261,7 @@ namespace StateLibrary
             }
             else
             {
-                var snap = new Snap();
+                var snap = new Snap(_rng);
                 snap.Execute(_game);
 
                 _machine.Fire(Trigger.Snap);
@@ -285,7 +288,7 @@ namespace StateLibrary
         private void DoPassPlay()
         {
             //Check if there was a block & if there was, assemble the result
-            var interceptionCheck = new InterceptionOccurredSkillsCheck();
+            var interceptionCheck = new InterceptionOccurredSkillsCheck(_rng);
             interceptionCheck.Execute(_game);
 
             if (interceptionCheck.Occurred)
@@ -306,7 +309,7 @@ namespace StateLibrary
         private void DoPuntPlay()
         {
             //Check if there was a block & if there was, assemble the result
-            var blockedCheck = new PuntBlockOccurredSkillsCheck();
+            var blockedCheck = new PuntBlockOccurredSkillsCheck(_rng);
             blockedCheck.Execute(_game);
 
             if (blockedCheck.Occurred)
@@ -327,7 +330,7 @@ namespace StateLibrary
         private void DoFieldGoalPlay()
         {
             //Check if there was a block & if there was, assemble the result
-            var blockedCheck = new FieldGoalBlockOccurredSkillsCheck();
+            var blockedCheck = new FieldGoalBlockOccurredSkillsCheck(_rng);
             blockedCheck.Execute(_game);
 
             if (blockedCheck.Occurred)
@@ -347,7 +350,7 @@ namespace StateLibrary
 
         private void DoFumbleCheck()
         {
-            var fumbleCheck = new FumbleOccurredSkillsCheck();
+            var fumbleCheck = new FumbleOccurredSkillsCheck(_rng);
             fumbleCheck.Execute(_game);
 
             //if true - possession skills check and fumble action
@@ -440,7 +443,7 @@ namespace StateLibrary
         /// </summary>
         private void FumbleOccurred()
         {
-            var possessionChangeResult = new FumblePossessionChangeSkillsCheckResult();
+            var possessionChangeResult = new FumblePossessionChangeSkillsCheckResult(_rng);
             possessionChangeResult.Execute(_game);
 
             var fumbleResult = new Fumble(possessionChangeResult.Possession);
@@ -449,7 +452,7 @@ namespace StateLibrary
 
         private void PenaltyCheck(PenaltyOccuredWhen penaltyOccuredWhen)
         {
-            var penaltyOccurredSkillsCheck = new PenaltyOccurredSkillsCheck(penaltyOccuredWhen);
+            var penaltyOccurredSkillsCheck = new PenaltyOccurredSkillsCheck(penaltyOccuredWhen, _rng);
             penaltyOccurredSkillsCheck.Execute(_game);
 
             if (penaltyOccurredSkillsCheck.Occurred)
@@ -464,10 +467,10 @@ namespace StateLibrary
         /// </summary>
         private void InterceptionOccurred()
         {
-            var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
+            var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult(_rng);
             possessionChangeResult.Execute(_game);
 
-            var interceptionResult = new Interception();
+            var interceptionResult = new Interception(_rng);
             interceptionResult.Execute(_game);
         }
 
