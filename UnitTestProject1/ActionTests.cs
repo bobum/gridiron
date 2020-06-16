@@ -3,6 +3,7 @@ using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
 using StateLibrary.Actions.EventChecks;
+using UnitTestProject1.Helpers;
 using Fumble = StateLibrary.Actions.Fumble;
 
 namespace UnitTestProject1
@@ -16,8 +17,9 @@ namespace UnitTestProject1
         /// <returns></returns>
         private Game GetGame()
         {
+            var rng = new CryptoRandom();
             var game = GameHelper.GetNewGame();
-            var prePlay = new PrePlay();
+            var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
             return game;
         }
@@ -55,9 +57,26 @@ namespace UnitTestProject1
             Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);
         }
 
-        public void CoinTossTest()
+        [TestMethod]
+        public void AwayTeamWinsCoinTossTest()
         {
+            var game = GetGame();
+            TestCrypto rng = new TestCrypto {__NextInt = 1};
+            var coinToss = new CoinToss(rng);
+            coinToss.Execute(game);
 
+            Assert.AreEqual(game.Possession, Possession.Away);
+        }
+
+        [TestMethod]
+        public void HomeTeamWinsCoinTossTest()
+        {
+            var game = GetGame();
+            TestCrypto rng = new TestCrypto { __NextInt = 2 };
+            var coinToss = new CoinToss(rng);
+            coinToss.Execute(game);
+
+            Assert.AreEqual(game.Possession, Possession.Home);
         }
     }
 }

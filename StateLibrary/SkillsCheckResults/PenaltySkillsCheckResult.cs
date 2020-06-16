@@ -6,7 +6,7 @@ namespace StateLibrary.SkillsCheckResults
 {
     public class PenaltySkillsCheckResult : IGameAction
     {
-        private readonly Penalty _penalty { get; set; }
+        private Penalty _penalty { get; set; }
 
         public PenaltySkillsCheckResult(Penalty penalty)
         {
