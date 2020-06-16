@@ -92,105 +92,68 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void DoesQuarterExpireCheckAdvanceToSecondQuarterCorrectlyTest()
-        {
-            var game = GetGame();
-
-            game.CurrentQuarter.TimeRemaining = 1;
-            game.CurrentPlay.ElapsedTime = 2.0;
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.First, game.CurrentQuarter.QuarterType);
-
-            var quarterExpireCheck = new QuarterExpireCheck();
-            quarterExpireCheck.Execute(game);
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);
-            Assert.AreEqual(900, game.CurrentQuarter.TimeRemaining);
-        }
-
-        [TestMethod]
-        public void DoesQuarterExpireCheckAdvanceToThirdQuarterCorrectlyTest()
-        {
-            var game = GetGame();
-            game.CurrentQuarter.TimeRemaining = 1;
-            game.CurrentPlay.ElapsedTime = 2.0;
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.First, game.CurrentQuarter.QuarterType);
-
-            var quarterExpireCheck = new QuarterExpireCheck();
-            quarterExpireCheck.Execute(game);
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);
-
-            game.CurrentQuarter.TimeRemaining = 1;
-            game.CurrentPlay.ElapsedTime = 2.0;
-            quarterExpireCheck.Execute(game);
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.Third, game.CurrentQuarter.QuarterType);
-            Assert.AreEqual(900, game.CurrentQuarter.TimeRemaining);
-        }
-
-        [TestMethod]
-        public void DoesQuarterExpireCheckAdvanceToFourthQuarterCorrectlyTest()
-        {
-            var game = GetGame();
-            game.CurrentQuarter.TimeRemaining = 1;
-            game.CurrentPlay.ElapsedTime = 2.0;
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.First, game.CurrentQuarter.QuarterType);
-
-            var quarterExpireCheck = new QuarterExpireCheck();
-            quarterExpireCheck.Execute(game);
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);
-
-            game.CurrentQuarter.TimeRemaining = 1;
-            game.CurrentPlay.ElapsedTime = 2.0;
-            quarterExpireCheck.Execute(game);
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.Third, game.CurrentQuarter.QuarterType);
-
-            game.CurrentQuarter.TimeRemaining = 1;
-            game.CurrentPlay.ElapsedTime = 2.0;
-            quarterExpireCheck.Execute(game);
-
-            Assert.AreEqual(DomainObjects.Time.QuarterType.Fourth, game.CurrentQuarter.QuarterType);
-            Assert.AreEqual(900, game.CurrentQuarter.TimeRemaining);
-        }
-
-        [TestMethod]
-        public void GameAdvancesToSecondHalfCorrectlyTest()
+        public void GameAdvancesQuartersAndHalvesCorrectlyTest()
         {
             var game = GetGame();
             var quarterExpireCheck = new QuarterExpireCheck();
-            var halftimeCheck = new HalfExpireCheck();
+            var halfExpireCheck = new HalfExpireCheck();
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.First, game.CurrentQuarter.QuarterType);
             Assert.AreEqual(HalfType.First, game.CurrentHalf.HalfType);
+            Assert.IsFalse(game.CurrentPlay.QuarterExpired);
+            Assert.IsFalse(game.CurrentPlay.HalfExpired);
 
+            //end the first quarter
             game.CurrentQuarter.TimeRemaining = 1;
             game.CurrentPlay.ElapsedTime = 2.0;
+            game.CurrentPlay.QuarterExpired = false;
+            game.CurrentPlay.HalfExpired = false;
             quarterExpireCheck.Execute(game); 
-            halftimeCheck.Execute(game);
+            halfExpireCheck.Execute(game);
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);
             Assert.AreEqual(HalfType.First, game.CurrentHalf.HalfType);
+            Assert.IsTrue(game.CurrentPlay.QuarterExpired);
+            Assert.IsFalse(game.CurrentPlay.HalfExpired);
 
+            //end the second quarter
             game.CurrentQuarter.TimeRemaining = 1;
             game.CurrentPlay.ElapsedTime = 2.0;
+            game.CurrentPlay.QuarterExpired = false;
+            game.CurrentPlay.HalfExpired = false;
             quarterExpireCheck.Execute(game);
-            halftimeCheck.Execute(game);
+            halfExpireCheck.Execute(game);
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.Third, game.CurrentQuarter.QuarterType);
             Assert.AreEqual(HalfType.Second, game.CurrentHalf.HalfType);
+            Assert.IsTrue(game.CurrentPlay.QuarterExpired);
+            Assert.IsTrue(game.CurrentPlay.HalfExpired);
 
+            //end the third quarter
             game.CurrentQuarter.TimeRemaining = 1;
             game.CurrentPlay.ElapsedTime = 2.0;
+            game.CurrentPlay.QuarterExpired = false;
+            game.CurrentPlay.HalfExpired = false;
             quarterExpireCheck.Execute(game);
-            halftimeCheck.Execute(game);
+            halfExpireCheck.Execute(game);
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.Fourth, game.CurrentQuarter.QuarterType);
             Assert.AreEqual(HalfType.Second, game.CurrentHalf.HalfType);
+            Assert.IsTrue(game.CurrentPlay.QuarterExpired);
+            Assert.IsFalse(game.CurrentPlay.HalfExpired);
+
+            //end the fourth quarter
+            game.CurrentQuarter.TimeRemaining = 1;
+            game.CurrentPlay.ElapsedTime = 2.0;
+            game.CurrentPlay.QuarterExpired = false;
+            game.CurrentPlay.HalfExpired = false;
+            quarterExpireCheck.Execute(game);
+            halfExpireCheck.Execute(game);
+
+            Assert.AreEqual(DomainObjects.Time.QuarterType.GameOver, game.CurrentQuarter.QuarterType);
+            Assert.AreEqual(HalfType.GameOver, game.CurrentHalf.HalfType);
+            Assert.IsTrue(game.CurrentPlay.QuarterExpired);
+            Assert.IsTrue(game.CurrentPlay.HalfExpired);
         }
     }
 }

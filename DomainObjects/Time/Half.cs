@@ -27,6 +27,7 @@ namespace DomainObjects.Time
     public enum HalfType
     {
         First,
-        Second
+        Second,
+        GameOver
     }
 }

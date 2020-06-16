@@ -18,6 +18,9 @@ namespace StateLibrary.Actions
             var quarterExpireCheck = new QuarterExpireCheck();
             quarterExpireCheck.Execute(game);
 
+            var halftimeCheck = new HalfExpireCheck();
+            halftimeCheck.Execute(game);
+
             game.Plays.Add(game.CurrentPlay);
         }
     }

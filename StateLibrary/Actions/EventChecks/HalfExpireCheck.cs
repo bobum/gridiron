@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using DomainObjects.Time;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions.EventChecks
@@ -7,23 +8,25 @@ namespace StateLibrary.Actions.EventChecks
     {
         public void Execute(Game game)
         {
-            switch (game.CurrentQuarter.QuarterType)
+            if (game.CurrentPlay.QuarterExpired)
             {
-                case DomainObjects.Time.QuarterType.First:
-                case DomainObjects.Time.QuarterType.Second:
-                    game.CurrentHalf = game.Halves[0];
-                    break;
-                case DomainObjects.Time.QuarterType.Third:
-                case DomainObjects.Time.QuarterType.Fourth:
-                    game.CurrentHalf = game.Halves[1];
-                    //TODO check if tied & move to OT
-                    break;
-                case DomainObjects.Time.QuarterType.Overtime:
-                    //TODO check if tied & move to another OT
-                    break;
-                default:
-                    break;
+                switch (game.CurrentQuarter.QuarterType)
+                {
+                    case QuarterType.Third:
+                        game.CurrentPlay.Result.Add($"last play of the {game.CurrentHalf.HalfType} half");
+                        game.CurrentPlay.HalfExpired = true;
+                        game.CurrentHalf = game.Halves[1];
+                        break;
+                    case QuarterType.GameOver:
+                        game.CurrentPlay.Result.Add($"last play of the {game.CurrentHalf.HalfType} half");
+                        game.CurrentPlay.HalfExpired = true;
+                        game.CurrentHalf.HalfType = HalfType.GameOver;
+                        break;
+                }
             }
+
+            //TODO check if tied & move to OT
+            //TODO check if tied & move to another OT
         }
     }
 }

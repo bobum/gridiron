@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using DomainObjects.Time;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions.EventChecks
@@ -28,7 +29,7 @@ namespace StateLibrary.Actions.EventChecks
                         game.CurrentQuarter = game.Halves[1].Quarters[1];
                         break;
                     case DomainObjects.Time.QuarterType.Fourth:
-                        //TODO check if tied & move to OT
+                        game.CurrentQuarter.QuarterType = QuarterType.GameOver;
                         break;
                     case DomainObjects.Time.QuarterType.Overtime:
                         //TODO check if tied & move to another OT
