@@ -6,20 +6,27 @@ namespace StateLibrary.Actions
 {
     public sealed class Interception : IGameAction
     {
-        private ICryptoRandom _rng;
-        public Interception(ICryptoRandom rng)
+        private readonly Possession _possession;
+
+        public Interception(Possession possession)
         {
-            _rng = rng;
+            _possession = possession;
         }
 
         public void Execute(Game game)
         {
-            //for now this is a totally random determination of who gets
-            //the ball after an interception and we change the possession of the game
-            var toss = _rng.Next(2);
-            var preInterception = game.Possession;
-            game.Possession = toss == 1 ? Possession.Away : Possession.Home;
-            game.CurrentPlay.PossessionChange = preInterception != game.Possession;
+            //there was a possession change on the play
+            game.CurrentPlay.PossessionChange = true;
+
+            //set the correct possession in the game
+            game.Possession = _possession;
+            game.CurrentPlay.ElapsedTime += 0.5;
+            game.CurrentPlay.Result.Add("Interception!!");
+            game.CurrentPlay.Result.Add("Possession changes hands");
+            game.CurrentPlay.Result.Add($"{game.Possession} now has possession");
+
+            //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records
+            game.CurrentPlay.Interception = true;
         }
     }
 }

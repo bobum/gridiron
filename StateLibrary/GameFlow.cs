@@ -467,10 +467,10 @@ namespace StateLibrary
         /// </summary>
         private void InterceptionOccurred()
         {
-            var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult(_rng);
+            var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
             possessionChangeResult.Execute(_game);
 
-            var interceptionResult = new Interception(_rng);
+            var interceptionResult = new Interception(possessionChangeResult.Possession);
             interceptionResult.Execute(_game);
         }
 

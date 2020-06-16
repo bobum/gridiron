@@ -37,6 +37,7 @@ namespace StateLibrary.Actions
             }
 
             //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records
+            //we'll fill in the players involved in the fumble later
             game.CurrentPlay.Fumbles.Add(new DomainObjects.Fumble());
         }
     }
