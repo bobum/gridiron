@@ -1,5 +1,6 @@
 ﻿using System;
 using DomainObjects;
+using DomainObjects.Time;
 using Stateless;
 using Stateless.Graph;
 using StateLibrary.Actions;
@@ -160,12 +161,12 @@ namespace StateLibrary
             _machine.Configure(State.QuarterExpired)
                 .OnEntry(DoQuarterExpire, "The teams change endzones...")
                 .Permit(Trigger.QuarterOver, State.PrePlay)
-                .Permit(Trigger.HalfExpired, State.Halftime);
+                .Permit(Trigger.HalfExpired, State.Halftime)
+                .Permit(Trigger.GameExpired, State.PostGame);
 
             _machine.Configure(State.Halftime)
                 .OnEntry(DoHalftime, "The band takes the field at halftime")
-                .Permit(Trigger.HalftimeOver, State.PrePlay)
-                .Permit(Trigger.GameExpired, State.PostGame);
+                .Permit(Trigger.HalftimeOver, State.PrePlay);
 
             _machine.Configure(State.PostGame)
                 .OnEntry(DoPostGame, "Game over folks!");
@@ -202,12 +203,30 @@ namespace StateLibrary
 
         private void DoQuarterExpire()
         {
-            throw new NotImplementedException();
+            //need to actually determine when the quarters get changed etc so that this switch is really done the RIGHT way...
+            var quarterExpired = new QuarterExpired();
+            quarterExpired.Execute(_game);
+
+            switch (_game.CurrentQuarter.QuarterType)
+            {
+                case QuarterType.Third:
+                    _machine.Fire(Trigger.HalfExpired);
+                    break;
+                case QuarterType.Fourth:
+                    _machine.Fire(Trigger.GameExpired);
+                    break;
+                default:
+                    _machine.Fire(Trigger.QuarterOver);
+                    break;
+            }
         }
 
         private void DoHalftime()
         {
-            throw new NotImplementedException();
+            var halftime = new Halftime();
+            halftime.Execute(_game);
+
+            _machine.Fire(Trigger.HalftimeOver);
         }
 
         private void DoPostGame()
