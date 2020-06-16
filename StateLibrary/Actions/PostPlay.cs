@@ -12,9 +12,6 @@ namespace StateLibrary.Actions
             //determine if it's a hurry up offense or if they are trying to
             //kill the clock and add time appropriately...
             //add the current play to the plays list
-            var penaltyResult = new Penalty();
-            penaltyResult.Execute(game);
-
             var scoreCheck = new ScoreCheck();
             scoreCheck.Execute(game);
 

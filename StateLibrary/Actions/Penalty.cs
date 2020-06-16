@@ -7,7 +7,7 @@ namespace StateLibrary.Actions
     {
         public void Execute(Game game)
         {
-            if (game.CurrentPlay.Penalties.Count > 0)
+            foreach (var penalty in game.CurrentPlay.Penalties)
             {
                 //we have penalties - we need to sort them out and move the line of scrimmage, eject players etc etc etc
             }

@@ -90,7 +90,8 @@ namespace StateLibrary
                 .PermitIf(Trigger.Snap, State.RunPlay, () => _game.CurrentPlay.PlayType == PlayType.Run)
                 .PermitIf(Trigger.Snap, State.Kickoff, () => _game.CurrentPlay.PlayType == PlayType.Kickoff)
                 .PermitIf(Trigger.Snap, State.Punt, () => _game.CurrentPlay.PlayType == PlayType.Punt)
-                .PermitIf(Trigger.Snap, State.PassPlay, () => _game.CurrentPlay.PlayType == PlayType.Pass);
+                .PermitIf(Trigger.Snap, State.PassPlay, () => _game.CurrentPlay.PlayType == PlayType.Pass)
+                .Permit(Trigger.PlayResult, State.PostPlay);
 
             //every play state should end in a fumble check state
 
@@ -231,12 +232,18 @@ namespace StateLibrary
 
             PenaltyCheck(PenaltyOccuredWhen.Before);
 
-            //in here - at some point - if there is a presnap penalty - we need to handle it and go all the way to post play
+            if (_game.CurrentPlay.Penalties.Count > 0)
+            {
+                //in here - at some point - if there is a presnap penalty - we need to handle it and go all the way to post play
+                _machine.Fire(Trigger.PlayResult);
+            }
+            else
+            {
+                var snap = new Snap();
+                snap.Execute(_game);
 
-            var snap = new Snap();
-            snap.Execute(_game);
-
-            _machine.Fire(Trigger.Snap);
+                _machine.Fire(Trigger.Snap);
+            }
         }
 
         private void DoKickoffPlay()
@@ -335,8 +342,19 @@ namespace StateLibrary
 
         private void DoPostPlay()
         {
-            PenaltyCheck(PenaltyOccuredWhen.During);
-            PenaltyCheck(PenaltyOccuredWhen.After);
+            //if we have a pre-snap penalty - no need to check for others
+            if (_game.CurrentPlay.Penalties.Count == 0)
+            {
+                PenaltyCheck(PenaltyOccuredWhen.During);
+                PenaltyCheck(PenaltyOccuredWhen.After);
+            }
+
+            //if we have a penalty/penalties then lets apply it/them
+            if (_game.CurrentPlay.Penalties.Count > 0)
+            {
+                var penaltyResult = new Penalty();
+                penaltyResult.Execute(_game);
+            }
 
             //check for penalties during and after the play, scores, injuries, quarter expiration
             var postPlay = new PostPlay();
