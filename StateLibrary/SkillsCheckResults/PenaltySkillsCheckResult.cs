@@ -6,12 +6,13 @@ namespace StateLibrary.SkillsCheckResults
 {
     public class PenaltySkillsCheckResult : IGameAction
     {
-        private Penalty _penalty { get; set; }
+        private readonly Penalty _penalty;
 
         public PenaltySkillsCheckResult(Penalty penalty)
         {
             _penalty = penalty;
         }
+
         public void Execute(Game game)
         {
             //once we've determined that a penalty has been called on a player in the PenaltySkillsCheck,

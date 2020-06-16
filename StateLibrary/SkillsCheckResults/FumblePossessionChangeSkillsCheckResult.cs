@@ -1,7 +1,6 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
-using StateLibrary.Interfaces;
 
 namespace StateLibrary.SkillsCheckResults
 {

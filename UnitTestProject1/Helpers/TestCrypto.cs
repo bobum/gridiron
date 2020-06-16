@@ -18,7 +18,7 @@ namespace UnitTestProject1.Helpers
 
         public int Next(int minValue, int maxValue)
         {
-            throw new System.NotImplementedException();
+            return __NextInt;
         }
 
         public int Next()

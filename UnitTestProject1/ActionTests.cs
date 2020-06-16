@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using DomainObjects;
-using DomainObjects.Helpers;
+﻿using DomainObjects;
 using DomainObjects.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
@@ -14,37 +12,26 @@ namespace UnitTestProject1
     [TestClass]
     public class ActionTests
     {
-        /// <summary>
-        /// Gets a game object set to the first play (kickoff)
-        /// </summary>
-        /// <returns></returns>
-        private Game GetGame()
-        {
-            var rng = new CryptoRandom();
-            var game = GameHelper.GetNewGame();
-            var prePlay = new PrePlay(rng);
-            prePlay.Execute(game);
-            return game;
-        }
+        private readonly TestGame _testGame = new TestGame();
 
         [TestMethod]
         public void GameStartsInFirstQuarterTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
             Assert.AreEqual(QuarterType.First, game.CurrentQuarter.QuarterType);
         }
 
         [TestMethod]
         public void GameStartsInFirstHalfCheckTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
             Assert.AreEqual(HalfType.First, game.CurrentHalf.HalfType);
         }
 
         [TestMethod]
         public void AwayTeamWinsCoinTossTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
             TestCrypto rng = new TestCrypto {__NextInt = 1};
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
@@ -55,7 +42,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void HomeTeamWinsCoinTossTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
             TestCrypto rng = new TestCrypto { __NextInt = 2 };
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
@@ -66,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FumbleTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
 
             game.Possession = Possession.Home;
             var fumble = new Fumble(Possession.Away);
@@ -80,7 +67,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void InterceptionTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
 
             game.Possession = Possession.Home;
             var interception = new Interception(Possession.Away);
@@ -94,7 +81,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GameAdvancesQuartersAndHalvesCorrectlyTest()
         {
-            var game = GetGame();
+            var game = _testGame.GetGame();
             var quarterExpireCheck = new QuarterExpireCheck();
             var halfExpireCheck = new HalfExpireCheck();
 
