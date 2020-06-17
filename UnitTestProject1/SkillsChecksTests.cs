@@ -83,7 +83,7 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void PenaltyOccurredSkillsCheckTrueOnAwayTeamTest()
+        public void PenaltyOccurredSkillsCheckKickoffTrueOnAwayTeamTest()
         {
             var game = _testGame.GetGame();
 
@@ -116,6 +116,30 @@ namespace UnitTestProject1
 
             Assert.IsFalse(penaltyCheck.Occurred);
             Assert.IsNull(penaltyCheck.Penalty);
+        }
+
+        [TestMethod]
+        public void PuntOccurredSkillsCheckFalseTest()
+        {
+            var game = _testGame.GetGame();
+            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 2 } };
+
+            var puntResult = new PuntBlockOccurredSkillsCheck(rng);
+            puntResult.Execute(game);
+
+            Assert.IsFalse(puntResult.Occurred);
+        }
+
+        [TestMethod]
+        public void PuntOccurredSkillsCheckTrueTest()
+        {
+            var game = _testGame.GetGame();
+            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 1 } };
+
+            var puntResult = new PuntBlockOccurredSkillsCheck(rng);
+            puntResult.Execute(game);
+
+            Assert.IsTrue(puntResult.Occurred);
         }
     }
 }
