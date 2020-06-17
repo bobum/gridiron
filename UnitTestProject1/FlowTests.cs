@@ -20,23 +20,10 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetGraphTest()
         {
-            //var game = GameHelper.GetNewGame();
-            //var gameFlow = new GameFlow(game);
-            //var graph = gameFlow.GetGraph();
-            //Assert.IsNotNull(graph);
-        }
-
-        [TestMethod]
-        public void QuarterEndDynamicTriggerFiresCorrectTriggerTest()
-        {
-            //var game = GameHelper.GetNewGame();
-
-            //game.CurrentQuarter.TimeRemaining = 1;
-
-            //var gameFlow = new GameFlow(game);
-            //gameFlow.Execute();
-
-            //Assert.AreEqual(0, game.TimeRemaining);
+            var game = GameHelper.GetNewGame();
+            var gameFlow = new GameFlow(game);
+            var graph = gameFlow.GetGraph();
+            Assert.IsNotNull(graph);
         }
     }
 }
