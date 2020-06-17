@@ -10,7 +10,8 @@ namespace DomainObjects
         //public float HomeOdds { get; set; }
         public float AwayOdds { get; set; }
         public Possession CalledOn { get; set; }
-        public PenaltyOccured Occured { get; set; }
+        public PenaltyOccuredWhen OccuredWhen { get; set; }
+        public Player Player { get; set; }
     }
 
     public static class Penalties
@@ -131,7 +132,8 @@ namespace DomainObjects
         Leverage
     }
 
-    public enum PenaltyOccured
+    //when did the penalty occur - before the snap, during or after the play
+    public enum PenaltyOccuredWhen
     {
         Before,
         During,

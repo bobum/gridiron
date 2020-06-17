@@ -1,7 +1,7 @@
 ﻿using DomainObjects;
-using System.Activities;
+using StateLibrary.Interfaces;
 
-namespace ActivityLibrary.Plays
+namespace StateLibrary.Plays
 {
     //Run plays can be your typical, hand it off to the guy play
     //or a QB scramble
@@ -9,18 +9,12 @@ namespace ActivityLibrary.Plays
     //or a kneel
     //a fake punt would be in the Punt class - those could be run or pass...
     //a muffed snap
-    public sealed class Run : CodeActivity<Game>
+    public sealed class Run : IGameAction
     {
-        public InArgument<Game> Game { get; set; }
-
-        protected override Game Execute(CodeActivityContext context)
+        public void Execute(Game game)
         {
-            var game = Game.Get(context);
-
             game.CurrentPlay.ElapsedTime += 6.5;
             game.CurrentPlay.Result.Add("Rumblin Bumblin Stumblin");
-
-            return game;
         }
     }
 }

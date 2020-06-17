@@ -34,7 +34,7 @@ namespace DomainObjects.Time
             }
         }
 
-        public QuarterType QuarterType { get; private set; }
+        public QuarterType QuarterType { get; set; }
 
         public Quarter(QuarterType type)
         {
@@ -49,6 +49,7 @@ namespace DomainObjects.Time
         Second,
         Third,
         Fourth,
-        Overtime
+        Overtime,
+        GameOver
     }
 }
