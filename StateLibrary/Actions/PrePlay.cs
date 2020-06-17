@@ -1,18 +1,18 @@
 ﻿using System.Linq;
 using DomainObjects;
 using DomainObjects.Helpers;
+using StateLibrary.BaseClasses;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
 {
-    public class PrePlay : IGameAction
+    public class PrePlay : PlayBookend
     {
-        private ICryptoRandom _rng;
-        public PrePlay(ICryptoRandom rng)
+        public PrePlay(ICryptoRandom rng) : base(rng)
         {
-            _rng = rng;
         }
-        public void Execute(Game game)
+
+        public override void Execute(Game game)
         {
             //consider this class, the huddle
             //inside here we will do things like decide the next play,
@@ -54,6 +54,11 @@ namespace StateLibrary.Actions
             }
 
             game.CurrentPlay = currentPlay;
+
+            PenaltyCheck(PenaltyOccuredWhen.Before, game);
+            //TODO: if we have a pre-snap penalty - we don't really have a "play"
+            //so we'll need to handle that scenario and figure out what to do with
+            //the "play" at that point
         }
     }
 }

@@ -11,7 +11,6 @@ using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
 using Fumble = StateLibrary.Actions.Fumble;
 using Interception = StateLibrary.Actions.Interception;
-using Penalty = StateLibrary.Actions.Penalty;
 
 namespace StateLibrary
 {
@@ -252,8 +251,6 @@ namespace StateLibrary
             var prePlay = new PrePlay(_rng);
             prePlay.Execute(_game);
 
-            PenaltyCheck(PenaltyOccuredWhen.Before);
-
             if (_game.CurrentPlay.Penalties.Count > 0)
             {
                 //in here - at some point - if there is a presnap penalty - we need to handle it and go all the way to post play
@@ -364,22 +361,8 @@ namespace StateLibrary
 
         private void DoPostPlay()
         {
-            //if we have a pre-snap penalty - no need to check for others
-            if (_game.CurrentPlay.Penalties.Count == 0)
-            {
-                PenaltyCheck(PenaltyOccuredWhen.During);
-                PenaltyCheck(PenaltyOccuredWhen.After);
-            }
-
-            //if we have a penalty/penalties then lets apply it/them
-            if (_game.CurrentPlay.Penalties.Count > 0)
-            {
-                var penaltyResult = new Penalty();
-                penaltyResult.Execute(_game);
-            }
-
             //check for penalties during and after the play, scores, injuries, quarter expiration
-            var postPlay = new PostPlay();
+            var postPlay = new PostPlay(_rng);
             postPlay.Execute(_game);
 
             _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
