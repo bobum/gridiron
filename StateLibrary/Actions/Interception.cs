@@ -19,11 +19,11 @@ namespace StateLibrary.Actions
             game.CurrentPlay.PossessionChange = true;
 
             //set the correct possession in the game
-            game.Possession = _possession;
+            game.CurrentPlay.Possession = _possession;
             game.CurrentPlay.ElapsedTime += 0.5;
             game.CurrentPlay.Result.Add("Interception!!");
             game.CurrentPlay.Result.Add("Possession changes hands");
-            game.CurrentPlay.Result.Add($"{game.Possession} now has possession");
+            game.CurrentPlay.Result.Add($"{game.CurrentPlay.Possession} now has possession");
 
             //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records
             game.CurrentPlay.Interception = true;

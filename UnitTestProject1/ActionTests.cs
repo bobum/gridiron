@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using DomainObjects.Helpers;
 using DomainObjects.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
@@ -29,25 +30,80 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void AwayTeamWinsCoinTossTest()
+        public void AwayTeamWinsCoinTossAndDefersTest()
         {
-            var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
+            var game = GameHelper.GetNewGame();
+            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1, [1] = 1}};
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.Possession, Possession.Away);
+            Assert.AreEqual(game.WonCoinToss, Possession.Away);
+            Assert.IsTrue(game.DeferredPossession);
         }
 
         [TestMethod]
-        public void HomeTeamWinsCoinTossTest()
+        public void AwayTeamWinsCoinTossAndReceivesTest()
         {
-            var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 2 } };
+            var game = GameHelper.GetNewGame();
+            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 1, [1] = 2 } };
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.Possession, Possession.Home);
+            Assert.AreEqual(game.WonCoinToss, Possession.Away);
+            Assert.IsFalse(game.DeferredPossession);
+        }
+
+        [TestMethod]
+        public void HomeTeamWinsCoinTossAndReceivesTest()
+        {
+            var game = GameHelper.GetNewGame();
+            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2, [1] = 2}};
+            var coinToss = new CoinToss(rng);
+            coinToss.Execute(game);
+
+            Assert.AreEqual(game.WonCoinToss, Possession.Home);
+            Assert.IsFalse(game.DeferredPossession);
+        }
+
+
+
+        [TestMethod]
+        public void HomeTeamWinsCoinTossAndDefersTest()
+        {
+            var game = GameHelper.GetNewGame();
+            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 2, [1] = 1 } };
+            var coinToss = new CoinToss(rng);
+            coinToss.Execute(game);
+
+            Assert.AreEqual(game.WonCoinToss, Possession.Home);
+            Assert.IsTrue(game.DeferredPossession);
+        }
+
+        [TestMethod]
+        public void PrePlayKickoffTest()
+        {
+            TestCrypto rng = new TestCrypto {__NextDouble = {[0] = 0.4}};
+            var game = GameHelper.GetNewGame();
+            game.WonCoinToss = Possession.Away;
+            var prePlay = new PrePlay(rng);
+            prePlay.Execute(game);
+
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
+            Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType);
+        }
+
+        [TestMethod]
+        public void PrePlayKeepsPossessionTest()
+        {
+            TestCrypto rng = new TestCrypto { __NextDouble = { [0] = 0.4 } };
+            var game = GameHelper.GetNewGame();
+            game.WonCoinToss = Possession.Away;
+            game.Plays.Add(new Play(){Possession = Possession.Home});
+
+            var prePlay = new PrePlay(rng);
+            prePlay.Execute(game);
+
+            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession);
         }
 
         [TestMethod]
@@ -55,11 +111,11 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            game.Possession = Possession.Home;
+            game.CurrentPlay.Possession = Possession.Home;
             var fumble = new Fumble(Possession.Away);
             fumble.Execute(game);
 
-            Assert.AreEqual(Possession.Away, game.Possession);
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
             Assert.AreEqual(1, game.CurrentPlay.Fumbles.Count);
             Assert.AreEqual(true, game.CurrentPlay.PossessionChange);
         }
@@ -69,11 +125,11 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            game.Possession = Possession.Home;
+            game.CurrentPlay.Possession = Possession.Home;
             var interception = new Interception(Possession.Away);
             interception.Execute(game);
 
-            Assert.AreEqual(Possession.Away, game.Possession);
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
             Assert.AreEqual(true, game.CurrentPlay.PossessionChange);
             Assert.AreEqual(true, game.CurrentPlay.Interception);
         }

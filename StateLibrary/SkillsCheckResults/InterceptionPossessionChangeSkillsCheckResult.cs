@@ -9,7 +9,7 @@ namespace StateLibrary.SkillsCheckResults
         public override void Execute(Game game)
         {
             //we know that an interception has occurred - so we change possession
-            Possession = game.Possession == Possession.Away ? Possession.Home : Possession.Away;
+            Possession = game.CurrentPlay.Possession == Possession.Away ? Possession.Home : Possession.Away;
         }
     }
 }

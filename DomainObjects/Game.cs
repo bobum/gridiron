@@ -12,6 +12,8 @@ namespace DomainObjects
         public Team HomeTeam { get; set; }
         public Team AwayTeam { get; set; }
         public Play CurrentPlay { get; set; }
+        public Possession WonCoinToss { get; set; }
+        public bool DeferredPossession { get; set; }
 
         public List<Play> Plays { get; set; } = new List<Play>();
 
@@ -20,8 +22,6 @@ namespace DomainObjects
             Halves[0].Quarters[1].TimeRemaining +
             Halves[1].Quarters[0].TimeRemaining +
             Halves[1].Quarters[1].TimeRemaining;
-
-        public Possession Possession { get; set; }
 
         public List<Half> Halves { get; } = new List<Half>() {
             new FirstHalf(),
@@ -35,7 +35,6 @@ namespace DomainObjects
         //and the first type of play is a kickoff
         public Game()
         {
-            Possession = Possession.None;
             CurrentQuarter = Halves[0].Quarters[0];
             CurrentHalf = Halves[0];
         }

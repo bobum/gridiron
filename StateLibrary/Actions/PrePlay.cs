@@ -1,4 +1,5 @@
-﻿using DomainObjects;
+﻿using System.Linq;
+using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.Interfaces;
 
@@ -22,6 +23,7 @@ namespace StateLibrary.Actions
             //if there are 0 plays - we have a new game
             if (game.Plays.Count == 0)
             {
+                currentPlay.Possession = game.WonCoinToss;
                 currentPlay.Down = Downs.None;
                 currentPlay.StartTime = 0;
                 currentPlay.PlayType = PlayType.Kickoff;
@@ -29,6 +31,9 @@ namespace StateLibrary.Actions
             }
             else
             {
+                //possession for this play is whoever had it at the end of the last play
+                currentPlay.Possession = game.Plays.Last().Possession;
+
                 var kindOfPlay = _rng.NextDouble();
 
                 //for now - a 50/50 shot of run or pass

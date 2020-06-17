@@ -12,6 +12,7 @@ namespace DomainObjects
         public Downs Down { get; set; }
         public bool GoodSnap { get; set; }
         public bool PossessionChange { get; set; } = false;
+        public Possession Possession { get; set; } = Possession.None;
         public int StartTime { get; set; }
         public int StopTime { get; set; }
         public PlayType PlayType { get; set; }

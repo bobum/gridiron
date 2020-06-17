@@ -15,7 +15,10 @@ namespace StateLibrary.Actions
         public void Execute(Game game)
         {
             var toss = _rng.Next(2);
-            game.Possession = toss == 1 ? Possession.Away : Possession.Home;
+            game.WonCoinToss = toss == 1 ? Possession.Away : Possession.Home;
+
+            var deferred = _rng.Next(2);
+            game.DeferredPossession = deferred == 1;
         }
     }
 }
