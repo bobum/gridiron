@@ -122,7 +122,7 @@ namespace UnitTestProject1
         public void PuntOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 2 } };
+            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2}};
 
             var puntResult = new PuntBlockOccurredSkillsCheck(rng);
             puntResult.Execute(game);
@@ -134,7 +134,7 @@ namespace UnitTestProject1
         public void PuntOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 1 } };
+            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
 
             var puntResult = new PuntBlockOccurredSkillsCheck(rng);
             puntResult.Execute(game);

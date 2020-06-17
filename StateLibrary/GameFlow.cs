@@ -215,7 +215,7 @@ namespace StateLibrary
                 case QuarterType.Third:
                     _machine.Fire(Trigger.HalfExpired);
                     break;
-                case QuarterType.Fourth:
+                case QuarterType.GameOver:
                     _machine.Fire(Trigger.GameExpired);
                     break;
                 default:
