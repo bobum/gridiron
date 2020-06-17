@@ -100,6 +100,7 @@ namespace UnitTestProject1
             Assert.AreEqual(penaltyOccurredWhen, penaltyCheck.Penalty.OccuredWhen);
             Assert.AreEqual(Possession.Away, penaltyCheck.Penalty.CalledOn);
             Assert.AreEqual(game.AwayTeam.Players[playerIndex].Number, penaltyCheck.Penalty.Player.Number);
+            Assert.AreEqual(PenaltyNames.IllegalBlockAbovetheWaist, penaltyCheck.Penalty.Name);
         }
 
         [TestMethod]
