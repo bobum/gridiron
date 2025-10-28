@@ -19,7 +19,9 @@ namespace StateLibrary
     {
         private readonly Game _game;
 
-        private CryptoRandom _rng = new CryptoRandom();
+        // Injected RNG (was: private CryptoRandom _rng = new CryptoRandom();)
+        private readonly ICryptoRandom _rng;
+
         enum Trigger
         {
             Snap,
@@ -64,10 +66,12 @@ namespace StateLibrary
         private State _state = State.InitializeGame;
 
         private readonly StateMachine<State, Trigger> _machine;
-        
-        public GameFlow(Game game)
+
+        // Constructor now takes ICryptoRandom as a dependency
+        public GameFlow(Game game, ICryptoRandom rng)
         {
-            _game = game;
+            _game = game ?? throw new ArgumentNullException(nameof(game));
+            _rng = rng ?? throw new ArgumentNullException(nameof(rng));
 
             _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
             _nextPlayTrigger = _machine.SetTriggerParameters<bool>(Trigger.NextPlay);
@@ -432,7 +436,7 @@ namespace StateLibrary
         #endregion
 
         #region NON STATE MACHINE METHODS
-        
+
         public string GetGraph()
         {
             return UmlDotGraph.Format(_machine.GetInfo());

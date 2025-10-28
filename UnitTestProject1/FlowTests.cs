@@ -11,8 +11,9 @@ namespace UnitTestProject1
         [TestMethod]
         public void GameTest()
         {
+            var rng = new CryptoRandom();
             var game = GameHelper.GetNewGame();
-            var gameFlow = new GameFlow(game);
+            var gameFlow = new GameFlow(game, rng);
             gameFlow.Execute();
             Assert.AreEqual(0, game.TimeRemaining);
         }
@@ -20,8 +21,9 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetGraphTest()
         {
+            var rng = new CryptoRandom();
             var game = GameHelper.GetNewGame();
-            var gameFlow = new GameFlow(game);
+            var gameFlow = new GameFlow(game, rng);
             var graph = gameFlow.GetGraph();
             Assert.IsNotNull(graph);
         }
