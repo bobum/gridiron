@@ -6,8 +6,8 @@ namespace StateLibrary.SkillsChecks
 {
     public class PuntBlockOccurredSkillsCheck : ActionOccurredSkillsCheck
     {
-        private ICryptoRandom _rng;
-        public PuntBlockOccurredSkillsCheck(ICryptoRandom rng)
+        private ISeedableRandom _rng;
+        public PuntBlockOccurredSkillsCheck(ISeedableRandom rng)
         {
             _rng = rng;
         }

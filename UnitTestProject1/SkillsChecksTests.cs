@@ -14,7 +14,7 @@ namespace UnitTestProject1
         public void FieldGoalBlockOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
 
             var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng);
             blockResult.Execute(game);
@@ -26,7 +26,7 @@ namespace UnitTestProject1
         public void FieldGoalBlockOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
 
             var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng);
             blockResult.Execute(game);
@@ -38,7 +38,7 @@ namespace UnitTestProject1
         public void FumbleOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
 
             var fumbleResult = new FumbleOccurredSkillsCheck(rng);
             fumbleResult.Execute(game);
@@ -50,7 +50,7 @@ namespace UnitTestProject1
         public void FumbleOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
 
             var fumbleResult = new FumbleOccurredSkillsCheck(rng);
             fumbleResult.Execute(game);
@@ -62,7 +62,7 @@ namespace UnitTestProject1
         public void InterceptionOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
 
             var interceptionResult = new InterceptionOccurredSkillsCheck(rng);
             interceptionResult.Execute(game);
@@ -74,7 +74,7 @@ namespace UnitTestProject1
         public void InterceptionOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
 
             var interceptionResult = new InterceptionOccurredSkillsCheck(rng);
             interceptionResult.Execute(game);
@@ -89,7 +89,7 @@ namespace UnitTestProject1
 
             var playerIndex = 2;
             var penaltyOccurredWhen = PenaltyOccuredWhen.During;
-            TestCrypto rng = new TestCrypto
+            TestSeedableRandom rng = new TestSeedableRandom
                 {__NextInt = {[0] = playerIndex}, __NextDouble = {[0] = 0.0032, [1] = 0.46}};
 
             var penaltyCheck = new PenaltyOccurredSkillsCheck(penaltyOccurredWhen, rng);
@@ -108,7 +108,7 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            TestCrypto rng = new TestCrypto
+            TestSeedableRandom rng = new TestSeedableRandom
                 {__NextDouble = {[0] = 0.0034}};
 
             var penaltyCheck = new PenaltyOccurredSkillsCheck(PenaltyOccuredWhen.During, rng);
@@ -122,7 +122,7 @@ namespace UnitTestProject1
         public void PuntOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
 
             var puntResult = new PuntBlockOccurredSkillsCheck(rng);
             puntResult.Execute(game);
@@ -134,7 +134,7 @@ namespace UnitTestProject1
         public void PuntOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
 
             var puntResult = new PuntBlockOccurredSkillsCheck(rng);
             puntResult.Execute(game);

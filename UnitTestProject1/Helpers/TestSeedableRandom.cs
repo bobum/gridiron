@@ -2,7 +2,7 @@
 
 namespace UnitTestProject1.Helpers
 {
-    public class TestCrypto : ICryptoRandom
+    public class TestSeedableRandom : ISeedableRandom
     {
         private int _intIndex = 0;
         private int _doubleIndex = 0;

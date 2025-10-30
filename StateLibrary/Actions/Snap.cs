@@ -6,8 +6,8 @@ namespace StateLibrary.Actions
 {
     public class Snap : IGameAction
     {
-        private ICryptoRandom _rng;
-        public Snap(ICryptoRandom rng)
+        private ISeedableRandom _rng;
+        public Snap(ISeedableRandom rng)
         {
             _rng = rng;
         }

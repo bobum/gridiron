@@ -7,8 +7,8 @@ namespace StateLibrary.Actions
 {
     public class PrePlay : IGameAction
     {
-        private ICryptoRandom _rng;
-        public PrePlay(ICryptoRandom rng)
+        private ISeedableRandom _rng;
+        public PrePlay(ISeedableRandom rng)
         {
             _rng = rng;
         }

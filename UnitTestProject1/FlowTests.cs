@@ -11,7 +11,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GameTest()
         {
-            var rng = new CryptoRandom();
+            var rng = new SeedableRandom();
             var game = GameHelper.GetNewGame();
             var gameFlow = new GameFlow(game, rng);
             gameFlow.Execute();
@@ -21,7 +21,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetGraphTest()
         {
-            var rng = new CryptoRandom();
+            var rng = new SeedableRandom();
             var game = GameHelper.GetNewGame();
             var gameFlow = new GameFlow(game, rng);
             var graph = gameFlow.GetGraph();

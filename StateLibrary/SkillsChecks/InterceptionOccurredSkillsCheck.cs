@@ -6,8 +6,8 @@ namespace StateLibrary.SkillsChecks
 {
     public class InterceptionOccurredSkillsCheck : ActionOccurredSkillsCheck
     {
-        private ICryptoRandom _rng;
-        public InterceptionOccurredSkillsCheck(ICryptoRandom rng)
+        private ISeedableRandom _rng;
+        public InterceptionOccurredSkillsCheck(ISeedableRandom rng)
         {
             _rng = rng;
         }

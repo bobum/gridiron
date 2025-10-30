@@ -11,9 +11,9 @@ namespace StateLibrary.SkillsChecks
 
         public Penalty Penalty { get; private set; }
 
-        private readonly ICryptoRandom _rng;
+        private readonly ISeedableRandom _rng;
 
-        public PenaltyOccurredSkillsCheck(PenaltyOccuredWhen penaltyOccuredWhen, ICryptoRandom rng)
+        public PenaltyOccurredSkillsCheck(PenaltyOccuredWhen penaltyOccuredWhen, ISeedableRandom rng)
         {
             _penaltyOccuredWhen = penaltyOccuredWhen;
             _rng = rng;

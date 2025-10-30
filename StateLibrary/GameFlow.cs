@@ -20,7 +20,7 @@ namespace StateLibrary
         private readonly Game _game;
 
         // Injected RNG (was: private CryptoRandom _rng = new CryptoRandom();)
-        private readonly ICryptoRandom _rng;
+        private readonly ISeedableRandom _rng;
 
         enum Trigger
         {
@@ -68,7 +68,7 @@ namespace StateLibrary
         private readonly StateMachine<State, Trigger> _machine;
 
         // Constructor now takes ICryptoRandom as a dependency
-        public GameFlow(Game game, ICryptoRandom rng)
+        public GameFlow(Game game, ISeedableRandom rng)
         {
             _game = game ?? throw new ArgumentNullException(nameof(game));
             _rng = rng ?? throw new ArgumentNullException(nameof(rng));

@@ -33,7 +33,7 @@ namespace UnitTestProject1
         public void AwayTeamWinsCoinTossAndDefersTest()
         {
             var game = GameHelper.GetNewGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 1, [1] = 1}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1, [1] = 1}};
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -45,7 +45,7 @@ namespace UnitTestProject1
         public void AwayTeamWinsCoinTossAndReceivesTest()
         {
             var game = GameHelper.GetNewGame();
-            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 1, [1] = 2 } };
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 1, [1] = 2 } };
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -57,7 +57,7 @@ namespace UnitTestProject1
         public void HomeTeamWinsCoinTossAndReceivesTest()
         {
             var game = GameHelper.GetNewGame();
-            TestCrypto rng = new TestCrypto {__NextInt = {[0] = 2, [1] = 2}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2, [1] = 2}};
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -71,7 +71,7 @@ namespace UnitTestProject1
         public void HomeTeamWinsCoinTossAndDefersTest()
         {
             var game = GameHelper.GetNewGame();
-            TestCrypto rng = new TestCrypto { __NextInt = { [0] = 2, [1] = 1 } };
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 2, [1] = 1 } };
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -82,7 +82,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PrePlayKickoffTest()
         {
-            TestCrypto rng = new TestCrypto {__NextDouble = {[0] = 0.4}};
+            TestSeedableRandom rng = new TestSeedableRandom {__NextDouble = {[0] = 0.4}};
             var game = GameHelper.GetNewGame();
             game.WonCoinToss = Possession.Away;
             var prePlay = new PrePlay(rng);
@@ -95,7 +95,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PrePlayKeepsPossessionTest()
         {
-            TestCrypto rng = new TestCrypto { __NextDouble = { [0] = 0.4 } };
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.4 } };
             var game = GameHelper.GetNewGame();
             game.WonCoinToss = Possession.Away;
             game.Plays.Add(new Play(){Possession = Possession.Home});
