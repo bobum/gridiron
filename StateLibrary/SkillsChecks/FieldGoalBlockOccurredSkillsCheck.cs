@@ -6,9 +6,9 @@ namespace StateLibrary.SkillsChecks
 {
     public class FieldGoalBlockOccurredSkillsCheck : ActionOccurredSkillsCheck
     {
-        private ICryptoRandom _rng;
+        private ISeedableRandom _rng;
 
-        public FieldGoalBlockOccurredSkillsCheck(ICryptoRandom rng)
+        public FieldGoalBlockOccurredSkillsCheck(ISeedableRandom rng)
         {
             _rng = rng;
         }

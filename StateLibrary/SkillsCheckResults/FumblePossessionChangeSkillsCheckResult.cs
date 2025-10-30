@@ -6,8 +6,8 @@ namespace StateLibrary.SkillsCheckResults
 {
     public class FumblePossessionChangeSkillsCheckResult : PossessionChangeSkillsCheckResult
     {
-        private ICryptoRandom _rng;
-        public FumblePossessionChangeSkillsCheckResult(ICryptoRandom rng)
+        private ISeedableRandom _rng;
+        public FumblePossessionChangeSkillsCheckResult(ISeedableRandom rng)
         {
             _rng = rng;
         }

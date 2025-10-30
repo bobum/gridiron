@@ -12,7 +12,7 @@ namespace UnitTestProject1.Helpers
         /// <returns></returns>
         public Game GetGame()
         {
-            var rng = new CryptoRandom();
+            var rng = new SeedableRandom();
             var game = GameHelper.GetNewGame();
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);

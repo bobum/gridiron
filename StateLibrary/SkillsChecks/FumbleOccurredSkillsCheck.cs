@@ -6,9 +6,9 @@ namespace StateLibrary.SkillsChecks
 {
     public class FumbleOccurredSkillsCheck : ActionOccurredSkillsCheck
     {
-        private ICryptoRandom _rng;
+        private ISeedableRandom _rng;
 
-        public FumbleOccurredSkillsCheck(ICryptoRandom rng)
+        public FumbleOccurredSkillsCheck(ISeedableRandom rng)
         {
             _rng = rng;
         }

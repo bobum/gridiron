@@ -6,8 +6,8 @@ namespace StateLibrary.Actions
 {
     public class CoinToss : IGameAction
     {
-        private ICryptoRandom _rng;
-        public CoinToss(ICryptoRandom rng)
+        private ISeedableRandom _rng;
+        public CoinToss(ISeedableRandom rng)
         {
             _rng = rng;
         }
