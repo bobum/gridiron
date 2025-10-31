@@ -66,6 +66,7 @@ namespace DomainObjects
         FB,//Fullback,
         FS,//FreeSafety,
         LS,//LongSnapper
+        H,//Holder
     }
 
     public enum Downs

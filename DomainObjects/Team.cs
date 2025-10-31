@@ -15,19 +15,29 @@ public class Team
     public int Chemistry { get; set; }       // 0-100
     public Dictionary<TeamStatType, int> Stats { get; set; } = new();
 
+    // Depth charts for different units
+    public DepthChart OffenseDepthChart { get; set; } = new();
+    public DepthChart DefenseDepthChart { get; set; } = new();
+    public DepthChart FieldGoalOffenseDepthChart { get; set; } = new();
+    public DepthChart FieldGoalDefenseDepthChart { get; set; } = new();
+    public DepthChart KickoffOffenseDepthChart { get; set; } = new();
+    public DepthChart KickoffDefenseDepthChart { get; set; } = new();
+    public DepthChart PuntOffenseDepthChart { get; set; } = new();
+    public DepthChart PuntDefenseDepthChart { get; set; } = new();
+
     // NFL-style coaching staff
-    public Coach HeadCoach { get; set; }
-    public Coach OffensiveCoordinator { get; set; }
-    public Coach DefensiveCoordinator { get; set; }
-    public Coach SpecialTeamsCoordinator { get; set; }
+    public Coach HeadCoach { get; set; } = new();
+    public Coach OffensiveCoordinator { get; set; } = new();
+    public Coach DefensiveCoordinator { get; set; } = new();
+    public Coach SpecialTeamsCoordinator { get; set; } = new();
     public List<Coach> AssistantCoaches { get; set; } = new();
 
     // Training staff
-    public Trainer HeadAthleticTrainer { get; set; }
-    public Trainer TeamDoctor { get; set; }
+    public Trainer HeadAthleticTrainer { get; set; } = new();
+    public Trainer TeamDoctor { get; set; } = new();
 
     // Scouting staff
-    public Scout DirectorOfScouting { get; set; }
+    public Scout DirectorOfScouting { get; set; } = new();
     public List<Scout> CollegeScouts { get; set; } = new();
     public List<Scout> ProScouts { get; set; } = new();
 
