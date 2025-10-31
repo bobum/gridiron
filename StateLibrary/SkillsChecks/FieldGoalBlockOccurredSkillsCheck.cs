@@ -15,7 +15,7 @@ namespace StateLibrary.SkillsChecks
 
         public override void Execute(Game game)
         {
-            //was there a fumble? Totally random for now...
+            //was the fieldgoal blocked? Totally random for now...
             var block = _rng.Next(2);
 
             Occurred = block == 1;

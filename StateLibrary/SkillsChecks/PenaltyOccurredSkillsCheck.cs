@@ -9,7 +9,7 @@ namespace StateLibrary.SkillsChecks
     {
         private readonly PenaltyOccuredWhen _penaltyOccuredWhen;
 
-        public Penalty Penalty { get; private set; }
+        public Penalty Penalty { get; private set; } = null!; // Initialize to null and suppress warning
 
         private readonly ISeedableRandom _rng;
 
