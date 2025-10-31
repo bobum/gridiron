@@ -191,7 +191,7 @@ namespace DomainObjects.Helpers
             chart.Chart[Positions.QB] = GetDepth(players, Positions.QB);
             chart.Chart[Positions.RB] = GetDepth(players, Positions.RB);
             chart.Chart[Positions.FB] = GetDepth(players, Positions.FB);
-            chart.Chart[Positions.WR] = GetDepth(players, Positions.WR, 2);
+            chart.Chart[Positions.WR] = GetDepth(players, Positions.WR, 3);
             chart.Chart[Positions.TE] = GetDepth(players, Positions.TE);
             chart.Chart[Positions.C] = GetDepth(players, Positions.C);
             chart.Chart[Positions.G] = GetDepth(players, Positions.G, 2);
@@ -204,7 +204,7 @@ namespace DomainObjects.Helpers
             var chart = new DepthChart();
             chart.Chart[Positions.DE] = GetDepth(players, Positions.DE, 2);
             chart.Chart[Positions.DT] = GetDepth(players, Positions.DT, 2);
-            chart.Chart[Positions.LB] = GetDepth(players, Positions.LB, 3);
+            chart.Chart[Positions.LB] = GetDepth(players, Positions.LB, 4);
             chart.Chart[Positions.OLB] = GetDepth(players, Positions.OLB, 2);
             chart.Chart[Positions.CB] = GetDepth(players, Positions.CB, 2);
             chart.Chart[Positions.S] = GetDepth(players, Positions.S, 2);
@@ -268,7 +268,6 @@ namespace DomainObjects.Helpers
             var chart = new DepthChart();
             chart.Chart[Positions.P] = GetDepth(players, Positions.P, 1);      // Punter
             chart.Chart[Positions.LS] = GetDepth(players, Positions.LS, 1);    // Long Snapper
-            chart.Chart[Positions.H] = GetDepth(players, Positions.QB, 1);
             chart.Chart[Positions.G] = GetDepth(players, Positions.G, 2);      // Blocking
             chart.Chart[Positions.T] = GetDepth(players, Positions.T, 2);      // Blocking
             chart.Chart[Positions.C] = GetDepth(players, Positions.C, 1);      // Center
