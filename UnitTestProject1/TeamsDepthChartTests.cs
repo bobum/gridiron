@@ -25,17 +25,17 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void DefenseDepthChart_LB_ShouldBeTopThreeBySkill()
+        public void DefenseDepthChart_LB_ShouldBeTopFourBySkill()
         {
             var teams = new Teams();
             var lbList = teams.HomeTeam.DefenseDepthChart.Chart[Positions.LB];
             Assert.IsNotNull(lbList);
-            Assert.AreEqual(3, lbList.Count);
+            Assert.AreEqual(4, lbList.Count);
 
             var expectedLBs = teams.HomeTeam.Players
                 .Where(p => p.Position == Positions.LB)
                 .OrderByDescending(p => p.Tackling + p.Coverage)
-                .Take(3)
+                .Take(4)
                 .Select(p => p.Number)
                 .ToList();
 
@@ -60,10 +60,26 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void PuntOffenseDepthChart_Holder_ShouldBeTopQB()
+        public void PuntOffenseDepthChart_K_ShouldBeTopKicker()
         {
             var teams = new Teams();
-            var holderList = teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.H];
+            var kList = teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P];
+            Assert.IsNotNull(kList);
+            Assert.AreEqual(1, kList.Count);
+
+            var expectedKicker = teams.HomeTeam.Players
+                .Where(p => p.Position == Positions.P)
+                .OrderByDescending(p => p.Kicking)
+                .First();
+
+            Assert.AreEqual(expectedKicker.Number, kList[0].Number);
+        }
+
+        [TestMethod]
+        public void FieldGoalOffenseDepthChart_Holder_ShouldBeTopQB()
+        {
+            var teams = new Teams();
+            var holderList = teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.H];
             Assert.IsNotNull(holderList);
             Assert.AreEqual(1, holderList.Count);
 

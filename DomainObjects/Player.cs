@@ -14,7 +14,7 @@ namespace DomainObjects
         public int Exp { get; set; }
         public string College { get; set; }
         public Dictionary<PlayerStatType, int> Stats { get; set; } = new();
-
+        public Dictionary<PlayerStatType, int> SeasonStats { get; set; } = new();
 
         // Realistic attributes
         public int Speed { get; set; }           // 0-100
@@ -34,7 +34,7 @@ namespace DomainObjects
         public int Kicking { get; set; }         // K, P
 
         // Career stats
-        public Dictionary<string, int> CareerStats { get; set; } = new();
+        public Dictionary<PlayerStatType, int> CareerStats { get; set; } = new();
         public bool IsRetired { get; set; }
         public int ContractYears { get; set; }
         public int Salary { get; set; }
