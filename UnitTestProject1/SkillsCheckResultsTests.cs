@@ -63,7 +63,7 @@ namespace UnitTestProject1
         public void KickoffPenaltySkillsCheckResultTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.PlayType = PlayType.Kickoff;
+            game.CurrentPlay = new KickoffPlay();
             var penalty = new Penalty();
             var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penalty);
             penaltySkillsCheckResult.Execute(game);
@@ -76,7 +76,7 @@ namespace UnitTestProject1
         public void FieldGoalPenaltySkillsCheckResultTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.PlayType = PlayType.FieldGoal;
+            game.CurrentPlay = new FieldGoalPlay();
             var penalty = new Penalty();
             var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penalty);
             penaltySkillsCheckResult.Execute(game);
@@ -89,7 +89,7 @@ namespace UnitTestProject1
         public void PuntPenaltySkillsCheckResultTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.PlayType = PlayType.Punt;
+            game.CurrentPlay = new PuntPlay();
             var penalty = new Penalty();
             var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penalty);
             penaltySkillsCheckResult.Execute(game);
@@ -102,7 +102,7 @@ namespace UnitTestProject1
         public void RunPenaltySkillsCheckResultTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.PlayType = PlayType.Run;
+            game.CurrentPlay = new RunPlay();
             var penalty = new Penalty();
             var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penalty);
             penaltySkillsCheckResult.Execute(game);
@@ -115,7 +115,7 @@ namespace UnitTestProject1
         public void PassPenaltySkillsCheckResultTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.PlayType = PlayType.Pass;
+            game.CurrentPlay = new PassPlay();
             var penalty = new Penalty();
             var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penalty);
             penaltySkillsCheckResult.Execute(game);
