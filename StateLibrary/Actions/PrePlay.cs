@@ -27,6 +27,20 @@ namespace StateLibrary.Actions
             //we sub in the right players
             SubstituteOffensivePlayers(game);
             SubstituteDefensivePlayers(game);
+
+            // Log the play call
+            if (game.CurrentPlay.PlayType == PlayType.Kickoff)
+            {
+                logger.LogInformation("Players are lined up for the kickoff");
+            }
+            else if (game.CurrentPlay.PlayType == PlayType.Run)
+            {
+                logger.LogInformation("The big package is in, looks like a run formation");
+            }
+            else if (game.CurrentPlay.PlayType == PlayType.Pass)
+            {
+                logger.LogInformation("Receivers are spread wide, could be a passing down");
+            }
         }
 
         //Eventually this method will be much more complex
@@ -48,14 +62,13 @@ namespace StateLibrary.Actions
                 currentPlay.Down = Downs.None;
                 currentPlay.StartTime = 0;
                 currentPlay.PlayType = PlayType.Kickoff;
-                currentPlay.Result.Add("Players are lined up for the kickoff");
             }
             else
             {
                 //possession for this play is whoever had it at the end of the last play
                 currentPlay.Possession = game.Plays.Last().Possession;
 
-                //totally random for now, but later will need to add logic for determining both 
+                //totally random for now, but later will need to add logic for determining both
                 //offensive and defensive play calls here
                 //coaches will decide whether to run or pass based on down, distance, time remaining, score, etc.
                 var kindOfPlay = _rng.NextDouble();
@@ -66,14 +79,12 @@ namespace StateLibrary.Actions
                     //run
                     currentPlay.PlayType = PlayType.Run;
                     currentPlay.ElapsedTime += 1.5;
-                    currentPlay.Result.Add("The big package is in, looks like a run formation");
                 }
                 else
                 {
                     //pass
                     currentPlay.PlayType = PlayType.Pass;
                     currentPlay.ElapsedTime += 1.5;
-                    currentPlay.Result.Add("Receivers are spread wide, could be a passing down");
                 }
             }
 

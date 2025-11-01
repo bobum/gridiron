@@ -28,7 +28,7 @@ namespace StateLibrary.Actions
 
             game.CurrentPlay.ElapsedTime += game.CurrentPlay.GoodSnap ? 0.2 : 0.5;
 
-            game.CurrentPlay.Result.Add(game.CurrentPlay.GoodSnap
+            logger.LogInformation(game.CurrentPlay.GoodSnap
                 ? "Good snap..."
                 : "Oh no!  The snap is muffed - players are scrambling for the ball...");
 
