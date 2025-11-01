@@ -127,7 +127,7 @@ namespace UnitTestProject1
                 KickDistance = 70
             };
 
-            var kicker = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.K][0];
+            var kicker = _teams.HomeTeam.KickoffOffenseDepthChart.Chart[Positions.K][0];
             play.Kicker = kicker;
 
             // Assert
@@ -177,7 +177,7 @@ namespace UnitTestProject1
                 HangTime = 4.5
             };
 
-            var punter = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.P][0];
+            var punter = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P][0];
             play.Punter = punter;
 
             // Assert
@@ -201,8 +201,8 @@ namespace UnitTestProject1
                 IsExtraPoint = false
             };
 
-            var kicker = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.K][0];
-            var holder = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.H][0];
+            var kicker = _teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.K][0];
+            var holder = _teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.H][0];
             play.Kicker = kicker;
             play.Holder = holder;
 
@@ -632,7 +632,7 @@ namespace UnitTestProject1
                 AttemptDistance = 48
             };
 
-            var kicker = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.K][0];
+            var kicker = _teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.K][0];
             var dt = _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][0];
 
             play.Kicker = kicker;
@@ -658,7 +658,7 @@ namespace UnitTestProject1
                 AttemptDistance = 52
             };
 
-            var kicker = _teams.VisitorTeam.OffenseDepthChart.Chart[Positions.K][0];
+            var kicker = _teams.VisitorTeam.FieldGoalOffenseDepthChart.Chart[Positions.K][0];
             var de = _teams.HomeTeam.DefenseDepthChart.Chart[Positions.DE][0];
             var lb = _teams.HomeTeam.DefenseDepthChart.Chart[Positions.LB][0];
 
@@ -693,7 +693,7 @@ namespace UnitTestProject1
                 PuntDistance = 0
             };
 
-            var punter = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.P][0];
+            var punter = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P][0];
             var de = _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DE][0];
             var te = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.TE][0];
 
@@ -721,7 +721,7 @@ namespace UnitTestProject1
                 PuntDistance = 0
             };
 
-            var punter = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.P][0];
+            var punter = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P][0];
             var lb = _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][0];
 
             play.Punter = punter;
@@ -758,7 +758,7 @@ namespace UnitTestProject1
                 KickDistance = 12
             };
 
-            var kicker = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.K][0];
+            var kicker = _teams.HomeTeam.KickoffOffenseDepthChart.Chart[Positions.K][0];
             var te = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.TE][0];
 
             play.Kicker = kicker;
@@ -1066,7 +1066,7 @@ namespace UnitTestProject1
                 PossessionChange = false // Kicking team recovers
             };
 
-            var punter = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.P][0];
+            var punter = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P][0];
             var wr = _teams.VisitorTeam.OffenseDepthChart.Chart[Positions.WR][0];
             var te = _teams.HomeTeam.OffenseDepthChart.Chart[Positions.TE][0];
 
