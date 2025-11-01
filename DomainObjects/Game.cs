@@ -20,7 +20,8 @@ namespace DomainObjects
         public List<Play> Plays { get; set; } = new List<Play>();
 
         // Logger for game events - will be assigned to Play.Result for play-by-play logging
-        public ILogger Logger { get; set; } = null!;
+        // Defaults to NullLogger so tests don't need to set it up
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         // Field position tracking (0 = offense's own goal line, 100 = opponent's goal line)
         public int FieldPosition { get; set; } = 0; // Line of scrimmage

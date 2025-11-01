@@ -9,7 +9,7 @@ namespace DomainObjects
 {
     public class Play
     {
-        public ILogger Result { get; set; } = null!; // Logger for play-by-play output
+        public ILogger Result { get; set; } = NullLogger.Instance; // Logger for play-by-play output, defaults to NullLogger
         public Downs Down { get; set; }
         public bool GoodSnap { get; set; }
         public bool PossessionChange { get; set; } = false;
