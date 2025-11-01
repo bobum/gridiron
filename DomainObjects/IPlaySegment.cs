@@ -8,13 +8,15 @@ namespace DomainObjects
     {
         /// <summary>
         /// The player carrying the ball during this segment
+        /// (Can be computed from other properties in some implementations)
         /// </summary>
-        Player BallCarrier { get; set; }
+        Player BallCarrier { get; }
 
         /// <summary>
         /// Yards gained (or lost if negative) during this segment
+        /// (Can be computed from other properties in some implementations)
         /// </summary>
-        int YardsGained { get; set; }
+        int YardsGained { get; }
 
         /// <summary>
         /// Whether this segment ended in a fumble
