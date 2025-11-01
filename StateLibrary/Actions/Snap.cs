@@ -1,5 +1,7 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using DomainObjects.Helpers;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
@@ -12,7 +14,7 @@ namespace StateLibrary.Actions
             _rng = rng;
         }
 
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             var didItHappen = _rng.NextDouble();
 

@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
@@ -16,7 +17,7 @@ namespace StateLibrary.Actions
             _possession = possession;
         }
 
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             //first determine if there was a possession change on the play
             game.CurrentPlay.PossessionChange = _possession != game.CurrentPlay.Possession;
@@ -25,15 +26,15 @@ namespace StateLibrary.Actions
             game.CurrentPlay.Possession = _possession;
 
             game.CurrentPlay.ElapsedTime += 0.5;
-            game.CurrentPlay.Result.Add("Fumble on the play");
+            logger.LogInformation("Fumble on the play");
             if (game.CurrentPlay.PossessionChange)
             {
-                game.CurrentPlay.Result.Add("Possession changes hands");
-                game.CurrentPlay.Result.Add($"{game.CurrentPlay.Possession} now has possession");
+                logger.LogInformation("Possession changes hands");
+                logger.LogInformation($"{game.CurrentPlay.Possession} now has possession");
             }
             else
             {
-                game.CurrentPlay.Result.Add($"{game.CurrentPlay.Possession} keeps possession");
+                logger.LogInformation($"{game.CurrentPlay.Possession} keeps possession");
             }
 
             //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records

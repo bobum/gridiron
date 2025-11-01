@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Plays
@@ -11,10 +12,10 @@ namespace StateLibrary.Plays
     {
         //need to determine if this is an extra point or a field goal attempt
         //to assign time correctly...
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             game.CurrentPlay.ElapsedTime += 1.5;
-            game.CurrentPlay.Result.Add("The kick is up...");
+            logger.LogInformation("The kick is up...");
         }
     }
 }

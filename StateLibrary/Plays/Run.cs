@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Plays
@@ -11,10 +12,10 @@ namespace StateLibrary.Plays
     //a muffed snap
     public sealed class Run : IGameAction
     {
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             game.CurrentPlay.ElapsedTime += 6.5;
-            game.CurrentPlay.Result.Add("Rumblin Bumblin Stumblin");
+            logger.LogInformation("Run play executed");
         }
     }
 }

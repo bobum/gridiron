@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Plays
@@ -12,10 +13,10 @@ namespace StateLibrary.Plays
     //a muffed snap on a fieldgoald would be in the FieldGoal class - those could be run or pass...
     public sealed class Pass : IGameAction
     {
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             game.CurrentPlay.ElapsedTime += 6.5;
-            game.CurrentPlay.Result.Add("Pass downfield!");
+            logger.LogInformation("Pass downfield!");
         }
     }
 }

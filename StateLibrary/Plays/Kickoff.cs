@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Plays
@@ -8,10 +9,10 @@ namespace StateLibrary.Plays
     //a free kick, that is, a punt, drop kick or placekick without a tee after a safety
     public sealed class Kickoff : IGameAction
     {
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
            game.CurrentPlay.ElapsedTime += 6.5;
-            game.CurrentPlay.Result.Add("Kickoff!!");
+            logger.LogInformation("Kickoff!!");
         }
     }
 }

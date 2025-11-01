@@ -1,13 +1,14 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.PlayResults
 {
     public class KickoffResult : IGameAction
     {
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
-            game.CurrentPlay.Result.Add("Kickoff squad leaves the field...");
+            logger.LogInformation("Kickoff squad leaves the field...");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Plays
@@ -10,10 +11,10 @@ namespace StateLibrary.Plays
     //a muffed snap
     public sealed class Punt : IGameAction
     {
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             game.CurrentPlay.ElapsedTime += 6.5;
-            game.CurrentPlay.Result.Add("Long punt");
+            logger.LogInformation("Long punt");
         }
     }
 }

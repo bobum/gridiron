@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using DomainObjects;
+using Microsoft.Extensions.Logging;
 using DomainObjects.Helpers;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StateLibrary.Interfaces;
 
@@ -13,7 +15,7 @@ namespace StateLibrary.Actions
         {
             _rng = rng;
         }
-        public void Execute(Game game)
+        public void Execute(Game game, ILogger logger)
         {
             //consider this class, the huddle
             //inside here we will do things like decide the next play,
