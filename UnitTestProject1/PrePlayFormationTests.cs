@@ -15,10 +15,10 @@ namespace UnitTestProject1
             {
                 HomeTeam = teams.HomeTeam,
                 AwayTeam = teams.VisitorTeam,
-                Plays = new List<Play>()
+                Plays = new List<IPlay>()
             };
             // Add a dummy play so the next play is not a kickoff
-            game.Plays.Add(new Play { Possession = possession });
+            game.Plays.Add(new RunPlay { Possession = possession });
             return game;
         }
 

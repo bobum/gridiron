@@ -14,11 +14,11 @@ namespace DomainObjects
     {
         public Team HomeTeam { get; set; }
         public Team AwayTeam { get; set; }
-        public Play CurrentPlay { get; set; }
+        public IPlay CurrentPlay { get; set; }
         public Possession WonCoinToss { get; set; }
         public bool DeferredPossession { get; set; }
 
-        public List<Play> Plays { get; set; } = new List<Play>();
+        public List<IPlay> Plays { get; set; } = new List<IPlay>();
 
         // Logger for game events - will be assigned to Play.Result for play-by-play logging
         // Defaults to NullLogger so tests don't need to set it up

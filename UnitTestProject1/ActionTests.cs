@@ -98,7 +98,7 @@ namespace UnitTestProject1
             TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.4 } };
             var game = GameHelper.GetNewGame();
             game.WonCoinToss = Possession.Away;
-            game.Plays.Add(new Play(){Possession = Possession.Home});
+            game.Plays.Add(new RunPlay(){Possession = Possession.Home});
 
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
