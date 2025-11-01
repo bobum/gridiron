@@ -26,6 +26,9 @@ namespace DomainObjects
     {
         Forward,   // Legal forward pass (only one allowed per play)
         Lateral,   // Lateral/backward pass (unlimited)
-        Backward   // Intentional backward pass
+        Backward,  // Intentional backward pass
+        Short,     // Short forward pass
+        Deep,      // Deep forward pass
+        Screen     // Screen pass
     }
 }

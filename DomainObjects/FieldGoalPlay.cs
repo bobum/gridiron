@@ -71,6 +71,11 @@ namespace DomainObjects
         public bool IsExtraPoint { get; set; }
 
         /// <summary>
+        /// Player who blocked the kick
+        /// </summary>
+        public Player? BlockedBy { get; set; }
+
+        /// <summary>
         /// If blocked and returned, the return segments
         /// </summary>
         public List<ReturnSegment>? BlockReturnSegments { get; set; }

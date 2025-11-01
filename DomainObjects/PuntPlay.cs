@@ -85,6 +85,31 @@ namespace DomainObjects
         /// </summary>
         public int DownedAtYardLine { get; set; }
 
+        /// <summary>
+        /// Player who blocked the punt
+        /// </summary>
+        public Player? BlockedBy { get; set; }
+
+        /// <summary>
+        /// Player who recovered the punt (blocked or muffed)
+        /// </summary>
+        public Player? RecoveredBy { get; set; }
+
+        /// <summary>
+        /// Yards gained after recovering blocked/muffed punt
+        /// </summary>
+        public int RecoveryYards { get; set; }
+
+        /// <summary>
+        /// Whether the returner muffed the catch
+        /// </summary>
+        public bool MuffedCatch { get; set; }
+
+        /// <summary>
+        /// Player who muffed the catch
+        /// </summary>
+        public Player? MuffedBy { get; set; }
+
         // ========================================
         // CONVENIENCE PROPERTIES
         // ========================================
@@ -93,6 +118,11 @@ namespace DomainObjects
         /// The initial returner
         /// </summary>
         public Player? InitialReturner => ReturnSegments.FirstOrDefault()?.BallCarrier;
+
+        /// <summary>
+        /// The final returner (end of play)
+        /// </summary>
+        public Player? FinalReturner => ReturnSegments.LastOrDefault()?.BallCarrier;
 
         /// <summary>
         /// Total return yards across all segments

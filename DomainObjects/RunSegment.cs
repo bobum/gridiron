@@ -19,6 +19,7 @@ namespace DomainObjects
     {
         Left,
         Right,
+        Middle,
         MiddleLeft,
         MiddleRight,
         UpTheMiddle,

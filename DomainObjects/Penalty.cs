@@ -12,6 +12,12 @@ namespace DomainObjects
         public Possession CalledOn { get; set; }
         public PenaltyOccuredWhen OccuredWhen { get; set; }
         public Player Player { get; set; }
+
+        // Additional properties for penalty instances
+        public Player? CommittedBy { get; set; }
+        public PenaltyNames PenaltyType { get; set; }
+        public int Yards { get; set; }
+        public bool Accepted { get; set; }
     }
 
     public static class Penalties

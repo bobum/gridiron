@@ -80,6 +80,11 @@ namespace DomainObjects
         /// </summary>
         public Team? OnsideRecoveredBy { get; set; }
 
+        /// <summary>
+        /// Player who recovered the onside kick or fumble
+        /// </summary>
+        public Player? RecoveredBy { get; set; }
+
         // ========================================
         // CONVENIENCE PROPERTIES
         // ========================================
@@ -88,6 +93,11 @@ namespace DomainObjects
         /// The initial returner
         /// </summary>
         public Player? InitialReturner => ReturnSegments.FirstOrDefault()?.BallCarrier;
+
+        /// <summary>
+        /// The final returner (end of play)
+        /// </summary>
+        public Player? FinalReturner => ReturnSegments.LastOrDefault()?.BallCarrier;
 
         /// <summary>
         /// Total return yards across all segments
