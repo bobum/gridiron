@@ -18,6 +18,15 @@ namespace DomainObjects
 
         public List<Play> Plays { get; set; } = new List<Play>();
 
+        // Field position tracking (0 = offense's own goal line, 100 = opponent's goal line)
+        public int FieldPosition { get; set; } = 0; // Line of scrimmage
+        public int YardsToGo { get; set; } = 10; // Yards needed for first down
+        public Downs CurrentDown { get; set; } = Downs.First;
+
+        // Score tracking
+        public int HomeScore { get; set; } = 0;
+        public int AwayScore { get; set; } = 0;
+
         public int TimeRemaining =>
             Halves[0].Quarters[0].TimeRemaining +
             Halves[0].Quarters[1].TimeRemaining +
