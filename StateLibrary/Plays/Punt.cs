@@ -11,10 +11,10 @@ namespace StateLibrary.Plays
     //a muffed snap
     public sealed class Punt : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             game.CurrentPlay.ElapsedTime += 6.5;
-            logger.LogInformation("Long punt");
+            game.CurrentPlay.Result.LogInformation("Long punt");
         }
     }
 }

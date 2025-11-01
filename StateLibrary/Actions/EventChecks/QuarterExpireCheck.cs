@@ -8,7 +8,7 @@ namespace StateLibrary.Actions.EventChecks
 {
     public sealed class QuarterExpireCheck : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             //remove the current play elapsed time from the current quarter
             game.CurrentQuarter.TimeRemaining -= (int)game.CurrentPlay.ElapsedTime;
@@ -16,7 +16,7 @@ namespace StateLibrary.Actions.EventChecks
             //see if we need to advance to the next quarter
             if (game.CurrentQuarter.TimeRemaining == 0)
             {
-                logger.LogInformation($"last play of the {game.CurrentQuarter.QuarterType} quarter");
+                game.CurrentPlay.Result.LogInformation($"last play of the {game.CurrentQuarter.QuarterType} quarter");
                 game.CurrentPlay.QuarterExpired = true;
 
                 switch (game.CurrentQuarter.QuarterType)

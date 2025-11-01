@@ -6,9 +6,9 @@ namespace StateLibrary.PlayResults
 {
     public class PuntResult : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
-            logger.LogInformation("The punt falls...");
+            game.CurrentPlay.Result.LogInformation("The punt falls...");
         }
     }
 }

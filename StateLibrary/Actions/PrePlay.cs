@@ -15,13 +15,16 @@ namespace StateLibrary.Actions
         {
             _rng = rng;
         }
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             //consider this class, the huddle
             //inside here we will do things like decide the next play,
             //substitute players for the new play,
             //substitute for players that have been injured in the post play
             game.CurrentPlay = DetermineNextPlay(game);
+
+            // Assign the game's logger to this play so it can log play-by-play results
+            game.CurrentPlay.Result = game.Logger;
 
             //now that we know the kind of play that is being called,
             //we sub in the right players
@@ -31,15 +34,15 @@ namespace StateLibrary.Actions
             // Log the play call
             if (game.CurrentPlay.PlayType == PlayType.Kickoff)
             {
-                logger.LogInformation("Players are lined up for the kickoff");
+                game.CurrentPlay.Result.LogInformation("Players are lined up for the kickoff");
             }
             else if (game.CurrentPlay.PlayType == PlayType.Run)
             {
-                logger.LogInformation("The big package is in, looks like a run formation");
+                game.CurrentPlay.Result.LogInformation("The big package is in, looks like a run formation");
             }
             else if (game.CurrentPlay.PlayType == PlayType.Pass)
             {
-                logger.LogInformation("Receivers are spread wide, could be a passing down");
+                game.CurrentPlay.Result.LogInformation("Receivers are spread wide, could be a passing down");
             }
         }
 

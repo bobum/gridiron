@@ -6,9 +6,9 @@ namespace StateLibrary.PlayResults
 {
     public class FieldGoalResult : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
-            logger.LogInformation("Nice try kicker!");
+            game.CurrentPlay.Result.LogInformation("Nice try kicker!");
         }
     }
 }

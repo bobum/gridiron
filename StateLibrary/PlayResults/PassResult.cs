@@ -6,9 +6,9 @@ namespace StateLibrary.PlayResults
 {
     public class PassResult : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
-            logger.LogInformation("Pass play is complete...");
+            game.CurrentPlay.Result.LogInformation("Pass play is complete...");
         }
     }
 }

@@ -6,7 +6,7 @@ namespace StateLibrary.Actions.EventChecks
 {
     public sealed class ScoreCheck : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             
         }

@@ -7,7 +7,7 @@ namespace StateLibrary.Actions
 {
     public class PostPlay : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             //inside here we will do things like check for injuries, advance the down, change possession
             //determine if it's a hurry up offense or if they are trying to

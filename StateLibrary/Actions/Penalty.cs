@@ -6,7 +6,7 @@ namespace StateLibrary.Actions
 {
     public class Penalty : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             foreach (var penalty in game.CurrentPlay.Penalties)
             {

@@ -14,7 +14,7 @@ namespace StateLibrary.Actions
             _rng = rng;
         }
 
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             var didItHappen = _rng.NextDouble();
 
@@ -28,7 +28,7 @@ namespace StateLibrary.Actions
 
             game.CurrentPlay.ElapsedTime += game.CurrentPlay.GoodSnap ? 0.2 : 0.5;
 
-            logger.LogInformation(game.CurrentPlay.GoodSnap
+            game.CurrentPlay.Result.LogInformation(game.CurrentPlay.GoodSnap
                 ? "Good snap..."
                 : "Oh no!  The snap is muffed - players are scrambling for the ball...");
 

@@ -14,7 +14,7 @@ namespace StateLibrary.SkillsCheckResults
             _penalty = penalty;
         }
 
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             //once we've determined that a penalty has been called on a player in the PenaltySkillsCheck,
             //here we will determine what penalty it was that was called on that player and add that to the game object
@@ -43,7 +43,7 @@ namespace StateLibrary.SkillsCheckResults
             }
 
             game.CurrentPlay.Penalties.Add(_penalty);
-            logger.LogInformation("Flag on the play");
+            game.CurrentPlay.Result.LogInformation("Flag on the play");
         }
     }
 }

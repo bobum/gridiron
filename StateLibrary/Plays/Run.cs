@@ -12,10 +12,10 @@ namespace StateLibrary.Plays
     //a muffed snap
     public sealed class Run : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             game.CurrentPlay.ElapsedTime += 6.5;
-            logger.LogInformation("Run play executed");
+            game.CurrentPlay.Result.LogInformation("Run play executed");
         }
     }
 }

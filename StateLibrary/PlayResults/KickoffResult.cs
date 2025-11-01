@@ -6,9 +6,9 @@ namespace StateLibrary.PlayResults
 {
     public class KickoffResult : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
-            logger.LogInformation("Kickoff squad leaves the field...");
+            game.CurrentPlay.Result.LogInformation("Kickoff squad leaves the field...");
         }
     }
 }

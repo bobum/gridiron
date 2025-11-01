@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Half = DomainObjects.Time.Half;
 
 namespace DomainObjects
@@ -17,6 +18,9 @@ namespace DomainObjects
         public bool DeferredPossession { get; set; }
 
         public List<Play> Plays { get; set; } = new List<Play>();
+
+        // Logger for game events - will be assigned to Play.Result for play-by-play logging
+        public ILogger Logger { get; set; } = null!;
 
         // Field position tracking (0 = offense's own goal line, 100 = opponent's goal line)
         public int FieldPosition { get; set; } = 0; // Line of scrimmage

@@ -6,9 +6,9 @@ namespace StateLibrary.PlayResults
 {
     public class RunResult : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
-            logger.LogInformation("Runner is down");
+            game.CurrentPlay.Result.LogInformation("Runner is down");
         }
     }
 }

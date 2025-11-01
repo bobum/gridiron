@@ -13,10 +13,10 @@ namespace StateLibrary.Plays
     //a muffed snap on a fieldgoald would be in the FieldGoal class - those could be run or pass...
     public sealed class Pass : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             game.CurrentPlay.ElapsedTime += 6.5;
-            logger.LogInformation("Pass downfield!");
+            game.CurrentPlay.Result.LogInformation("Pass downfield!");
         }
     }
 }

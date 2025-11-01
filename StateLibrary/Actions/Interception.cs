@@ -15,7 +15,7 @@ namespace StateLibrary.Actions
             _possession = possession;
         }
 
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             //there was a possession change on the play
             game.CurrentPlay.PossessionChange = true;
@@ -23,9 +23,9 @@ namespace StateLibrary.Actions
             //set the correct possession in the game
             game.CurrentPlay.Possession = _possession;
             game.CurrentPlay.ElapsedTime += 0.5;
-            logger.LogInformation("Interception!!");
-            logger.LogInformation("Possession changes hands");
-            logger.LogInformation($"{game.CurrentPlay.Possession} now has possession");
+            game.CurrentPlay.Result.LogInformation("Interception!!");
+            game.CurrentPlay.Result.LogInformation("Possession changes hands");
+            game.CurrentPlay.Result.LogInformation($"{game.CurrentPlay.Possession} now has possession");
 
             //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records
             game.CurrentPlay.Interception = true;

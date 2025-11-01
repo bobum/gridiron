@@ -6,7 +6,7 @@ namespace StateLibrary.Actions
 {
     public class PostGame : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
 
         }

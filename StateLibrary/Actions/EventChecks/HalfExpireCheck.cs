@@ -8,19 +8,19 @@ namespace StateLibrary.Actions.EventChecks
 {
     public sealed class HalfExpireCheck : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             if (game.CurrentPlay.QuarterExpired)
             {
                 switch (game.CurrentQuarter.QuarterType)
                 {
                     case QuarterType.Third:
-                        logger.LogInformation($"last play of the {game.CurrentHalf.HalfType} half");
+                        game.CurrentPlay.Result.LogInformation($"last play of the {game.CurrentHalf.HalfType} half");
                         game.CurrentPlay.HalfExpired = true;
                         game.CurrentHalf = game.Halves[1];
                         break;
                     case QuarterType.GameOver:
-                        logger.LogInformation($"last play of the {game.CurrentHalf.HalfType} half");
+                        game.CurrentPlay.Result.LogInformation($"last play of the {game.CurrentHalf.HalfType} half");
                         game.CurrentPlay.HalfExpired = true;
                         game.CurrentHalf.HalfType = HalfType.GameOver;
                         break;

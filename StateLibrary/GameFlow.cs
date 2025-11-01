@@ -78,6 +78,9 @@ namespace StateLibrary
             _rng = rng ?? throw new ArgumentNullException(nameof(rng));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+            // Set the game's logger so it can be used for play-by-play logging
+            _game.Logger = logger;
+
             _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
             _nextPlayTrigger = _machine.SetTriggerParameters<bool>(Trigger.NextPlay);
 
@@ -200,7 +203,7 @@ namespace StateLibrary
         private void DoPreGame()
         {
             var preGame = new PreGame();
-            preGame.Execute(_game, _logger);
+            preGame.Execute(_game);
 
             _machine.Fire(Trigger.WarmupsCompleted);
         }
@@ -208,7 +211,7 @@ namespace StateLibrary
         private void DoCoinToss()
         {
             var coinToss = new CoinToss(_rng);
-            coinToss.Execute(_game, _logger);
+            coinToss.Execute(_game);
 
             _machine.Fire(Trigger.CoinTossed);
         }
@@ -217,7 +220,7 @@ namespace StateLibrary
         {
             //need to actually determine when the quarters get changed etc so that this switch is really done the RIGHT way...
             var quarterExpired = new QuarterExpired();
-            quarterExpired.Execute(_game, _logger);
+            quarterExpired.Execute(_game);
 
             switch (_game.CurrentQuarter.QuarterType)
             {
@@ -236,7 +239,7 @@ namespace StateLibrary
         private void DoHalftime()
         {
             var halftime = new Halftime();
-            halftime.Execute(_game, _logger);
+            halftime.Execute(_game);
 
             _machine.Fire(Trigger.HalftimeOver);
         }
@@ -244,7 +247,7 @@ namespace StateLibrary
         private void DoPostGame()
         {
             var postGame = new PostGame();
-            postGame.Execute(_game, _logger);
+            postGame.Execute(_game);
 
             //TODO: Game has ended - what happens now that we have a complete _game object ready to go?
         }
@@ -259,7 +262,7 @@ namespace StateLibrary
             //we check for motion and substitution penalties etc
             //we then snap the ball and make sure the snap was good
             var prePlay = new PrePlay(_rng);
-            prePlay.Execute(_game, _logger);
+            prePlay.Execute(_game);
 
             PenaltyCheck(PenaltyOccuredWhen.Before);
 
@@ -271,7 +274,7 @@ namespace StateLibrary
             else
             {
                 var snap = new Snap(_rng);
-                snap.Execute(_game, _logger);
+                snap.Execute(_game);
 
                 _machine.Fire(Trigger.Snap);
             }
@@ -281,7 +284,7 @@ namespace StateLibrary
         {
             //gotta do the kickoff in here
             var kickoff = new Kickoff();
-            kickoff.Execute(_game, _logger);
+            kickoff.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
         }
@@ -289,7 +292,7 @@ namespace StateLibrary
         private void DoRunPlay()
         {
             var runPlay = new Run();
-            runPlay.Execute(_game, _logger);
+            runPlay.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
         }
@@ -298,7 +301,7 @@ namespace StateLibrary
         {
             //Check if there was a block & if there was, assemble the result
             var interceptionCheck = new InterceptionOccurredSkillsCheck(_rng);
-            interceptionCheck.Execute(_game, _logger);
+            interceptionCheck.Execute(_game);
 
             if (interceptionCheck.Occurred)
             {
@@ -309,7 +312,7 @@ namespace StateLibrary
             {
                 //no interception, kick is up...
                 var passPlay = new Pass();
-                passPlay.Execute(_game, _logger);
+                passPlay.Execute(_game);
             }
 
             _machine.Fire(Trigger.Fumble);
@@ -319,7 +322,7 @@ namespace StateLibrary
         {
             //Check if there was a block & if there was, assemble the result
             var blockedCheck = new PuntBlockOccurredSkillsCheck(_rng);
-            blockedCheck.Execute(_game, _logger);
+            blockedCheck.Execute(_game);
 
             if (blockedCheck.Occurred)
             {
@@ -330,7 +333,7 @@ namespace StateLibrary
             {
                 //no block, kick is up...
                 var punt = new Punt();
-                punt.Execute(_game, _logger);
+                punt.Execute(_game);
             }
 
             _machine.Fire(Trigger.Fumble);
@@ -340,7 +343,7 @@ namespace StateLibrary
         {
             //Check if there was a block & if there was, assemble the result
             var blockedCheck = new FieldGoalBlockOccurredSkillsCheck(_rng);
-            blockedCheck.Execute(_game, _logger);
+            blockedCheck.Execute(_game);
 
             if (blockedCheck.Occurred)
             {
@@ -351,7 +354,7 @@ namespace StateLibrary
             {
                 //no block, kick is up...
                 var fieldGoal = new FieldGoal();
-                fieldGoal.Execute(_game, _logger);
+                fieldGoal.Execute(_game);
             }
 
             _machine.Fire(Trigger.Fumble);
@@ -360,7 +363,7 @@ namespace StateLibrary
         private void DoFumbleCheck()
         {
             var fumbleCheck = new FumbleOccurredSkillsCheck(_rng);
-            fumbleCheck.Execute(_game, _logger);
+            fumbleCheck.Execute(_game);
 
             //if true - possession skills check and fumble action
             if (fumbleCheck.Occurred)
@@ -384,12 +387,12 @@ namespace StateLibrary
             if (_game.CurrentPlay.Penalties.Count > 0)
             {
                 var penaltyResult = new Penalty();
-                penaltyResult.Execute(_game, _logger);
+                penaltyResult.Execute(_game);
             }
 
             //check for penalties during and after the play, scores, injuries, quarter expiration
             var postPlay = new PostPlay();
-            postPlay.Execute(_game, _logger);
+            postPlay.Execute(_game);
 
             _machine.Fire(_nextPlayTrigger, _game.CurrentPlay.QuarterExpired);
         }
@@ -401,7 +404,7 @@ namespace StateLibrary
         private void DoPassPlayResult()
         {
             var passResult = new PassResult();
-            passResult.Execute(_game, _logger);
+            passResult.Execute(_game);
 
             _machine.Fire(Trigger.PlayResult);
         }
@@ -409,7 +412,7 @@ namespace StateLibrary
         private void DoPuntResult()
         {
             var puntResult = new PuntResult();
-            puntResult.Execute(_game, _logger);
+            puntResult.Execute(_game);
 
             _machine.Fire(Trigger.PlayResult);
         }
@@ -417,7 +420,7 @@ namespace StateLibrary
         private void DoKickoffResult()
         {
             var kickoffResult = new KickoffResult();
-            kickoffResult.Execute(_game, _logger);
+            kickoffResult.Execute(_game);
 
             _machine.Fire(Trigger.PlayResult);
         }
@@ -425,7 +428,7 @@ namespace StateLibrary
         private void DoRunPlayResult()
         {
             var runResult = new RunResult();
-            runResult.Execute(_game, _logger);
+            runResult.Execute(_game);
 
             _machine.Fire(Trigger.PlayResult);
         }
@@ -433,7 +436,7 @@ namespace StateLibrary
         private void DoFieldGoalResult()
         {
             var fieldGoalResult = new FieldGoalResult();
-            fieldGoalResult.Execute(_game, _logger);
+            fieldGoalResult.Execute(_game);
 
             _machine.Fire(Trigger.PlayResult);
         }
@@ -453,21 +456,21 @@ namespace StateLibrary
         private void FumbleOccurred()
         {
             var possessionChangeResult = new FumblePossessionChangeSkillsCheckResult(_rng);
-            possessionChangeResult.Execute(_game, _logger);
+            possessionChangeResult.Execute(_game);
 
             var fumbleResult = new Fumble(possessionChangeResult.Possession);
-            fumbleResult.Execute(_game, _logger);
+            fumbleResult.Execute(_game);
         }
 
         private void PenaltyCheck(PenaltyOccuredWhen penaltyOccuredWhen)
         {
             var penaltyOccurredSkillsCheck = new PenaltyOccurredSkillsCheck(penaltyOccuredWhen, _rng);
-            penaltyOccurredSkillsCheck.Execute(_game, _logger);
+            penaltyOccurredSkillsCheck.Execute(_game);
 
             if (penaltyOccurredSkillsCheck.Occurred)
             {
                 var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penaltyOccurredSkillsCheck.Penalty);
-                penaltySkillsCheckResult.Execute(_game, _logger);
+                penaltySkillsCheckResult.Execute(_game);
             }
         }
 
@@ -477,10 +480,10 @@ namespace StateLibrary
         private void InterceptionOccurred()
         {
             var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
-            possessionChangeResult.Execute(_game, _logger);
+            possessionChangeResult.Execute(_game);
 
             var interceptionResult = new Interception(possessionChangeResult.Possession);
-            interceptionResult.Execute(_game, _logger);
+            interceptionResult.Execute(_game);
         }
 
         #endregion

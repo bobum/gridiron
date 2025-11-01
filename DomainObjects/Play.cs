@@ -1,14 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace DomainObjects
 {
     public class Play
     {
-        public List<string> Result { get; set; } = new List<string>();
+        public ILogger Result { get; set; } = null!; // Logger for play-by-play output
         public Downs Down { get; set; }
         public bool GoodSnap { get; set; }
         public bool PossessionChange { get; set; } = false;
@@ -36,4 +37,5 @@ namespace DomainObjects
 
 
     }
+}
 }

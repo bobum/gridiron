@@ -6,7 +6,7 @@ namespace StateLibrary.Actions
 {
     public class Halftime : IGameAction
     {
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
 
         }

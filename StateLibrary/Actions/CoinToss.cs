@@ -14,7 +14,7 @@ namespace StateLibrary.Actions
             _rng = rng;
         }
 
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             var toss = _rng.Next(2);
             game.WonCoinToss = toss == 1 ? Possession.Away : Possession.Home;

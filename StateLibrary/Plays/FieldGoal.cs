@@ -12,10 +12,10 @@ namespace StateLibrary.Plays
     {
         //need to determine if this is an extra point or a field goal attempt
         //to assign time correctly...
-        public void Execute(Game game, ILogger logger)
+        public void Execute(Game game)
         {
             game.CurrentPlay.ElapsedTime += 1.5;
-            logger.LogInformation("The kick is up...");
+            game.CurrentPlay.Result.LogInformation("The kick is up...");
         }
     }
 }
