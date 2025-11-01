@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using DomainObjects;
 using DomainObjects.Helpers;
+using Newtonsoft.Json;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
@@ -81,100 +82,96 @@ namespace StateLibrary.Actions
         {
             var currentPlay = game.CurrentPlay;
 
+            if (currentPlay.PlayType != PlayType.Run && currentPlay.PlayType != PlayType.Pass) return;
+
             Team defenseTeam = currentPlay.Possession == Possession.Home ? game.AwayTeam : game.HomeTeam;
             var chart = defenseTeam.DefenseDepthChart.Chart;
             var playersOnField = new List<Player>();
 
             // Linemen
-            int deCount = currentPlay.PlayType == PlayType.Run ? 2 : 1;
-            int dtCount = currentPlay.PlayType == PlayType.Run ? 2 : 2; // 4 total for RUN, 3 total for PASS
-
-            if (chart.TryGetValue(Positions.DE, out var des))
-            {
-                for (int i = 0; i < deCount && i < des.Count; i++)
-                    playersOnField.Add(des[i]);
-            }
-            if (chart.TryGetValue(Positions.DT, out var dts))
-            {
-                int dtNeeded = currentPlay.PlayType == PlayType.Run ? 2 : 2; // 2 DTs for both
-                for (int i = 0; i < dtNeeded && i < dts.Count; i++)
-                    playersOnField.Add(dts[i]);
-            }
+            AddUniquePlayers(chart, Positions.DE, currentPlay.PlayType == PlayType.Run ? 2 : 1, playersOnField, "defense");
+            AddUniquePlayers(chart, Positions.DT, 2, playersOnField, "defense");
 
             // Linebackers
-            int lbCount = currentPlay.PlayType == PlayType.Run ? 3 : 4;
-            if (chart.TryGetValue(Positions.LB, out var lbs))
-            {
-                for (int i = 0; i < lbCount && i < lbs.Count; i++)
-                    playersOnField.Add(lbs[i]);
-            }
+            AddUniquePlayers(chart, Positions.LB, currentPlay.PlayType == PlayType.Run ? 3 : 4, playersOnField, "defense");
 
             // Defensive backs (fill remaining spots to reach 11)
             int remaining = 11 - playersOnField.Count;
             var dbs = new List<Player>();
-            if (chart.TryGetValue(Positions.CB, out var cbs))
-                dbs.AddRange(cbs);
-            if (chart.TryGetValue(Positions.S, out var ss))
-                dbs.AddRange(ss);
-            if (chart.TryGetValue(Positions.FS, out var fss))
-                dbs.AddRange(fss);
+            if (chart.TryGetValue(Positions.CB, out var cbs)) dbs.AddRange(cbs);
+            if (chart.TryGetValue(Positions.S, out var ss)) dbs.AddRange(ss);
+            if (chart.TryGetValue(Positions.FS, out var fss)) dbs.AddRange(fss);
 
-            foreach (var db in dbs)
+            int dbAdded = 0;
+            for (int i = 0; i < dbs.Count && dbAdded < remaining; i++)
             {
-                if (playersOnField.Count < 11)
-                    playersOnField.Add(db);
-                else
-                    break;
+                var candidate = dbs[i];
+                if (!playersOnField.Contains(candidate))
+                {
+                    playersOnField.Add(candidate);
+                    dbAdded++;
+                }
             }
+            if (playersOnField.Count < 11)
+                throw new InvalidOperationException("Unable to fill 11 unique defensive players on the field.");
 
-            // Ensure exactly 11 players
             currentPlay.DefensePlayersOnField = playersOnField.Take(11).ToList();
+            string json = JsonConvert.SerializeObject(currentPlay.DefensePlayersOnField);
+
         }
 
         private void SubstituteOffensivePlayers(Game game)
         {
             var currentPlay = game.CurrentPlay;
 
+            if (currentPlay.PlayType != PlayType.Run && currentPlay.PlayType != PlayType.Pass) return;
+                        
             Team offenseTeam = currentPlay.Possession == Possession.Home ? game.HomeTeam : game.AwayTeam;
             var chart = offenseTeam.OffenseDepthChart.Chart;
             var playersOnField = new List<Player>();
 
             // Always include 1 QB, 1 RB, 1 FB, 1 C, 2 G, 2 T
-            if (chart.TryGetValue(Positions.QB, out var qbs) && qbs.Count > 0)
-                playersOnField.Add(qbs[0]);
-            if (chart.TryGetValue(Positions.RB, out var rbs) && rbs.Count > 0)
-                playersOnField.Add(rbs[0]);
-            if (chart.TryGetValue(Positions.FB, out var fbs) && fbs.Count > 0)
-                playersOnField.Add(fbs[0]);
-            if (chart.TryGetValue(Positions.C, out var cs) && cs.Count > 0)
-                playersOnField.Add(cs[0]);
-            if (chart.TryGetValue(Positions.G, out var gs) && gs.Count > 1)
-            {
-                playersOnField.Add(gs[0]);
-                playersOnField.Add(gs[1]);
-            }
-            if (chart.TryGetValue(Positions.T, out var ts) && ts.Count > 1)
-            {
-                playersOnField.Add(ts[0]);
-                playersOnField.Add(ts[1]);
-            }
+            AddUniquePlayers(chart, Positions.QB, 1, playersOnField, "offense");
+            AddUniquePlayers(chart, Positions.RB, 1, playersOnField, "offense");
+            AddUniquePlayers(chart, Positions.FB, 1, playersOnField, "offense");
+            AddUniquePlayers(chart, Positions.C, 1, playersOnField, "offense");
+            AddUniquePlayers(chart, Positions.G, 2, playersOnField, "offense");
+            AddUniquePlayers(chart, Positions.T, 2, playersOnField, "offense");
 
             // WR and TE selection based on play type
-            if (chart.TryGetValue(Positions.WR, out var wrs))
-            {
-                int wrCount = currentPlay.PlayType == PlayType.Run ? 2 : 3;
-                for (int i = 0; i < wrCount && i < wrs.Count; i++)
-                    playersOnField.Add(wrs[i]);
-            }
-            if (chart.TryGetValue(Positions.TE, out var tes))
-            {
-                int teCount = currentPlay.PlayType == PlayType.Run ? 1 : 0;
-                for (int i = 0; i < teCount && i < tes.Count; i++)
-                    playersOnField.Add(tes[i]);
-            }
+            AddUniquePlayers(chart, Positions.WR, currentPlay.PlayType == PlayType.Run ? 2 : 3, playersOnField, "offense");
+            AddUniquePlayers(chart, Positions.TE, currentPlay.PlayType == PlayType.Run ? 1 : 0, playersOnField, "offense");
 
-            // Ensure exactly 11 players
+            if (playersOnField.Count < 11)
+                throw new InvalidOperationException("Unable to fill 11 unique offensive players on the field.");
+
             currentPlay.OffensePlayersOnField = playersOnField.Take(11).ToList();
+            string json = JsonConvert.SerializeObject(currentPlay.OffensePlayersOnField);
+
+
         }
+
+        private void AddUniquePlayers(Dictionary<Positions, List<Player>> chart, Positions position, int needed, List<Player> playersOnField, string unitName)
+        {
+            if (chart.TryGetValue(position, out var depthList))
+            {
+                int added = 0;
+                for (int i = 0; i < depthList.Count && added < needed; i++)
+                {
+                    var candidate = depthList[i];
+                    if (!playersOnField.Contains(candidate))
+                    {
+                        playersOnField.Add(candidate);
+                        added++;
+                    }
+                }
+                if (added < needed)
+                    throw new InvalidOperationException($"Not enough unique players for position {position} on {unitName}.");
+            }
+            else if (needed > 0)
+            {
+                throw new InvalidOperationException($"No depth chart for position {position} on {unitName}.");
+            }
+        }        
     }
 }
