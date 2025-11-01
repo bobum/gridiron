@@ -12,6 +12,7 @@
   <ItemGroup>
     <!-- Stateless kept at the repo's referenced version to minimize friction; you can bump later -->
     <PackageReference Include="Stateless" Version="5.20.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

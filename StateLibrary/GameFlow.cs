@@ -2,6 +2,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using DomainObjects.Time;
+using Microsoft.Extensions.Logging;
 using Stateless;
 using Stateless.Graph;
 using StateLibrary.Actions;
@@ -21,6 +22,9 @@ namespace StateLibrary
 
         // Injected RNG (was: private CryptoRandom _rng = new CryptoRandom();)
         private readonly ISeedableRandom _rng;
+
+        // Injected logger
+        private readonly ILogger<GameFlow> _logger;
 
         enum Trigger
         {
@@ -67,11 +71,15 @@ namespace StateLibrary
 
         private readonly StateMachine<State, Trigger> _machine;
 
-        // Constructor now takes ICryptoRandom as a dependency
-        public GameFlow(Game game, ISeedableRandom rng)
+        // Constructor now takes ICryptoRandom and ILogger as dependencies
+        public GameFlow(Game game, ISeedableRandom rng, ILogger<GameFlow> logger)
         {
             _game = game ?? throw new ArgumentNullException(nameof(game));
             _rng = rng ?? throw new ArgumentNullException(nameof(rng));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            // Set the game's logger so it can be used for play-by-play logging
+            _game.Logger = logger;
 
             _machine = new StateMachine<State, Trigger>(() => _state, s => _state = s);
             _nextPlayTrigger = _machine.SetTriggerParameters<bool>(Trigger.NextPlay);

@@ -1,14 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DomainObjects
 {
     public class Play
     {
-        public List<string> Result { get; set; } = new List<string>();
+        public ILogger Result { get; set; } = NullLogger.Instance; // Logger for play-by-play output, defaults to NullLogger
         public Downs Down { get; set; }
         public bool GoodSnap { get; set; }
         public bool PossessionChange { get; set; } = false;
@@ -25,6 +27,14 @@ namespace DomainObjects
         public bool GameExpired { get; set; } = false;
         public List<Player> OffensePlayersOnField { get; set; } = new List<Player>();
         public List<Player> DefensePlayersOnField { get; set; } = new List<Player>();
+
+        // Field position for this play
+        public int StartFieldPosition { get; set; } = 0; // Where play started
+        public int EndFieldPosition { get; set; } = 0; // Where play ended
+        public int YardsGained { get; set; } = 0; // Net yards on the play
+        public int YardsToGo { get; set; } = 10; // Yards needed for first down
+        public bool IsFirstDown { get; set; } = false; // Did this play result in a first down?
+        public bool IsTouchdown { get; set; } = false; // Did this play result in a touchdown?
 
 
     }

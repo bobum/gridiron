@@ -1,5 +1,7 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using DomainObjects.Helpers;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
@@ -21,9 +23,9 @@ namespace StateLibrary.Actions
             //set the correct possession in the game
             game.CurrentPlay.Possession = _possession;
             game.CurrentPlay.ElapsedTime += 0.5;
-            game.CurrentPlay.Result.Add("Interception!!");
-            game.CurrentPlay.Result.Add("Possession changes hands");
-            game.CurrentPlay.Result.Add($"{game.CurrentPlay.Possession} now has possession");
+            game.CurrentPlay.Result.LogInformation("Interception!!");
+            game.CurrentPlay.Result.LogInformation("Possession changes hands");
+            game.CurrentPlay.Result.LogInformation($"{game.CurrentPlay.Possession} now has possession");
 
             //now we know somebody bobbled the ball, and somebody recovered it - add that in the play for the records
             game.CurrentPlay.Interception = true;

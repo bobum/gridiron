@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.PlayResults
@@ -7,7 +8,7 @@ namespace StateLibrary.PlayResults
     {
         public void Execute(Game game)
         {
-            game.CurrentPlay.Result.Add("Kickoff squad leaves the field...");
+            game.CurrentPlay.Result.LogInformation("Kickoff squad leaves the field...");
         }
     }
 }

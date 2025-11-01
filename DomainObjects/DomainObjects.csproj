@@ -13,6 +13,7 @@
   <ItemGroup>
     <!-- Keep Newtonsoft for compatibility with existing code; upgrade later to System.Text.Json if desired -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <!-- If your code uses System.Data DataSet extensions, uncomment the line below -->
     <!-- <PackageReference Include="System.Data.DataSetExtensions" Version="4.8.1" /> -->
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Actions.EventChecks;
 using StateLibrary.Interfaces;
 

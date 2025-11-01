@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.SkillsCheckResults
@@ -42,7 +43,7 @@ namespace StateLibrary.SkillsCheckResults
             }
 
             game.CurrentPlay.Penalties.Add(_penalty);
-            game.CurrentPlay.Result.Add("Flag on the play");
+            game.CurrentPlay.Result.LogInformation("Flag on the play");
         }
     }
 }

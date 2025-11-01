@@ -1,5 +1,7 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using DomainObjects.Time;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions.EventChecks
@@ -13,12 +15,12 @@ namespace StateLibrary.Actions.EventChecks
                 switch (game.CurrentQuarter.QuarterType)
                 {
                     case QuarterType.Third:
-                        game.CurrentPlay.Result.Add($"last play of the {game.CurrentHalf.HalfType} half");
+                        game.CurrentPlay.Result.LogInformation($"last play of the {game.CurrentHalf.HalfType} half");
                         game.CurrentPlay.HalfExpired = true;
                         game.CurrentHalf = game.Halves[1];
                         break;
                     case QuarterType.GameOver:
-                        game.CurrentPlay.Result.Add($"last play of the {game.CurrentHalf.HalfType} half");
+                        game.CurrentPlay.Result.LogInformation($"last play of the {game.CurrentHalf.HalfType} half");
                         game.CurrentPlay.HalfExpired = true;
                         game.CurrentHalf.HalfType = HalfType.GameOver;
                         break;

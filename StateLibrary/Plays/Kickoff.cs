@@ -1,4 +1,5 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Plays
@@ -11,7 +12,7 @@ namespace StateLibrary.Plays
         public void Execute(Game game)
         {
            game.CurrentPlay.ElapsedTime += 6.5;
-            game.CurrentPlay.Result.Add("Kickoff!!");
+            game.CurrentPlay.Result.LogInformation("Kickoff!!");
         }
     }
 }

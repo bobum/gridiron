@@ -1,5 +1,7 @@
 ﻿using DomainObjects;
+using Microsoft.Extensions.Logging;
 using DomainObjects.Time;
+using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions.EventChecks
@@ -14,7 +16,7 @@ namespace StateLibrary.Actions.EventChecks
             //see if we need to advance to the next quarter
             if (game.CurrentQuarter.TimeRemaining == 0)
             {
-                game.CurrentPlay.Result.Add($"last play of the {game.CurrentQuarter.QuarterType} quarter");
+                game.CurrentPlay.Result.LogInformation($"last play of the {game.CurrentQuarter.QuarterType} quarter");
                 game.CurrentPlay.QuarterExpired = true;
 
                 switch (game.CurrentQuarter.QuarterType)
