@@ -55,22 +55,22 @@ namespace StateLibrary.Actions
         //or the defense could call a blitz or coverage change based on the offensive formation
         //if the players were smart enough
         //all of that will be modeled in future iterations here
-        private Play DetermineNextPlay(Game game)
+        private IPlay DetermineNextPlay(Game game)
         {
-            var currentPlay = new Play();
+            IPlay currentPlay;
+
             //if there are 0 plays - we have a new game
             if (game.Plays.Count == 0)
             {
-                currentPlay.Possession = game.WonCoinToss;
-                currentPlay.Down = Downs.None;
-                currentPlay.StartTime = 0;
-                currentPlay.PlayType = PlayType.Kickoff;
+                currentPlay = new KickoffPlay
+                {
+                    Possession = game.WonCoinToss,
+                    Down = Downs.None,
+                    StartTime = 0
+                };
             }
             else
             {
-                //possession for this play is whoever had it at the end of the last play
-                currentPlay.Possession = game.Plays.Last().Possession;
-
                 //totally random for now, but later will need to add logic for determining both
                 //offensive and defensive play calls here
                 //coaches will decide whether to run or pass based on down, distance, time remaining, score, etc.
@@ -80,14 +80,20 @@ namespace StateLibrary.Actions
                 if (kindOfPlay <= 0.5)
                 {
                     //run
-                    currentPlay.PlayType = PlayType.Run;
-                    currentPlay.ElapsedTime += 1.5;
+                    currentPlay = new RunPlay
+                    {
+                        Possession = game.Plays.Last().Possession,
+                        ElapsedTime = 1.5
+                    };
                 }
                 else
                 {
                     //pass
-                    currentPlay.PlayType = PlayType.Pass;
-                    currentPlay.ElapsedTime += 1.5;
+                    currentPlay = new PassPlay
+                    {
+                        Possession = game.Plays.Last().Possession,
+                        ElapsedTime = 1.5
+                    };
                 }
             }
 
