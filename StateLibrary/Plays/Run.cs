@@ -16,19 +16,16 @@ namespace StateLibrary.Plays
     public sealed class Run : IGameAction
     {
         private ISeedableRandom _rng;
-        private PlayOutcomeCalculator _calculator;
 
         public Run()
         {
             // Default constructor for backward compatibility
             _rng = new CryptoRandom();
-            _calculator = new PlayOutcomeCalculator(_rng);
         }
 
         public Run(ISeedableRandom rng)
         {
             _rng = rng;
-            _calculator = new PlayOutcomeCalculator(rng);
         }
 
         public void Execute(Game game)
@@ -54,8 +51,8 @@ namespace StateLibrary.Plays
             var blockingSuccess = blockingCheck.Occurred;
             var blockingModifier = blockingSuccess ? 1.2 : 0.8; // +20% or -20% yards
 
-            // Calculate base yardage using PlayOutcomeCalculator
-            var baseYards = _calculator.CalculateRunYardage(game);
+            // Calculate base yardage (owned by this class, not external calculator)
+            var baseYards = CalculateRunYardage(game, ballCarrier, play.OffensePlayersOnField, play.DefensePlayersOnField);
             var adjustedYards = (int)(baseYards * blockingModifier);
 
             // Check for tackle break (adds 3-8 yards)
@@ -101,6 +98,54 @@ namespace StateLibrary.Plays
 
             // Log the play-by-play narrative
             LogRunPlayNarrative(play, ballCarrier, direction, blockingSuccess, finalYards, yardsToGoal);
+        }
+
+        /// <summary>
+        /// Calculate yards gained on this run play based on player skills and matchups
+        /// </summary>
+        private int CalculateRunYardage(Game game, Player ballCarrier, List<Player> offensivePlayers, List<Player> defensivePlayers)
+        {
+            // Calculate offensive power (ball carrier + blockers)
+            var offensivePower = CalculateOffensivePower(offensivePlayers, ballCarrier);
+
+            // Calculate defensive power
+            var defensivePower = CalculateDefensivePower(defensivePlayers);
+
+            // Calculate base yardage (with randomness)
+            var skillDifferential = offensivePower - defensivePower;
+            var baseYards = 3.0 + (skillDifferential / 20.0); // Average around 3-5 yards
+
+            // Add randomness (-3 to +8 yard variance)
+            var randomFactor = (_rng.NextDouble() * 11) - 3;
+            var totalYards = baseYards + randomFactor;
+
+            return (int)Math.Round(totalYards);
+        }
+
+        private double CalculateOffensivePower(List<Player> offensivePlayers, Player ballCarrier)
+        {
+            var blockers = offensivePlayers.Where(p =>
+                p.Position == Positions.C ||
+                p.Position == Positions.G ||
+                p.Position == Positions.T ||
+                p.Position == Positions.TE ||
+                p.Position == Positions.FB).ToList();
+
+            var blockingPower = blockers.Any() ? blockers.Average(b => b.Blocking) : 50;
+            var ballCarrierPower = (ballCarrier.Rushing * 2 + ballCarrier.Speed + ballCarrier.Agility) / 4.0;
+
+            return (blockingPower + ballCarrierPower) / 2.0;
+        }
+
+        private double CalculateDefensivePower(List<Player> defensivePlayers)
+        {
+            var defenders = defensivePlayers.Where(p =>
+                p.Position == Positions.DT ||
+                p.Position == Positions.DE ||
+                p.Position == Positions.LB ||
+                p.Position == Positions.OLB).ToList();
+
+            return defenders.Any() ? defenders.Average(d => (d.Tackling + d.Strength + d.Speed) / 3.0) : 50;
         }
 
         private Player? DetermineBallCarrier(RunPlay play)
