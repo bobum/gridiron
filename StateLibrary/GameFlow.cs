@@ -291,7 +291,7 @@ namespace StateLibrary
 
         private void DoRunPlay()
         {
-            var runPlay = new Run();
+            var runPlay = new Run(_rng);
             runPlay.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
