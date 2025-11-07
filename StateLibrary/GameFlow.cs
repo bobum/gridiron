@@ -311,7 +311,7 @@ namespace StateLibrary
             else
             {
                 //no interception, kick is up...
-                var passPlay = new Pass();
+                var passPlay = new Pass(_rng);
                 passPlay.Execute(_game);
             }
 
