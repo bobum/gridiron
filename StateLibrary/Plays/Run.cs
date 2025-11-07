@@ -17,12 +17,6 @@ namespace StateLibrary.Plays
     {
         private ISeedableRandom _rng;
 
-        public Run()
-        {
-            // Default constructor for backward compatibility
-            _rng = new CryptoRandom();
-        }
-
         public Run(ISeedableRandom rng)
         {
             _rng = rng;

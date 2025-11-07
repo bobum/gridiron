@@ -157,7 +157,7 @@ namespace UnitTestProject1
             // Ensure tackle break occurs
             TestSeedableRandom rng = new TestSeedableRandom
             {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.1, [3] = 0.8, [4] = 6.0 }, // QB, blocking, tackle break=SUCCESS, big run, time
+                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.1, [4] = 0.8, [5] = 6.0 }, // QB check, blocking, base yards random factor, tackle break=SUCCESS, big run, elapsed time
                 __NextInt = { [0] = 2, [1] = 5 } // Direction, tackle break yards (5)
             };
 
@@ -279,7 +279,7 @@ namespace UnitTestProject1
             var initialElapsedTime = game.CurrentPlay.ElapsedTime;
             TestSeedableRandom rng = new TestSeedableRandom
             {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.8, [4] = 0.9, [5] = 2.5 }, // Last value is elapsed time random (2.5)
+                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.8, [4] = 0.9, [5] = 0.25 }, // Last value is elapsed time random (2.5)
                 __NextInt = { [0] = 2 }
             };
 
