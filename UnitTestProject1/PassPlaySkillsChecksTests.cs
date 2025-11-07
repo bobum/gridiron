@@ -321,7 +321,7 @@ namespace UnitTestProject1
             foreach (var player in game.CurrentPlay.DefensePlayersOnField)
             {
                 if (player.Position == Positions.CB || player.Position == Positions.S ||
-                    player.Position == Positions.FS)
+                    player.Position == Positions.FS || player.Position == Positions.LB) // Add LB here
                 {
                     player.Coverage = 70;
                     player.Speed = 70;

@@ -206,11 +206,11 @@ namespace StateLibrary.Plays
 
             return passType switch
             {
-                PassType.Screen => _rng.Next(-3, 3),      // Behind or at line of scrimmage
-                PassType.Short => _rng.Next(3, 12),       // 3-11 yards
-                PassType.Forward => _rng.Next(8, 20),     // 8-19 yards
-                PassType.Deep => _rng.Next(18, Math.Min(45, yardsToGoal)), // 18-44 yards (or to goal)
-                _ => _rng.Next(5, 15)
+                PassType.Screen => _rng.Next(-3, 3),
+                PassType.Short => _rng.Next(3, Math.Max(4, Math.Min(12, yardsToGoal))),
+                PassType.Forward => _rng.Next(8, Math.Max(9, Math.Min(20, yardsToGoal))),
+                PassType.Deep => _rng.Next(18, Math.Max(19, Math.Min(45, yardsToGoal))),
+                _ => _rng.Next(5, Math.Max(6, Math.Min(15, yardsToGoal)))
             };
         }
 

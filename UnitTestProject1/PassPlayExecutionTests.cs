@@ -23,12 +23,16 @@ namespace UnitTestProject1
             var passPlay = (PassPlay)game.CurrentPlay;
             SetPlayerSkills(game, 70, 70);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection=SUCCESS, Pressure=FAIL, receiver select, pass type, air yards
-                __NextDouble = { [0] = 0.7, [1] = 0.5, [2] = 0.5, [3] = 0.6, [4] = 0.5, [5] = 0.5, [6] = 2.5 },
-                __NextInt = { [0] = 8, [1] = 2 } // Air yards, YAC yards
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(8)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.5)        // Fail - tackled immediately
+                .YACYards(2)
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -49,12 +53,14 @@ namespace UnitTestProject1
             var passPlay = (PassPlay)game.CurrentPlay;
             SetPlayerSkills(game, 50, 85); // Weak offense vs strong coverage
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection=SUCCESS, Pressure=FAIL, receiver, pass type, completion=FAIL, elapsed time
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.5, [3] = 0.6, [4] = 0.9, [5] = 2.5 },
-                __NextInt = { [0] = 8 } // Air yards (not used on incompletion)
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(8)
+                .PassCompletionCheck(0.9)        // Incomplete
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -77,12 +83,10 @@ namespace UnitTestProject1
             var passPlay = (PassPlay)game.CurrentPlay;
             SetPlayerSkills(game, 40, 90); // Weak O-line vs strong pass rush
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection=FAIL, sack yards, elapsed time
-                __NextDouble = { [0] = 0.3, [1] = 1.5 },
-                __NextInt = { [0] = 7 } // Sack yards (7 yard loss)
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.8)        // FAIL - Sack!
+                .SackYards(7)
+                .ElapsedTimeRandomFactor(1.5);
 
             // Act
             var pass = new Pass(rng);
@@ -101,12 +105,10 @@ namespace UnitTestProject1
             game.FieldPosition = 3; // Very close to own goal line
             SetPlayerSkills(game, 40, 90);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection=FAIL, elapsed time
-                __NextDouble = { [0] = 0.3, [1] = 1.5 },
-                __NextInt = { [0] = 10 } // Would be 10 yard sack, but limited by field position
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.8)        // FAIL - Sack!
+                .SackYards(10)                   // Would be 10, limited by field position
+                .ElapsedTimeRandomFactor(1.5);
 
             // Act
             var pass = new Pass(rng);
@@ -131,20 +133,26 @@ namespace UnitTestProject1
             SetPlayerSkills(game2, 70, 70);
 
             // No pressure scenario
-            TestSeedableRandom rngNoPressure = new TestSeedableRandom
-            {
-                // Protection=SUCCESS, Pressure=FAIL, receiver, pass type, completion (60% base)
-                __NextDouble = { [0] = 0.8, [1] = 0.8, [2] = 0.5, [3] = 0.6, [4] = 0.59, [5] = 0.8, [6] = 2.5 },
-                __NextInt = { [0] = 10, [1] = 3 } // Air yards, YAC
-            };
+            var rngNoPressure = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .QBPressureCheck(0.8)            // NO pressure
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.59)       // 60% base - succeeds
+                .YACOpportunityCheck(0.8)        // Fail
+                .YACYards(3)
+                .ElapsedTimeRandomFactor(2.5);
 
             // With pressure scenario (completion drops to ~40%)
-            TestSeedableRandom rngPressure = new TestSeedableRandom
-            {
-                // Protection=SUCCESS, Pressure=SUCCESS, receiver, pass type, completion (60% - 20% = 40%)
-                __NextDouble = { [0] = 0.8, [1] = 0.2, [2] = 0.5, [3] = 0.6, [4] = 0.59, [5] = 2.5 },
-                __NextInt = { [0] = 10 } // Air yards
-            };
+            var rngPressure = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.8)
+                .QBPressureCheck(0.2)            // PRESSURE!
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.59)       // 40% with pressure - fails
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var passNoPressure = new Pass(rngNoPressure);
@@ -172,12 +180,17 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
             SetPlayerSkills(game, 70, 70);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection, Pressure, receiver, pass type=SCREEN (< 0.15), completion, YAC, elapsed
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.5, [3] = 0.10, [4] = 0.5, [5] = 0.3, [6] = 2.5 },
-                __NextInt = { [0] = 1, [1] = 5 } // Air yards (-3 to +3 range), YAC
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.10)     // SCREEN (< 0.15)
+                .AirYards(1)                     // Screen: -3 to +3 range
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // Success
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.9)               // No big play
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -195,12 +208,17 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
             SetPlayerSkills(game, 70, 70);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection, Pressure, receiver, pass type=DEEP (> 0.85), completion, YAC, elapsed
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.5, [3] = 0.90, [4] = 0.5, [5] = 0.3, [6] = 2.5 },
-                __NextInt = { [0] = 30, [1] = 5 } // Air yards (18-44 range), YAC
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)        // PASS - Protection holds (lower = success)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.90)     // DEEP (> 0.85)
+                .AirYards(30)                    // Deep: 18-44 range
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // Success
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.9)               // No big play
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -226,12 +244,17 @@ namespace UnitTestProject1
             receiver.Speed = 90;
             receiver.Agility = 88;
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection, Pressure, receiver, pass type, completion, YAC=SUCCESS, big play=FAIL, elapsed
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.5, [3] = 0.6, [4] = 0.5, [5] = 0.3, [6] = 0.9, [7] = 2.5 },
-                __NextInt = { [0] = 10, [1] = 8 } // Air yards, YAC yards
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
+                .YACRandomFactor(0.9)            // Adds to base YAC
+                .BigPlayCheck(0.9)               // No big play
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -248,17 +271,28 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             SetPlayerSkills(game, 70, 70);
-            var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
-            receiver.Speed = 95; // Fast receiver for big play potential
-            receiver.Agility = 92;
-            receiver.Rushing = 88;
-
-            TestSeedableRandom rng = new TestSeedableRandom
+            
+            // Modify ALL WR receivers to have big play potential
+            var receivers = game.CurrentPlay.OffensePlayersOnField.Where(p => p.Position == Positions.WR).ToList();
+            foreach (var receiver in receivers)
             {
-                // Protection, Pressure, receiver, pass type, completion, YAC=SUCCESS, big play=SUCCESS, elapsed
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.5, [3] = 0.6, [4] = 0.5, [5] = 0.3, [6] = 0.04, [7] = 2.5 },
-                __NextInt = { [0] = 15, [1] = 8, [2] = 25 } // Air yards, base YAC, big play bonus
-            };
+                receiver.Speed = 95; // Fast receiver for big play potential
+                receiver.Agility = 92;
+                receiver.Rushing = 88;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(15)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
+                .YACRandomFactor(0.5)            // Moderate random factor
+                .BigPlayCheck(0.04)              // BIG PLAY! (< 0.05)
+                .BigPlayBonusYards(25)           // Extra yards from breaking free
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -282,12 +316,17 @@ namespace UnitTestProject1
             game.FieldPosition = 92; // Near the goal line
             SetPlayerSkills(game, 90, 50);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection, Pressure, receiver, pass type=DEEP, completion, YAC=SUCCESS, big play, elapsed
-                __NextDouble = { [0] = 0.9, [1] = 0.5, [2] = 0.5, [3] = 0.9, [4] = 0.5, [5] = 0.3, [6] = 0.9, [7] = 2.5 },
-                __NextInt = { [0] = 40, [1] = 15 } // Would be 40 air yards + 15 YAC, but limited to 8 total
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.9)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.9)      // Deep pass
+                .AirYards(40)                    // Would be 40, limited by field
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // Success
+                .YACRandomFactor(0.9)
+                .BigPlayCheck(0.9)               // No big play
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -325,12 +364,17 @@ namespace UnitTestProject1
 
             SetPlayerSkills(game, 70, 70);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection, Pressure, receiver (high value = elite receiver), pass type, completion, YAC, elapsed
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.9, [3] = 0.6, [4] = 0.5, [5] = 0.3, [6] = 2.5 },
-                __NextInt = { [0] = 10, [1] = 5 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.8)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.9)          // High value = elite receiver
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // Success
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.9)               // No big play
+                .ElapsedTimeRandomFactor(2.5);
 
             // Act
             var pass = new Pass(rng);
@@ -354,12 +398,17 @@ namespace UnitTestProject1
             var initialElapsedTime = game.CurrentPlay.ElapsedTime;
             SetPlayerSkills(game, 70, 70);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection, Pressure, receiver, pass type, completion, YAC, elapsed time = 4 + (1.5 * 3) = 8.5 clamped to max 7
-                __NextDouble = { [0] = 0.8, [1] = 0.5, [2] = 0.5, [3] = 0.6, [4] = 0.5, [5] = 0.3, [6] = 1.5 },
-                __NextInt = { [0] = 10, [1] = 5 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.3)        // Success
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.9)               // No big play
+                .ElapsedTimeRandomFactor(0.99);               // 4 + 0.99*3 = 6.97 seconds (
 
             // Act
             var pass = new Pass(rng);
@@ -379,12 +428,10 @@ namespace UnitTestProject1
             var initialElapsedTime = game.CurrentPlay.ElapsedTime;
             SetPlayerSkills(game, 40, 90);
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                // Protection=FAIL, elapsed time = 2 + (1.0 * 2) = 4.0
-                __NextDouble = { [0] = 0.3, [1] = 1.0 },
-                __NextInt = { [0] = 5 } // Sack yards
-            };
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.8)        // FAIL - Sack!
+                .SackYards(5)
+                .ElapsedTimeRandomFactor(1.0);               // 2 + 1.0*2 = 4.0
 
             // Act
             var pass = new Pass(rng);

@@ -22,7 +22,10 @@ namespace UnitTestProject1.Helpers
 
         public int Next(int minValue, int maxValue)
         {
-            return Next();
+            // Return value clamped to the specified range
+            var value = __NextInt[_intIndex];
+            _intIndex++;
+            return Math.Max(minValue, Math.Min(maxValue - 1, value));
         }
 
         public int Next()
