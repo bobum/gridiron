@@ -32,7 +32,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.5)        // Fail - tackled immediately
                 .YACYards(2)
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -60,7 +60,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(8)
                 .PassCompletionCheck(0.9)        // Incomplete
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -86,7 +86,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(7)
-                .ElapsedTimeRandomFactor(1.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -108,7 +108,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(10)                   // Would be 10, limited by field position
-                .ElapsedTimeRandomFactor(1.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -142,7 +142,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.59)       // 60% base - succeeds
                 .YACOpportunityCheck(0.8)        // Fail
                 .YACYards(3)
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // With pressure scenario (completion drops to ~40%)
             var rngPressure = new TestFluentSeedableRandom()
@@ -152,7 +152,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.59)       // 40% with pressure - fails
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var passNoPressure = new Pass(rngNoPressure);
@@ -190,7 +190,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -218,7 +218,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -254,7 +254,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.9)            // Adds to base YAC
                 .BigPlayCheck(0.9)               // No big play
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -292,7 +292,7 @@ namespace UnitTestProject1
                 .YACRandomFactor(0.5)            // Moderate random factor
                 .BigPlayCheck(0.04)              // BIG PLAY! (< 0.05)
                 .BigPlayBonusYards(25)           // Extra yards from breaking free
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -326,7 +326,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.9)
                 .BigPlayCheck(0.9)               // No big play
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
@@ -374,7 +374,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
-                .ElapsedTimeRandomFactor(2.5);
+                .ElapsedTimeRandomFactor(0.99);
 
             // Act
             var pass = new Pass(rng);
