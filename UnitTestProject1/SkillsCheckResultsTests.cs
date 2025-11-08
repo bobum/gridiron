@@ -15,7 +15,8 @@ namespace UnitTestProject1
         public void FumblePossessionChangeSkillsCheckResultAwayTeamTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1); // Next(2) will return 1 → Away
 
             var fumbleResult = new FumblePossessionChangeSkillsCheckResult(rng);
             fumbleResult.Execute(game);
@@ -27,7 +28,8 @@ namespace UnitTestProject1
         public void FumblePossessionChangeSkillsCheckResultHomeTeamTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(0); // Next(2) will return 0 → Home (any value != 1 works)
 
             var fumbleResult = new FumblePossessionChangeSkillsCheckResult(rng);
             fumbleResult.Execute(game);
@@ -131,7 +133,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 1 } }; // Will return 1 from Next(-3, 3)
+            var rng = new TestFluentSeedableRandom()
+                .AirYards(1);
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Screen, 25);
@@ -147,7 +150,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 5 } }; // Will return 5 from Next(3, 12)
+            var rng = new TestFluentSeedableRandom()
+                .AirYards(5);
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Short, 25);
@@ -163,7 +167,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 12 } }; // Will return 12 from Next(8, 20)
+            var rng = new TestFluentSeedableRandom()
+                .AirYards(12);
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Forward, 25);
@@ -179,7 +184,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 30 } }; // Will return 30 from Next(18, 45)
+            var rng = new TestFluentSeedableRandom()
+                .AirYards(30);
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Deep, 25);
@@ -195,7 +201,8 @@ namespace UnitTestProject1
         {
             // Arrange - At the 10 yard line, only 90 yards to goal
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 50 } }; // Would normally return 50, but clamped
+            var rng = new TestFluentSeedableRandom()
+                .AirYards(18); // Will be clamped
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Deep, 90);
@@ -212,7 +219,8 @@ namespace UnitTestProject1
         {
             // Arrange - At the 95 yard line, only 5 yards to goal
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 4 } };
+            var rng = new TestFluentSeedableRandom()
+                .AirYards(4);
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Short, 95);
@@ -232,7 +240,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 5 } }; // Will return -5 yards
+            var rng = new TestFluentSeedableRandom()
+                .SackYards(5);
 
             // Act
             var sackResult = new SackYardsSkillsCheckResult(rng, 50); // At midfield
@@ -249,7 +258,8 @@ namespace UnitTestProject1
         {
             // Arrange - At own 5 yard line
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 10 } }; // Would lose 10 yards
+            var rng = new TestFluentSeedableRandom()
+                .SackYards(10);
 
             // Act
             var sackResult = new SackYardsSkillsCheckResult(rng, 5);
@@ -264,7 +274,8 @@ namespace UnitTestProject1
         {
             // Arrange - At own goal line (safety situation)
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 7 } };
+            var rng = new TestFluentSeedableRandom()
+                .SackYards(7);
 
             // Act
             var sackResult = new SackYardsSkillsCheckResult(rng, 0);
@@ -279,7 +290,8 @@ namespace UnitTestProject1
         {
             // Arrange - Deep in own territory at 25 yard line
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 8 } }; // 8 yard loss
+            var rng = new TestFluentSeedableRandom()
+                .SackYards(8);
 
             // Act
             var sackResult = new SackYardsSkillsCheckResult(rng, 25);
@@ -325,9 +337,10 @@ namespace UnitTestProject1
             // Random factor: 0.5 * 8 - 2 = 2
             // No big play: 0.5 > 0.05
             var rng = new TestFluentSeedableRandom()
-            .YACOpportunityCheck(0.2)    // First NextDouble() call
-            .YACRandomFactor(0.5)         // Second NextDouble() call
-            .BigPlayCheck(0.5);           // Third NextDouble() call
+                .YACOpportunityCheck(0.2)
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.5);
+
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
             yacResult.Execute(game);
@@ -346,9 +359,10 @@ namespace UnitTestProject1
 
             // YAC check succeeds, moderate random factor
             var rng = new TestFluentSeedableRandom()
-            .YACOpportunityCheck(0.2)   // YAC check succeeds (< probability)
-            .YACRandomFactor(0.5)         // Adds variance to YAC
-            .BigPlayCheck(0.5);           // Big play check fails (>= 0.05)
+                .YACOpportunityCheck(0.2)
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.5);
+
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
             yacResult.Execute(game);
@@ -436,9 +450,9 @@ namespace UnitTestProject1
 
             // YAC check succeeds, very bad random factor: 0.1 * 8 - 2 = -1.2
             var rng = new TestFluentSeedableRandom()
-                .YACOpportunityCheck(0.2)  // For YardsAfterCatchSkillsCheck
-                .YACRandomFactor(0.1)       // For random factor calculation
-                .BigPlayCheck(0.5);         // For big play check
+                .YACOpportunityCheck(0.2)
+                .YACRandomFactor(0.1)
+                .BigPlayCheck(0.5);
 
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
