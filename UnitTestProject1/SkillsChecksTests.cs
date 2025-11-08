@@ -14,7 +14,8 @@ namespace UnitTestProject1
         public void FieldGoalBlockOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1); // Block occurs when value == 1
 
             var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng);
             blockResult.Execute(game);
@@ -26,7 +27,8 @@ namespace UnitTestProject1
         public void FieldGoalBlockOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(2); // Block does not occur when value != 1
 
             var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng);
             blockResult.Execute(game);
@@ -38,7 +40,8 @@ namespace UnitTestProject1
         public void FumbleOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(2); // Fumble does not occur when value != 1
 
             var fumbleResult = new FumbleOccurredSkillsCheck(rng);
             fumbleResult.Execute(game);
@@ -50,7 +53,8 @@ namespace UnitTestProject1
         public void FumbleOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1); // Fumble occurs when value == 1
 
             var fumbleResult = new FumbleOccurredSkillsCheck(rng);
             fumbleResult.Execute(game);
@@ -62,7 +66,8 @@ namespace UnitTestProject1
         public void InterceptionOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1); // Interception occurs when value == 1
 
             var interceptionResult = new InterceptionOccurredSkillsCheck(rng);
             interceptionResult.Execute(game);
@@ -74,7 +79,8 @@ namespace UnitTestProject1
         public void InterceptionOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(2); // Interception does not occur when value != 1
 
             var interceptionResult = new InterceptionOccurredSkillsCheck(rng);
             interceptionResult.Execute(game);
@@ -89,8 +95,10 @@ namespace UnitTestProject1
 
             var playerIndex = 2;
             var penaltyOccurredWhen = PenaltyOccuredWhen.During;
-            TestSeedableRandom rng = new TestSeedableRandom
-                {__NextInt = {[0] = playerIndex}, __NextDouble = {[0] = 0.0032, [1] = 0.46}};
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.0032) // Penalty occurs check (< 0.0033)
+                .NextDouble(0.46)   // Team determination (< 0.5 = Away)
+                .NextInt(playerIndex); // Player selection
 
             var penaltyCheck = new PenaltyOccurredSkillsCheck(penaltyOccurredWhen, rng);
             penaltyCheck.Execute(game);
@@ -108,8 +116,8 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            TestSeedableRandom rng = new TestSeedableRandom
-                {__NextDouble = {[0] = 0.0034}};
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.0034); // Penalty does not occur (>= 0.0033)
 
             var penaltyCheck = new PenaltyOccurredSkillsCheck(PenaltyOccuredWhen.During, rng);
             penaltyCheck.Execute(game);
@@ -122,7 +130,8 @@ namespace UnitTestProject1
         public void PuntOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(2); // Block does not occur when value != 1
 
             var puntResult = new PuntBlockOccurredSkillsCheck(rng);
             puntResult.Execute(game);
@@ -134,7 +143,8 @@ namespace UnitTestProject1
         public void PuntOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1); // Block occurs when value == 1
 
             var puntResult = new PuntBlockOccurredSkillsCheck(rng);
             puntResult.Execute(game);

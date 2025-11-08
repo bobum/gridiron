@@ -26,15 +26,16 @@ namespace UnitTestProject1
         public void RunPlay_Offense_Has2WR_1TE()
         {
             var game = SetupGame(Possession.Home);
-            var rng = new TestSeedableRandom();
-            rng.__NextDouble[0] = 0.0; // Always RUN
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.0); // Play type determination (0.0 <= 0.5 = run play)
+            
             var prePlay = new PrePlay(rng);
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
             var offense = game.CurrentPlay.OffensePlayersOnField;
             Assert.AreEqual(2, offense.Count(p => p.Position == Positions.WR), "Should have 2 WRs for RUN");
-            Assert.AreEqual(1, offense.Count(p => p.Position == Positions.TE), "Should have 2 TEs for RUN");
+            Assert.AreEqual(1, offense.Count(p => p.Position == Positions.TE), "Should have 1 TE for RUN");
             Assert.AreEqual(11, offense.Count, "Should have 11 offensive players");
         }
 
@@ -42,15 +43,16 @@ namespace UnitTestProject1
         public void PassPlay_Offense_Has3WR_0TE()
         {
             var game = SetupGame(Possession.Home);
-            var rng = new TestSeedableRandom();
-            rng.__NextDouble[0] = 1.0; // Always PASS
-            var prePlay = new PrePlay(rng); // Always PASS
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(1.0); // Play type determination (1.0 > 0.5 = pass play)
+            
+            var prePlay = new PrePlay(rng);
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
             var offense = game.CurrentPlay.OffensePlayersOnField;
             Assert.AreEqual(3, offense.Count(p => p.Position == Positions.WR), "Should have 3 WRs for PASS");
-            Assert.AreEqual(0, offense.Count(p => p.Position == Positions.TE), "Should have 1 TE for PASS");
+            Assert.AreEqual(0, offense.Count(p => p.Position == Positions.TE), "Should have 0 TEs for PASS");
             Assert.AreEqual(11, offense.Count, "Should have 11 offensive players");
         }
 
@@ -58,9 +60,10 @@ namespace UnitTestProject1
         public void RunPlay_Defense_Has2DE_2DT_3LB()
         {
             var game = SetupGame(Possession.Home);
-            var rng = new TestSeedableRandom();
-            rng.__NextDouble[0] = 0.0; // Always RUN
-            var prePlay = new PrePlay(rng); // Always RUN
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.0); // Play type determination (0.0 <= 0.5 = run play)
+            
+            var prePlay = new PrePlay(rng);
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
@@ -75,9 +78,10 @@ namespace UnitTestProject1
         public void PassPlay_Defense_Has1DE_2DT_4LB()
         {
             var game = SetupGame(Possession.Home);
-            var rng = new TestSeedableRandom();
-            rng.__NextDouble[0] = 1.0; // Always PASS
-            var prePlay = new PrePlay(rng); // Always PASS
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(1.0); // Play type determination (1.0 > 0.5 = pass play)
+            
+            var prePlay = new PrePlay(rng);
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
