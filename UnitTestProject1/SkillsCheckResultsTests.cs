@@ -290,5 +290,150 @@ namespace UnitTestProject1
         }
 
         #endregion
+
+        #region YardsAfterCatchSkillsCheckResult Tests
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_ImmediateTackle_Returns0To2Yards()
+        {
+            // Arrange - Receiver tackled immediately (YAC check fails)
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 70, Agility = 70, Rushing = 60 };
+
+            // YAC check fails (0.9 > probability), then Next(0, 3) returns 1
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.9)
+                .ImmediateTackleYards(1);
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - Should be 0-2 yards when tackled immediately
+            Assert.IsTrue(yacResult.Result >= 0);
+            Assert.IsTrue(yacResult.Result < 3);
+        }
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_GoodOpportunity_Returns3To14Yards()
+        {
+            // Arrange - Receiver has YAC opportunity (check succeeds)
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 80, Agility = 75, Rushing = 70 }; // Average 75
+
+            // YAC check succeeds (0.2 < probability)
+            // Random factor: 0.5 * 8 - 2 = 2
+            // No big play: 0.5 > 0.05
+            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.5 } };
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - YAC potential = 75, base = 3 + 75/20 = 6.75, randomFactor = 2, total ≈ 9
+            Assert.IsTrue(yacResult.Result > 3);
+            Assert.IsTrue(yacResult.Result < 15);
+        }
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_SlowReceiver_LowerYAC()
+        {
+            // Arrange - Slow receiver with YAC opportunity
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 60, Agility = 60, Rushing = 50 }; // Average 56.67
+
+            // YAC check succeeds, moderate random factor
+            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.5 } };
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - YAC potential = 56.67, base = 3 + 56.67/20 = 5.83, randomFactor = 2, total ≈ 8
+            Assert.IsTrue(yacResult.Result >= 3);
+            Assert.IsTrue(yacResult.Result <= 12);
+        }
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_FastReceiver_HigherYAC()
+        {
+            // Arrange - Fast receiver with YAC opportunity
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 95, Agility = 90, Rushing = 85 }; // Average 90
+
+            // YAC check succeeds, good random factor
+            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.75, [2] = 0.5 } };
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - YAC potential = 90, base = 3 + 90/20 = 7.5, randomFactor = 4, total ≈ 12
+            Assert.IsTrue(yacResult.Result >= 8);
+            Assert.IsTrue(yacResult.Result <= 18);
+        }
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_BigPlay_FastReceiver_AddsExtraYards()
+        {
+            // Arrange - Fast receiver with big play opportunity (5% chance triggers)
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 90, Agility = 88, Rushing = 80 }; // Average 86
+
+            // YAC check succeeds (0.2 < prob)
+            // Random factor: 0.5 * 8 - 2 = 2
+            // Big play check: 0.03 < 0.05 AND speed 90 > 85 → triggers
+            // Big play yards: Next(10, 30) = 20
+            var rng = new TestFluentSeedableRandom {
+                __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.03 },
+                __NextInt = { [0] = 20 }
+            };
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - Should have normal YAC + big play yards (>20 total)
+            Assert.IsTrue(yacResult.Result >= 20);
+            Assert.IsTrue(yacResult.Result < 45);
+        }
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_SlowReceiver_NoBigPlay()
+        {
+            // Arrange - Receiver not fast enough for big play (speed < 85)
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 80, Agility = 75, Rushing = 70 }; // Average 75, speed 80 < 85
+
+            // YAC check succeeds, big play roll succeeds BUT speed check fails
+            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.03 } };
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - Should NOT have big play yards (speed 80 < 85)
+            Assert.IsTrue(yacResult.Result < 20);
+        }
+
+        [TestMethod]
+        public void YardsAfterCatchSkillsCheckResult_NegativeRandomFactor_MinimumZero()
+        {
+            // Arrange - Bad random factor could make result negative
+            var game = _testGame.GetGame();
+            var receiver = new Player { Speed = 60, Agility = 60, Rushing = 50 }; // Low skills
+
+            // YAC check succeeds, very bad random factor: 0.1 * 8 - 2 = -1.2
+            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.1, [2] = 0.5 } };
+
+            // Act
+            var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
+            yacResult.Execute(game);
+
+            // Assert - Should be at least 0 (Math.Max clamps)
+            Assert.IsTrue(yacResult.Result >= 0);
+        }
+
+        #endregion
     }
 }
