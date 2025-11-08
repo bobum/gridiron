@@ -487,7 +487,8 @@ namespace UnitTestProject1
                 player.Blocking = 70;
             }
             foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
-                p.Position == Positions.DE || p.Position == Positions.DT))
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
             {
                 player.Tackling = 70;
                 player.Speed = 70;
@@ -518,7 +519,8 @@ namespace UnitTestProject1
                 player.Blocking = 70;
             }
             foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
-                p.Position == Positions.DE || p.Position == Positions.DT))
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
             {
                 player.Tackling = 70;
                 player.Speed = 70;
@@ -549,7 +551,8 @@ namespace UnitTestProject1
                 player.Blocking = 70;
             }
             foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
-                p.Position == Positions.DE || p.Position == Positions.DT))
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
             {
                 player.Tackling = 70;
                 player.Speed = 70;
@@ -580,7 +583,8 @@ namespace UnitTestProject1
                 player.Blocking = 70;
             }
             foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
-                p.Position == Positions.DE || p.Position == Positions.DT))
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
             {
                 player.Tackling = 70;
                 player.Speed = 70;
@@ -611,7 +615,8 @@ namespace UnitTestProject1
                 player.Blocking = 90;
             }
             foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
-                p.Position == Positions.DE || p.Position == Positions.DT))
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
             {
                 player.Tackling = 70;
                 player.Speed = 70;
