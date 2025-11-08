@@ -123,5 +123,106 @@ namespace UnitTestProject1
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
                 Penalties.List.Single(p => p.Name == PenaltyNames.OffensiveHolding).Name);
         }
+
+        #region AirYardsSkillsCheckResult Tests
+
+        [TestMethod]
+        public void AirYardsSkillsCheckResult_ScreenPass_ReturnsNegativeToShortYards()
+        {
+            // Arrange
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 1 } }; // Will return 1 from Next(-3, 3)
+
+            // Act
+            var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Screen, 25);
+            airYardsResult.Execute(game);
+
+            // Assert - Screen passes range from -3 to 2 yards
+            Assert.IsTrue(airYardsResult.Result >= -3);
+            Assert.IsTrue(airYardsResult.Result < 3);
+        }
+
+        [TestMethod]
+        public void AirYardsSkillsCheckResult_ShortPass_Returns3To11Yards()
+        {
+            // Arrange
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 5 } }; // Will return 5 from Next(3, 12)
+
+            // Act
+            var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Short, 25);
+            airYardsResult.Execute(game);
+
+            // Assert - Short passes range from 3 to 11 yards
+            Assert.IsTrue(airYardsResult.Result >= 3);
+            Assert.IsTrue(airYardsResult.Result < 12);
+        }
+
+        [TestMethod]
+        public void AirYardsSkillsCheckResult_ForwardPass_Returns8To19Yards()
+        {
+            // Arrange
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 12 } }; // Will return 12 from Next(8, 20)
+
+            // Act
+            var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Forward, 25);
+            airYardsResult.Execute(game);
+
+            // Assert - Forward passes range from 8 to 19 yards
+            Assert.IsTrue(airYardsResult.Result >= 8);
+            Assert.IsTrue(airYardsResult.Result < 20);
+        }
+
+        [TestMethod]
+        public void AirYardsSkillsCheckResult_DeepPass_Returns18To44Yards()
+        {
+            // Arrange
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 30 } }; // Will return 30 from Next(18, 45)
+
+            // Act
+            var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Deep, 25);
+            airYardsResult.Execute(game);
+
+            // Assert - Deep passes range from 18 to 44 yards
+            Assert.IsTrue(airYardsResult.Result >= 18);
+            Assert.IsTrue(airYardsResult.Result < 45);
+        }
+
+        [TestMethod]
+        public void AirYardsSkillsCheckResult_DeepPassNearGoalLine_ClampedToFieldPosition()
+        {
+            // Arrange - At the 10 yard line, only 90 yards to goal
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 50 } }; // Would normally return 50, but clamped
+
+            // Act
+            var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Deep, 90);
+            airYardsResult.Execute(game);
+
+            // Assert - Should be clamped to yards to goal (10 yards)
+            // Deep pass at 90 yard line: Next(18, Max(19, Min(45, 10))) = Next(18, 19)
+            Assert.IsTrue(airYardsResult.Result >= 18);
+            Assert.IsTrue(airYardsResult.Result < 19); // Effectively just 18
+        }
+
+        [TestMethod]
+        public void AirYardsSkillsCheckResult_ShortPassNearGoalLine_ClampedToFieldPosition()
+        {
+            // Arrange - At the 95 yard line, only 5 yards to goal
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 4 } };
+
+            // Act
+            var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Short, 95);
+            airYardsResult.Execute(game);
+
+            // Assert - Short pass at 95 yard line: Next(3, Max(4, Min(12, 5))) = Next(3, 5)
+            Assert.IsTrue(airYardsResult.Result >= 3);
+            Assert.IsTrue(airYardsResult.Result < 5);
+        }
+
+        #endregion
     }
 }
