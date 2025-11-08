@@ -172,5 +172,230 @@ namespace UnitTestProject1
         }
 
         #endregion
+
+        #region LineBattleCalculator Tests
+
+        [TestMethod]
+        public void LineBattleCalculator_StandardRush_EvenMatchup_ReturnsBasePressure()
+        {
+            // Arrange - 4 rushers (standard), equal skills
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 70 },
+                new Player { Position = Positions.G, Blocking = 70 },
+                new Player { Position = Positions.G, Blocking = 70 },
+                new Player { Position = Positions.T, Blocking = 70 },
+                new Player { Position = Positions.T, Blocking = 70 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DE, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be near 1.0 (base pressure)
+            Assert.AreEqual(1.0, pressure, 0.1);
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_ThreeManRush_LowPressure()
+        {
+            // Arrange - Only 3 rushers (prevent defense)
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 70 },
+                new Player { Position = Positions.G, Blocking = 70 },
+                new Player { Position = Positions.T, Blocking = 70 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be less than 1.0 (1 fewer rusher = -0.15)
+            Assert.IsTrue(pressure < 1.0);
+            Assert.IsTrue(pressure > 0.7); // Around 0.85
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_Blitz_HighPressure()
+        {
+            // Arrange - 6 rushers (blitz: 4 DL + 2 LB)
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 70 },
+                new Player { Position = Positions.G, Blocking = 70 },
+                new Player { Position = Positions.T, Blocking = 70 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DE, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.LB, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.OLB, Tackling = 70, Speed = 70, Strength = 70 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be greater than 1.0 (2 extra rushers = +0.30)
+            Assert.IsTrue(pressure > 1.0);
+            Assert.IsTrue(pressure < 1.5); // Around 1.30
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_StrongOLine_WeakDLine_LowPressure()
+        {
+            // Arrange - Elite O-Line (90) vs weak D-Line (50)
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 90 },
+                new Player { Position = Positions.G, Blocking = 90 },
+                new Player { Position = Positions.T, Blocking = 90 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 50, Speed = 50, Strength = 50 },
+                new Player { Position = Positions.DT, Tackling = 50, Speed = 50, Strength = 50 },
+                new Player { Position = Positions.DT, Tackling = 50, Speed = 50, Strength = 50 },
+                new Player { Position = Positions.DT, Tackling = 50, Speed = 50, Strength = 50 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be well below 1.0 (skill differential -40 = -0.40)
+            Assert.IsTrue(pressure < 0.8);
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_WeakOLine_StrongDLine_HighPressure()
+        {
+            // Arrange - Weak O-Line (50) vs elite D-Line (90)
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 50 },
+                new Player { Position = Positions.G, Blocking = 50 },
+                new Player { Position = Positions.T, Blocking = 50 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 90, Speed = 90, Strength = 90 },
+                new Player { Position = Positions.DT, Tackling = 90, Speed = 90, Strength = 90 },
+                new Player { Position = Positions.DT, Tackling = 90, Speed = 90, Strength = 90 },
+                new Player { Position = Positions.DT, Tackling = 90, Speed = 90, Strength = 90 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be well above 1.0 (skill differential +40 = +0.40)
+            Assert.IsTrue(pressure > 1.2);
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_ExtremeBlitz_ClampsAtMax()
+        {
+            // Arrange - 8 rushers with elite skills
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 50 },
+                new Player { Position = Positions.G, Blocking = 50 },
+                new Player { Position = Positions.T, Blocking = 50 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.DE, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.DT, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.DT, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.LB, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.LB, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.OLB, Tackling = 95, Speed = 95, Strength = 95 },
+                new Player { Position = Positions.OLB, Tackling = 95, Speed = 95, Strength = 95 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be clamped at or below MAX_PRESSURE (2.5)
+            Assert.IsTrue(pressure <= 2.5);
+            Assert.IsTrue(pressure >= 2.0); // Should be high
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_PreventDefense_ClampsAtMin()
+        {
+            // Arrange - 2 rushers with weak skills vs elite O-Line
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 95 },
+                new Player { Position = Positions.G, Blocking = 95 },
+                new Player { Position = Positions.G, Blocking = 95 },
+                new Player { Position = Positions.T, Blocking = 95 },
+                new Player { Position = Positions.T, Blocking = 95 }
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 40, Speed = 40, Strength = 40 },
+                new Player { Position = Positions.DT, Tackling = 40, Speed = 40, Strength = 40 }
+            };
+
+            // Act
+            var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+
+            // Assert - Should be clamped at or above MIN_PRESSURE (0.0)
+            Assert.IsTrue(pressure >= 0.0);
+            Assert.IsTrue(pressure < 0.5); // Should be very low
+        }
+
+        [TestMethod]
+        public void LineBattleCalculator_PassVsRun_UsesDifferentCalculations()
+        {
+            // Arrange - Same players, different mode
+            var offense = new List<Player>
+            {
+                new Player { Position = Positions.C, Blocking = 70 },
+                new Player { Position = Positions.G, Blocking = 70 },
+                new Player { Position = Positions.T, Blocking = 70 },
+                new Player { Position = Positions.RB, Blocking = 60 } // RB helps pass block, not run block
+            };
+
+            var defense = new List<Player>
+            {
+                new Player { Position = Positions.DE, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.DT, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.LB, Tackling = 70, Speed = 70, Strength = 70 },
+                new Player { Position = Positions.LB, Tackling = 70, Speed = 70, Strength = 70 }
+            };
+
+            // Act
+            var passPressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
+            var runPressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: false);
+
+            // Assert - Pass should have slightly lower pressure because RB helps block
+            Assert.IsTrue(passPressure < runPressure);
+        }
+
+        #endregion
     }
 }
