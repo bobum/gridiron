@@ -162,6 +162,20 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
+        /// Sets yards when receiver is tackled immediately (no YAC opportunity).
+        /// Valid range: 0 to 2
+        /// Alias for YACYards but with more descriptive name for immediate tackle scenario.
+        /// </summary>
+        public TestFluentSeedableRandom ImmediateTackleYards(int value)
+        {
+            ValidateYardage(value, nameof(ImmediateTackleYards), 0, 2,
+                "Yards when receiver tackled immediately (YAC opportunity check failed). " +
+                "Used in Next(0, 3) call. Typical range: 0-2 yards.");
+            _intQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
         /// Sets the big play bonus yards value (extra yards when big play occurs).
         /// Valid range: 10 to 50
         /// </summary>
