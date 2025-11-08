@@ -475,18 +475,158 @@ namespace UnitTestProject1
         #region Margin Property Tests
 
         [TestMethod]
-        public void PassProtectionSkillsCheck_HasMarginProperty_DefaultsToZero()
+        public void PassProtectionSkillsCheck_DecisiveSuccess_PositiveMargin()
         {
-            // Arrange
+            // Arrange - Protection probability ~75%, roll = 0.20 (way under threshold)
             var game = CreateGameWithPassPlay();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.5 } };
+
+            // Set equal skills for ~75% protection probability
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.20 } };
 
             // Act
             var protectionCheck = new PassProtectionSkillsCheck(rng);
             protectionCheck.Execute(game);
 
-            // Assert - Margin property should exist and default to 0.0
-            Assert.AreEqual(0.0, protectionCheck.Margin);
+            // Assert - Should succeed with large positive margin
+            Assert.IsTrue(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin > 40); // (0.75 - 0.20) * 100 = 55
+            Assert.IsTrue(protectionCheck.Margin < 70);
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_CloseSuccess_SmallPositiveMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.73 (just under threshold)
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.73 } };
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should succeed with small positive margin
+            Assert.IsTrue(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin > 0);
+            Assert.IsTrue(protectionCheck.Margin < 10); // (0.75 - 0.73) * 100 = 2
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_CloseFailure_SmallNegativeMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.77 (just over threshold)
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.77 } };
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should fail with small negative margin
+            Assert.IsFalse(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin < 0);
+            Assert.IsTrue(protectionCheck.Margin > -10); // (0.75 - 0.77) * 100 = -2
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_DecisiveFailure_LargeNegativeMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.95 (way over threshold)
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.95 } };
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should fail with large negative margin
+            Assert.IsFalse(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin < -15); // (0.75 - 0.95) * 100 = -20
+            Assert.IsTrue(protectionCheck.Margin > -30);
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_StrongOLine_HigherMarginForSuccess()
+        {
+            // Arrange - Strong O-Line (90) vs average D-Line (70) = high protection probability
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 90;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.50 } };
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should succeed with high margin (better O-Line = higher probability)
+            Assert.IsTrue(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin > 25); // Probability should be ~85%, margin ~35
         }
 
         #endregion
