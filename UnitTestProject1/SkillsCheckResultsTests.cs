@@ -224,5 +224,71 @@ namespace UnitTestProject1
         }
 
         #endregion
+
+        #region SackYardsSkillsCheckResult Tests
+
+        [TestMethod]
+        public void SackYardsSkillsCheckResult_MidfieldSack_ReturnsNegative2To10Yards()
+        {
+            // Arrange
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 5 } }; // Will return -5 yards
+
+            // Act
+            var sackResult = new SackYardsSkillsCheckResult(rng, 50); // At midfield
+            sackResult.Execute(game);
+
+            // Assert - Should return negative yards (loss)
+            Assert.IsTrue(sackResult.Result < 0);
+            Assert.IsTrue(sackResult.Result >= -10);
+            Assert.IsTrue(sackResult.Result <= -2);
+        }
+
+        [TestMethod]
+        public void SackYardsSkillsCheckResult_NearOwnGoalLine_ClampedToFieldPosition()
+        {
+            // Arrange - At own 5 yard line
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 10 } }; // Would lose 10 yards
+
+            // Act
+            var sackResult = new SackYardsSkillsCheckResult(rng, 5);
+            sackResult.Execute(game);
+
+            // Assert - Can't lose more than 5 yards (would be safety)
+            Assert.AreEqual(-5, sackResult.Result);
+        }
+
+        [TestMethod]
+        public void SackYardsSkillsCheckResult_AtOwnGoalLine_ReturnsZero()
+        {
+            // Arrange - At own goal line (safety situation)
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 7 } };
+
+            // Act
+            var sackResult = new SackYardsSkillsCheckResult(rng, 0);
+            sackResult.Execute(game);
+
+            // Assert - Already at goal line, can't lose yards
+            Assert.AreEqual(0, sackResult.Result);
+        }
+
+        [TestMethod]
+        public void SackYardsSkillsCheckResult_DeepInOwnTerritory_AllowsFullLoss()
+        {
+            // Arrange - Deep in own territory at 25 yard line
+            var game = _testGame.GetGame();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 8 } }; // 8 yard loss
+
+            // Act
+            var sackResult = new SackYardsSkillsCheckResult(rng, 25);
+            sackResult.Execute(game);
+
+            // Assert - Full loss allowed (not near goal line)
+            Assert.AreEqual(-8, sackResult.Result);
+        }
+
+        #endregion
     }
 }
