@@ -324,8 +324,10 @@ namespace UnitTestProject1
             // YAC check succeeds (0.2 < probability)
             // Random factor: 0.5 * 8 - 2 = 2
             // No big play: 0.5 > 0.05
-            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.5 } };
-
+            var rng = new TestFluentSeedableRandom()
+            .YACOpportunityCheck(0.2)    // First NextDouble() call
+            .YACRandomFactor(0.5)         // Second NextDouble() call
+            .BigPlayCheck(0.5);           // Third NextDouble() call
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
             yacResult.Execute(game);
@@ -343,8 +345,10 @@ namespace UnitTestProject1
             var receiver = new Player { Speed = 60, Agility = 60, Rushing = 50 }; // Average 56.67
 
             // YAC check succeeds, moderate random factor
-            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.5 } };
-
+            var rng = new TestFluentSeedableRandom()
+            .YACOpportunityCheck(0.2)   // YAC check succeeds (< probability)
+            .YACRandomFactor(0.5)         // Adds variance to YAC
+            .BigPlayCheck(0.5);           // Big play check fails (>= 0.05)
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
             yacResult.Execute(game);
@@ -361,8 +365,11 @@ namespace UnitTestProject1
             var game = _testGame.GetGame();
             var receiver = new Player { Speed = 95, Agility = 90, Rushing = 85 }; // Average 90
 
-            // YAC check succeeds, good random factor
-            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.75, [2] = 0.5 } };
+            // YAC check succeeds, good random factor, no big play
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.2)
+                .YACRandomFactor(0.75)
+                .BigPlayCheck(0.5);
 
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
@@ -384,10 +391,11 @@ namespace UnitTestProject1
             // Random factor: 0.5 * 8 - 2 = 2
             // Big play check: 0.03 < 0.05 AND speed 90 > 85 → triggers
             // Big play yards: Next(10, 30) = 20
-            var rng = new TestFluentSeedableRandom {
-                __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.03 },
-                __NextInt = { [0] = 20 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.2)
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.03)
+                .BigPlayBonusYards(20);
 
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
@@ -406,7 +414,10 @@ namespace UnitTestProject1
             var receiver = new Player { Speed = 80, Agility = 75, Rushing = 70 }; // Average 75, speed 80 < 85
 
             // YAC check succeeds, big play roll succeeds BUT speed check fails
-            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.5, [2] = 0.03 } };
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.2)
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.03);
 
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);
@@ -424,7 +435,10 @@ namespace UnitTestProject1
             var receiver = new Player { Speed = 60, Agility = 60, Rushing = 50 }; // Low skills
 
             // YAC check succeeds, very bad random factor: 0.1 * 8 - 2 = -1.2
-            var rng = new TestFluentSeedableRandom { __NextDouble = { [0] = 0.2, [1] = 0.1, [2] = 0.5 } };
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.2)  // For YardsAfterCatchSkillsCheck
+                .YACRandomFactor(0.1)       // For random factor calculation
+                .BigPlayCheck(0.5);         // For big play check
 
             // Act
             var yacResult = new YardsAfterCatchSkillsCheckResult(rng, receiver);

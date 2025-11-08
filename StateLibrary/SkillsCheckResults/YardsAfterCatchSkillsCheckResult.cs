@@ -1,5 +1,6 @@
 using DomainObjects;
 using DomainObjects.Helpers;
+using Microsoft.Extensions.Logging;
 using StateLibrary.BaseClasses;
 using StateLibrary.SkillsChecks;
 
