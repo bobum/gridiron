@@ -445,6 +445,325 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region SkillsCheckResult Integration Tests
+
+        [TestMethod]
+        public void PassPlay_SackYardsSkillsCheckResult_UsedForSacks()
+        {
+            // Arrange - Test that SackYardsSkillsCheckResult correctly calculates sack yardage
+            var game = CreateGameWithPassPlay();
+            game.FieldPosition = 50;
+            SetPlayerSkills(game, 40, 90);
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.95)       // FAIL - Sack!
+                .SackYards(8)                     // SackYardsSkillsCheckResult should use this
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert - Should have -8 yards (from SackYardsSkillsCheckResult)
+            Assert.AreEqual(-8, game.CurrentPlay.YardsGained,
+                "SackYardsSkillsCheckResult should calculate sack yardage");
+        }
+
+        [TestMethod]
+        public void PassPlay_SackYardsSkillsCheckResult_ClampsToFieldPosition()
+        {
+            // Arrange - Test that SackYardsSkillsCheckResult respects field position
+            var game = CreateGameWithPassPlay();
+            game.FieldPosition = 4;  // Very close to own goal line
+            SetPlayerSkills(game, 40, 90);
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.95)       // FAIL - Sack!
+                .SackYards(10)                    // Would be -10, but clamped to -4
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert - Should be clamped to -4 (field position)
+            Assert.AreEqual(-4, game.CurrentPlay.YardsGained,
+                "SackYardsSkillsCheckResult should clamp to field position");
+        }
+
+        [TestMethod]
+        public void PassPlay_AirYardsSkillsCheckResult_ScreenPass()
+        {
+            // Arrange - Test that AirYardsSkillsCheckResult calculates screen pass air yards
+            var game = CreateGameWithPassPlay();
+            game.FieldPosition = 30;
+            SetPlayerSkills(game, 70, 70);
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.10)     // Screen pass (< 0.15)
+                .AirYards(-2)                     // AirYardsSkillsCheckResult for screen: -3 to +2
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.9)        // Fail - tackled immediately
+                .ImmediateTackleYards(1)
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.AreEqual(PassType.Screen, passPlay.PassSegments[0].Type);
+            Assert.IsTrue(passPlay.PassSegments[0].AirYards >= -3 && passPlay.PassSegments[0].AirYards < 3,
+                "AirYardsSkillsCheckResult should calculate screen pass air yards (-3 to +2)");
+        }
+
+        [TestMethod]
+        public void PassPlay_AirYardsSkillsCheckResult_DeepPassNearGoalLine()
+        {
+            // Arrange - Test that AirYardsSkillsCheckResult clamps to field position
+            var game = CreateGameWithPassPlay();
+            game.FieldPosition = 88; // 12 yards from goal line
+            SetPlayerSkills(game, 70, 70);
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.90)     // Deep pass (> 0.85)
+                .AirYards(18)                     // Would be 18-44, clamped to 18 (only 12 yards to goal)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.9)        // Fail
+                .ImmediateTackleYards(1)
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].AirYards >= 18 && passPlay.PassSegments[0].AirYards < 19,
+                "AirYardsSkillsCheckResult should clamp deep pass to remaining field (18 yards only)");
+        }
+
+        [TestMethod]
+        public void PassPlay_YardsAfterCatchSkillsCheckResult_ImmediateTackle()
+        {
+            // Arrange - Test YardsAfterCatchSkillsCheckResult when receiver tackled immediately
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 70, 70);
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.9)        // FAIL - tackled immediately
+                .ImmediateTackleYards(2)         // YardsAfterCatchSkillsCheckResult returns 0-2
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch >= 0 &&
+                         passPlay.PassSegments[0].YardsAfterCatch < 3,
+                "YardsAfterCatchSkillsCheckResult should return 0-2 yards when tackled immediately");
+        }
+
+        [TestMethod]
+        public void PassPlay_YardsAfterCatchSkillsCheckResult_GoodYAC()
+        {
+            // Arrange - Test YardsAfterCatchSkillsCheckResult with successful YAC opportunity
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 70, 70);
+
+            // Set receiver skills for predictable YAC calculation
+            var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
+            receiver.Speed = 80;
+            receiver.Agility = 75;
+            receiver.Rushing = 70;  // Average = 75, baseYAC = 3 + 75/20 = 6.75
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.2)        // SUCCESS - breaks tackles
+                .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
+                .BigPlayCheck(0.5)               // No big play
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            // baseYAC = 3 + 75/20 = 6.75, randomFactor = 2, total ≈ 9
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch >= 7 &&
+                         passPlay.PassSegments[0].YardsAfterCatch <= 11,
+                $"YardsAfterCatchSkillsCheckResult should calculate good YAC (got {passPlay.PassSegments[0].YardsAfterCatch})");
+        }
+
+        [TestMethod]
+        public void PassPlay_YardsAfterCatchSkillsCheckResult_BigPlay()
+        {
+            // Arrange - Test YardsAfterCatchSkillsCheckResult with big play
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 70, 70);
+
+            // Set ALL WR receivers to be fast (speed > 85) for big play eligibility
+            var receivers = game.CurrentPlay.OffensePlayersOnField.Where(p => p.Position == Positions.WR).ToList();
+            foreach (var r in receivers)
+            {
+                r.Speed = 90;
+                r.Agility = 88;
+                r.Rushing = 80;  // Average = 86
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.2)        // SUCCESS
+                .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
+                .BigPlayCheck(0.03)              // BIG PLAY! (< 0.05 and speed > 85)
+                .BigPlayBonusYards(20)           // Extra 20 yards
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch >= 25,
+                $"YardsAfterCatchSkillsCheckResult should add big play bonus (got {passPlay.PassSegments[0].YardsAfterCatch})");
+        }
+
+        [TestMethod]
+        public void PassPlay_YardsAfterCatchSkillsCheckResult_SlowReceiverNoBigPlay()
+        {
+            // Arrange - Test that slow receiver (speed <= 85) doesn't get big play
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 70, 70);
+
+            // Set all WR receivers to be slow (speed <= 85)
+            var receivers = game.CurrentPlay.OffensePlayersOnField.Where(p => p.Position == Positions.WR).ToList();
+            foreach (var r in receivers)
+            {
+                r.Speed = 80;   // Not fast enough for big play
+                r.Agility = 75;
+                r.Rushing = 70;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.5)
+                .YACOpportunityCheck(0.2)        // SUCCESS
+                .YACRandomFactor(0.5)            // Random factor: 2
+                .BigPlayCheck(0.03)              // Would trigger, but speed 80 < 85
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch < 20,
+                "YardsAfterCatchSkillsCheckResult should NOT trigger big play for slow receiver");
+        }
+
+        [TestMethod]
+        public void PassPlay_AllSkillsCheckResults_IntegrationTest()
+        {
+            // Arrange - Complete integration test using all three SkillsCheckResults
+            var game = CreateGameWithPassPlay();
+            game.FieldPosition = 25;
+            SetPlayerSkills(game, 75, 70);
+
+            var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
+            receiver.Speed = 90;
+            receiver.Agility = 88;
+            receiver.Rushing = 85;
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)        // Protection holds
+                .QBPressureCheck(0.5)            // No pressure
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)      // Forward pass
+                .AirYards(15)                    // AirYardsSkillsCheckResult: 15 yards
+                .PassCompletionCheck(0.5)        // Complete
+                .YACOpportunityCheck(0.2)        // YAC success
+                .YACRandomFactor(0.75)           // Good random factor
+                .BigPlayCheck(0.5)               // No big play
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert - Verify all components work together
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Pass should be complete");
+            Assert.AreEqual(15, passPlay.PassSegments[0].AirYards,
+                "AirYardsSkillsCheckResult should set air yards to 15");
+            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch > 5,
+                "YardsAfterCatchSkillsCheckResult should calculate YAC");
+            Assert.AreEqual(passPlay.PassSegments[0].AirYards + passPlay.PassSegments[0].YardsAfterCatch,
+                passPlay.YardsGained,
+                "Total yards should equal air yards + YAC");
+        }
+
+        [TestMethod]
+        public void PassPlay_AllSkillsCheckResults_SackScenario()
+        {
+            // Arrange - Integration test for sack scenario using SackYardsSkillsCheckResult
+            var game = CreateGameWithPassPlay();
+            game.FieldPosition = 35;
+            SetPlayerSkills(game, 40, 90);
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.95)       // FAIL - Sack!
+                .SackYards(6)                     // SackYardsSkillsCheckResult: -6 yards
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert - Verify sack components work together
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsFalse(passPlay.PassSegments[0].IsComplete, "Sack should be incomplete");
+            Assert.AreEqual(-6, passPlay.YardsGained,
+                "SackYardsSkillsCheckResult should set yards to -6");
+            Assert.AreEqual(0, passPlay.PassSegments[0].AirYards,
+                "Sack should have 0 air yards");
+            Assert.AreEqual(0, passPlay.PassSegments[0].YardsAfterCatch,
+                "Sack should have 0 YAC");
+        }
+
+        #endregion
+
         #region Helper Methods
 
         private Game CreateGameWithPassPlay()
