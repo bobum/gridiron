@@ -27,6 +27,20 @@ namespace UnitTestProject1.Helpers
             return this;
         }
 
+
+        /// <summary>
+        /// Sets the tackle break check value. Lower values (&lt; tackle break probability) mean ball carrier breaks the tackle.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom TackleBreakCheck(double value)
+        {
+            ValidateProbability(value, nameof(TackleBreakCheck),
+                "Determines if ball carrier breaks through tackles. " +
+                "Lower values (< tackle break probability based on carrier's rushing/strength/agility vs defender's tackling/strength/speed) mean tackle is broken.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
         /// <summary>
         /// Sets the QB pressure check value. Lower values mean no pressure, higher values mean QB is under pressure.
         /// Valid range: 0.0 to 1.0

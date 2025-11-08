@@ -127,6 +127,7 @@ namespace UnitTestProject1
         #region TackleBreakSkillsCheck Tests
 
         [TestMethod]
+        [TestMethod]
         public void TackleBreakSkillsCheck_EliteBallCarrier_HighBreakRate()
         {
             // Arrange
@@ -148,7 +149,7 @@ namespace UnitTestProject1
 
             // Act & Assert - should succeed with ~40% probability (+33.3 skill differential)
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.35); // 0.35 < ~0.38 probability = tackle break succeeds
+                .TackleBreakCheck(0.35); // 0.35 < ~0.38 probability = tackle break succeeds
 
             var tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
@@ -183,7 +184,7 @@ namespace UnitTestProject1
 
             // Act & Assert - should fail (0.08 > ~0.05-0.07 probability with -45 skill differential)
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.08); // 0.08 > low probability = tackle break fails
+                .TackleBreakCheck(0.08); // 0.08 > low probability = tackle break fails
 
             var tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
@@ -213,7 +214,7 @@ namespace UnitTestProject1
 
             // Act & Assert - ~25% probability (even matchup)
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.24); // 0.24 < 0.25 = succeeds
+                .TackleBreakCheck(0.24); // 0.24 < 0.25 = succeeds
 
             var tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
@@ -221,7 +222,7 @@ namespace UnitTestProject1
             Assert.IsTrue(tackleBreakCheck.Occurred);
 
             rng = new TestFluentSeedableRandom()
-                .NextDouble(0.26); // 0.26 > 0.25 = fails
+                .TackleBreakCheck(0.26); // 0.26 > 0.25 = fails
 
             tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
