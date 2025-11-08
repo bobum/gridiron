@@ -471,5 +471,24 @@ namespace UnitTestProject1
         }
 
         #endregion
+
+        #region Margin Property Tests
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_HasMarginProperty_DefaultsToZero()
+        {
+            // Arrange
+            var game = CreateGameWithPassPlay();
+            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.5 } };
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Margin property should exist and default to 0.0
+            Assert.AreEqual(0.0, protectionCheck.Margin);
+        }
+
+        #endregion
     }
 }
