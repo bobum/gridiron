@@ -127,7 +127,6 @@ namespace UnitTestProject1
         #region TackleBreakSkillsCheck Tests
 
         [TestMethod]
-        [TestMethod]
         public void TackleBreakSkillsCheck_EliteBallCarrier_HighBreakRate()
         {
             // Arrange
