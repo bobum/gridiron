@@ -604,7 +604,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB gets ball)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.6)                     // Base yards: RunYardsSkillsCheckResult
+                .NextDouble(0.68)                    // Base yards: 0.68*25-15 = 2.0 randomFactor
                 .TackleBreakCheck(0.1)               // Tackle break (succeeds)
                 .NextInt(5)                          // TackleBreakYardsSkillsCheckResult: 5 yards
                 .BreakawayCheck(0.9)                 // No breakaway
