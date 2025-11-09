@@ -206,10 +206,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.95)  // Long punt base
-                .NextDouble(0.9)   // Random factor adds distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.95)  // Punt distance
+                .NextDouble(0.9);  // Hang time random
 
             var punt = new Punt(rng);
 
@@ -238,10 +236,8 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Random factor
                 .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.1)   // OUT OF BOUNDS! (< 12%)
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.1);  // OUT OF BOUNDS!
 
             var punt = new Punt(rng);
 
@@ -271,12 +267,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.85)  // Punt distance (long)
-                .NextDouble(0.7)   // Random factor
-                .NextDouble(0.8)   // Hang time (good)
+                .NextDouble(0.85)  // Punt distance
+                .NextDouble(0.7)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.2)   // DOWNED! (< threshold with good field position + hang time)
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.2);  // DOWNED!
 
             var punt = new Punt(rng);
 
@@ -301,12 +295,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.95)  // Very long punt
-                .NextDouble(0.9)   // Max random
-                .NextDouble(0.9)   // Great hang time
+                .NextDouble(0.95)  // Punt distance
+                .NextDouble(0.9)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.1)   // DOWNED! (high probability near goal line)
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.1);  // DOWNED! (high probability near goal line)
 
             var punt = new Punt(rng);
 
