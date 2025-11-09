@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StateLibrary.PlayResults;
 using StateLibrary.Plays;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,10 +63,13 @@ namespace UnitTestProject1
 
             // Act
             punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
 
             // Assert
             Assert.IsFalse(play.GoodSnap, "Should be bad snap");
             Assert.AreEqual(-5, play.YardsGained, "Should lose exactly 5 yards (to goal line)");
+            Assert.IsTrue(play.IsSafety, "Should be marked as safety");
             Assert.AreEqual(2, game.AwayScore, "Defense (Away) should get 2 points for safety");
             Assert.AreEqual(0, game.HomeScore, "Home score should not change");
         }
