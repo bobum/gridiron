@@ -35,6 +35,7 @@ namespace DomainObjects
         public bool HalfExpired { get; set; }
         public bool GameExpired { get; set; }
         public bool IsTouchdown { get; set; }
+        public bool IsSafety { get; set; }
 
         // ========================================
         // PUNT-SPECIFIC PROPERTIES
