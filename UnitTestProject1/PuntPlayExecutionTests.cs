@@ -671,8 +671,8 @@ namespace UnitTestProject1
                 Down = Downs.Fourth,
                 StartFieldPosition = 0,
                 YardsGained = 0,
-                OffensePlayersOnField = _teams.HomeTeam.SpecialTeamsDepthChart.Chart[Positions.P].ToList(),
-                DefensePlayersOnField = _teams.AwayTeam.SpecialTeamsDepthChart.Chart[Positions.P].ToList()
+                OffensePlayersOnField = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P].ToList(),
+                DefensePlayersOnField = _teams.AwayTeam.PuntDefenseDepthChart.Chart[Positions.P].ToList()
             };
 
             // Add punter
