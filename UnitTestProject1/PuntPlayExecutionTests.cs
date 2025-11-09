@@ -79,7 +79,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.96)  // No bad snap (>= 5%)
-                .NextDouble(0.99)  // No block (>= 50%)
+                .NextInt(0)        // No block (>= 50%)
                 .NextDouble(0.5)   // Punt distance base
                 .NextDouble(0.4)   // Random factor
                 .NextDouble(0.5)   // Hang time random
@@ -117,7 +117,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.4)   // BLOCKED! (< 50%)
+                .NextInt(1)        // BLOCKED! (Next(2) returns 1)
                 .NextDouble(0.6)   // Defense recovers (> 50%)
                 .NextDouble(0.3)   // Recovery yards
                 .NextDouble(0.5);  // Elapsed time
@@ -144,7 +144,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.4)   // BLOCKED!
+                .NextInt(1)        // BLOCKED! (Next(2) returns 1)
                 .NextDouble(0.3)   // Offense recovers (< 50%)
                 .NextDouble(0.7)   // Loss calculation
                 .NextDouble(0.5);  // Elapsed time
@@ -175,7 +175,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.4)   // BLOCKED!
+                .NextInt(1)        // BLOCKED! (Next(2) returns 1)
                 .NextDouble(0.6)   // Defense recovers
                 .NextDouble(0.9)   // Big return (10+ yards to TD)
                 .NextDouble(0.5);  // Elapsed time
@@ -205,7 +205,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.95)  // Long punt base
                 .NextDouble(0.9)   // Random factor adds distance
                 .NextDouble(0.5)   // Hang time random
@@ -236,7 +236,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Random factor
                 .NextDouble(0.5)   // Hang time random
@@ -270,7 +270,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.85)  // Punt distance (long)
                 .NextDouble(0.7)   // Random factor
                 .NextDouble(0.8)   // Hang time (good)
@@ -300,7 +300,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.95)  // Very long punt
                 .NextDouble(0.9)   // Max random
                 .NextDouble(0.9)   // Great hang time
@@ -332,7 +332,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.65)  // Medium punt
                 .NextDouble(0.5)   // Random
                 .NextDouble(0.9)   // Good hang time (pressure)
@@ -362,7 +362,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.85)  // Long punt (52+ yards)
                 .NextDouble(0.9)   // Max random to get deep
                 .NextDouble(0.9)   // Good hang time
@@ -394,7 +394,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Random
                 .NextDouble(0.5)   // Hang time
@@ -429,7 +429,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Random
                 .NextDouble(0.5)   // Hang time
@@ -466,7 +466,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.65)  // Punt distance (45 yards)
                 .NextDouble(0.6)   // Random
                 .NextDouble(0.6)   // Hang time
@@ -507,7 +507,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.3)   // Short punt (shanked near goal line)
                 .NextDouble(0.1)   // Low random
                 .NextDouble(0.3)   // Short hang time
@@ -545,7 +545,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Random
                 .NextDouble(0.5)   // Hang time
@@ -599,7 +599,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
+                .NextInt(0)        // No block
                 .NextDouble(0.99)  // Attempt very long punt
                 .NextDouble(0.99)  // Max random
                 .NextDouble(0.5)   // Hang time
