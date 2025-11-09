@@ -465,7 +465,16 @@ namespace UnitTestProject1
             }
             else
             {
-                targetBase = Math.Ceiling(desiredYards / 0.8);
+                // When blocking fails, account for the 0.8 modifier and rounding
+                // For 0 yards, we need the base to be slightly positive so after *0.8 and truncation we get 0
+                if (desiredYards == 0)
+                {
+                    targetBase = 1.0; // After *0.8 = 0.8, truncates to 0
+                }
+                else
+                {
+                    targetBase = Math.Ceiling(desiredYards / 0.8);
+                }
             }
 
             double randomFactor = targetBase - 3.0;
