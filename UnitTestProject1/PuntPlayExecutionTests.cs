@@ -486,7 +486,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            game.FieldPosition = 90;  // Near opponent goal line
+            game.FieldPosition = 60;  // Own 40-yard line
             var play = (PuntPlay)game.CurrentPlay;
             play.Possession = Possession.Home;
             game.HomeScore = 14;
@@ -495,13 +495,13 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.3)   // Short punt (includes randomness)
-                .NextDouble(0.3)   // Short hang time
+                .NextDouble(0.05)  // Short punt ~38 yards (lands at ~98)
+                .NextDouble(0.3)   // Short hang time (poor coverage)
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
-                .NextDouble(0.9)   // Great return (includes randomness)
+                .NextDouble(0.95)  // Great return ~20+ yards for TD
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
