@@ -25,7 +25,7 @@ namespace StateLibrary.SkillsCheckResults
         {
             var yardsToGoal = 100 - _fieldPosition;
 
-            Result = _passType switch
+            var airYards = _passType switch
             {
                 PassType.Screen => _rng.Next(-3, 3),     // -3 to 2 yards (behind LOS to short)
                 PassType.Short => _rng.Next(3, Math.Max(4, Math.Min(12, yardsToGoal))),   // 3-11 yards
@@ -33,6 +33,9 @@ namespace StateLibrary.SkillsCheckResults
                 PassType.Deep => _rng.Next(18, Math.Max(19, Math.Min(45, yardsToGoal))),  // 18-44 yards
                 _ => _rng.Next(5, Math.Max(6, Math.Min(15, yardsToGoal)))                 // Default 5-14 yards
             };
+
+            // Clamp result to available field (can't throw past end zone)
+            Result = Math.Min(airYards, yardsToGoal);
         }
     }
 }
