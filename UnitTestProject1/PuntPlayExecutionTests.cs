@@ -188,6 +188,8 @@ namespace UnitTestProject1
 
             // Act
             punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
 
             // Assert
             Assert.IsTrue(play.Blocked, "Punt should be blocked");
@@ -520,6 +522,8 @@ namespace UnitTestProject1
 
             // Act
             punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
 
             // Assert
             Assert.IsTrue(play.IsTouchdown, "Should be touchdown on return");
