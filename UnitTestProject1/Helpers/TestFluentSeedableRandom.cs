@@ -27,6 +27,20 @@ namespace UnitTestProject1.Helpers
             return this;
         }
 
+
+        /// <summary>
+        /// Sets the tackle break check value. Lower values (&lt; tackle break probability) mean ball carrier breaks the tackle.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom TackleBreakCheck(double value)
+        {
+            ValidateProbability(value, nameof(TackleBreakCheck),
+                "Determines if ball carrier breaks through tackles. " +
+                "Lower values (< tackle break probability based on carrier's rushing/strength/agility vs defender's tackling/strength/speed) mean tackle is broken.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
         /// <summary>
         /// Sets the QB pressure check value. Lower values mean no pressure, higher values mean QB is under pressure.
         /// Valid range: 0.0 to 1.0
@@ -157,6 +171,20 @@ namespace UnitTestProject1.Helpers
             ValidateYardage(value, nameof(YACYards), 0, 100,
                 "Yards gained after catch (when tackled immediately, 0-2 yards). " +
                 "Used in Next(0, 3) call when YACOpportunityCheck fails.");
+            _intQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets yards when receiver is tackled immediately (no YAC opportunity).
+        /// Valid range: 0 to 2
+        /// Alias for YACYards but with more descriptive name for immediate tackle scenario.
+        /// </summary>
+        public TestFluentSeedableRandom ImmediateTackleYards(int value)
+        {
+            ValidateYardage(value, nameof(ImmediateTackleYards), 0, 2,
+                "Yards when receiver tackled immediately (YAC opportunity check failed). " +
+                "Used in Next(0, 3) call. Typical range: 0-2 yards.");
             _intQueue.Enqueue(value);
             return this;
         }

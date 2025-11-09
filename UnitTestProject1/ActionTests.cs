@@ -1,7 +1,6 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using DomainObjects.Time;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
 using StateLibrary.Actions.EventChecks;
 using UnitTestProject1.Helpers;
@@ -33,7 +32,10 @@ namespace UnitTestProject1
         public void AwayTeamWinsCoinTossAndDefersTest()
         {
             var game = GameHelper.GetNewGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 1, [1] = 1}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1)  // Coin toss result (1 = Away wins)
+                .NextInt(1); // Defer decision (1 = defer)
+
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -45,7 +47,10 @@ namespace UnitTestProject1
         public void AwayTeamWinsCoinTossAndReceivesTest()
         {
             var game = GameHelper.GetNewGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 1, [1] = 2 } };
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(1)  // Coin toss result (1 = Away wins)
+                .NextInt(2); // Defer decision (2 = receive, any value != 1)
+
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -57,7 +62,10 @@ namespace UnitTestProject1
         public void HomeTeamWinsCoinTossAndReceivesTest()
         {
             var game = GameHelper.GetNewGame();
-            TestSeedableRandom rng = new TestSeedableRandom {__NextInt = {[0] = 2, [1] = 2}};
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(2)  // Coin toss result (2 or 0 = Home wins, any value != 1)
+                .NextInt(2); // Defer decision (2 = receive, any value != 1)
+
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -65,13 +73,14 @@ namespace UnitTestProject1
             Assert.IsFalse(game.DeferredPossession);
         }
 
-
-
         [TestMethod]
         public void HomeTeamWinsCoinTossAndDefersTest()
         {
             var game = GameHelper.GetNewGame();
-            TestSeedableRandom rng = new TestSeedableRandom { __NextInt = { [0] = 2, [1] = 1 } };
+            var rng = new TestFluentSeedableRandom()
+                .NextInt(2)  // Coin toss result (2 or 0 = Home wins, any value != 1)
+                .NextInt(1); // Defer decision (1 = defer)
+
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
@@ -82,7 +91,9 @@ namespace UnitTestProject1
         [TestMethod]
         public void PrePlayKickoffTest()
         {
-            TestSeedableRandom rng = new TestSeedableRandom {__NextDouble = {[0] = 0.4}};
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.4); // Not used for first play (kickoff determination is based on play count)
+
             var game = GameHelper.GetNewGame();
             game.WonCoinToss = Possession.Away;
             var prePlay = new PrePlay(rng);
@@ -95,10 +106,12 @@ namespace UnitTestProject1
         [TestMethod]
         public void PrePlayKeepsPossessionTest()
         {
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.4 } };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.4); // Play type determination (0.4 <= 0.5 = run play)
+
             var game = GameHelper.GetNewGame();
             game.WonCoinToss = Possession.Away;
-            game.Plays.Add(new RunPlay(){Possession = Possession.Home});
+            game.Plays.Add(new RunPlay() { Possession = Possession.Home });
 
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
@@ -151,7 +164,7 @@ namespace UnitTestProject1
             game.CurrentPlay.ElapsedTime = 2.0;
             game.CurrentPlay.QuarterExpired = false;
             game.CurrentPlay.HalfExpired = false;
-            quarterExpireCheck.Execute(game); 
+            quarterExpireCheck.Execute(game);
             halfExpireCheck.Execute(game);
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.Second, game.CurrentQuarter.QuarterType);

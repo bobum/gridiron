@@ -3,6 +3,7 @@ using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
+using StateLibrary.SkillsCheckResults;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -115,12 +116,10 @@ namespace StateLibrary.Plays
 
         private void ExecuteSack(Game game, PassPlay play, Player qb)
         {
-            // Calculate sack yardage loss (2-10 yards typically)
-            var sackYards = -1 * (_rng.Next(2, 11));
-
-            // Don't go past own goal line
-            var maxLoss = -1 * game.FieldPosition;
-            sackYards = Math.Max(sackYards, maxLoss);
+            // Calculate sack yardage loss using SkillsCheckResult
+            var sackYardsResult = new SackYardsSkillsCheckResult(_rng, game.FieldPosition);
+            sackYardsResult.Execute(game);
+            var sackYards = sackYardsResult.Result;
 
             play.YardsGained = sackYards;
 
@@ -202,46 +201,16 @@ namespace StateLibrary.Plays
 
         private int CalculateAirYards(PassType passType, int fieldPosition)
         {
-            var yardsToGoal = 100 - fieldPosition;
-
-            return passType switch
-            {
-                PassType.Screen => _rng.Next(-3, 3),
-                PassType.Short => _rng.Next(3, Math.Max(4, Math.Min(12, yardsToGoal))),
-                PassType.Forward => _rng.Next(8, Math.Max(9, Math.Min(20, yardsToGoal))),
-                PassType.Deep => _rng.Next(18, Math.Max(19, Math.Min(45, yardsToGoal))),
-                _ => _rng.Next(5, Math.Max(6, Math.Min(15, yardsToGoal)))
-            };
+            var airYardsResult = new AirYardsSkillsCheckResult(_rng, passType, fieldPosition);
+            airYardsResult.Execute(null!); // Game not needed for this calculation
+            return airYardsResult.Result;
         }
 
         private int CalculateYardsAfterCatch(Game game, Player receiver, int airYards)
         {
-            // Check for YAC opportunity
-            var yacCheck = new YardsAfterCatchSkillsCheck(_rng, receiver);
-            yacCheck.Execute(game);
-
-            if (!yacCheck.Occurred)
-            {
-                // Tackled immediately (0-2 yards)
-                return _rng.Next(0, 3);
-            }
-
-            // Good YAC opportunity - receiver breaks tackles
-            var yacPotential = (receiver.Speed + receiver.Agility + receiver.Rushing) / 3.0;
-            var baseYAC = 3.0 + (yacPotential / 20.0); // 3-8 yards typically
-
-            // Add randomness
-            var randomFactor = (_rng.NextDouble() * 8) - 2; // -2 to +6
-            var totalYAC = Math.Max(0, (int)Math.Round(baseYAC + randomFactor));
-
-            // 5% chance for big play after catch if receiver is fast
-            if (_rng.NextDouble() < 0.05 && receiver.Speed > 85)
-            {
-                totalYAC += _rng.Next(10, 30);
-                game.CurrentPlay.Result.LogInformation($"{receiver.LastName} breaks free! Great run after catch!");
-            }
-
-            return totalYAC;
+            var yacResult = new YardsAfterCatchSkillsCheckResult(_rng, receiver);
+            yacResult.Execute(game);
+            return yacResult.Result;
         }
     }
 }

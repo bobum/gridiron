@@ -52,7 +52,15 @@ namespace StateLibrary.SkillsChecks
             // Clamp between 40% and 95% (sacks are relatively rare)
             protectionProbability = Math.Max(0.40, Math.Min(0.95, protectionProbability));
 
-            Occurred = _rng.NextDouble() < protectionProbability;
+            // Roll for success
+            var roll = _rng.NextDouble();
+            Occurred = roll < protectionProbability;
+
+            // Calculate margin for narrative purposes
+            // Positive margin = protection held decisively
+            // Negative margin = sack occurred decisively
+            // Range: approximately -100 to +100
+            Margin = (protectionProbability - roll) * 100.0;
         }
     }
 }

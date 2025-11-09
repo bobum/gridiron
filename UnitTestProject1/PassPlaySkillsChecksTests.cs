@@ -1,6 +1,5 @@
 using DomainObjects;
 using DomainObjects.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.SkillsChecks;
 using UnitTestProject1.Helpers;
 
@@ -43,8 +42,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should succeed with ~90% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.85 } };
+            // Act & Assert - should succeed with ~90% probability (+30 skill differential)
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.85); // 0.85 < 0.90 = protection holds
+
             var protectionCheck = new PassProtectionSkillsCheck(rng);
             protectionCheck.Execute(game);
 
@@ -79,8 +80,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should fail with ~52% protection probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.6 } };
+            // Act & Assert - should fail with ~52% protection probability (-45 skill differential)
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.6); // 0.6 > 0.52 = sack occurs
+
             var protectionCheck = new PassProtectionSkillsCheck(rng);
             protectionCheck.Execute(game);
 
@@ -105,14 +108,18 @@ namespace UnitTestProject1
                 player.Strength = 70;
             }
 
-            // Act & Assert - 75% base probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.74 } };
+            // Act & Assert - 75% base probability (even matchup)
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.74); // 0.74 < 0.75 = succeeds
+
             var protectionCheck = new PassProtectionSkillsCheck(rng);
             protectionCheck.Execute(game);
 
             Assert.IsTrue(protectionCheck.Occurred);
 
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.76 } };
+            rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.76); // 0.76 > 0.75 = fails
+
             protectionCheck = new PassProtectionSkillsCheck(rng);
             protectionCheck.Execute(game);
 
@@ -150,8 +157,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should succeed with ~42% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.40 } };
+            // Act & Assert - should succeed with ~42% probability (+30 rush advantage)
+            var rng = new TestFluentSeedableRandom()
+                .QBPressureCheck(0.40); // 0.40 < 0.42 = QB under pressure
+
             var pressureCheck = new QBPressureSkillsCheck(rng);
             pressureCheck.Execute(game);
 
@@ -185,8 +194,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should fail with ~16% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.20 } };
+            // Act & Assert - should fail with ~16% probability (-35 rush disadvantage)
+            var rng = new TestFluentSeedableRandom()
+                .QBPressureCheck(0.20); // 0.20 > 0.16 = no pressure
+
             var pressureCheck = new QBPressureSkillsCheck(rng);
             pressureCheck.Execute(game);
 
@@ -210,14 +221,18 @@ namespace UnitTestProject1
                 player.Strength = 70;
             }
 
-            // Act & Assert - 30% base probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.29 } };
+            // Act & Assert - 30% base probability (even matchup)
+            var rng = new TestFluentSeedableRandom()
+                .QBPressureCheck(0.29); // 0.29 < 0.30 = succeeds
+
             var pressureCheck = new QBPressureSkillsCheck(rng);
             pressureCheck.Execute(game);
 
             Assert.IsTrue(pressureCheck.Occurred);
 
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.31 } };
+            rng = new TestFluentSeedableRandom()
+                .QBPressureCheck(0.31); // 0.31 > 0.30 = fails
+
             pressureCheck = new QBPressureSkillsCheck(rng);
             pressureCheck.Execute(game);
 
@@ -257,8 +272,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should succeed with ~72% probability (no pressure)
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.70 } };
+            // Act & Assert - should succeed with ~72% probability (no pressure, +27 skill advantage)
+            var rng = new TestFluentSeedableRandom()
+                .PassCompletionCheck(0.70); // 0.70 < 0.72 = completion
+
             var completionCheck = new PassCompletionSkillsCheck(rng, qb, receiver, false);
             completionCheck.Execute(game);
 
@@ -294,8 +311,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should fail with ~44% probability (no pressure)
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.50 } };
+            // Act & Assert - should fail with ~44% probability (no pressure, -35 skill disadvantage)
+            var rng = new TestFluentSeedableRandom()
+                .PassCompletionCheck(0.50); // 0.50 > 0.44 = incompletion
+
             var completionCheck = new PassCompletionSkillsCheck(rng, qb, receiver, false);
             completionCheck.Execute(game);
 
@@ -321,7 +340,7 @@ namespace UnitTestProject1
             foreach (var player in game.CurrentPlay.DefensePlayersOnField)
             {
                 if (player.Position == Positions.CB || player.Position == Positions.S ||
-                    player.Position == Positions.FS || player.Position == Positions.LB) // Add LB here
+                    player.Position == Positions.FS || player.Position == Positions.LB)
                 {
                     player.Coverage = 70;
                     player.Speed = 70;
@@ -329,15 +348,19 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - without pressure: ~63% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.62 } };
+            // Act & Assert - without pressure: ~63% probability (+7.67 skill advantage)
+            var rng = new TestFluentSeedableRandom()
+                .PassCompletionCheck(0.62); // 0.62 < 0.63 = completion
+
             var completionCheck = new PassCompletionSkillsCheck(rng, qb, receiver, false);
             completionCheck.Execute(game);
 
             Assert.IsTrue(completionCheck.Occurred);
 
             // With pressure: ~43% probability (20% reduction)
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.44 } };
+            rng = new TestFluentSeedableRandom()
+                .PassCompletionCheck(0.44); // 0.44 > 0.43 = incompletion
+
             completionCheck = new PassCompletionSkillsCheck(rng, qb, receiver, true);
             completionCheck.Execute(game);
 
@@ -355,13 +378,15 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
-            // Elite receiver
+            // Elite receiver (avg 91.67 = +5.4% YAC bonus)
             receiver.Speed = 95;
             receiver.Agility = 92;
             receiver.Rushing = 88;
 
             // Act & Assert - should succeed with ~41% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.40 } };
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.40); // 0.40 < 0.41 = YAC opportunity
+
             var yacCheck = new YardsAfterCatchSkillsCheck(rng, receiver);
             yacCheck.Execute(game);
 
@@ -375,13 +400,15 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.TE);
 
-            // Slow, possession receiver
+            // Slow, possession receiver (avg 60 = -2.5% YAC penalty)
             receiver.Speed = 65;
             receiver.Agility = 60;
             receiver.Rushing = 55;
 
             // Act & Assert - should fail with ~32% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.35 } };
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.35); // 0.35 > 0.32 = no YAC opportunity
+
             var yacCheck = new YardsAfterCatchSkillsCheck(rng, receiver);
             yacCheck.Execute(game);
 
@@ -395,19 +422,23 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
-            // Average receiver
+            // Average receiver (avg 72.67 = +0.67% YAC bonus)
             receiver.Speed = 75;
             receiver.Agility = 73;
             receiver.Rushing = 70;
 
-            // Act & Assert - ~35% base probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.34 } };
+            // Act & Assert - ~35-36% base probability
+            var rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.34); // 0.34 < 0.356 = succeeds
+
             var yacCheck = new YardsAfterCatchSkillsCheck(rng, receiver);
             yacCheck.Execute(game);
 
             Assert.IsTrue(yacCheck.Occurred);
 
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.36 } };
+            rng = new TestFluentSeedableRandom()
+                .YACOpportunityCheck(0.36); // 0.36 > 0.356 = fails
+
             yacCheck = new YardsAfterCatchSkillsCheck(rng, receiver);
             yacCheck.Execute(game);
 
@@ -468,6 +499,175 @@ namespace UnitTestProject1
             game.CurrentDown = Downs.First;
 
             return game;
+        }
+
+        #endregion
+
+        #region Margin Property Tests
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_DecisiveSuccess_PositiveMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.20 (way under threshold)
+            var game = CreateGameWithPassPlay();
+
+            // Set equal skills for ~75% protection probability
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.20); // Far below threshold
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should succeed with large positive margin
+            Assert.IsTrue(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin > 40); // (0.75 - 0.20) * 100 = 55
+            Assert.IsTrue(protectionCheck.Margin < 70);
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_CloseSuccess_SmallPositiveMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.73 (just under threshold)
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.73); // Just under threshold
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should succeed with small positive margin
+            Assert.IsTrue(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin > 0);
+            Assert.IsTrue(protectionCheck.Margin < 10); // (0.75 - 0.73) * 100 = 2
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_CloseFailure_SmallNegativeMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.77 (just over threshold)
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.77); // Just over threshold
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should fail with small negative margin
+            Assert.IsFalse(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin < 0);
+            Assert.IsTrue(protectionCheck.Margin > -10); // (0.75 - 0.77) * 100 = -2
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_DecisiveFailure_LargeNegativeMargin()
+        {
+            // Arrange - Protection probability ~75%, roll = 0.95 (way over threshold)
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 70;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.95); // Far above threshold
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should fail with large negative margin
+            Assert.IsFalse(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin < -15); // (0.75 - 0.95) * 100 = -20
+            Assert.IsTrue(protectionCheck.Margin > -30);
+        }
+
+        [TestMethod]
+        public void PassProtectionSkillsCheck_StrongOLine_HigherMarginForSuccess()
+        {
+            // Arrange - Strong O-Line (90) vs average D-Line (70) = high protection probability
+            var game = CreateGameWithPassPlay();
+
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
+            {
+                player.Blocking = 90;
+            }
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField.Where(p =>
+                p.Position == Positions.DE || p.Position == Positions.DT ||
+                p.Position == Positions.LB || p.Position == Positions.OLB))
+            {
+                player.Tackling = 70;
+                player.Speed = 70;
+                player.Strength = 70;
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.50); // Well below high threshold
+
+            // Act
+            var protectionCheck = new PassProtectionSkillsCheck(rng);
+            protectionCheck.Execute(game);
+
+            // Assert - Should succeed with high margin (better O-Line = higher probability ~85%)
+            Assert.IsTrue(protectionCheck.Occurred);
+            Assert.IsTrue(protectionCheck.Margin > 25); // Probability should be ~85%, margin ~35
         }
 
         #endregion

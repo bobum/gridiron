@@ -1,9 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Plays;
 using UnitTestProject1.Helpers;
-using System.Linq;
 
 namespace UnitTestProject1
 {
@@ -21,11 +19,14 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var runPlay = (RunPlay)game.CurrentPlay;
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.6, [3] = 0.8, [4] = 6.2 }, // QB check, blocking, tackle break, big run, elapsed time
-                __NextInt = { [0] = 4 } // Direction
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (0.15 > 0.10 = RB gets ball)
+                .NextInt(4)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking check (moderate success)
+                .NextDouble(0.6)                     // Base yards random factor
+                .NextDouble(0.8)                     // Tackle break check (fails)
+                .NextDouble(0.9)                     // Big run check (fails)
+                .ElapsedTimeRandomFactor(0.73);      // Elapsed time (5 + 0.73*3 = ~7.2 seconds)
 
             // Act
             var run = new Run(rng);
@@ -46,11 +47,14 @@ namespace UnitTestProject1
             var runPlay = (RunPlay)game.CurrentPlay;
 
             // Test RB gets the ball (NextDouble > 0.10)
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.11, [1] = 0.5, [2] = 0.6, [3] = 0.8, [4] = 6.0 },
-                __NextInt = { [0] = 4 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.11)                    // QB check (0.11 > 0.10 = RB gets ball)
+                .NextInt(4)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.6)                     // Base yards factor
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.9)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time (5 + 0.33*3 = 6.0 seconds)
 
             var run = new Run(rng);
             run.Execute(game);
@@ -66,11 +70,14 @@ namespace UnitTestProject1
             var runPlay = (RunPlay)game.CurrentPlay;
 
             // Test QB scramble (NextDouble < 0.10)
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.05, [1] = 0.5, [2] = 0.6, [3] = 0.8, [4] = 6.0 },
-                __NextInt = { [0] = 4 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.05)                    // QB check (0.05 < 0.10 = QB scrambles)
+                .NextInt(4)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.6)                     // Base yards factor
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.9)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             var run = new Run(rng);
             run.Execute(game);
@@ -84,11 +91,14 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var runPlay = (RunPlay)game.CurrentPlay;
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.6, [3] = 0.8, [4] = 6.0 },
-                __NextInt = { [0] = 2 } // Middle direction
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction = Middle
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.6)                     // Base yards factor
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.9)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
             var run = new Run(rng);
@@ -114,18 +124,24 @@ namespace UnitTestProject1
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
             // Test with good blocking (blocking check succeeds)
-            TestSeedableRandom rngGoodBlocking = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.4, [2] = 0.5, [3] = 0.6, [4] = 0.8, [5] = 6.0 }, // QB, blocking=SUCCESS, random factor, tackle, big run, time
-                __NextInt = { [0] = 2 }
-            };
+            var rngGoodBlocking = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
+                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
+                .NextDouble(0.6)                     // Tackle break (fails)
+                .NextDouble(0.8)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Test with bad blocking (blocking check fails)
-            TestSeedableRandom rngBadBlocking = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.6, [2] = 0.5, [3] = 0.6, [4] = 0.8, [5] = 6.0 }, // QB, blocking=FAIL, random factor, tackle, big run, time
-                __NextInt = { [0] = 2 }
-            };
+            var rngBadBlocking = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.6)               // Bad blocking (fails)
+                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
+                .NextDouble(0.6)                     // Tackle break (fails)
+                .NextDouble(0.8)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
             var runGood = new Run(rngGoodBlocking);
@@ -155,11 +171,15 @@ namespace UnitTestProject1
             SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
 
             // Ensure tackle break occurs
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.1, [4] = 0.8, [5] = 6.0 }, // QB check, blocking, base yards random factor, tackle break=SUCCESS, big run, elapsed time
-                __NextInt = { [0] = 2, [1] = 5 } // Direction, tackle break yards (5)
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.5)                     // Base yards random factor
+                .NextDouble(0.1)                     // Tackle break (succeeds!)
+                .NextInt(5)                          // Tackle break yards (5)
+                .NextDouble(0.8)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
             var run = new Run(rng);
@@ -190,18 +210,25 @@ namespace UnitTestProject1
             ballCarrier2.Speed = 95;
 
             // Test WITHOUT big run
-            TestSeedableRandom rngNoBigRun = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.8, [4] = 0.9, [5] = 6.0 }, // Big run=FAIL
-                __NextInt = { [0] = 2 }
-            };
+            var rngNoBigRun = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.5)                     // Base yards factor
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.9)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Test WITH big run
-            TestSeedableRandom rngBigRun = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.8, [4] = 0.05, [5] = 6.0 }, // Big run=SUCCESS
-                __NextInt = { [0] = 2, [1] = 25 } // Direction, breakaway yards
-            };
+            var rngBigRun = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.5)                     // Base yards factor
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.05)                    // Big run (succeeds!)
+                .NextInt(25)                         // Breakaway yards
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
             var runNormal = new Run(rngNoBigRun);
@@ -230,11 +257,16 @@ namespace UnitTestProject1
             game.FieldPosition = 95; // Near the goal line
             SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50); // Set up for big gain
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.4, [2] = 0.5, [3] = 0.05, [4] = 0.01, [5] = 6.0 }, // Good blocking, tackle break, big run
-                __NextInt = { [0] = 2, [1] = 5, [2] = 30 } // Direction, tackle yards, big run yards
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.4)               // Good blocking
+                .NextDouble(0.5)                     // Base yards factor
+                .NextDouble(0.05)                    // Tackle break (succeeds)
+                .NextInt(5)                          // Tackle break yards
+                .NextDouble(0.01)                    // Big run (succeeds)
+                .NextInt(30)                         // Breakaway yards (would exceed goal line)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
             var run = new Run(rng);
@@ -253,11 +285,14 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 30, defenseSkill: 90); // Weak offense vs strong defense
 
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.7, [2] = -2.5, [3] = 0.8, [4] = 0.9, [5] = 6.0 }, // Bad blocking, negative random factor
-                __NextInt = { [0] = 2 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.7)               // Bad blocking (fails)
+                .NextDouble(0.1)                     // Base yards random factor (produces negative yards: 0.1 * 25 - 15 = -12.5)
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.9)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
             var run = new Run(rng);
@@ -277,11 +312,14 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var initialElapsedTime = game.CurrentPlay.ElapsedTime;
-            TestSeedableRandom rng = new TestSeedableRandom
-            {
-                __NextDouble = { [0] = 0.15, [1] = 0.5, [2] = 0.5, [3] = 0.8, [4] = 0.9, [5] = 0.25 }, // Last value is elapsed time random (2.5)
-                __NextInt = { [0] = 2 }
-            };
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.5)                     // Base yards factor
+                .NextDouble(0.8)                     // Tackle break (fails)
+                .NextDouble(0.9)                     // Big run (fails)
+                .ElapsedTimeRandomFactor(0.83);      // Elapsed time (5 + 0.83*3 = 7.5 seconds)
 
             // Act
             var run = new Run(rng);
@@ -291,6 +329,360 @@ namespace UnitTestProject1
             var timeAdded = game.CurrentPlay.ElapsedTime - initialElapsedTime;
             Assert.IsTrue(timeAdded >= 5.0 && timeAdded <= 8.0,
                 $"Elapsed time ({timeAdded}) should be between 5 and 8 seconds");
+        }
+
+        #endregion
+
+        #region SkillsCheckResult Integration Tests
+
+        [TestMethod]
+        public void RunPlay_RunYardsSkillsCheckResult_CalculatesBaseYards()
+        {
+            // Arrange - Test that RunYardsSkillsCheckResult correctly calculates base yardage
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
+                .NextDouble(0.72)                    // Base yards random factor: 0.72*25-15 = 3.0
+                .TackleBreakCheck(0.9)               // No tackle break
+                .BreakawayCheck(0.9)                 // No breakaway
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Should have base yards calculated by RunYardsSkillsCheckResult
+            // With even matchup (70 vs 70): skillDiff = 0, baseYards = 3.0, randomFactor = 3.0, total = 6
+            // After blocking fails (0.8x): 6 * 0.8 = 4.8 ≈ 5 yards
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained >= 4 && yardsGained <= 8,
+                $"RunYardsSkillsCheckResult should calculate yards in expected range (got {yardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_RunYardsSkillsCheckResult_StrongOffense()
+        {
+            // Arrange - Test RunYardsSkillsCheckResult with strong offense vs weak defense
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50);
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
+                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
+                .TackleBreakCheck(0.9)               // No tackle break
+                .BreakawayCheck(0.9)                 // No breakaway
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Should have higher base yards with skill advantage
+            // skillDiff ≈ +40, baseYards = 3.0 + 40/20 = 5.0, randomFactor = 2.5, total = 7.5 → Round(8) * 1.2 = 9
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained >= 8,
+                $"RunYardsSkillsCheckResult should calculate higher yards for strong offense (got {yardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_RunYardsSkillsCheckResult_WeakOffense()
+        {
+            // Arrange - Test RunYardsSkillsCheckResult with weak offense vs strong defense
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 40, defenseSkill: 80);
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.7)               // Bad blocking (fails)
+                .NextDouble(0.2)                     // Base yards random factor: 0.2*25-15 = -10
+                .TackleBreakCheck(0.9)               // No tackle break
+                .BreakawayCheck(0.9)                 // No breakaway
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Should have lower/negative yards with skill disadvantage
+            // skillDiff ≈ -40, baseYards = 3.0 - 2.0 = 1.0, randomFactor = -0.8, total ≈ 0.2 * 0.8 = 0
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained <= 3,
+                $"RunYardsSkillsCheckResult should calculate low yards for weak offense (got {yardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_TackleBreakYardsSkillsCheckResult_AddsYards()
+        {
+            // Arrange - Test that TackleBreakYardsSkillsCheckResult adds 3-8 yards
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
+
+            // Set ball carrier to have high tackle break chance
+            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier.Rushing = 90;
+            ballCarrier.Strength = 88;
+            ballCarrier.Agility = 85;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
+                .NextDouble(0.7)                     // Base yards factor: 0.7*25-15 = 2.5
+                .TackleBreakCheck(0.1)               // TACKLE BREAK! (succeeds)
+                .NextInt(6)                          // TackleBreakYardsSkillsCheckResult: 6 yards
+                .BreakawayCheck(0.9)                 // No breakaway
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Should have base yards + tackle break yards (6)
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained >= 8,
+                $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_TackleBreakYardsSkillsCheckResult_Range()
+        {
+            // Arrange - Test that TackleBreakYardsSkillsCheckResult returns 3-8 yards
+            var game1 = CreateGameWithRunPlay();
+            var game2 = CreateGameWithRunPlay();
+            SetPlayerSkills(game1, offenseSkill: 70, defenseSkill: 70);
+            SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
+
+            var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier1.Rushing = 90;
+            ballCarrier1.Strength = 88;
+            ballCarrier1.Agility = 85;
+
+            var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier2.Rushing = 90;
+            ballCarrier2.Strength = 88;
+            ballCarrier2.Agility = 85;
+
+            // Test minimum (3 yards)
+            var rngMin = new TestFluentSeedableRandom()
+                .NextDouble(0.15)
+                .NextInt(2)
+                .RunBlockingCheck(0.5)
+                .NextDouble(0.5)
+                .TackleBreakCheck(0.1)
+                .NextInt(3)                          // Min: 3 yards
+                .BreakawayCheck(0.9)
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Test maximum (8 yards)
+            var rngMax = new TestFluentSeedableRandom()
+                .NextDouble(0.15)
+                .NextInt(2)
+                .RunBlockingCheck(0.5)
+                .NextDouble(0.5)
+                .TackleBreakCheck(0.1)
+                .NextInt(8)                          // Max: 8 yards
+                .BreakawayCheck(0.9)
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var runMin = new Run(rngMin);
+            runMin.Execute(game1);
+
+            var runMax = new Run(rngMax);
+            runMax.Execute(game2);
+
+            // Assert
+            var yardsMin = game1.CurrentPlay.YardsGained;
+            var yardsMax = game2.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsMax > yardsMin,
+                $"TackleBreakYardsSkillsCheckResult with 8 yards ({yardsMax}) should exceed 3 yards ({yardsMin})");
+        }
+
+        [TestMethod]
+        public void RunPlay_BreakawayYardsSkillsCheckResult_AddsSignificantYards()
+        {
+            // Arrange - Test that BreakawayYardsSkillsCheckResult adds 15-44 yards
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
+
+            // Set ball carrier to be fast for breakaway potential
+            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier.Speed = 95;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.5)                     // Base yards factor
+                .TackleBreakCheck(0.9)               // No tackle break
+                .BreakawayCheck(0.05)                // BREAKAWAY! (succeeds)
+                .NextInt(30)                         // BreakawayYardsSkillsCheckResult: 30 yards
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Should have base yards + breakaway yards (30)
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained >= 30,
+                $"BreakawayYardsSkillsCheckResult should add 30 yards (got {yardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_BreakawayYardsSkillsCheckResult_Range()
+        {
+            // Arrange - Test BreakawayYardsSkillsCheckResult range (15-44 yards)
+            var game1 = CreateGameWithRunPlay();
+            var game2 = CreateGameWithRunPlay();
+            SetPlayerSkills(game1, offenseSkill: 70, defenseSkill: 70);
+            SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
+
+            var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier1.Speed = 95;
+
+            var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier2.Speed = 95;
+
+            // Test minimum (15 yards)
+            var rngMin = new TestFluentSeedableRandom()
+                .NextDouble(0.15)
+                .NextInt(2)
+                .RunBlockingCheck(0.5)
+                .NextDouble(0.5)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.05)
+                .NextInt(15)                         // Min: 15 yards
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Test maximum (44 yards)
+            var rngMax = new TestFluentSeedableRandom()
+                .NextDouble(0.15)
+                .NextInt(2)
+                .RunBlockingCheck(0.5)
+                .NextDouble(0.5)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.05)
+                .NextInt(44)                         // Max: 44 yards
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var runMin = new Run(rngMin);
+            runMin.Execute(game1);
+
+            var runMax = new Run(rngMax);
+            runMax.Execute(game2);
+
+            // Assert
+            var yardsMin = game1.CurrentPlay.YardsGained;
+            var yardsMax = game2.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsMax > yardsMin + 20,
+                $"BreakawayYardsSkillsCheckResult max ({yardsMax}) should significantly exceed min ({yardsMin})");
+        }
+
+        [TestMethod]
+        public void RunPlay_AllSkillsCheckResults_IntegrationTest()
+        {
+            // Arrange - Complete integration test combining all SkillsCheckResults
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 75, defenseSkill: 70);
+
+            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier.Rushing = 85;
+            ballCarrier.Speed = 90;
+            ballCarrier.Agility = 88;
+            ballCarrier.Strength = 80;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB gets ball)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
+                .NextDouble(0.68)                    // Base yards: 0.68*25-15 = 2.0 randomFactor
+                .TackleBreakCheck(0.1)               // Tackle break (succeeds)
+                .NextInt(5)                          // TackleBreakYardsSkillsCheckResult: 5 yards
+                .BreakawayCheck(0.9)                 // No breakaway
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Verify all components work together
+            var runPlay = (RunPlay)game.CurrentPlay;
+            Assert.AreEqual(1, runPlay.RunSegments.Count, "Should have 1 run segment");
+            Assert.IsNotNull(runPlay.RunSegments[0].BallCarrier, "Ball carrier should be set");
+            Assert.IsTrue(runPlay.YardsGained >= 10,
+                $"Should have base + tackle break yards (got {runPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_AllSkillsCheckResults_MaximumYardage()
+        {
+            // Arrange - Test maximum yardage scenario with all bonuses
+            var game = CreateGameWithRunPlay();
+            game.FieldPosition = 20; // Plenty of room to run
+            SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50);
+
+            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            ballCarrier.Rushing = 95;
+            ballCarrier.Speed = 98;
+            ballCarrier.Agility = 95;
+            ballCarrier.Strength = 90;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.3)               // Great blocking (succeeds)
+                .NextDouble(0.9)                     // Max base yards: 0.9*25-15 = 7.5
+                .TackleBreakCheck(0.05)              // Tackle break (succeeds)
+                .NextInt(8)                          // TackleBreakYardsSkillsCheckResult: 8 yards
+                .BreakawayCheck(0.02)                // Breakaway (succeeds)
+                .NextInt(40)                         // BreakawayYardsSkillsCheckResult: 40 yards
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - Should have massive yardage from all bonuses
+            // Base ≈ 10, * 1.2 = 12, + 8 tackle break = 20, + 40 breakaway = 60+
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained >= 50,
+                $"Maximum scenario should produce 50+ yards (got {yardsGained})");
+        }
+
+        [TestMethod]
+        public void RunPlay_AllSkillsCheckResults_NegativeYardage()
+        {
+            // Arrange - Test negative yardage scenario (tackle for loss)
+            var game = CreateGameWithRunPlay();
+            SetPlayerSkills(game, offenseSkill: 30, defenseSkill: 95);
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB)
+                .NextInt(2)                          // Direction
+                .RunBlockingCheck(0.8)               // Bad blocking (fails)
+                .NextDouble(0.05)                    // Minimal base yards: 0.05*25-15 = -13.75
+                .TackleBreakCheck(0.9)               // No tackle break
+                .BreakawayCheck(0.9)                 // No breakaway
+                .ElapsedTimeRandomFactor(0.5);
+
+            // Act
+            var run = new Run(rng);
+            run.Execute(game);
+
+            // Assert - RunYardsSkillsCheckResult should allow negative yards
+            // skillDiff ≈ -65, baseYards ≈ -0.25, randomFactor = -13.75, total ≈ -14 * 0.8 ≈ -11
+            var yardsGained = game.CurrentPlay.YardsGained;
+            Assert.IsTrue(yardsGained <= 0,
+                $"Weak offense should result in tackle for loss (got {yardsGained})");
         }
 
         #endregion

@@ -3,6 +3,7 @@ using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
+using StateLibrary.SkillsCheckResults;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -45,8 +46,10 @@ namespace StateLibrary.Plays
             var blockingSuccess = blockingCheck.Occurred;
             var blockingModifier = blockingSuccess ? 1.2 : 0.8; // +20% or -20% yards
 
-            // Calculate base yardage (owned by this class, not external calculator)
-            var baseYards = CalculateRunYardage(game, ballCarrier, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            // Calculate base yardage using SkillsCheckResult
+            var runYardsResult = new RunYardsSkillsCheckResult(_rng, ballCarrier, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            runYardsResult.Execute(game);
+            var baseYards = runYardsResult.Result;
             var adjustedYards = (int)(baseYards * blockingModifier);
 
             // Check for tackle break (adds 3-8 yards)
@@ -55,8 +58,9 @@ namespace StateLibrary.Plays
 
             if (tackleBreakCheck.Occurred)
             {
-                var tackleBreakYards = _rng.Next(3, 9);
-                adjustedYards += tackleBreakYards;
+                var tackleBreakYardsResult = new TackleBreakYardsSkillsCheckResult(_rng);
+                tackleBreakYardsResult.Execute(game);
+                adjustedYards += tackleBreakYardsResult.Result;
                 play.Result.LogInformation($"{ballCarrier.LastName} breaks a tackle! Keeps churning!");
             }
 
@@ -66,14 +70,16 @@ namespace StateLibrary.Plays
 
             if (bigRunCheck.Occurred)
             {
-                var breakawayYards = _rng.Next(15, 45);
-                adjustedYards += breakawayYards;
+                var breakawayYardsResult = new BreakawayYardsSkillsCheckResult(_rng);
+                breakawayYardsResult.Execute(game);
+                adjustedYards += breakawayYardsResult.Result;
                 play.Result.LogInformation($"{ballCarrier.LastName} breaks into the open field! He's got room to run!");
             }
 
             // Ensure we don't exceed field boundaries
             var yardsToGoal = 100 - game.FieldPosition;
-            var finalYards = Math.Max(-5, Math.Min(adjustedYards, yardsToGoal));
+            var maxLoss = -1 * game.FieldPosition; // Can't lose more yards than current field position (prevents going past own goal line)
+            var finalYards = Math.Max(maxLoss, Math.Min(adjustedYards, yardsToGoal));
 
             // Create the run segment
             var segment = new RunSegment
@@ -92,54 +98,6 @@ namespace StateLibrary.Plays
 
             // Log the play-by-play narrative
             LogRunPlayNarrative(play, ballCarrier, direction, blockingSuccess, finalYards, yardsToGoal);
-        }
-
-        /// <summary>
-        /// Calculate yards gained on this run play based on player skills and matchups
-        /// </summary>
-        private int CalculateRunYardage(Game game, Player ballCarrier, List<Player> offensivePlayers, List<Player> defensivePlayers)
-        {
-            // Calculate offensive power (ball carrier + blockers)
-            var offensivePower = CalculateOffensivePower(offensivePlayers, ballCarrier);
-
-            // Calculate defensive power
-            var defensivePower = CalculateDefensivePower(defensivePlayers);
-
-            // Calculate base yardage (with randomness)
-            var skillDifferential = offensivePower - defensivePower;
-            var baseYards = 3.0 + (skillDifferential / 20.0); // Average around 3-5 yards
-
-            // Add randomness (-3 to +8 yard variance)
-            var randomFactor = (_rng.NextDouble() * 11) - 3;
-            var totalYards = baseYards + randomFactor;
-
-            return (int)Math.Round(totalYards);
-        }
-
-        private double CalculateOffensivePower(List<Player> offensivePlayers, Player ballCarrier)
-        {
-            var blockers = offensivePlayers.Where(p =>
-                p.Position == Positions.C ||
-                p.Position == Positions.G ||
-                p.Position == Positions.T ||
-                p.Position == Positions.TE ||
-                p.Position == Positions.FB).ToList();
-
-            var blockingPower = blockers.Any() ? blockers.Average(b => b.Blocking) : 50;
-            var ballCarrierPower = (ballCarrier.Rushing * 2 + ballCarrier.Speed + ballCarrier.Agility) / 4.0;
-
-            return (blockingPower + ballCarrierPower) / 2.0;
-        }
-
-        private double CalculateDefensivePower(List<Player> defensivePlayers)
-        {
-            var defenders = defensivePlayers.Where(p =>
-                p.Position == Positions.DT ||
-                p.Position == Positions.DE ||
-                p.Position == Positions.LB ||
-                p.Position == Positions.OLB).ToList();
-
-            return defenders.Any() ? defenders.Average(d => (d.Tackling + d.Strength + d.Speed) / 3.0) : 50;
         }
 
         private Player? DetermineBallCarrier(RunPlay play)

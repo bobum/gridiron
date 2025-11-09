@@ -76,17 +76,21 @@ namespace StateLibrary.PlayResults
                 else
                 {
                     // Advance the down
-                    game.CurrentDown = AdvanceDown(game.CurrentDown);
+                    var nextDown = AdvanceDown(game.CurrentDown);
                     game.YardsToGo -= play.YardsGained;
 
-                    if (game.CurrentDown == Downs.None)
+                    if (nextDown == Downs.None)
                     {
-                        // Turnover on downs
+                        // Turnover on downs - other team gets 1st and 10
                         play.PossessionChange = true;
+                        game.CurrentDown = Downs.First;
+                        game.YardsToGo = 10;
                         play.Result.LogInformation($"Turnover on downs! Ball at the {game.FieldPosition} yard line.");
                     }
                     else
                     {
+                        game.CurrentDown = nextDown;
+
                         // Check if this was an incomplete pass or sack
                         var lastSegment = play.PassSegments.LastOrDefault();
                         if (lastSegment != null && !lastSegment.IsComplete && play.YardsGained >= 0)

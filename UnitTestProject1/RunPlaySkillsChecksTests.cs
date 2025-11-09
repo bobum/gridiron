@@ -38,8 +38,10 @@ namespace UnitTestProject1
                 player.Strength = 50;
             }
 
-            // Act & Assert - should succeed with high probability (0.675 probability)
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.6 } };
+            // Act & Assert - should succeed with high probability (~67.5% with +35 skill differential)
+            var rng = new TestFluentSeedableRandom()
+                .RunBlockingCheck(0.6); // 0.6 < 0.675 probability = blocking succeeds
+
             var blockingCheck = new BlockingSuccessSkillsCheck(rng);
             blockingCheck.Execute(game);
 
@@ -74,8 +76,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should fail with low random value (0.25 probability)
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.3 } };
+            // Act & Assert - should fail (0.3 > 0.25 probability with -50 skill differential)
+            var rng = new TestFluentSeedableRandom()
+                .RunBlockingCheck(0.3); // 0.3 > 0.25 probability = blocking fails
+
             var blockingCheck = new BlockingSuccessSkillsCheck(rng);
             blockingCheck.Execute(game);
 
@@ -99,15 +103,19 @@ namespace UnitTestProject1
                 player.Strength = 60;
             }
 
-            // Act & Assert - 50% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.49 } };
+            // Act & Assert - 50% probability (even matchup)
+            var rng = new TestFluentSeedableRandom()
+                .RunBlockingCheck(0.49); // 0.49 < 0.50 = succeeds
+
             var blockingCheck = new BlockingSuccessSkillsCheck(rng);
             blockingCheck.Execute(game);
 
             Assert.IsTrue(blockingCheck.Occurred);
 
             // Try with just over 50%
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.51 } };
+            rng = new TestFluentSeedableRandom()
+                .RunBlockingCheck(0.51); // 0.51 > 0.50 = fails
+
             blockingCheck = new BlockingSuccessSkillsCheck(rng);
             blockingCheck.Execute(game);
 
@@ -138,8 +146,10 @@ namespace UnitTestProject1
                 player.Speed = 60;
             }
 
-            // Act & Assert - should succeed with ~40% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.35 } };
+            // Act & Assert - should succeed with ~40% probability (+33.3 skill differential)
+            var rng = new TestFluentSeedableRandom()
+                .TackleBreakCheck(0.35); // 0.35 < ~0.38 probability = tackle break succeeds
+
             var tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
 
@@ -171,8 +181,10 @@ namespace UnitTestProject1
                 }
             }
 
-            // Act & Assert - should fail (very low probability ~5-10%)
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.08 } };
+            // Act & Assert - should fail (0.08 > ~0.05-0.07 probability with -45 skill differential)
+            var rng = new TestFluentSeedableRandom()
+                .TackleBreakCheck(0.08); // 0.08 > low probability = tackle break fails
+
             var tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
 
@@ -199,14 +211,18 @@ namespace UnitTestProject1
                 player.Speed = 70;
             }
 
-            // Act & Assert - ~25% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.24 } };
+            // Act & Assert - ~25% probability (even matchup)
+            var rng = new TestFluentSeedableRandom()
+                .TackleBreakCheck(0.24); // 0.24 < 0.25 = succeeds
+
             var tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
 
             Assert.IsTrue(tackleBreakCheck.Occurred);
 
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.26 } };
+            rng = new TestFluentSeedableRandom()
+                .TackleBreakCheck(0.26); // 0.26 > 0.25 = fails
+
             tackleBreakCheck = new TackleBreakSkillsCheck(rng, ballCarrier);
             tackleBreakCheck.Execute(game);
 
@@ -224,11 +240,13 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
-            // Very fast ball carrier
+            // Very fast ball carrier (speed 95 gives ~13% probability)
             ballCarrier.Speed = 95;
 
             // Act & Assert - should succeed with ~13% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.12 } };
+            var rng = new TestFluentSeedableRandom()
+                .BreakawayCheck(0.12); // 0.12 < 0.13 probability = big run succeeds
+
             var bigRunCheck = new BigRunSkillsCheck(rng, ballCarrier);
             bigRunCheck.Execute(game);
 
@@ -242,11 +260,13 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
-            // Slow ball carrier
+            // Slow ball carrier (speed 50 gives ~4% probability)
             ballCarrier.Speed = 50;
 
             // Act & Assert - should have ~4% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.05 } };
+            var rng = new TestFluentSeedableRandom()
+                .BreakawayCheck(0.05); // 0.05 > 0.04 probability = big run fails
+
             var bigRunCheck = new BigRunSkillsCheck(rng, ballCarrier);
             bigRunCheck.Execute(game);
 
@@ -260,17 +280,21 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
-            // Average speed
+            // Average speed (70 gives base 8% probability)
             ballCarrier.Speed = 70;
 
             // Act & Assert - base 8% probability
-            TestSeedableRandom rng = new TestSeedableRandom { __NextDouble = { [0] = 0.07 } };
+            var rng = new TestFluentSeedableRandom()
+                .BreakawayCheck(0.07); // 0.07 < 0.08 = succeeds
+
             var bigRunCheck = new BigRunSkillsCheck(rng, ballCarrier);
             bigRunCheck.Execute(game);
 
             Assert.IsTrue(bigRunCheck.Occurred);
 
-            rng = new TestSeedableRandom { __NextDouble = { [0] = 0.09 } };
+            rng = new TestFluentSeedableRandom()
+                .BreakawayCheck(0.09); // 0.09 > 0.08 = fails
+
             bigRunCheck = new BigRunSkillsCheck(rng, ballCarrier);
             bigRunCheck.Execute(game);
 

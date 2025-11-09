@@ -71,6 +71,22 @@ namespace StateLibrary.Actions
             }
             else
             {
+                var lastPlay = game.Plays.Last();
+
+                // Determine possession for this play
+                var possession = lastPlay.PossessionChange
+                    ? FlipPossession(lastPlay.Possession)
+                    : lastPlay.Possession;
+
+                // Set down and yards to go for this play
+                // If possession changed (turnover, touchdown, etc.), reset to 1st and 10
+                if (lastPlay.PossessionChange)
+                {
+                    game.CurrentDown = Downs.First;
+                    game.YardsToGo = 10;
+                }
+                // Otherwise, down and yards were already set by PlayResult
+
                 //totally random for now, but later will need to add logic for determining both
                 //offensive and defensive play calls here
                 //coaches will decide whether to run or pass based on down, distance, time remaining, score, etc.
@@ -82,8 +98,9 @@ namespace StateLibrary.Actions
                     //run
                     currentPlay = new RunPlay
                     {
-                        Possession = game.Plays.Last().Possession,
-                        ElapsedTime = 1.5
+                        Possession = possession,
+                        ElapsedTime = 1.5,
+                        Down = game.CurrentDown
                     };
                 }
                 else
@@ -91,13 +108,19 @@ namespace StateLibrary.Actions
                     //pass
                     currentPlay = new PassPlay
                     {
-                        Possession = game.Plays.Last().Possession,
-                        ElapsedTime = 1.5
+                        Possession = possession,
+                        ElapsedTime = 1.5,
+                        Down = game.CurrentDown
                     };
                 }
             }
 
             return currentPlay;
+        }
+
+        private Possession FlipPossession(Possession currentPossession)
+        {
+            return currentPossession == Possession.Home ? Possession.Away : Possession.Home;
         }
 
         private void SubstituteDefensivePlayers(Game game)
