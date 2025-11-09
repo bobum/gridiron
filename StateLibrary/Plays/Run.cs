@@ -78,7 +78,8 @@ namespace StateLibrary.Plays
 
             // Ensure we don't exceed field boundaries
             var yardsToGoal = 100 - game.FieldPosition;
-            var finalYards = Math.Max(-5, Math.Min(adjustedYards, yardsToGoal));
+            var maxLoss = -1 * game.FieldPosition; // Can't lose more yards than current field position (prevents going past own goal line)
+            var finalYards = Math.Max(maxLoss, Math.Min(adjustedYards, yardsToGoal));
 
             // Create the run segment
             var segment = new RunSegment
