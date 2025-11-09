@@ -182,6 +182,8 @@ namespace StateLibrary.Plays
                     {
                         play.Result.LogInformation($"{recoverer.LastName} scoops it up and takes it to the house! TOUCHDOWN!");
                         play.IsTouchdown = true;
+                        var scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                        game.AddTouchdown(scoringTeam);
                     }
                     else
                     {
@@ -409,6 +411,8 @@ namespace StateLibrary.Plays
             {
                 play.Result.LogInformation($"HE'S GOT A LANE! {returner.LastName} takes it {returnYards} yards to the house! TOUCHDOWN!");
                 play.IsTouchdown = true;
+                var scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddTouchdown(scoringTeam);
             }
 
             // Punt returns take hang time + return time (2-6 seconds for return)
