@@ -51,7 +51,7 @@ namespace UnitTestProject1
             game.FieldPosition = 3;
             game.HomeScore = 10;
             game.AwayScore = 7;
-            var passPlay = (PuntPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay;
             passPlay.Possession = Possession.Home;
             passPlay.YardsGained = -5;  // Sacked in end zone
 
