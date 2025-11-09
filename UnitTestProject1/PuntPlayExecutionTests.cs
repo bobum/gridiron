@@ -2,6 +2,7 @@ using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Plays;
+using System.Collections.Generic;
 using System.Linq;
 using UnitTestProject1.Helpers;
 
@@ -671,37 +672,31 @@ namespace UnitTestProject1
                 Down = Downs.Fourth,
                 StartFieldPosition = 0,
                 YardsGained = 0,
-                OffensePlayersOnField = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P].ToList(),
-                DefensePlayersOnField = _teams.VisitorTeam.PuntDefenseDepthChart.Chart[Positions.P].ToList()
+                OffensePlayersOnField = new List<Player>(),
+                DefensePlayersOnField = new List<Player>()
             };
 
             // Add punter
-            if (!puntPlay.OffensePlayersOnField.Any(p => p.Position == Positions.P))
+            puntPlay.OffensePlayersOnField.Add(new Player
             {
-                puntPlay.OffensePlayersOnField.Add(new Player
-                {
-                    Position = Positions.P,
-                    LastName = "Punter",
-                    Kicking = 65,
-                    Speed = 50,
-                    Strength = 50,
-                    Agility = 50,
-                    Catching = 40
-                });
-            }
+                Position = Positions.P,
+                LastName = "Punter",
+                Kicking = 65,
+                Speed = 50,
+                Strength = 50,
+                Agility = 50,
+                Catching = 40
+            });
 
             // Add long snapper
-            if (!puntPlay.OffensePlayersOnField.Any(p => p.Position == Positions.LS))
+            puntPlay.OffensePlayersOnField.Add(new Player
             {
-                puntPlay.OffensePlayersOnField.Add(new Player
-                {
-                    Position = Positions.LS,
-                    LastName = "Snapper",
-                    Blocking = 70,
-                    Speed = 50,
-                    Strength = 60
-                });
-            }
+                Position = Positions.LS,
+                LastName = "Snapper",
+                Blocking = 70,
+                Speed = 50,
+                Strength = 60
+            });
 
             // Add potential returners
             for (int i = 0; i < 3; i++)
