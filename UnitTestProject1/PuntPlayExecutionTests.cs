@@ -331,13 +331,11 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.65)  // Medium punt
-                .NextDouble(0.5)   // Random
-                .NextDouble(0.9)   // Good hang time (pressure)
-                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.65)  // Punt distance
+                .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.9)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
-                .NextDouble(0.2)   // FAIR CATCH! (good hang time + field position)
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.2);  // FAIR CATCH! (55% chance with hang time + field position)
 
             var punt = new Punt(rng);
 
@@ -361,13 +359,11 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.85)  // Long punt (52+ yards)
-                .NextDouble(0.9)   // Max random to get deep
-                .NextDouble(0.9)   // Good hang time
+                .NextDouble(0.85)  // Punt distance (long punt)
+                .NextDouble(0.9)   // Hang time random (good hang time)
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.5)   // Not downed (fair catch instead)
-                .NextDouble(0.15)  // FAIR CATCH! (very likely deep in own territory)
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5)   // Not downed
+                .NextDouble(0.15); // FAIR CATCH! (very likely deep in own territory)
 
             var punt = new Punt(rng);
 
