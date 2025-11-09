@@ -672,7 +672,7 @@ namespace UnitTestProject1
                 StartFieldPosition = 0,
                 YardsGained = 0,
                 OffensePlayersOnField = _teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P].ToList(),
-                DefensePlayersOnField = _teams.AwayTeam.PuntDefenseDepthChart.Chart[Positions.P].ToList()
+                DefensePlayersOnField = _teams.VisitorTeam.PuntDefenseDepthChart.Chart[Positions.P].ToList()
             };
 
             // Add punter
