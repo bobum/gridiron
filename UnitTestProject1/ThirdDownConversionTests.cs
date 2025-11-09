@@ -19,7 +19,7 @@ namespace UnitTestProject1
         public void ThirdAndLong_HighSkills_Pass_Converts()
         {
             // Arrange - 3rd & 10, elite QB/receivers
-            var game = CreateGameAtThirdDown(yardsToGo: 10, fieldPosition: 30, Possession.Home);
+            var game = CreateGameAtThirdDownForPass(yardsToGo: 10, fieldPosition: 30, Possession.Home);
             SetPassPlayerSkills(game, 90, 65);
 
             var rng = CreateRngForCompletedPass(12, 2, protectionSucceeds: true); // 14 yards total
@@ -39,7 +39,7 @@ namespace UnitTestProject1
         public void ThirdAndLong_LowSkills_Pass_Incomplete()
         {
             // Arrange - 3rd & 12, weak QB vs strong coverage
-            var game = CreateGameAtThirdDown(yardsToGo: 12, fieldPosition: 35, Possession.Home);
+            var game = CreateGameAtThirdDownForPass(yardsToGo: 12, fieldPosition: 35, Possession.Home);
             SetPassPlayerSkills(game, 50, 85);
 
             var rng = CreateRngForIncompletePass(protectionSucceeds: false);
