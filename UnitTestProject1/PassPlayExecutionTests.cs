@@ -534,7 +534,7 @@ namespace UnitTestProject1
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.90)     // Deep pass (> 0.85)
-                .AirYards(18)                     // Would be 18-44, clamped to 18 (only 12 yards to goal)
+                .AirYards(18)                     // Would be 18-44, but clamped to 12 (only 12 yards to goal)
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.9)        // Fail
                 .ImmediateTackleYards(1)
@@ -546,8 +546,8 @@ namespace UnitTestProject1
 
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.IsTrue(passPlay.PassSegments[0].AirYards >= 18 && passPlay.PassSegments[0].AirYards < 19,
-                "AirYardsSkillsCheckResult should clamp deep pass to remaining field (18 yards only)");
+            Assert.IsTrue(passPlay.PassSegments[0].AirYards >= 12 && passPlay.PassSegments[0].AirYards < 13,
+                "AirYardsSkillsCheckResult should clamp deep pass to remaining field (12 yards)");
         }
 
         [TestMethod]
