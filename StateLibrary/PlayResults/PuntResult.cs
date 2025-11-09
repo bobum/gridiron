@@ -15,6 +15,20 @@ namespace StateLibrary.PlayResults
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
 
+            // Handle safety (bad snap into end zone)
+            if (play.IsSafety)
+            {
+                play.EndFieldPosition = 0;
+                game.FieldPosition = 0;
+
+                // Award 2 points to defending team
+                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddSafety(defendingTeam);
+
+                play.PossessionChange = true;
+                return; // Safety ends the play immediately
+            }
+
             // Handle different punt outcomes
             if (play.Blocked && play.RecoveredBy != null)
             {
