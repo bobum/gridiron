@@ -24,17 +24,8 @@ namespace StateLibrary.PlayResults
                 play.EndFieldPosition = 100;
                 game.FieldPosition = 100;
 
-                // Update score
-                if (play.Possession == Possession.Home)
-                {
-                    game.HomeScore += 6;
-                    play.Result.LogInformation($"TOUCHDOWN! Home team scores! Home {game.HomeScore}, Away {game.AwayScore}");
-                }
-                else
-                {
-                    game.AwayScore += 6;
-                    play.Result.LogInformation($"TOUCHDOWN! Away team scores! Home {game.HomeScore}, Away {game.AwayScore}");
-                }
+                // Update score using centralized method
+                game.AddTouchdown(play.Possession);
 
                 // After touchdown, possession changes (kickoff will follow)
                 play.PossessionChange = true;
@@ -45,17 +36,9 @@ namespace StateLibrary.PlayResults
                 play.EndFieldPosition = 0;
                 game.FieldPosition = 0;
 
-                // Award 2 points to defense
-                if (play.Possession == Possession.Home)
-                {
-                    game.AwayScore += 2;
-                    play.Result.LogInformation($"SAFETY! Away team gets 2 points! Home {game.HomeScore}, Away {game.AwayScore}");
-                }
-                else
-                {
-                    game.HomeScore += 2;
-                    play.Result.LogInformation($"SAFETY! Home team gets 2 points! Home {game.HomeScore}, Away {game.AwayScore}");
-                }
+                // Award 2 points to defense using centralized method
+                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddSafety(defendingTeam);
 
                 play.PossessionChange = true;
             }

@@ -100,9 +100,9 @@ namespace StateLibrary.Plays
                 play.Result.LogInformation($"The ball rolls into the end zone! SAFETY!");
                 play.YardsGained = -1 * game.FieldPosition; // Ball at goal line
 
-                // TODO: AddSafety method needs to be implemented in Game class
-                // game.AddSafety(play.Possession == Possession.Home ? Possession.Away : Possession.Home);
-                play.Result.LogInformation("[SAFETY - scoring not yet implemented]");
+                // Award safety to defending team
+                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddSafety(defendingTeam);
             }
             else
             {

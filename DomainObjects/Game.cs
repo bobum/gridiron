@@ -47,12 +47,107 @@ namespace DomainObjects
         public Quarter CurrentQuarter { get; set; }
         public Half CurrentHalf { get; set; }
 
-        //a game is created with 3600 seconds to go, 
+        //a game is created with 3600 seconds to go,
         //and the first type of play is a kickoff
         public Game()
         {
             CurrentQuarter = Halves[0].Quarters[0];
             CurrentHalf = Halves[0];
+        }
+
+        // ========================================
+        // SCORING METHODS
+        // ========================================
+
+        /// <summary>
+        /// Adds a touchdown (6 points) to the scoring team
+        /// </summary>
+        /// <param name="scoringTeam">The team that scored the touchdown</param>
+        public void AddTouchdown(Possession scoringTeam)
+        {
+            if (scoringTeam == Possession.Home)
+            {
+                HomeScore += 6;
+                Logger.LogInformation($"TOUCHDOWN! Home team scores! Home {HomeScore}, Away {AwayScore}");
+            }
+            else if (scoringTeam == Possession.Away)
+            {
+                AwayScore += 6;
+                Logger.LogInformation($"TOUCHDOWN! Away team scores! Home {HomeScore}, Away {AwayScore}");
+            }
+        }
+
+        /// <summary>
+        /// Adds a field goal (3 points) to the scoring team
+        /// </summary>
+        /// <param name="scoringTeam">The team that kicked the field goal</param>
+        public void AddFieldGoal(Possession scoringTeam)
+        {
+            if (scoringTeam == Possession.Home)
+            {
+                HomeScore += 3;
+                Logger.LogInformation($"FIELD GOAL is good! Home team scores! Home {HomeScore}, Away {AwayScore}");
+            }
+            else if (scoringTeam == Possession.Away)
+            {
+                AwayScore += 3;
+                Logger.LogInformation($"FIELD GOAL is good! Away team scores! Home {HomeScore}, Away {AwayScore}");
+            }
+        }
+
+        /// <summary>
+        /// Adds a safety (2 points) to the defending team.
+        /// NOTE: The defending team (the team that got the safety) receives the points.
+        /// </summary>
+        /// <param name="defendingTeam">The team that forced the safety (receives the 2 points)</param>
+        public void AddSafety(Possession defendingTeam)
+        {
+            if (defendingTeam == Possession.Home)
+            {
+                HomeScore += 2;
+                Logger.LogInformation($"SAFETY! Home team gets 2 points! Home {HomeScore}, Away {AwayScore}");
+            }
+            else if (defendingTeam == Possession.Away)
+            {
+                AwayScore += 2;
+                Logger.LogInformation($"SAFETY! Away team gets 2 points! Home {HomeScore}, Away {AwayScore}");
+            }
+        }
+
+        /// <summary>
+        /// Adds an extra point (1 point) to the scoring team after a touchdown
+        /// </summary>
+        /// <param name="scoringTeam">The team that kicked the extra point</param>
+        public void AddExtraPoint(Possession scoringTeam)
+        {
+            if (scoringTeam == Possession.Home)
+            {
+                HomeScore += 1;
+                Logger.LogInformation($"Extra point is GOOD! Home {HomeScore}, Away {AwayScore}");
+            }
+            else if (scoringTeam == Possession.Away)
+            {
+                AwayScore += 1;
+                Logger.LogInformation($"Extra point is GOOD! Home {HomeScore}, Away {AwayScore}");
+            }
+        }
+
+        /// <summary>
+        /// Adds a two-point conversion (2 points) to the scoring team after a touchdown
+        /// </summary>
+        /// <param name="scoringTeam">The team that converted the two-point attempt</param>
+        public void AddTwoPointConversion(Possession scoringTeam)
+        {
+            if (scoringTeam == Possession.Home)
+            {
+                HomeScore += 2;
+                Logger.LogInformation($"Two-point conversion is GOOD! Home {HomeScore}, Away {AwayScore}");
+            }
+            else if (scoringTeam == Possession.Away)
+            {
+                AwayScore += 2;
+                Logger.LogInformation($"Two-point conversion is GOOD! Home {HomeScore}, Away {AwayScore}");
+            }
         }
     }
 
