@@ -393,12 +393,12 @@ namespace UnitTestProject1
             passPlay.DefensePlayersOnField = new List<Player>
             {
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DE][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DE][1],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][0],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][1],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][0],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][1],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][2],
-                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.OLB][0],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.CB][0],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.CB][1],
                 _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.S][0],
