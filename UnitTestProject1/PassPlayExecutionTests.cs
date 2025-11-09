@@ -1009,6 +1009,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)     // Forward pass
                 .AirYards(airYards)
                 .PassCompletionCheck(0.4)       // Complete (< 0.5 + skill bonus)
+                .ImmediateTackleYards(2)        // For immediate tackle scenario (if YAC fails)
                 .YACOpportunityCheck(0.3)       // YAC opportunity succeeds
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)              // No big play
