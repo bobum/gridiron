@@ -195,9 +195,9 @@ namespace UnitTestProject1
             var prePlay = new PrePlay(nextPlayRng);
             prePlay.Execute(game);
 
-            // Assert - Away gets great field position (at Home's 47)
+            // Assert - Away gets possession at the same field position (absolute position)
             Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession, "Away should get possession");
-            Assert.AreEqual(47, game.FieldPosition, "Away starts at the 47 yard line");
+            Assert.AreEqual(49, game.FieldPosition, "Away starts at the 49 yard line (no flip)");
         }
 
         #endregion
