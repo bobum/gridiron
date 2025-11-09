@@ -128,7 +128,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.5)                     // Base yards random factor
+                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .NextDouble(0.6)                     // Tackle break (fails)
                 .NextDouble(0.8)                     // Big run (fails)
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
@@ -138,7 +138,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.6)               // Bad blocking (fails)
-                .NextDouble(0.5)                     // Base yards random factor
+                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .NextDouble(0.6)                     // Tackle break (fails)
                 .NextDouble(0.8)                     // Big run (fails)
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
