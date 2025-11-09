@@ -764,7 +764,308 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region Comprehensive Skill x Protection x Coverage Matrix Tests
+
+        [TestMethod]
+        public void Matrix_HighSkills_GoodProtection_WeakCoverage()
+        {
+            // Arrange - Elite QB/receivers vs weak defense, good protection
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 90, 50); // Strong offense vs weak defense
+
+            var rng = CreateRngForCompletedPass(airYards: 15, yacYards: 8, protectionSucceeds: true);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "High skills with good protection should complete");
+            Assert.IsTrue(passPlay.YardsGained >= 20,
+                $"Elite offense should gain significant yards (got {passPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_HighSkills_GoodProtection_StrongCoverage()
+        {
+            // Arrange - Elite QB/receivers vs strong coverage, good protection
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 90, 85); // Strong offense vs strong defense
+
+            var rng = CreateRngForCompletedPass(airYards: 12, yacYards: 3, protectionSucceeds: true);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "High skills should overcome strong coverage");
+            Assert.IsTrue(passPlay.YardsGained >= 10,
+                $"Should still gain decent yards despite coverage (got {passPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_HighSkills_BadProtection_WeakCoverage()
+        {
+            // Arrange - Elite QB but bad protection
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 90, 50);
+
+            var rng = CreateRngForCompletedPass(airYards: 10, yacYards: 5, protectionSucceeds: false);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert - QB under pressure but weak coverage allows completion
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Should complete despite pressure");
+        }
+
+        [TestMethod]
+        public void Matrix_EvenSkills_GoodProtection_EvenCoverage()
+        {
+            // Arrange - Average matchup across the board
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 70, 70);
+
+            var rng = CreateRngForCompletedPass(airYards: 10, yacYards: 4, protectionSucceeds: true);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Even matchup should allow completions");
+            Assert.IsTrue(passPlay.YardsGained >= 10 && passPlay.YardsGained <= 20,
+                $"Even skills should produce average gains (got {passPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_EvenSkills_BadProtection_StrongCoverage()
+        {
+            // Arrange - Average skills but everything goes wrong
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 70, 85);
+
+            var rng = CreateRngForIncompletePass(protectionSucceeds: false);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsFalse(passPlay.PassSegments[0].IsComplete,
+                "Bad protection and strong coverage should cause incompletion");
+        }
+
+        [TestMethod]
+        public void Matrix_LowSkills_GoodProtection_WeakCoverage()
+        {
+            // Arrange - Weak QB/receivers but favorable conditions
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 50, 40);
+
+            var rng = CreateRngForCompletedPass(airYards: 8, yacYards: 2, protectionSucceeds: true);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete,
+                "Favorable conditions should allow weak offense to complete");
+            Assert.IsTrue(passPlay.YardsGained <= 15,
+                $"Low skills should limit yardage (got {passPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_LowSkills_BadProtection_StrongCoverage()
+        {
+            // Arrange - Worst case scenario: weak offense, bad protection, strong coverage
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 40, 90);
+
+            var rng = CreateRngForIncompletePass(protectionSucceeds: false);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsFalse(passPlay.PassSegments[0].IsComplete,
+                "Weak offense with bad protection should struggle");
+        }
+
+        [TestMethod]
+        public void Matrix_Sack_WeakProtection_StrongRush()
+        {
+            // Arrange - Classic sack scenario: weak O-line vs strong pass rush
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 40, 90);
+
+            var rng = CreateRngForSack(sackYards: 7);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsFalse(passPlay.PassSegments[0].IsComplete, "Sack should be incomplete");
+            Assert.IsTrue(passPlay.YardsGained < 0,
+                $"Sack should result in negative yards (got {passPlay.YardsGained})");
+            Assert.IsTrue(passPlay.YardsGained <= -5,
+                $"Strong rush should produce significant loss (got {passPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_Sack_WeakProtection_EvenRush()
+        {
+            // Arrange - Weak protection even against average rush
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 35, 70);
+
+            var rng = CreateRngForSack(sackYards: 5);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.IsFalse(passPlay.PassSegments[0].IsComplete, "Should be sacked");
+            Assert.AreEqual(-5, passPlay.YardsGained, "Should lose 5 yards");
+        }
+
+        [TestMethod]
+        public void Matrix_ScreenPass_QuickRelease_BeatsBlitz()
+        {
+            // Arrange - Screen pass with quick release beats aggressive defense
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 75, 80);
+
+            var rng = CreateRngForScreenPass(airYards: -1, yacYards: 8);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.AreEqual(PassType.Screen, passPlay.PassSegments[0].Type, "Should be screen pass");
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Screen should be complete");
+            Assert.IsTrue(passPlay.YardsGained >= 5,
+                $"Screen with good YAC should gain yards (got {passPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_DeepPass_HighSkills_BigPlay()
+        {
+            // Arrange - Deep pass with elite QB and fast receiver
+            var game = CreateGameWithPassPlay();
+            SetPlayerSkills(game, 90, 65);
+
+            // Set receivers to be fast for deep threat
+            var receivers = game.CurrentPlay.OffensePlayersOnField.Where(p => p.Position == Positions.WR).ToList();
+            foreach (var r in receivers)
+            {
+                r.Speed = 95;
+                r.Agility = 90;
+            }
+
+            var rng = CreateRngForDeepPass(airYards: 35, yacYards: 15);
+
+            // Act
+            var pass = new Pass(rng);
+            pass.Execute(game);
+
+            // Assert
+            var passPlay = (PassPlay)game.CurrentPlay;
+            Assert.AreEqual(PassType.Deep, passPlay.PassSegments[0].Type, "Should be deep pass");
+            Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Deep pass should connect");
+            Assert.IsTrue(passPlay.YardsGained >= 40,
+                $"Deep completion should gain major yards (got {passPlay.YardsGained})");
+        }
+
+        #endregion
+
         #region Helper Methods
+
+        private TestFluentSeedableRandom CreateRngForCompletedPass(int airYards, int yacYards, bool protectionSucceeds)
+        {
+            double protectionCheck = protectionSucceeds ? 0.3 : 0.7; // < 0.5 succeeds
+
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(protectionCheck)
+                .QBPressureCheck(0.5)           // No additional pressure
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)     // Forward pass
+                .AirYards(airYards)
+                .PassCompletionCheck(0.4)       // Complete (< 0.5 + skill bonus)
+                .YACOpportunityCheck(0.3)       // YAC opportunity succeeds
+                .YACRandomFactor(0.5)
+                .BigPlayCheck(0.9)              // No big play
+                .ElapsedTimeRandomFactor(0.5);
+        }
+
+        private TestFluentSeedableRandom CreateRngForIncompletePass(bool protectionSucceeds)
+        {
+            double protectionCheck = protectionSucceeds ? 0.3 : 0.7;
+
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(protectionCheck)
+                .QBPressureCheck(0.8)           // Heavy pressure
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)     // Forward pass
+                .AirYards(10)
+                .PassCompletionCheck(0.9)       // Incomplete (high value = fail)
+                .ElapsedTimeRandomFactor(0.5);
+        }
+
+        private TestFluentSeedableRandom CreateRngForSack(int sackYards)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.95)      // FAIL - Sack!
+                .SackYards(sackYards)
+                .ElapsedTimeRandomFactor(0.5);
+        }
+
+        private TestFluentSeedableRandom CreateRngForScreenPass(int airYards, int yacYards)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.3)
+                .QBPressureCheck(0.5)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.10)    // Screen (< 0.15)
+                .AirYards(airYards)
+                .PassCompletionCheck(0.3)       // Complete
+                .YACOpportunityCheck(0.3)       // YAC success
+                .YACRandomFactor(0.7)
+                .BigPlayCheck(0.9)
+                .ElapsedTimeRandomFactor(0.5);
+        }
+
+        private TestFluentSeedableRandom CreateRngForDeepPass(int airYards, int yacYards)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.2)       // Excellent protection
+                .QBPressureCheck(0.3)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.90)    // Deep (> 0.85)
+                .AirYards(airYards)
+                .PassCompletionCheck(0.3)       // Complete
+                .YACOpportunityCheck(0.2)       // YAC success
+                .YACRandomFactor(0.8)
+                .BigPlayCheck(0.9)
+                .ElapsedTimeRandomFactor(0.5);
+        }
 
         private Game CreateGameWithPassPlay()
         {
