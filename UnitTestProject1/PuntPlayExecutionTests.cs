@@ -82,10 +82,9 @@ namespace UnitTestProject1
             game.FieldPosition = 30;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.96)  // No bad snap (>= 5%)
-                .NextInt(0)        // No block (>= 50%)
-                .NextDouble(0.5)   // Punt distance base
-                .NextDouble(0.4)   // Random factor
+                .NextDouble(0.96)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.8)   // Not downed
@@ -390,15 +389,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Random
-                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.02)  // MUFFED! (< 5%)
+                .NextDouble(0.02)  // MUFFED!
                 .NextDouble(0.7)   // Receiving team recovers (> 60%)
                 .NextDouble(0.3)   // Recovery yards
-                .NextDouble(0.5)   // Random factor
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -425,13 +422,12 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
                 .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Random
-                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.03)  // MUFFED!
-                .NextDouble(0.4)   // Punting team recovers! (< 60%)
+                .NextDouble(0.4)   // Punting team recovers (< 60%)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -461,16 +457,13 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.65)  // Punt distance (45 yards)
-                .NextDouble(0.6)   // Random
-                .NextDouble(0.6)   // Hang time
+                .NextDouble(0.65)  // Punt distance
+                .NextDouble(0.6)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards base calculation
-                .NextDouble(0.5)   // Coverage quality
-                .NextDouble(0.5)   // Random factor
+                .NextDouble(0.5)   // Return yards (includes randomness)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -502,16 +495,13 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.3)   // Short punt (shanked near goal line)
-                .NextDouble(0.1)   // Low random
+                .NextDouble(0.3)   // Short punt (includes randomness)
                 .NextDouble(0.3)   // Short hang time
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
-                .NextDouble(0.9)   // Great return (high base)
-                .NextDouble(0.1)   // Low coverage quality
-                .NextDouble(0.9)   // Max random factor
+                .NextDouble(0.9)   // Great return (includes randomness)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -542,9 +532,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Random
-                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.6)   // Punt distance (includes randomness)
+                .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed (but will be treated as downed due to no returner)
                 .NextDouble(0.5);  // Elapsed time
