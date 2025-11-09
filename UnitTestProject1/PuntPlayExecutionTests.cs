@@ -359,11 +359,11 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.85)  // Punt distance (long punt)
-                .NextDouble(0.9)   // Hang time random (good hang time)
+                .NextDouble(0.63)  // 52-yard punt (lands at own 8, field position 92)
+                .NextDouble(0.9)   // Hang time random (good hang time ~4.8s)
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.5)   // Not downed
-                .NextDouble(0.15); // FAIR CATCH! (very likely deep in own territory)
+                .NextDouble(0.6)   // Not downed (0.6 >= 50% threshold at spot 92)
+                .NextDouble(0.15); // FAIR CATCH! (60% chance: deep + good hang time)
 
             var punt = new Punt(rng);
 
