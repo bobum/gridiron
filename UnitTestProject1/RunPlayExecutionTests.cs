@@ -433,8 +433,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.5)                     // Base yards factor
+                .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
+                .NextDouble(0.7)                     // Base yards factor: 0.7*25-15 = 2.5
                 .TackleBreakCheck(0.1)               // TACKLE BREAK! (succeeds)
                 .NextInt(6)                          // TackleBreakYardsSkillsCheckResult: 6 yards
                 .BreakawayCheck(0.9)                 // No breakaway
