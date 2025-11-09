@@ -1,4 +1,5 @@
 using DomainObjects;
+using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.PlayResults;
 using UnitTestProject1.Helpers;
