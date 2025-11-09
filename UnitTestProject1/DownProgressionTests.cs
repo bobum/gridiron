@@ -175,17 +175,17 @@ namespace UnitTestProject1
         [TestMethod]
         public void TurnoverOnDowns_NegativeYardage_ChangesFieldPosition()
         {
-            // Arrange - 4th and 2 at the 50, loses 3 yards (tackle for loss)
+            // Arrange - 4th and 2 at the 50, loses 1 yard (tackle for loss)
             var game = CreateGameAtDown(Downs.Fourth, 2, 50, Possession.Home);
-            SetPlayerSkills(game, 70, 70);
-            var rng = CreateRngForRunPlay(-3, blockingSucceeds: false); // Tackled for loss!
+            SetPlayerSkills(game, 70, 100); // Weak offense vs strong defense = negative yards
+            var rng = CreateRngForRunPlay(-1, blockingSucceeds: false); // Tackled for loss!
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
             Assert.IsTrue(game.CurrentPlay.PossessionChange, "Should still be turnover on downs");
-            Assert.AreEqual(47, game.FieldPosition, "Field position should be 50 + (-3) = 47");
+            Assert.AreEqual(49, game.FieldPosition, "Field position should be 50 + (-1) = 49");
 
             // Add to game.Plays so PrePlay can check previous play
             game.Plays.Add(game.CurrentPlay);
