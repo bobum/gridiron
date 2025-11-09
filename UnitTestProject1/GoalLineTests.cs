@@ -61,14 +61,14 @@ namespace UnitTestProject1
             var game = CreateGameForPassPlay(1, Possession.Home);
             SetPassPlayerSkills(game, 40, 90);
 
-            var rng = CreateRngForSack(1); // Sacked for 1 yard = safety
+            var rng = CreateRngForSack(7); // Tries to sack for 7, clamped to 1 by field position = safety
 
             // Act
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.AreEqual(-1, passPlay.YardsGained, "Sacked for 1 yard");
+            Assert.AreEqual(-1, passPlay.YardsGained, "Sacked for 1 yard (clamped to field position)");
             Assert.AreEqual(0, game.FieldPosition, "Tackled in end zone");
             Assert.AreEqual(2, game.AwayScore, "Safety should award 2 points");
         }
