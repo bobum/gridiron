@@ -199,19 +199,20 @@ namespace UnitTestProject1
         [TestMethod]
         public void AirYardsSkillsCheckResult_DeepPassNearGoalLine_ClampedToFieldPosition()
         {
-            // Arrange - At the 10 yard line, only 90 yards to goal
+            // Arrange - At the 10 yard line, only 10 yards to goal
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
-                .AirYards(18); // Will be clamped
+                .AirYards(18); // Deep pass would be 18-44, but clamped to 10
 
             // Act
             var airYardsResult = new AirYardsSkillsCheckResult(rng, PassType.Deep, 90);
             airYardsResult.Execute(game);
 
-            // Assert - Should be clamped to yards to goal (10 yards)
-            // Deep pass at 90 yard line: Next(18, Max(19, Min(45, 10))) = Next(18, 19)
-            Assert.IsTrue(airYardsResult.Result >= 18);
-            Assert.IsTrue(airYardsResult.Result < 19); // Effectively just 18
+            // Assert - Should be clamped to yards to goal (10 yards, not 18)
+            // Deep pass at 90 yard line: Next(18, Max(19, Min(45, 10))) = Next(18, 19) returns 18
+            // Final clamping: Result = Math.Min(18, 10) = 10
+            Assert.IsTrue(airYardsResult.Result >= 10);
+            Assert.IsTrue(airYardsResult.Result < 11); // Clamped to actual field distance
         }
 
         [TestMethod]
