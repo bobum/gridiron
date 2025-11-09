@@ -289,7 +289,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.7)               // Bad blocking (fails)
-                .NextDouble(0.1)                     // Base yards random factor (produces negative yards: 0.1 * 11 - 3 = -1.9)
+                .NextDouble(0.1)                     // Base yards random factor (produces negative yards: 0.1 * 25 - 15 = -12.5)
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
@@ -345,8 +345,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking success
-                .NextDouble(0.5)                     // Base yards random factor: 0.5*11-3 = 2.5
+                .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
+                .NextDouble(0.72)                    // Base yards random factor: 0.72*25-15 = 3.0
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .ElapsedTimeRandomFactor(0.5);
@@ -356,7 +356,8 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert - Should have base yards calculated by RunYardsSkillsCheckResult
-            // With even matchup (70 vs 70): skillDiff = 0, baseYards = 3.0, randomFactor = 2.5, total ≈ 5-6
+            // With even matchup (70 vs 70): skillDiff = 0, baseYards = 3.0, randomFactor = 3.0, total = 6
+            // After blocking fails (0.8x): 6 * 0.8 = 4.8 ≈ 5 yards
             var yardsGained = game.CurrentPlay.YardsGained;
             Assert.IsTrue(yardsGained >= 4 && yardsGained <= 8,
                 $"RunYardsSkillsCheckResult should calculate yards in expected range (got {yardsGained})");
@@ -373,7 +374,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.7)                     // Base yards random factor: 0.7*11-3 = 4.7
+                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .ElapsedTimeRandomFactor(0.5);
@@ -383,7 +384,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert - Should have higher base yards with skill advantage
-            // skillDiff ≈ +40, baseYards = 3.0 + 40/20 = 5.0, randomFactor = 4.7, total ≈ 10 * 1.2 = 12
+            // skillDiff ≈ +40, baseYards = 3.0 + 40/20 = 5.0, randomFactor = 2.5, total = 7.5 → Round(8) * 1.2 = 9
             var yardsGained = game.CurrentPlay.YardsGained;
             Assert.IsTrue(yardsGained >= 8,
                 $"RunYardsSkillsCheckResult should calculate higher yards for strong offense (got {yardsGained})");
@@ -400,7 +401,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.7)               // Bad blocking (fails)
-                .NextDouble(0.2)                     // Base yards random factor: 0.2*11-3 = -0.8
+                .NextDouble(0.2)                     // Base yards random factor: 0.2*25-15 = -10
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .ElapsedTimeRandomFactor(0.5);
@@ -639,7 +640,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.3)               // Great blocking (succeeds)
-                .NextDouble(0.9)                     // Max base yards: 0.9*11-3 = 6.9
+                .NextDouble(0.9)                     // Max base yards: 0.9*25-15 = 7.5
                 .TackleBreakCheck(0.05)              // Tackle break (succeeds)
                 .NextInt(8)                          // TackleBreakYardsSkillsCheckResult: 8 yards
                 .BreakawayCheck(0.02)                // Breakaway (succeeds)
@@ -668,7 +669,7 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.8)               // Bad blocking (fails)
-                .NextDouble(0.05)                    // Minimal base yards: 0.05*11-3 = -2.45
+                .NextDouble(0.05)                    // Minimal base yards: 0.05*25-15 = -13.75
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .ElapsedTimeRandomFactor(0.5);
@@ -678,7 +679,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert - RunYardsSkillsCheckResult should allow negative yards
-            // Base ≈ -2, * 0.8 = -2 (clamped to -5 min)
+            // skillDiff ≈ -65, baseYards ≈ -0.25, randomFactor = -13.75, total ≈ -14 * 0.8 ≈ -11
             var yardsGained = game.CurrentPlay.YardsGained;
             Assert.IsTrue(yardsGained <= 0,
                 $"Weak offense should result in tackle for loss (got {yardsGained})");

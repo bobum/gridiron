@@ -41,8 +41,10 @@ namespace StateLibrary.SkillsCheckResults
             var skillDifferential = offensivePower - defensivePower;
             var baseYards = 3.0 + (skillDifferential / 20.0); // Average around 3-5 yards
 
-            // Add randomness (-3 to +8 yard variance)
-            var randomFactor = (_rng.NextDouble() * 11) - 3;
+            // Add randomness (-15 to +10 yard variance)
+            // This supports realistic big losses (sacks, backfield tackles, muffed snaps)
+            // while keeping big gains reasonable (tackle breaks/breakaways handle explosive plays)
+            var randomFactor = (_rng.NextDouble() * 25) - 15;
             var totalYards = baseYards + randomFactor;
 
             Result = (int)Math.Round(totalYards);

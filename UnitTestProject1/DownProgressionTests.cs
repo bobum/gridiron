@@ -480,8 +480,8 @@ namespace UnitTestProject1
             // randomFactor = targetBase - 3.0
             double randomFactor = targetBase - 3.0;
 
-            // Solve for NextDouble: randomFactor = (NextDouble * 11) - 3
-            double nextDouble = (randomFactor + 3.0) / 11.0;
+            // Solve for NextDouble: randomFactor = (NextDouble * 25) - 15
+            double nextDouble = (randomFactor + 15.0) / 25.0;
             nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble)); // Clamp to [0, 1]
 
             double blockingCheckValue = blockingSucceeds ? 0.3 : 0.7; // < 0.5 succeeds, >= 0.5 fails
