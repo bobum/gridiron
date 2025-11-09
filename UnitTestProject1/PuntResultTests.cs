@@ -371,7 +371,7 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void PuntResult_AllScenarios_Reset ToFirstDown()
+        public void PuntResult_AllScenarios_Reset_ToFirstDown()
         {
             // Test touchback
             var game1 = CreateGameWithPuntPlay();
