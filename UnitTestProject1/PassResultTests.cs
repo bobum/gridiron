@@ -252,7 +252,8 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(55, game.FieldPosition, "Field position should advance");
-            Assert.AreEqual(Downs.None, game.CurrentDown, "Should be set to None after turnover");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to First down after turnover");
+            Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards to go after turnover");
             Assert.IsTrue(passPlay.PossessionChange, "Possession should change on turnover");
         }
 
@@ -285,7 +286,8 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(45, game.FieldPosition, "Field position should NOT change");
-            Assert.AreEqual(Downs.None, game.CurrentDown, "Should be set to None after turnover");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to First down after turnover");
+            Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards to go after turnover");
             Assert.IsTrue(passPlay.PossessionChange, "Possession should change on turnover");
         }
 
