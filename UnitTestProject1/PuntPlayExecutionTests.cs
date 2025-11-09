@@ -571,7 +571,7 @@ namespace UnitTestProject1
             game.FieldPosition = 2;  // Very close to own goal
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.04)  // Bad snap
+                .NextDouble(0.01)  // Bad snap occurs (< 2.2% with 70 blocking)
                 .NextDouble(0.95)  // Large loss attempt
                 .NextDouble(0.9)   // Random factor
                 .NextDouble(0.5);  // Elapsed time
@@ -596,10 +596,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.99)  // Attempt very long punt
-                .NextDouble(0.99)  // Max random
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.5);  // Elapsed time (touchback)
+                .NextDouble(0.99)  // Punt distance (very long)
+                .NextDouble(0.5);  // Hang time random
 
             var punt = new Punt(rng);
 
