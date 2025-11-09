@@ -437,7 +437,7 @@ namespace UnitTestProject1
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.03)  // MUFFED!
                 .NextDouble(0.4)   // Punting team recovers! (< 60%)
-                .NextDouble(0.5)   // Elapsed time
+                .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
 
