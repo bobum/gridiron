@@ -20,7 +20,8 @@ namespace UnitTestProject1
         {
             // Arrange - 1st and 10, gain 3 yards
             var game = CreateGameAtDown(Downs.First, 10, 25, Possession.Home);
-            var rng = CreateRngForRunPlay(3); // 3 yards gained
+            SetPlayerSkills(game, 70, 70); // Even matchup
+            var rng = CreateRngForRunPlay(3, blockingSucceeds: true); // 3 yards gained
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -37,7 +38,8 @@ namespace UnitTestProject1
         {
             // Arrange - 2nd and 7, gain 4 yards
             var game = CreateGameAtDown(Downs.Second, 7, 28, Possession.Home);
-            var rng = CreateRngForRunPlay(4); // 4 yards gained
+            SetPlayerSkills(game, 70, 70); // Even matchup
+            var rng = CreateRngForRunPlay(4, blockingSucceeds: true); // 4 yards gained
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -53,7 +55,8 @@ namespace UnitTestProject1
         {
             // Arrange - 3rd and 3, gain 2 yards
             var game = CreateGameAtDown(Downs.Third, 3, 32, Possession.Home);
-            var rng = CreateRngForRunPlay(2); // 2 yards gained
+            SetPlayerSkills(game, 70, 70); // Even matchup
+            var rng = CreateRngForRunPlay(2, blockingSucceeds: true); // 2 yards gained
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -73,7 +76,8 @@ namespace UnitTestProject1
         {
             // Arrange - 3rd and 5, gain 12 yards (converts!)
             var game = CreateGameAtDown(Downs.Third, 5, 40, Possession.Home);
-            var rng = CreateRngForRunPlay(12); // 12 yards - more than enough!
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(12, blockingSucceeds: true); // 12 yards - more than enough!
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -90,7 +94,8 @@ namespace UnitTestProject1
         {
             // Arrange - 2nd and 7, gain exactly 7 yards
             var game = CreateGameAtDown(Downs.Second, 7, 30, Possession.Home);
-            var rng = CreateRngForRunPlay(7); // Exactly 7 yards
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(7, blockingSucceeds: true); // Exactly 7 yards
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -110,7 +115,8 @@ namespace UnitTestProject1
         {
             // Arrange - Home has 4th and 5, gains only 2 yards (fails to convert)
             var game = CreateGameAtDown(Downs.Fourth, 5, 45, Possession.Home);
-            var rng = CreateRngForRunPlay(2); // Only 2 yards - not enough!
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(2, blockingSucceeds: true); // Only 2 yards - not enough!
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -120,6 +126,9 @@ namespace UnitTestProject1
             Assert.AreEqual(47, game.FieldPosition, "Field position should be 45 + 2");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down for new possession");
             Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards to go");
+
+            // Add to game.Plays so PrePlay can check previous play
+            game.Plays.Add(game.CurrentPlay);
 
             // Now simulate the next play to verify possession actually flips
             var nextPlayRng = new TestFluentSeedableRandom()
@@ -139,7 +148,8 @@ namespace UnitTestProject1
         {
             // Arrange - Away has 4th and 3, gains 1 yard (fails)
             var game = CreateGameAtDown(Downs.Fourth, 3, 60, Possession.Away);
-            var rng = CreateRngForRunPlay(1); // Only 1 yard
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(1, blockingSucceeds: true); // Only 1 yard
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -147,6 +157,9 @@ namespace UnitTestProject1
             // Assert
             Assert.IsTrue(game.CurrentPlay.PossessionChange, "PossessionChange should be true");
             Assert.AreEqual(61, game.FieldPosition, "Field position should be 60 + 1");
+
+            // Add to game.Plays so PrePlay can check previous play
+            game.Plays.Add(game.CurrentPlay);
 
             // Simulate next play
             var nextPlayRng = new TestFluentSeedableRandom().NextDouble(0.3);
@@ -164,7 +177,8 @@ namespace UnitTestProject1
         {
             // Arrange - 4th and 2 at the 50, loses 3 yards (tackle for loss)
             var game = CreateGameAtDown(Downs.Fourth, 2, 50, Possession.Home);
-            var rng = CreateRngForRunPlay(-3); // Tackled for loss!
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(-3, blockingSucceeds: false); // Tackled for loss!
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -172,6 +186,9 @@ namespace UnitTestProject1
             // Assert
             Assert.IsTrue(game.CurrentPlay.PossessionChange, "Should still be turnover on downs");
             Assert.AreEqual(47, game.FieldPosition, "Field position should be 50 + (-3) = 47");
+
+            // Add to game.Plays so PrePlay can check previous play
+            game.Plays.Add(game.CurrentPlay);
 
             // Simulate next play
             var nextPlayRng = new TestFluentSeedableRandom().NextDouble(0.3);
@@ -188,10 +205,11 @@ namespace UnitTestProject1
         #region Pass Play Down Progression Tests
 
         [TestMethod]
-        public void PassPlay_IncompletePa_AdvancesDown_NoYardageChange()
+        public void PassPlay_IncompletePass_AdvancesDown_NoYardageChange()
         {
             // Arrange - 2nd and 8, incomplete pass
-            var game = CreateGameAtDown(Downs.Second, 8, 35, Possession.Home);
+            var game = CreateGameAtDownForPassPlay(Downs.Second, 8, 35, Possession.Home);
+            SetPassPlayerSkills(game, 70, 70);
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)        // Protection holds
@@ -218,7 +236,8 @@ namespace UnitTestProject1
         public void PassPlay_TurnoverOnDowns_FourthDownIncomplete()
         {
             // Arrange - 4th and 10, incomplete pass
-            var game = CreateGameAtDown(Downs.Fourth, 10, 40, Possession.Home);
+            var game = CreateGameAtDownForPassPlay(Downs.Fourth, 10, 40, Possession.Home);
+            SetPassPlayerSkills(game, 70, 70);
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
@@ -239,6 +258,14 @@ namespace UnitTestProject1
             Assert.IsTrue(game.CurrentPlay.PossessionChange, "4th down incomplete should be turnover");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st for new possession");
             Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards");
+
+            // Add to game.Plays and verify possession flips
+            game.Plays.Add(game.CurrentPlay);
+            var nextPlayRng = new TestFluentSeedableRandom().NextDouble(0.3);
+            var prePlay = new PrePlay(nextPlayRng);
+            prePlay.Execute(game);
+
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession, "Should flip to Away");
         }
 
         #endregion
@@ -250,7 +277,8 @@ namespace UnitTestProject1
         {
             // Arrange - Home has 4th down at their own 20, fails to convert
             var game = CreateGameAtDown(Downs.Fourth, 5, 20, Possession.Home);
-            var rng = CreateRngForRunPlay(3); // Gains 3, needs 5
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(3, blockingSucceeds: true); // Gains 3, needs 5
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -258,6 +286,9 @@ namespace UnitTestProject1
             // Assert
             Assert.AreEqual(23, game.FieldPosition, "Ball should be at Home's 23");
             Assert.IsTrue(game.CurrentPlay.PossessionChange, "Should be turnover");
+
+            // Add to game.Plays so PrePlay can check previous play
+            game.Plays.Add(game.CurrentPlay);
 
             // Simulate next play
             var nextPlayRng = new TestFluentSeedableRandom().NextDouble(0.3);
@@ -326,22 +357,137 @@ namespace UnitTestProject1
             return game;
         }
 
-        private TestFluentSeedableRandom CreateRngForRunPlay(int desiredYards)
+        private Game CreateGameAtDownForPassPlay(Downs down, int yardsToGo, int fieldPosition, Possession possession)
         {
-            // Create RNG that will produce approximately the desired yardage
-            // This is a simplified approach - actual yards will depend on player skills
-            // Base calculation: baseYards = 3.0 + (skillDiff / 20.0) + randomFactor
-            // randomFactor = (NextDouble() * 11) - 3
-            // With even skills (diff = 0): baseYards ≈ 3.0 + randomFactor
+            var game = _testGame.GetGame();
+            game.CurrentDown = down;
+            game.YardsToGo = yardsToGo;
+            game.FieldPosition = fieldPosition;
 
-            double randomFactor = desiredYards - 3.0; // Approximate
-            double nextDouble = (randomFactor + 3.0) / 11.0; // Solve for NextDouble
+            // Create a pass play at this down
+            var passPlay = new PassPlay
+            {
+                Possession = possession,
+                Down = down,
+                StartFieldPosition = fieldPosition,
+                ElapsedTime = 0
+            };
+
+            // Set offensive players
+            passPlay.OffensePlayersOnField = new List<Player>
+            {
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.QB][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.RB][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.FB][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.C][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.G][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.G][1],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.T][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.T][1],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.WR][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.WR][1],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.WR][2]
+            };
+
+            // Set defensive players
+            passPlay.DefensePlayersOnField = new List<Player>
+            {
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DE][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][2],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.OLB][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.CB][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.CB][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.S][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.FS][0]
+            };
+
+            game.CurrentPlay = passPlay;
+
+            return game;
+        }
+
+        private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
+        {
+            // Set all offensive players to the same skill level
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            {
+                player.Blocking = offenseSkill;
+                player.Rushing = offenseSkill;
+                player.Speed = offenseSkill;
+                player.Agility = offenseSkill;
+                player.Strength = offenseSkill;
+            }
+
+            // Set all defensive players to the same skill level
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField)
+            {
+                player.Tackling = defenseSkill;
+                player.Strength = defenseSkill;
+                player.Speed = defenseSkill;
+            }
+        }
+
+        private void SetPassPlayerSkills(Game game, int offenseSkill, int defenseSkill)
+        {
+            // Set offensive players
+            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            {
+                player.Blocking = offenseSkill;
+                player.Passing = offenseSkill;
+                player.Catching = offenseSkill;
+                player.Speed = offenseSkill;
+                player.Agility = offenseSkill;
+            }
+
+            // Set defensive players
+            foreach (var player in game.CurrentPlay.DefensePlayersOnField)
+            {
+                player.Tackling = defenseSkill;
+                player.Coverage = defenseSkill;
+                player.Speed = defenseSkill;
+                player.Strength = defenseSkill;
+            }
+        }
+
+        private TestFluentSeedableRandom CreateRngForRunPlay(int desiredYards, bool blockingSucceeds)
+        {
+            // With even skills (70 vs 70), skillDiff = 0
+            // Base calculation: baseYards = 3.0 + 0 + randomFactor
+            // randomFactor = (NextDouble() * 11) - 3
+            // If blocking succeeds: adjustedYards = (int)(baseYards * 1.2)
+            // If blocking fails: adjustedYards = (int)(baseYards * 0.8)
+
+            double targetBase;
+            if (blockingSucceeds)
+            {
+                // We need baseYards such that (int)(baseYards * 1.2) = desiredYards
+                // So baseYards = desiredYards / 1.2
+                targetBase = desiredYards / 1.2;
+            }
+            else
+            {
+                // We need baseYards such that (int)(baseYards * 0.8) = desiredYards
+                // So baseYards = desiredYards / 0.8
+                targetBase = desiredYards / 0.8;
+            }
+
+            // randomFactor = targetBase - 3.0
+            double randomFactor = targetBase - 3.0;
+
+            // Solve for NextDouble: randomFactor = (NextDouble * 11) - 3
+            double nextDouble = (randomFactor + 3.0) / 11.0;
             nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble)); // Clamp to [0, 1]
+
+            double blockingCheckValue = blockingSucceeds ? 0.3 : 0.7; // < 0.5 succeeds, >= 0.5 fails
 
             return new TestFluentSeedableRandom()
                 .NextDouble(0.15)                     // QB check (RB)
                 .NextInt(2)                           // Direction
-                .RunBlockingCheck(0.5)                // Blocking (50/50)
+                .RunBlockingCheck(blockingCheckValue) // Explicit blocking success/failure
                 .NextDouble(nextDouble)               // Base yards calculation
                 .TackleBreakCheck(0.9)                // No tackle break
                 .BreakawayCheck(0.9)                  // No breakaway
@@ -357,6 +503,106 @@ namespace UnitTestProject1
             // Execute the run result
             var runResult = new RunResult();
             runResult.Execute(game);
+        }
+
+        #endregion
+
+        #region Comprehensive Skill x Blocking Matrix Tests
+
+        [TestMethod]
+        public void Matrix_HighSkills_GoodBlocking_ProducesHighYards()
+        {
+            // Arrange - Strong offense (90) vs weak defense (50), good blocking
+            var game = CreateGameAtDown(Downs.First, 10, 30, Possession.Home);
+            SetPlayerSkills(game, 90, 50);
+            var rng = CreateRngForRunPlay(10, blockingSucceeds: true);
+
+            // Act
+            ExecuteRunPlayWithResult(game, rng);
+
+            // Assert - Should gain significant yards
+            Assert.IsTrue(game.CurrentPlay.YardsGained >= 8,
+                $"High skills + good blocking should produce high yards (got {game.CurrentPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_HighSkills_BadBlocking_ProducesMediumYards()
+        {
+            // Arrange - Strong offense (90) vs weak defense (50), bad blocking
+            var game = CreateGameAtDown(Downs.First, 10, 30, Possession.Home);
+            SetPlayerSkills(game, 90, 50);
+            var rng = CreateRngForRunPlay(6, blockingSucceeds: false);
+
+            // Act
+            ExecuteRunPlayWithResult(game, rng);
+
+            // Assert - Should still gain decent yards despite bad blocking
+            Assert.IsTrue(game.CurrentPlay.YardsGained >= 5,
+                $"High skills + bad blocking should still produce medium yards (got {game.CurrentPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_EvenSkills_GoodBlocking_ProducesMediumYards()
+        {
+            // Arrange - Even matchup (70 vs 70), good blocking
+            var game = CreateGameAtDown(Downs.First, 10, 30, Possession.Home);
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(5, blockingSucceeds: true);
+
+            // Act
+            ExecuteRunPlayWithResult(game, rng);
+
+            // Assert - Should gain medium yards
+            Assert.IsTrue(game.CurrentPlay.YardsGained >= 4 && game.CurrentPlay.YardsGained <= 6,
+                $"Even skills + good blocking should produce medium yards (got {game.CurrentPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_EvenSkills_BadBlocking_ProducesLowYards()
+        {
+            // Arrange - Even matchup (70 vs 70), bad blocking
+            var game = CreateGameAtDown(Downs.First, 10, 30, Possession.Home);
+            SetPlayerSkills(game, 70, 70);
+            var rng = CreateRngForRunPlay(2, blockingSucceeds: false);
+
+            // Act
+            ExecuteRunPlayWithResult(game, rng);
+
+            // Assert - Should gain few yards
+            Assert.IsTrue(game.CurrentPlay.YardsGained >= 1 && game.CurrentPlay.YardsGained <= 3,
+                $"Even skills + bad blocking should produce low yards (got {game.CurrentPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_LowSkills_GoodBlocking_ProducesLowYards()
+        {
+            // Arrange - Weak offense (40) vs strong defense (80), good blocking
+            var game = CreateGameAtDown(Downs.First, 10, 30, Possession.Home);
+            SetPlayerSkills(game, 40, 80);
+            var rng = CreateRngForRunPlay(2, blockingSucceeds: true);
+
+            // Act
+            ExecuteRunPlayWithResult(game, rng);
+
+            // Assert - Should gain minimal yards even with good blocking
+            Assert.IsTrue(game.CurrentPlay.YardsGained <= 3,
+                $"Low skills + good blocking should still produce low yards (got {game.CurrentPlay.YardsGained})");
+        }
+
+        [TestMethod]
+        public void Matrix_LowSkills_BadBlocking_ProducesNegativeYards()
+        {
+            // Arrange - Weak offense (40) vs strong defense (80), bad blocking
+            var game = CreateGameAtDown(Downs.First, 10, 30, Possession.Home);
+            SetPlayerSkills(game, 40, 80);
+            var rng = CreateRngForRunPlay(-2, blockingSucceeds: false);
+
+            // Act
+            ExecuteRunPlayWithResult(game, rng);
+
+            // Assert - Should lose yards (tackle for loss)
+            Assert.IsTrue(game.CurrentPlay.YardsGained <= 0,
+                $"Low skills + bad blocking should produce tackle for loss (got {game.CurrentPlay.YardsGained})");
         }
 
         #endregion
