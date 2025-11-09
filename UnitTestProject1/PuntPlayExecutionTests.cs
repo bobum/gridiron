@@ -24,7 +24,7 @@ namespace UnitTestProject1
             game.FieldPosition = 30;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.04)  // Bad snap occurs (< 5%)
+                .NextDouble(0.01)  // Bad snap occurs (< 2.2% with 70 blocking)
                 .NextDouble(0.3)   // Base loss calculation
                 .NextDouble(0.5)   // Random factor
                 .NextDouble(0.7);  // Elapsed time
@@ -53,7 +53,7 @@ namespace UnitTestProject1
             game.AwayScore = 0;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.04)  // Bad snap occurs
+                .NextDouble(0.01)  // Bad snap occurs (< 2.2% with 70 blocking)
                 .NextDouble(0.9)   // Large loss (near max)
                 .NextDouble(0.8)   // Random factor pushes it over
                 .NextDouble(0.5);  // Elapsed time
