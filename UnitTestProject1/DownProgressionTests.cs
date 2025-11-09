@@ -455,24 +455,26 @@ namespace UnitTestProject1
 
         private TestFluentSeedableRandom CreateRngForRunPlay(int desiredYards, bool blockingSucceeds)
         {
-            // With even skills (70 vs 70), skillDiff = 0
-            // Base calculation: baseYards = 3.0 + 0 + randomFactor
-            // randomFactor = (NextDouble() * 11) - 3
-            // If blocking succeeds: adjustedYards = (int)(baseYards * 1.2)
-            // If blocking fails: adjustedYards = (int)(baseYards * 0.8)
+            // IMPORTANT: Two-step rounding process in the actual code:
+            // Step 1: RunYardsSkillsCheckResult.Execute() does: Result = (int)Math.Round(totalYards)
+            // Step 2: Run.Execute() does: adjustedYards = (int)(baseYards * blockingModifier)
+            //
+            // The rounding happens BEFORE the blocking modifier is applied!
+            // So we must use Ceiling to account for this.
 
             double targetBase;
             if (blockingSucceeds)
             {
-                // We need baseYards such that (int)(baseYards * 1.2) = desiredYards
-                // So baseYards = desiredYards / 1.2
-                targetBase = desiredYards / 1.2;
+                // We need roundedBase such that (int)(roundedBase * 1.2) = desiredYards
+                // Use Ceiling because Math.Round happens BEFORE the 1.2x modifier
+                // Example: desiredYards=3 → 3/1.2=2.5 → Ceiling(2.5)=3 → Round(3)=3 → (int)(3*1.2)=3 ✓
+                targetBase = Math.Ceiling(desiredYards / 1.2);
             }
             else
             {
-                // We need baseYards such that (int)(baseYards * 0.8) = desiredYards
-                // So baseYards = desiredYards / 0.8
-                targetBase = desiredYards / 0.8;
+                // We need roundedBase such that (int)(roundedBase * 0.8) = desiredYards
+                // Use Ceiling because Math.Round happens BEFORE the 0.8x modifier
+                targetBase = Math.Ceiling(desiredYards / 0.8);
             }
 
             // randomFactor = targetBase - 3.0
