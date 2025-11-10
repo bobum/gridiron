@@ -58,13 +58,13 @@ namespace StateLibrary.PlayResults
                 // Ball goes to other team at spot of kick (or 20 yard line if beyond)
                 var missedFGSpot = game.FieldPosition;
 
-                // If kick was from beyond the 20 yard line, defense gets it at the spot
-                // If kick was from inside the 20, defense gets it at the 20
+                // If kick was from inside opponent's 20 (red zone), defense gets it at their own 20
+                // Otherwise, defense gets it at the spot of kick
                 var defensiveFieldPosition = 100 - missedFGSpot;
 
-                if (defensiveFieldPosition > 80)
+                if (defensiveFieldPosition < 20)
                 {
-                    // Kicked from inside offensive 20 - defense gets it at their own 20
+                    // Kicked from inside opponent's 20 (red zone) - defense gets it at their own 20
                     play.EndFieldPosition = 80;
                     game.FieldPosition = 80;
                 }
