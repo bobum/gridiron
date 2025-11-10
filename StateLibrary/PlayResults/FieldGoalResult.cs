@@ -55,12 +55,13 @@ namespace StateLibrary.PlayResults
             else
             {
                 // Missed field goal - possession changes, no score
-                // Ball goes to other team at spot of kick (or 20 yard line if beyond)
-                var missedFGSpot = game.FieldPosition;
+                // Ball goes to other team at spot of kick (7 yards behind LOS, or 20 yard line if in red zone)
+                // The kick is taken from 7 yards behind the line of scrimmage
+                var kickSpot = Math.Max(0, game.FieldPosition - 7);
 
                 // If kick was from inside opponent's 20 (red zone), defense gets it at their own 20
                 // Otherwise, defense gets it at the spot of kick
-                var defensiveFieldPosition = 100 - missedFGSpot;
+                var defensiveFieldPosition = 100 - kickSpot;
 
                 if (defensiveFieldPosition < 20)
                 {
@@ -70,8 +71,9 @@ namespace StateLibrary.PlayResults
                 }
                 else
                 {
-                    // Defense gets it at spot of kick
-                    play.EndFieldPosition = missedFGSpot;
+                    // Defense gets it at spot of kick (7 yards behind LOS)
+                    play.EndFieldPosition = kickSpot;
+                    game.FieldPosition = kickSpot;
                 }
 
                 play.PossessionChange = true;

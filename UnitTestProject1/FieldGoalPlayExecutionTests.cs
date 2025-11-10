@@ -552,7 +552,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
-            game.FieldPosition = 70; // 30-yard line
+            game.FieldPosition = 70; // 30-yard line (LOS)
             var play = (FieldGoalPlay)game.CurrentPlay;
             play.Possession = Possession.Home;
 
@@ -572,7 +572,8 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(play.IsGood, "Should be missed");
-            Assert.AreEqual(70, play.EndFieldPosition, "Defense gets ball at spot of kick");
+            Assert.AreEqual(63, play.EndFieldPosition, "Defense gets ball at spot of kick (7 yards behind LOS)");
+            Assert.AreEqual(63, game.FieldPosition, "Game field position should be 63");
         }
 
         [TestMethod]
