@@ -228,6 +228,7 @@ namespace StateLibrary.Plays
 
             if (outOfBoundsCheck.Occurred)
             {
+                play.OutOfBounds = true;
                 play.YardsGained = puntDistance;
                 play.PossessionChange = true;
 
