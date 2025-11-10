@@ -165,22 +165,49 @@ namespace StateLibrary.Plays
                 play.RecoveredBy = recoverer;
                 play.PossessionChange = true;
 
-                // Calculate recovery/return yards
-                var recoveryYards = (int)(_rng.NextDouble() * 15); // 0-15 yards
-                var yardsToGoal = 100 - game.FieldPosition;
-                recoveryYards = Math.Min(recoveryYards, yardsToGoal);
+                // Calculate where the blocked punt bounced
+                // Near goal line: can bounce backward into end zone
+                // Midfield: usually bounces forward
+                var baseBounce = -10.0 + (_rng.NextDouble() * 25.0); // -10 to +15 yards
+                var randomFactor = (_rng.NextDouble() * 10.0) - 5.0; // ±5 yards variance
+                var bouncedYards = baseBounce + randomFactor;
 
-                play.RecoveryYards = recoveryYards;
-                play.YardsGained = recoveryYards;
+                // Calculate final position after bounce and recovery
+                var finalPosition = game.FieldPosition + (int)bouncedYards;
 
-                if (recoverer != null)
+                // Check if ball bounced into end zone (defensive TD)
+                if (finalPosition <= 0)
                 {
-                    if (recoveryYards >= yardsToGoal)
+                    play.IsTouchdown = true;
+                    play.RecoveryYards = (int)bouncedYards;
+                    play.YardsGained = (int)bouncedYards;
+
+                    if (recoverer != null)
+                    {
+                        play.Result.LogInformation($"{recoverer.LastName} recovers the blocked punt in the end zone! TOUCHDOWN!");
+                    }
+                }
+                // Check if defense returns it all the way (ran it to opponent's end zone)
+                else if (finalPosition >= 100)
+                {
+                    play.IsTouchdown = true;
+                    var recoveryYards = 100 - game.FieldPosition;
+                    play.RecoveryYards = recoveryYards;
+                    play.YardsGained = recoveryYards;
+
+                    if (recoverer != null)
                     {
                         play.Result.LogInformation($"{recoverer.LastName} scoops it up and takes it to the house! TOUCHDOWN!");
-                        play.IsTouchdown = true;
                     }
-                    else
+                }
+                else
+                {
+                    // Normal recovery and return
+                    var recoveryYards = Math.Min((int)bouncedYards, 100 - game.FieldPosition);
+                    play.RecoveryYards = recoveryYards;
+                    play.YardsGained = recoveryYards;
+
+                    if (recoverer != null)
                     {
                         play.Result.LogInformation($"{recoverer.LastName} recovers the blocked punt and returns it {recoveryYards} yards!");
                     }
@@ -228,6 +255,7 @@ namespace StateLibrary.Plays
 
             if (outOfBoundsCheck.Occurred)
             {
+                play.OutOfBounds = true;
                 play.YardsGained = puntDistance;
                 play.PossessionChange = true;
 

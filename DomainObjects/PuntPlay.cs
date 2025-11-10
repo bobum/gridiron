@@ -87,6 +87,11 @@ namespace DomainObjects
         public int DownedAtYardLine { get; set; }
 
         /// <summary>
+        /// Whether the punt went out of bounds
+        /// </summary>
+        public bool OutOfBounds { get; set; }
+
+        /// <summary>
         /// Player who blocked the punt
         /// </summary>
         public Player? BlockedBy { get; set; }
