@@ -893,7 +893,7 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Punt distance (will use default player)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.5)   // Downed
+                .NextDouble(0.05)  // DOWNED (low value ensures downed)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -919,7 +919,7 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.5)   // Downed
+                .NextDouble(0.05)  // DOWNED (low value ensures downed)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
