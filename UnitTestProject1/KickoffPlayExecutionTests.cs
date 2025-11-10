@@ -343,6 +343,121 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region Safety Tests
+
+        [TestMethod]
+        public void Kickoff_ReturnForSafety_Scores2Points()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 7;
+            game.AwayScore = 0;
+
+            // Good kicker kicks deep
+            var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
+            kicker.Kicking = 80;
+
+            // Poor returner who will lose yards
+            var returner = play.DefensePlayersOnField.First(p => p.Position == Positions.WR);
+            returner.Speed = 40;
+            returner.Agility = 40;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.85)  // Deep kick (lands around 95-97 yard line)
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.05)  // Very poor return (negative yards)
+                .NextDouble(0.5);  // Elapsed time
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.IsSafety, "Should be a safety");
+            Assert.AreEqual(9, game.HomeScore, "Home should score safety (7 + 2)");
+            Assert.AreEqual(0, game.AwayScore, "Away score should not change");
+            Assert.AreEqual(0, play.EndFieldPosition, "Should be at 0-yard line");
+            Assert.AreEqual(0, game.FieldPosition, "Game position at 0");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+        }
+
+        [TestMethod]
+        public void Kickoff_ReturnSafety_FieldPositionAt0()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+
+            var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
+            kicker.Kicking = 85;
+
+            var returner = play.DefensePlayersOnField.First(p => p.Position == Positions.WR);
+            returner.Speed = 35;
+            returner.Agility = 35;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.9)   // Very deep kick
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.02)  // Terrible return (large loss)
+                .NextDouble(0.5);  // Elapsed time
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.IsSafety, "Should be a safety");
+            Assert.AreEqual(0, play.EndFieldPosition, "Should be at 0");
+            Assert.AreEqual(0, game.FieldPosition, "Game position at 0");
+        }
+
+        [TestMethod]
+        public void Kickoff_SafetyScoring_CorrectTeamGetsPoints()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.Possession = Possession.Away; // Away kicks
+            game.HomeScore = 10;
+            game.AwayScore = 14;
+
+            var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
+            kicker.Kicking = 85;
+
+            var returner = play.DefensePlayersOnField.First(p => p.Position == Positions.WR);
+            returner.Speed = 38;
+            returner.Agility = 38;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.88)  // Deep kick
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.03)  // Very poor return
+                .NextDouble(0.5);  // Elapsed time
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.IsSafety, "Should be a safety");
+            Assert.AreEqual(16, game.AwayScore, "Away (kicking team) should score safety (14 + 2)");
+            Assert.AreEqual(10, game.HomeScore, "Home score should not change");
+        }
+
+        #endregion
+
         #region Edge Case Tests
 
         [TestMethod]

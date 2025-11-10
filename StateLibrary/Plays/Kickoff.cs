@@ -209,6 +209,16 @@ namespace StateLibrary.Plays
             // Calculate final field position (from receiving team's perspective)
             var fieldPosition = 100 - landingSpot + returnYards;
 
+            // Check for safety (returner tackled in own end zone)
+            if (fieldPosition <= 0)
+            {
+                play.IsSafety = true;
+                play.EndFieldPosition = 0;
+                play.Result.LogInformation($"{returner.LastName} is tackled in the end zone! SAFETY!");
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 2.0);
+                return;
+            }
+
             // Check for touchdown
             if (fieldPosition >= 100)
             {

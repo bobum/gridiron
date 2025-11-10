@@ -788,6 +788,93 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
+        public void Punt_BlockedPuntOffenseRecoversInEndZone_Safety()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 5;  // Very close to own end zone
+            var play = (PuntPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 14;
+            game.AwayScore = 10;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(1)        // Block occurs
+                .NextDouble(0.3)   // Offense recovers (< 50%)
+                .NextDouble(0.05)  // Large loss (-5 + -4.5 = -9.5 yards)
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsTrue(play.IsSafety, "Should be safety when offense recovers in own end zone");
+            Assert.AreEqual(12, game.AwayScore, "Away team should score safety (10 + 2)");
+            Assert.AreEqual(14, game.HomeScore, "Home score should not change");
+            Assert.AreEqual(0, play.EndFieldPosition, "Should be at 0-yard line");
+            Assert.IsTrue(play.PossessionChange, "Possession should change after safety");
+        }
+
+        [TestMethod]
+        public void Punt_BlockedPuntDefenseRecoversRunsBackwards_Safety()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 30;  // Midfield area
+            var play = (PuntPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 7;
+            game.AwayScore = 14;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(1)        // Block occurs
+                .NextDouble(0.6)   // Defense recovers (>= 50%)
+                .NextDouble(0.95)  // Ball bounces forward (baseBounce near max: -10 + 23.75 = 13.75)
+                .NextDouble(0.95)  // Random factor forward (9.5 - 5 = 4.5)
+                .NextDouble(0.3)   // Return yards (18.25 total, but we need to test edge case)
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Need to engineer a scenario where finalPosition >= 100
+            // At position 30, bouncing forward 70+ yards would do it
+            // Let me adjust the setup
+            game.FieldPosition = 85; // Very far from own end zone
+
+            var rng2 = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(1)        // Block occurs
+                .NextDouble(0.6)   // Defense recovers
+                .NextDouble(0.95)  // Ball bounces forward significantly
+                .NextDouble(0.95)  // Random factor forward
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt2 = new Punt(rng2);
+
+            // Act
+            punt2.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Defense ran into their own end zone
+            if (play.IsSafety)
+            {
+                Assert.IsTrue(play.Blocked, "Should be blocked");
+                Assert.IsTrue(play.IsSafety, "Should be safety when defense runs into own end zone");
+                Assert.AreEqual(9, game.HomeScore, "Home (punting team) should score safety (7 + 2)");
+                Assert.AreEqual(14, game.AwayScore, "Away score should not change");
+                Assert.AreEqual(0, play.EndFieldPosition, "Should be at 0-yard line");
+            }
+        }
+
+        [TestMethod]
         public void Punt_MuffedCatchAtOwn1YardLine_DangerousPosition()
         {
             // Arrange

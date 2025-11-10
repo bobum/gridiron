@@ -15,15 +15,20 @@ namespace StateLibrary.PlayResults
             var play = (FieldGoalPlay)game.CurrentPlay;
             play.StartFieldPosition = game.FieldPosition;
 
-            // Handle safety (bad snap into end zone)
+            // Handle safety (bad snap into end zone or tackled in end zone)
             if (play.IsSafety)
             {
                 play.EndFieldPosition = 0;
                 game.FieldPosition = 0;
 
-                // Award 2 points to defending team
-                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
-                game.AddSafety(defendingTeam);
+                // Determine who gets the 2 points
+                // If possession didn't change: defending team gets points (offense tackled in own end zone)
+                // If possession changed: original team gets points (defense ran into their own end zone)
+                var scoringTeam = play.PossessionChange
+                    ? play.Possession  // Defense recovered and ran backwards, original team gets points
+                    : (play.Possession == Possession.Home ? Possession.Away : Possession.Home); // Offense tackled in end zone, defense gets points
+
+                game.AddSafety(scoringTeam);
 
                 play.PossessionChange = true;
                 return; // Safety ends the play immediately
