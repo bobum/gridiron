@@ -63,7 +63,7 @@ namespace StateLibrary.Plays
                 : (game.AwayScore - game.HomeScore);
 
             // Very low probability for now - can be adjusted
-            return scoreDifferential < -7 && _rng.NextDouble() < 0.05;
+            return scoreDifferential <= -7 && _rng.NextDouble() < 0.05;
         }
 
         private void ExecuteOnsideKick(Game game, KickoffPlay play, Player kicker)
