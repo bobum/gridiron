@@ -534,7 +534,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.7)   // More likely to miss with poor kicker
+                .NextDouble(0.75)  // More likely to miss with poor kicker (0.75 > 0.73)
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
 
