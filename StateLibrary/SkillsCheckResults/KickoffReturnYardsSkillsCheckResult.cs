@@ -29,14 +29,15 @@ namespace StateLibrary.SkillsCheckResults
             // Base return: 15-30 yards
             var baseReturn = 10.0 + (returnerSkill / 100.0) * 20.0;
 
-            // Random factor: ±15 yards (big plays or tackles at spot)
-            var randomFactor = (_rng.NextDouble() * 30.0) - 15.0;
+            // Random factor: ±60 yards (allows for both tackles at spot and breakaway TDs)
+            var randomFactor = (_rng.NextDouble() * 120.0) - 60.0;
 
             var totalReturn = baseReturn + randomFactor;
 
-            // Clamp to realistic range (-5 to 50 yards)
+            // Clamp to realistic range (-5 to 85 yards)
             // Negative returns represent tackles behind catch point
-            Result = Math.Max(-5.0, Math.Min(50.0, totalReturn));
+            // Upper range allows for long return TDs
+            Result = Math.Max(-5.0, Math.Min(85.0, totalReturn));
         }
     }
 }
