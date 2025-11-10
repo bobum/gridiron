@@ -181,6 +181,8 @@ namespace UnitTestProject1
             Assert.IsFalse(play.IsGood, "Should be missed");
             Assert.AreEqual(14, game.HomeScore, "Home score should stay at 14");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
+            Assert.AreEqual(63, play.EndFieldPosition, "Defense gets ball 7 yards behind LOS");
+            Assert.AreEqual(63, game.FieldPosition, "Game field position should be 63");
         }
 
         #endregion
@@ -250,6 +252,9 @@ namespace UnitTestProject1
             // Assert
             Assert.IsFalse(play.IsGood, "Long FG should be missed");
             Assert.AreEqual(7, game.AwayScore, "Away score should stay at 7");
+            Assert.IsTrue(play.PossessionChange, "Possession should change on missed FG");
+            Assert.AreEqual(43, play.EndFieldPosition, "Defense gets ball 7 yards behind LOS (50-7=43)");
+            Assert.AreEqual(43, game.FieldPosition, "Game field position should be 43");
         }
 
         #endregion
@@ -574,6 +579,7 @@ namespace UnitTestProject1
             Assert.IsFalse(play.IsGood, "Should be missed");
             Assert.AreEqual(63, play.EndFieldPosition, "Defense gets ball at spot of kick (7 yards behind LOS)");
             Assert.AreEqual(63, game.FieldPosition, "Game field position should be 63");
+            Assert.IsTrue(play.PossessionChange, "Possession should change on missed FG");
         }
 
         [TestMethod]
@@ -603,6 +609,7 @@ namespace UnitTestProject1
             Assert.IsFalse(play.IsGood, "Should be missed");
             Assert.AreEqual(80, play.EndFieldPosition, "Defense gets ball at their 20");
             Assert.AreEqual(80, game.FieldPosition, "Game field position should be 80");
+            Assert.IsTrue(play.PossessionChange, "Possession should change on missed FG");
         }
 
         #endregion
