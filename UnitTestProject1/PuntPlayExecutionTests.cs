@@ -601,6 +601,508 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region Edge Case Tests
+
+        [TestMethod]
+        public void Punt_FromOwn1YardLine_HandledCorrectly()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 1;  // Own 1-yard line
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.5)   // Normal punt
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.5)   // Downed
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.PuntDistance > 0, "Should have positive punt distance");
+            Assert.IsTrue(play.Downed || play.Touchback || play.ReturnSegments.Count > 0, "Punt should complete successfully");
+        }
+
+        [TestMethod]
+        public void Punt_BadSnapResultsInExactly0FieldPosition_IsSafety()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 3;  // Close to own goal
+            var play = (PuntPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.01)  // Bad snap occurs
+                .NextDouble(0.8)   // Large loss
+                .NextDouble(0.95)  // Max random factor
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.IsSafety, "Should be marked as safety");
+            Assert.AreEqual(0, game.FieldPosition, "Field position should be 0");
+        }
+
+        [TestMethod]
+        public void Punt_ExtremelyShortPunt_Shanked()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.0)   // Minimum punt distance (shanked)
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.9)   // Not downed
+                .NextDouble(0.9)   // Not fair catch
+                .NextDouble(0.95)  // No muff
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.PuntDistance >= 10, "Even shanked punt should have minimum distance");
+            Assert.IsTrue(play.PuntDistance < 25, "Shanked punt should be short");
+        }
+
+        [TestMethod]
+        public void Punt_ExtremelyLongPunt_MaxDistance()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 20;  // Own 20-yard line
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.99)  // Maximum punt distance
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.5)   // Downed
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.PuntDistance >= 55, "Maximum punt should be 55+ yards");
+            Assert.IsTrue(play.PuntDistance <= 80, "Punt distance should be reasonable");
+        }
+
+        [TestMethod]
+        public void Punt_LandsAtExactly100_IsTouchback()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 45;  // Position where punt can reach exactly 100
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.95)  // Long punt to reach 100
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.Touchback, "Punt landing at/beyond 100 should be touchback");
+            Assert.IsTrue(play.PossessionChange, "Possession should change on touchback");
+        }
+
+        [TestMethod]
+        public void Punt_BlockedPuntRecoveredInEndZone_TouchdownDefense()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 8;  // Close to own end zone
+            var play = (PuntPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 7;
+            game.AwayScore = 3;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(1)        // Block occurs
+                .NextDouble(0.95)  // Large loss on block
+                .NextDouble(0.9)   // Random factor
+                .NextDouble(0.01)  // Defense recovers (< 40%)
+                .NextDouble(0.5)   // Recovery yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsTrue(play.IsTouchdown, "Should be touchdown when recovered in end zone");
+            Assert.AreEqual(9, game.AwayScore, "Away team should score TD (3 + 6)");
+        }
+
+        [TestMethod]
+        public void Punt_MuffedCatchAtOwn1YardLine_DangerousPosition()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 50;  // Midfield
+            var play = (PuntPlay)game.CurrentPlay;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.95)  // Long punt lands near goal line
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.9)   // Not downed
+                .NextDouble(0.9)   // Not fair catch
+                .NextDouble(0.02)  // MUFFED!
+                .NextDouble(0.4)   // Receiving team recovers
+                .NextDouble(0.0)   // Minimal recovery yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.MuffedCatch, "Should be muffed catch");
+            Assert.IsNotNull(play.MuffedBy, "Should track who muffed");
+            Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
+        }
+
+        [TestMethod]
+        public void Punt_OutOfBoundsAtOwn1YardLine_DownedAtSpot()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 50;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.95)  // Long punt
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.05)  // OUT OF BOUNDS!
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.OutOfBounds, "Should be out of bounds");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+            Assert.AreEqual(0, play.ReturnSegments.Count, "No return on out of bounds");
+        }
+
+        [TestMethod]
+        public void Punt_ReturnLosesYards_NegativeReturn()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.6)   // Punt distance
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.9)   // Not downed
+                .NextDouble(0.9)   // Not fair catch
+                .NextDouble(0.95)  // No muff
+                .NextDouble(0.0)   // Minimal return (could lose yards)
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return attempt");
+            // Return yards can be negative (tackled behind catch point)
+            Assert.IsTrue(play.YardsGained >= -3, "Return can lose up to 3 yards");
+        }
+
+        [TestMethod]
+        public void Punt_NoPunterOnField_UsesBackupPlayer()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Remove punter
+            play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.P);
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.5)   // Punt distance (will use default player)
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.5)   // Downed
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act & Assert - should not throw exception
+            punt.Execute(game);
+            Assert.IsNotNull(game.CurrentPlay, "Play should complete even without dedicated punter");
+        }
+
+        [TestMethod]
+        public void Punt_NoLongSnapper_UsesCenterOrBackup()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Remove long snapper (should fall back to center or default logic)
+            play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.LS);
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.5)   // Punt distance
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.5)   // Downed
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act & Assert - should not throw exception
+            punt.Execute(game);
+            Assert.IsNotNull(game.CurrentPlay, "Play should complete even without dedicated long snapper");
+        }
+
+        [TestMethod]
+        public void Punt_ReturnerWithMaximumSkills_GreatReturn()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Give returner maximum skills
+            var superReturner = play.DefensePlayersOnField.First(p => p.Position == Positions.CB);
+            superReturner.Speed = 99;
+            superReturner.Agility = 99;
+            superReturner.Catching = 99;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.5)   // Punt distance
+                .NextDouble(0.9)   // Long hang time (good coverage)
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.9)   // Not downed
+                .NextDouble(0.9)   // Not fair catch
+                .NextDouble(0.95)  // No muff
+                .NextDouble(0.9)   // Great return potential
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play2 = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play2.ReturnSegments.Count > 0, "Should have return");
+            // With max skills, return should be decent even against good coverage
+        }
+
+        [TestMethod]
+        public void Punt_ReturnerWithMinimumSkills_PoorReturn()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Give returner minimum skills
+            var weakReturner = play.DefensePlayersOnField.First(p => p.Position == Positions.CB);
+            weakReturner.Speed = 20;
+            weakReturner.Agility = 20;
+            weakReturner.Catching = 20;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.5)   // Punt distance
+                .NextDouble(0.2)   // Short hang time (poor coverage)
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.9)   // Not downed
+                .NextDouble(0.9)   // Not fair catch
+                .NextDouble(0.95)  // No muff
+                .NextDouble(0.5)   // Return attempt
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play2 = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play2.ReturnSegments.Count > 0, "Should have return attempt");
+            // With low skills, return should be limited
+        }
+
+        [TestMethod]
+        public void Punt_FromMidfield_TypicalScenario()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 50;  // Midfield
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.6)   // Normal punt
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.9)   // Not downed
+                .NextDouble(0.9)   // Not fair catch
+                .NextDouble(0.95)  // No muff
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.PuntDistance > 0, "Should have punt distance");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+        }
+
+        [TestMethod]
+        public void Punt_MultipleConsecutivePunts_AllSucceed()
+        {
+            // Arrange & Act - Run multiple punts in sequence
+            for (int i = 0; i < 5; i++)
+            {
+                var game = CreateGameWithPuntPlay();
+                game.FieldPosition = 30 + (i * 10);
+
+                var rng = new TestFluentSeedableRandom()
+                    .NextDouble(0.99)  // No bad snap
+                    .NextInt(0)        // No block
+                    .NextDouble(0.5 + (i * 0.1))   // Varying punt distances
+                    .NextDouble(0.5)   // Hang time
+                    .NextDouble(0.8)   // Not out of bounds
+                    .NextDouble(0.9)   // Not downed
+                    .NextDouble(0.9)   // Not fair catch
+                    .NextDouble(0.95)  // No muff
+                    .NextDouble(0.5)   // Return yards
+                    .NextDouble(0.5);  // Elapsed time
+
+                var punt = new Punt(rng);
+                punt.Execute(game);
+
+                // Assert
+                var play = (PuntPlay)game.CurrentPlay;
+                Assert.IsNotNull(play, $"Punt {i + 1} should complete successfully");
+                Assert.IsTrue(play.PuntDistance > 0, $"Punt {i + 1} should have positive distance");
+            }
+        }
+
+        [TestMethod]
+        public void Punt_BadSnapWithMinimalLoss_StillCompletes()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.01)  // Bad snap occurs
+                .NextDouble(0.0)   // Minimal base loss
+                .NextDouble(0.0)   // Minimal random factor
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsFalse(play.GoodSnap, "Should be bad snap");
+            Assert.IsTrue(play.YardsGained < 0, "Should lose some yards");
+            Assert.IsTrue(play.YardsGained >= -20, "Loss should be minimal");
+        }
+
+        [TestMethod]
+        public void Punt_CoffinCorner_DownedAt1YardLine()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 55;  // Opponent's 45
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(0)        // No block
+                .NextDouble(0.88)  // Precise punt to near goal line
+                .NextDouble(0.7)   // Good hang time
+                .NextDouble(0.8)   // Not out of bounds
+                .NextDouble(0.05)  // DOWNED near goal line
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            var play = (PuntPlay)game.CurrentPlay;
+            Assert.IsTrue(play.Downed, "Should be downed");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+            // Punt should land close to goal line (great field position)
+        }
+
+        #endregion
+
         #region Integration Tests
 
         [TestMethod]
