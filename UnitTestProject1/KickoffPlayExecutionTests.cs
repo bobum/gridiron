@@ -579,27 +579,47 @@ namespace UnitTestProject1
             // Test various scenarios to ensure no exceptions
 
             // Scenario 1: Normal kickoff with return
+            // RNG sequence: onside check, kick distance, out of bounds check, return yards, elapsed time
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.5).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.5)   // Onside kick check (> 0.05 = no onside)
+                .NextDouble(0.5)   // Kick distance
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.5)); // Elapsed time
 
             // Scenario 2: Touchback
+            // RNG sequence: onside check, kick distance, out of bounds check
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.95).NextDouble(0.5));
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.95)  // Long kick distance → touchback
+                .NextDouble(0.5)); // Out of bounds check
 
             // Scenario 3: Out of bounds
+            // RNG sequence: onside check, kick distance, out of bounds check
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.6).NextDouble(0.05));
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.6)   // Kick distance
+                .NextDouble(0.05));// Out of bounds (< 10%)
 
             // Scenario 4: Onside kick - kicking team recovers
+            // RNG sequence: onside check, kick distance, recovery check, elapsed time
             var game4 = CreateGameWithKickoffPlay();
             game4.HomeScore = 10;
             game4.AwayScore = 17;
             ExecuteKickoffScenario(game4, new TestFluentSeedableRandom()
-                .NextDouble(0.01).NextDouble(0.3).NextDouble(0.15).NextDouble(0.5));
+                .NextDouble(0.01)  // Onside kick check (< 0.05 = onside)
+                .NextDouble(0.3)   // Onside kick distance (10-15 yards)
+                .NextDouble(0.15)  // Kicking team recovers
+                .NextDouble(0.5)); // Elapsed time
 
             // Scenario 5: Return TD
+            // RNG sequence: onside check, kick distance, out of bounds check, return yards, elapsed time
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.1).NextDouble(0.5).NextDouble(0.99).NextDouble(0.5));
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.1)   // Short kick
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // Excellent return → TD
+                .NextDouble(0.5)); // Elapsed time
         }
 
         private void ExecuteKickoffScenario(Game game, TestFluentSeedableRandom rng)
