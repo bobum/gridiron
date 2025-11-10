@@ -1084,7 +1084,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.88)  // Precise punt to near goal line
+                .NextDouble(0.31)  // Precise punt ~44 yards (lands at ~99, near goal line)
                 .NextDouble(0.7)   // Good hang time
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.05)  // DOWNED near goal line
