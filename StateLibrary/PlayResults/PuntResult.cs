@@ -22,9 +22,10 @@ namespace StateLibrary.PlayResults
                 game.FieldPosition = 0;
 
                 // Determine who gets the 2 points
-                // If possession didn't change: defending team gets points (offense tackled in own end zone)
-                // If possession changed: original team gets points (defense ran into their own end zone)
-                var scoringTeam = play.PossessionChange
+                // If NOT blocked: bad snap, offense tackled in own end zone → defense scores
+                // If blocked and possession changed: defense recovered and ran backwards → offense scores
+                // If blocked and possession didn't change: offense recovered in end zone → defense scores
+                var scoringTeam = (play.Blocked && play.PossessionChange)
                     ? play.Possession  // Defense recovered and ran backwards, original team gets points
                     : (play.Possession == Possession.Home ? Possession.Away : Possession.Home); // Offense tackled in end zone, defense gets points
 
