@@ -190,6 +190,30 @@ namespace StateLibrary.Plays
                 return;
             }
 
+            // Estimate hang time based on kick distance
+            // Typical kickoff hang times: 3.5-5.0 seconds
+            // Formula: base + distance factor
+            var estimatedHangTime = 3.5 + (play.KickDistance / 20.0);
+
+            // Check if returner signals for fair catch
+            var fairCatchCheck = new FairCatchOccurredSkillsCheck(_rng, estimatedHangTime, landingSpot);
+            fairCatchCheck.Execute(game);
+
+            if (fairCatchCheck.Occurred)
+            {
+                play.FairCatch = true;
+                play.PossessionChange = true;
+
+                // Calculate field position from receiving team's perspective
+                var fairCatchFieldPosition = 100 - landingSpot;
+                play.EndFieldPosition = fairCatchFieldPosition;
+                play.YardsGained = landingSpot - 35; // Net yards from kickoff spot
+
+                play.Result.LogInformation($"{returner.LastName} signals and makes the fair catch at the {fairCatchFieldPosition}-yard line.");
+                play.ElapsedTime += estimatedHangTime + 0.5;
+                return; // No return attempt
+            }
+
             // Calculate return yardage
             var returnCheck = new KickoffReturnYardsSkillsCheckResult(_rng, returner);
             returnCheck.Execute(game);

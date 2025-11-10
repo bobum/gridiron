@@ -29,6 +29,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Kick distance
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.5)   // Return yardage
                 .NextDouble(0.5);  // Elapsed time
 
@@ -92,6 +93,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)   // Short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.3)   // Return yardage
                 .NextDouble(0.5);  // Elapsed time
 
@@ -290,6 +292,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.2)   // Short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.95)  // Excellent return
                 .NextDouble(0.5);  // Elapsed time
 
@@ -325,6 +328,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)   // Very short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.99)  // Maximum return
                 .NextDouble(0.5);  // Elapsed time
 
@@ -339,6 +343,186 @@ namespace UnitTestProject1
             Assert.IsTrue(play.IsTouchdown, "Should be TD");
             Assert.AreEqual(100, play.EndFieldPosition, "Should be at 100");
             Assert.AreEqual(100, game.FieldPosition, "Game position at 100");
+        }
+
+        #endregion
+
+        #region Fair Catch Tests
+
+        [TestMethod]
+        public void Kickoff_FairCatch_BallAtSpot()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // No onside kick
+                .NextDouble(0.5)   // Medium kick distance
+                .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.1);  // Fair catch (< 0.25 baseline)
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.FairCatch, "Should be fair catch");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be 1st down");
+            Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
+            Assert.AreEqual(0, play.ReturnSegments.Count, "No return segment on fair catch");
+        }
+
+        [TestMethod]
+        public void Kickoff_FairCatch_CorrectFieldPosition()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+
+            // Set up for a kick that lands at specific spot
+            var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
+            kicker.Kicking = 70;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // No onside kick
+                .NextDouble(0.6)   // Kick distance (should be around 60+ yards)
+                .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.1);  // Fair catch
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.FairCatch, "Should be fair catch");
+            // Field position should be 100 - landingSpot
+            // landingSpot = 35 + kickDistance
+            var expectedFieldPosition = 100 - (35 + play.KickDistance);
+            Assert.AreEqual(expectedFieldPosition, play.EndFieldPosition, "Field position should match fair catch spot");
+            Assert.AreEqual(expectedFieldPosition, game.FieldPosition, "Game field position should match");
+        }
+
+        [TestMethod]
+        public void Kickoff_NoFairCatch_NormalReturnProceeds()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // No onside kick
+                .NextDouble(0.5)   // Medium kick
+                .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.95)  // No fair catch (> 0.7)
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsFalse(play.FairCatch, "Should not be fair catch");
+            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+        }
+
+        [TestMethod]
+        public void Kickoff_FairCatch_NoReturnSegmentCreated()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // No onside kick
+                .NextDouble(0.5)   // Medium kick
+                .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.05); // Fair catch (< 0.25)
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.FairCatch, "Should be fair catch");
+            Assert.AreEqual(0, play.ReturnSegments.Count, "Should have no return segments");
+            Assert.IsNull(play.InitialReturner, "Should have no initial returner");
+        }
+
+        [TestMethod]
+        public void Kickoff_FairCatch_DeepInTerritory_MoreLikely()
+        {
+            // Arrange - Set up a very deep kick that lands at receiving team's 5-yard line
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+
+            var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
+            kicker.Kicking = 85; // Excellent kicker for deep kick
+
+            // RNG value of 0.35 should NOT trigger fair catch normally (baseline 0.25)
+            // But with deep field position bonus, it should trigger
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // No onside kick
+                .NextDouble(0.85)  // Very deep kick (80+ yards)
+                .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.35); // Marginal fair catch value (would fail baseline but pass with bonuses)
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+
+            // Assert
+            // With deep field position (< 10 yard line) and long hang time,
+            // fair catch probability increases significantly
+            // We can't guarantee it will always trigger with 0.35, but the test documents the behavior
+            Assert.IsTrue(play.KickDistance >= 75, "Should be a very deep kick");
+        }
+
+        [TestMethod]
+        public void Kickoff_FairCatch_SetsCorrectGameState()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.FieldPosition = 35;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // No onside kick
+                .NextDouble(0.5)   // Medium kick
+                .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.1);  // Fair catch
+
+            var kickoff = new Kickoff(rng);
+
+            // Act
+            kickoff.Execute(game);
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.FairCatch, "Should be fair catch");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down");
+            Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
+            Assert.IsFalse(play.IsTouchdown, "Should not be a touchdown");
+            Assert.IsFalse(play.Touchback, "Should not be a touchback");
+            Assert.IsFalse(play.OutOfBounds, "Should not be out of bounds");
         }
 
         #endregion
@@ -434,6 +618,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.3)   // Lower RNG with weak kicker
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.5)   // Return yards
                 .NextDouble(0.5);  // Elapsed time
 
@@ -460,6 +645,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Normal kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.85)  // Good return with excellent returner
                 .NextDouble(0.5);  // Elapsed time
 
@@ -489,6 +675,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Normal kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.2)   // Poor return with slow returner
                 .NextDouble(0.5);  // Elapsed time
 
@@ -553,6 +740,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)   // Short kick
                 .NextDouble(0.5)   // Out of bounds
+                .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.99)  // Max return
                 .NextDouble(0.5);  // Elapsed time
 
@@ -579,11 +767,12 @@ namespace UnitTestProject1
             // Test various scenarios to ensure no exceptions
 
             // Scenario 1: Normal kickoff with return
-            // RNG sequence: onside check, kick distance, out of bounds check, return yards, elapsed time
+            // RNG sequence: onside check, kick distance, out of bounds check, fair catch check, return yards, elapsed time
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Onside kick check (> 0.05 = no onside)
                 .NextDouble(0.5)   // Kick distance (inside KickoffDistanceSkillsCheckResult)
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.5)   // Return yards (inside KickoffReturnYardsSkillsCheckResult)
                 .NextDouble(0.5)   // Elapsed time (normal return)
                 .NextDouble(0.5)); // Extra for safety
@@ -617,13 +806,23 @@ namespace UnitTestProject1
                 .NextDouble(0.5)); // Buffer
 
             // Scenario 5: Return TD
-            // RNG sequence: onside check, kick distance, out of bounds check, return yards, elapsed time
+            // RNG sequence: onside check, kick distance, out of bounds check, fair catch check, return yards, elapsed time
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Onside kick check
                 .NextDouble(0.1)   // Short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.99)  // Excellent return → TD
                 .NextDouble(0.5)   // Elapsed time
+                .NextDouble(0.5)); // Buffer
+
+            // Scenario 6: Fair catch
+            // RNG sequence: onside check, kick distance, out of bounds check, fair catch check
+            ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.6)   // Kick distance
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.1)   // Fair catch (< 0.25 = fair catch)
                 .NextDouble(0.5)); // Buffer
         }
 

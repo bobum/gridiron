@@ -85,6 +85,11 @@ namespace DomainObjects
         /// </summary>
         public Player? RecoveredBy { get; set; }
 
+        /// <summary>
+        /// Whether the returner signaled and made a fair catch
+        /// </summary>
+        public bool FairCatch { get; set; }
+
         // ========================================
         // CONVENIENCE PROPERTIES
         // ========================================
