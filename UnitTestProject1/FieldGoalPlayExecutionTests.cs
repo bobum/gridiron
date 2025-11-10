@@ -1,11 +1,7 @@
 using DomainObjects;
-using DomainObjects.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Plays;
 using StateLibrary.PlayResults;
-using StateLibrary.Tests;
-using System.Collections.Generic;
-using System.Linq;
+using UnitTestProject1.Helpers;
 
 namespace UnitTestProject1
 {
