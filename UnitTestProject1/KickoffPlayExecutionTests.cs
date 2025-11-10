@@ -668,7 +668,7 @@ namespace UnitTestProject1
             {
                 kickoffPlay.DefensePlayersOnField.Add(new Player
                 {
-                    Position = Positions.OL,
+                    Position = Positions.T,  // Tackle (offensive line)
                     LastName = $"Blocker{i}",
                     Speed = 60,
                     Blocking = 70,
