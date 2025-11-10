@@ -665,6 +665,20 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Replace with weak punter (kicking skill 15) to enable shanked punt
+            play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.P);
+            play.OffensePlayersOnField.Add(new Player
+            {
+                Position = Positions.P,
+                LastName = "WeakPunter",
+                Kicking = 15,  // Very low kicking skill for shanked punt
+                Speed = 50,
+                Strength = 50,
+                Agility = 50,
+                Catching = 40
+            });
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
@@ -684,7 +698,6 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
             Assert.IsTrue(play.PuntDistance >= 10, "Even shanked punt should have minimum distance");
             Assert.IsTrue(play.PuntDistance < 25, "Shanked punt should be short");
         }
