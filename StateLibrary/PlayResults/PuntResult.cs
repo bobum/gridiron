@@ -84,10 +84,19 @@ namespace StateLibrary.PlayResults
             var newFieldPosition = game.FieldPosition + play.YardsGained;
 
             // Check if recovery resulted in touchdown
-            if (play.IsTouchdown && newFieldPosition >= 100)
+            if (play.IsTouchdown && (newFieldPosition >= 100 || newFieldPosition <= 0))
             {
-                play.EndFieldPosition = 100;
-                game.FieldPosition = 100;
+                // Set end position based on which end zone
+                if (newFieldPosition >= 100)
+                {
+                    play.EndFieldPosition = 100;
+                    game.FieldPosition = 100;
+                }
+                else // newFieldPosition <= 0 - ball in punting team's end zone
+                {
+                    play.EndFieldPosition = 0;
+                    game.FieldPosition = 0;
+                }
 
                 // Determine who scored (defense if they recovered)
                 var scoringTeam = play.PossessionChange
