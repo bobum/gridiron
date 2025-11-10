@@ -699,10 +699,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(0)        // No block
-                .NextDouble(0.99)  // Maximum punt distance
+                .NextDouble(0.99)  // Maximum punt distance (~61 yards)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.5)   // Downed
+                .NextDouble(0.05)  // DOWNED (low value ensures downed at yard ~81)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
