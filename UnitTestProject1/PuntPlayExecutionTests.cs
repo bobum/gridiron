@@ -121,8 +121,9 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(1)        // BLOCKED! (Next(2) returns 1)
-                .NextDouble(0.6)   // Defense recovers (> 50%)
-                .NextDouble(0.3)   // Recovery yards
+                .NextDouble(0.6)   // Defense recovers (>= 50%)
+                .NextDouble(0.5)   // Ball bounce (baseBounce: -10 + 12.5 = 2.5 yards)
+                .NextDouble(0.6)   // Random factor (6 - 5 = 1 yard)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -179,8 +180,9 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(1)        // BLOCKED! (Next(2) returns 1)
-                .NextDouble(0.6)   // Defense recovers
-                .NextDouble(0.9)   // Big return (10+ yards to TD)
+                .NextDouble(0.6)   // Defense recovers (>= 50%)
+                .NextDouble(0.7)   // Ball bounce forward (baseBounce: -10 + 17.5 = 7.5 yards)
+                .NextDouble(0.5)   // Random factor (5 - 5 = 0 yards, total 7.5 yards to TD)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
