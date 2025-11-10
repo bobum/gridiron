@@ -1115,9 +1115,9 @@ namespace UnitTestProject1
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
                 .NextDouble(0.01).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
 
-            // Test 2: Blocked punt
+            // Test 2: Blocked punt (defense recovers)
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(1).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextInt(1).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
 
             // Test 3: Touchback
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
