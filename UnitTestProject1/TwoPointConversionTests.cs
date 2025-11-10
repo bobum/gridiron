@@ -1,6 +1,7 @@
 using DomainObjects;
 using StateLibrary.Plays;
 using StateLibrary.PlayResults;
+using System;
 using UnitTestProject1.Helpers;
 
 namespace UnitTestProject1
@@ -381,7 +382,7 @@ namespace UnitTestProject1
                     Receiver = passPlay.OffensePlayersOnField[1],
                     IsComplete = true,
                     AirYards = 2,
-                    YardsGained = 0 // Will be set in test
+                    YardsAfterCatch = 0 // YardsGained will be computed
                 });
 
                 game.CurrentPlay = passPlay;
@@ -431,13 +432,18 @@ namespace UnitTestProject1
                 DefensePlayersOnField = new List<Player>()
             };
 
+            // PassSegment.YardsGained is computed from AirYards + YardsAfterCatch
+            // For simplicity, split evenly or use all as air yards
+            var airYards = Math.Min(yardsGained, 2);
+            var yardsAfterCatch = Math.Max(0, yardsGained - airYards);
+
             play.PassSegments.Add(new PassSegment
             {
                 Passer = play.OffensePlayersOnField[0],
                 Receiver = play.OffensePlayersOnField[1],
-                IsComplete = true,
-                AirYards = 2,
-                YardsGained = yardsGained
+                IsComplete = yardsGained >= 0,  // Complete if positive yards
+                AirYards = airYards,
+                YardsAfterCatch = yardsAfterCatch
             });
 
             game.CurrentPlay = play;
