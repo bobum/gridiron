@@ -35,7 +35,7 @@ namespace StateLibrary.SkillsCheckResults
             var totalDistance = baseDistance + randomFactor;
 
             // Clamp to realistic range (30-80 yards)
-            Value = Math.Max(30.0, Math.Min(80.0, totalDistance));
+            Result = Math.Max(30.0, Math.Min(80.0, totalDistance));
         }
     }
 }

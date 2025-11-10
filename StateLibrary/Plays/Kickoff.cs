@@ -126,7 +126,7 @@ namespace StateLibrary.Plays
             var kickDistanceCheck = new KickoffDistanceSkillsCheckResult(_rng, kicker);
             kickDistanceCheck.Execute(game);
 
-            play.KickDistance = (int)kickDistanceCheck.Value;
+            play.KickDistance = (int)kickDistanceCheck.Result;
 
             // Kickoffs are from the 35-yard line
             var kickoffSpot = 35;
@@ -194,7 +194,7 @@ namespace StateLibrary.Plays
             var returnCheck = new KickoffReturnYardsSkillsCheckResult(_rng, returner);
             returnCheck.Execute(game);
 
-            var returnYards = (int)returnCheck.Value;
+            var returnYards = (int)returnCheck.Result;
 
             // Create return segment
             var segment = new ReturnSegment

@@ -36,7 +36,7 @@ namespace StateLibrary.SkillsCheckResults
 
             // Clamp to realistic range (-5 to 50 yards)
             // Negative returns represent tackles behind catch point
-            Value = Math.Max(-5.0, Math.Min(50.0, totalReturn));
+            Result = Math.Max(-5.0, Math.Min(50.0, totalReturn));
         }
     }
 }
