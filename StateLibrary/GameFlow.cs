@@ -282,8 +282,8 @@ namespace StateLibrary
 
         private void DoKickoffPlay()
         {
-            //gotta do the kickoff in here
-            var kickoff = new Kickoff();
+            // Execute kickoff with RNG injection
+            var kickoff = new Kickoff(_rng);
             kickoff.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
