@@ -154,7 +154,7 @@ namespace UnitTestProject1
             var play = (KickoffPlay)game.CurrentPlay;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.6)   // Medium kick distance
+                .NextDouble(0.3)   // Kick distance to land in danger zone (65-95 yards)
                 .NextDouble(0.05); // Out of bounds (< 10%)
 
             var kickoff = new Kickoff(rng);
