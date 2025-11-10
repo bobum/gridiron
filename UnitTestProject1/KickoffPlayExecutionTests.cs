@@ -302,7 +302,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.IsTouchdown, "Should be a touchdown");
-            Assert.AreEqual(13, game.AwayScore, "Away should score TD (0 + 6)");
+            Assert.AreEqual(6, game.AwayScore, "Away should score TD (0 + 6)");
             Assert.AreEqual(7, game.HomeScore, "Home score should not change");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
