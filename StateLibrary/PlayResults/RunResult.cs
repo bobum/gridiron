@@ -17,7 +17,7 @@ namespace StateLibrary.PlayResults
             // Calculate new field position
             var newFieldPosition = game.FieldPosition + play.YardsGained;
 
-            // Check for touchdown
+            // Check for touchdown or two-point conversion
             if (newFieldPosition >= 100)
             {
                 play.IsTouchdown = true;
@@ -25,9 +25,16 @@ namespace StateLibrary.PlayResults
                 game.FieldPosition = 100;
 
                 // Update score using centralized method
-                game.AddTouchdown(play.Possession);
+                if (play.IsTwoPointConversion)
+                {
+                    game.AddTwoPointConversion(play.Possession);
+                }
+                else
+                {
+                    game.AddTouchdown(play.Possession);
+                }
 
-                // After touchdown, possession changes (kickoff will follow)
+                // After touchdown/2pt conversion, possession changes (kickoff will follow)
                 play.PossessionChange = true;
             }
             else if (newFieldPosition <= 0)
@@ -48,8 +55,14 @@ namespace StateLibrary.PlayResults
                 play.EndFieldPosition = newFieldPosition;
                 game.FieldPosition = newFieldPosition;
 
+                // Two-point conversion failed - possession changes
+                if (play.IsTwoPointConversion)
+                {
+                    play.PossessionChange = true;
+                    play.Result.LogInformation($"Two-point conversion FAILED. No points scored.");
+                }
                 // Check for first down
-                if (play.YardsGained >= game.YardsToGo)
+                else if (play.YardsGained >= game.YardsToGo)
                 {
                     // First down!
                     game.CurrentDown = Downs.First;
