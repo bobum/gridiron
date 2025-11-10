@@ -341,21 +341,10 @@ namespace StateLibrary
 
         private void DoFieldGoalPlay()
         {
-            //Check if there was a block & if there was, assemble the result
-            var blockedCheck = new FieldGoalBlockOccurredSkillsCheck(_rng);
-            blockedCheck.Execute(_game);
-
-            if (blockedCheck.Occurred)
-            {
-                //Blocked!  Ball is loose!!
-                FumbleOccurred();
-            }
-            else
-            {
-                //no block, kick is up...
-                var fieldGoal = new FieldGoal();
-                fieldGoal.Execute(_game);
-            }
+            // Execute field goal with RNG injection
+            // Block check is done internally in FieldGoal.Execute()
+            var fieldGoal = new FieldGoal(_rng);
+            fieldGoal.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
         }
