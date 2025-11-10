@@ -754,10 +754,9 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextInt(1)        // Block occurs
-                .NextDouble(0.95)  // Large loss on block
-                .NextDouble(0.9)   // Random factor
-                .NextDouble(0.01)  // Defense recovers (< 40%)
-                .NextDouble(0.5)   // Recovery yards
+                .NextDouble(0.6)   // Defense recovers (>= 50%)
+                .NextDouble(0.05)  // Ball bounces backward (baseBounce near min: -10 + 1.25 = -8.75)
+                .NextDouble(0.1)   // Random factor backward (1 - 5 = -4)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
