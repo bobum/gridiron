@@ -159,19 +159,12 @@ namespace StateLibrary.Plays
 
                     var finalPosition = game.FieldPosition + (int)returnYards;
 
-                    // Check for touchdown (defense in kicking team's end zone)
-                    if (finalPosition <= 0)
+                    // Check for touchdown (defense reaches either end zone)
+                    if (finalPosition <= 0 || finalPosition >= 100)
                     {
                         play.IsTouchdown = true;
                         play.YardsGained = (int)returnYards;
                         play.Result.LogInformation($"{returner.LastName} returns the blocked kick for a TOUCHDOWN!");
-                    }
-                    // Check for safety (defense ran into their own end zone)
-                    else if (finalPosition >= 100)
-                    {
-                        play.IsSafety = true;
-                        play.YardsGained = (int)returnYards;
-                        play.Result.LogInformation($"{returner.LastName} returns but is tackled in the end zone! SAFETY!");
                     }
                     else
                     {

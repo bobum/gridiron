@@ -184,8 +184,8 @@ namespace StateLibrary.Plays
                 // Calculate final position after bounce and recovery
                 var finalPosition = game.FieldPosition + (int)bouncedYards;
 
-                // Check if ball bounced into end zone (defensive TD)
-                if (finalPosition <= 0)
+                // Check if defense reaches either end zone (TD)
+                if (finalPosition <= 0 || finalPosition >= 100)
                 {
                     play.IsTouchdown = true;
                     play.RecoveryYards = (int)bouncedYards;
@@ -194,18 +194,6 @@ namespace StateLibrary.Plays
                     if (recoverer != null)
                     {
                         play.Result.LogInformation($"{recoverer.LastName} recovers the blocked punt in the end zone! TOUCHDOWN!");
-                    }
-                }
-                // Check if defense ran backwards into their own end zone (safety for punting team)
-                else if (finalPosition >= 100)
-                {
-                    play.IsSafety = true;
-                    play.RecoveryYards = (int)bouncedYards;
-                    play.YardsGained = (int)bouncedYards;
-
-                    if (recoverer != null)
-                    {
-                        play.Result.LogInformation($"{recoverer.LastName} recovers but is tackled in the end zone! SAFETY!");
                     }
                 }
                 else
