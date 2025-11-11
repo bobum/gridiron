@@ -365,9 +365,9 @@ namespace UnitTestProject1
             returner.Agility = 40;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.85)  // Deep kick (lands around 95-97 yard line)
+                .NextDouble(0.35)  // Deep kick (lands at ~96 yard line: 64 + (-3) = 61 yards → 35 + 61 = 96)
                 .NextDouble(0.5)   // Out of bounds check
-                .NextDouble(0.05)  // Very poor return (negative yards)
+                .NextDouble(0.05)  // Very poor return (negative yards: -5 from clamp)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -402,9 +402,9 @@ namespace UnitTestProject1
             returner.Agility = 35;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.9)   // Very deep kick
+                .NextDouble(0.33)  // Deep kick (lands at ~97 yard line: 65.5 + (-3.1) = 62.4 → 35 + 62.4 = 97.4)
                 .NextDouble(0.5)   // Out of bounds check
-                .NextDouble(0.02)  // Terrible return (large loss)
+                .NextDouble(0.02)  // Terrible return (negative yards: -5 from clamp)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -438,9 +438,9 @@ namespace UnitTestProject1
             returner.Agility = 38;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.88)  // Deep kick
+                .NextDouble(0.34)  // Deep kick (lands at ~97 yard line: 65.5 + (-2.8) = 62.7 → 35 + 62.7 = 97.7)
                 .NextDouble(0.5)   // Out of bounds check
-                .NextDouble(0.03)  // Very poor return
+                .NextDouble(0.03)  // Very poor return (negative yards: -5 from clamp)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
