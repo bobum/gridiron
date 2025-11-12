@@ -152,5 +152,10 @@ namespace DomainObjects
         /// Whether this play resulted in a touchdown
         /// </summary>
         bool IsTouchdown { get; set; }
+
+        /// <summary>
+        /// Whether this play resulted in a safety
+        /// </summary>
+        bool IsSafety { get; set; }
     }
 }

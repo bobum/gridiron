@@ -16,6 +16,19 @@ namespace StateLibrary.PlayResults
             // Set start field position (kickoffs start at 35-yard line for kicking team)
             play.StartFieldPosition = 35;
 
+            // Handle safety (returner tackled in own end zone)
+            if (play.IsSafety)
+            {
+                play.EndFieldPosition = 0;
+                game.FieldPosition = 0;
+
+                // Award 2 points to kicking team
+                game.AddSafety(play.Possession);
+
+                play.PossessionChange = true;
+                return; // Safety ends the play immediately
+            }
+
             // Handle touchback
             if (play.Touchback)
             {

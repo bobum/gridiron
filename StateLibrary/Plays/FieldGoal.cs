@@ -159,18 +159,12 @@ namespace StateLibrary.Plays
 
                     var finalPosition = game.FieldPosition + (int)returnYards;
 
-                    // Check for touchdown
-                    if (finalPosition <= 0)
+                    // Check for touchdown (defense reaches either end zone)
+                    if (finalPosition <= 0 || finalPosition >= 100)
                     {
                         play.IsTouchdown = true;
                         play.YardsGained = (int)returnYards;
                         play.Result.LogInformation($"{returner.LastName} returns the blocked kick for a TOUCHDOWN!");
-                    }
-                    else if (finalPosition >= 100)
-                    {
-                        play.IsTouchdown = true;
-                        play.YardsGained = 100 - game.FieldPosition;
-                        play.Result.LogInformation($"{returner.LastName} takes it to the house! TOUCHDOWN!");
                     }
                     else
                     {
