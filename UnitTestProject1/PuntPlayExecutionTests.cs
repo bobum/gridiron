@@ -248,7 +248,8 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.01)  // Bad snap occurs
-                .NextDouble(0.5)   // Bad snap yards
+                .NextDouble(0.5)   // Bad snap yards (baseLoss)
+                .NextDouble(0.5)   // Bad snap yards (randomFactor)
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -1341,6 +1342,35 @@ namespace UnitTestProject1
                 Speed = 50,
                 Strength = 60
             });
+
+            // Add offensive line for block calculation
+            for (int i = 0; i < 5; i++)
+            {
+                puntPlay.OffensePlayersOnField.Add(new Player
+                {
+                    Position = i < 2 ? Positions.T : (i < 4 ? Positions.G : Positions.C),
+                    LastName = $"OLineman{i}",
+                    Blocking = 70,
+                    Strength = 70,
+                    Awareness = 65,
+                    Speed = 50
+                });
+            }
+
+            // Add defensive rushers for block attempts
+            for (int i = 0; i < 3; i++)
+            {
+                puntPlay.DefensePlayersOnField.Add(new Player
+                {
+                    Position = i < 2 ? Positions.DE : Positions.DT,
+                    LastName = $"Rusher{i}",
+                    Speed = 75,
+                    Strength = 80,
+                    Tackling = 70,
+                    Awareness = 65,
+                    Agility = 60
+                });
+            }
 
             // Add potential returners
             for (int i = 0; i < 3; i++)
