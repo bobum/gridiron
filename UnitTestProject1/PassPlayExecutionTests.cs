@@ -32,6 +32,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.5)        // Fail - tackled immediately
                 .YACYards(2)
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -218,6 +219,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -254,6 +256,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.9)            // Adds to base YAC
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -292,6 +295,7 @@ namespace UnitTestProject1
                 .YACRandomFactor(0.5)            // Moderate random factor
                 .BigPlayCheck(0.04)              // BIG PLAY! (< 0.05)
                 .BigPlayBonusYards(25)           // Extra yards from breaking free
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
