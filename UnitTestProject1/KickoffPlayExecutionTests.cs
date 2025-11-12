@@ -292,8 +292,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.2)   // Short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.95)  // Excellent return
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -328,8 +330,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)   // Very short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.99)  // Maximum return
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -560,8 +564,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.35)  // Deep kick (lands at ~96 yard line: 64 + (-3) = 61 yards → 35 + 61 = 96)
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.05)  // Very poor return (negative yards: -5 from clamp)
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -598,8 +604,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.32)  // Kick distance: 65.5 + (-3.6) = 61.9 → 35 + 61 = 96
                 .NextDouble(0.5)   // Out of bounds check (96 > 95, so 3% chance)
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -635,8 +643,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.32)  // Kick distance: 65.5 + (-3.6) = 61.9 → 35 + 61 = 96
                 .NextDouble(0.5)   // Out of bounds check (96 > 95, so 3% chance)
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -867,8 +877,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)   // Short kick
                 .NextDouble(0.5)   // Out of bounds
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.99)  // Max return
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
