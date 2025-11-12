@@ -1,6 +1,7 @@
 ﻿using DomainObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.SkillsChecks;
+using System.Collections.Generic;
 using UnitTestProject1.Helpers;
 
 namespace UnitTestProject1
@@ -15,9 +16,21 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
-                .NextInt(1); // Block occurs when value == 1
+                .NextDouble(0.01); // Block occurs (< 2.5% for medium FG)
 
-            var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng);
+            // Create test players
+            var kicker = new Player { Kicking = 70, LastName = "Kicker" };
+            var offensiveLine = new List<Player>
+            {
+                new Player { Position = Positions.T, Strength = 70, Awareness = 65 },
+                new Player { Position = Positions.G, Strength = 70, Awareness = 65 }
+            };
+            var defensiveRushers = new List<Player>
+            {
+                new Player { Position = Positions.DT, Strength = 80, Speed = 75 }
+            };
+
+            var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng, kicker, 47, offensiveLine, defensiveRushers, true);
             blockResult.Execute(game);
 
             Assert.IsTrue(blockResult.Occurred);
@@ -28,9 +41,21 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
-                .NextInt(2); // Block does not occur when value != 1
+                .NextDouble(0.99); // Block does not occur (> 2.5% for medium FG)
 
-            var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng);
+            // Create test players
+            var kicker = new Player { Kicking = 70, LastName = "Kicker" };
+            var offensiveLine = new List<Player>
+            {
+                new Player { Position = Positions.T, Strength = 70, Awareness = 65 },
+                new Player { Position = Positions.G, Strength = 70, Awareness = 65 }
+            };
+            var defensiveRushers = new List<Player>
+            {
+                new Player { Position = Positions.DT, Strength = 80, Speed = 75 }
+            };
+
+            var blockResult = new FieldGoalBlockOccurredSkillsCheck(rng, kicker, 47, offensiveLine, defensiveRushers, true);
             blockResult.Execute(game);
 
             Assert.IsFalse(blockResult.Occurred);
@@ -131,9 +156,21 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
-                .NextInt(2); // Block does not occur when value != 1
+                .NextDouble(0.99); // Block does not occur (> 1% for good snap)
 
-            var puntResult = new PuntBlockOccurredSkillsCheck(rng);
+            // Create test players
+            var punter = new Player { Kicking = 70, LastName = "Punter" };
+            var offensiveLine = new List<Player>
+            {
+                new Player { Position = Positions.T, Strength = 70, Awareness = 65 },
+                new Player { Position = Positions.G, Strength = 70, Awareness = 65 }
+            };
+            var defensiveRushers = new List<Player>
+            {
+                new Player { Position = Positions.DE, Strength = 80, Speed = 75 }
+            };
+
+            var puntResult = new PuntBlockOccurredSkillsCheck(rng, punter, offensiveLine, defensiveRushers, true);
             puntResult.Execute(game);
 
             Assert.IsFalse(puntResult.Occurred);
@@ -144,9 +181,21 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
-                .NextInt(1); // Block occurs when value == 1
+                .NextDouble(0.005); // Block occurs (< 1% for good snap)
 
-            var puntResult = new PuntBlockOccurredSkillsCheck(rng);
+            // Create test players
+            var punter = new Player { Kicking = 70, LastName = "Punter" };
+            var offensiveLine = new List<Player>
+            {
+                new Player { Position = Positions.T, Strength = 70, Awareness = 65 },
+                new Player { Position = Positions.G, Strength = 70, Awareness = 65 }
+            };
+            var defensiveRushers = new List<Player>
+            {
+                new Player { Position = Positions.DE, Strength = 80, Speed = 75 }
+            };
+
+            var puntResult = new PuntBlockOccurredSkillsCheck(rng, punter, offensiveLine, defensiveRushers, true);
             puntResult.Execute(game);
 
             Assert.IsTrue(puntResult.Occurred);
