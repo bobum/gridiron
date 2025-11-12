@@ -490,6 +490,7 @@ namespace UnitTestProject1
                 .NextDouble(nextDouble)
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -508,6 +509,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -516,6 +518,7 @@ namespace UnitTestProject1
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)
                 .SackYards(sackYards)
+                .NextDouble(0.99)                     // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -532,6 +535,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)
                 .YACRandomFactor(0.8)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
