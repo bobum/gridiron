@@ -41,6 +41,17 @@ namespace StateLibrary.PlayResults
                 return;
             }
 
+            // Handle fair catch
+            if (play.FairCatch)
+            {
+                // Ball is dead at spot of fair catch
+                game.FieldPosition = play.EndFieldPosition;
+                play.PossessionChange = true;
+                game.CurrentDown = Downs.First;
+                game.YardsToGo = 10;
+                return; // Fair catch ends the play
+            }
+
             // Handle out of bounds
             if (play.OutOfBounds)
             {
