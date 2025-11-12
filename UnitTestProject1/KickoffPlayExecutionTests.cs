@@ -466,18 +466,21 @@ namespace UnitTestProject1
         [TestMethod]
         public void Kickoff_FairCatch_DeepInTerritory_MoreLikely()
         {
-            // Arrange - Set up a very deep kick that lands at receiving team's 5-yard line
+            // Arrange - Set up a deep kick that lands at receiving team's ~5 yard line
+            // Landing spot = 35 + kickDistance, so for receiving team's 5-yard line:
+            // Landing spot = 95 (from kicking team's perspective)
+            // KickDistance needed = 60 yards
             var game = CreateGameWithKickoffPlay();
             var play = (KickoffPlay)game.CurrentPlay;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
-            kicker.Kicking = 90; // Excellent kicker for deep kick
+            kicker.Kicking = 85; // Good kicker for deep kick
 
             // RNG value of 0.35 should NOT trigger fair catch normally (baseline 0.25)
-            // But with deep field position bonus, it should trigger
+            // But with deep field position bonus (+20%) and long hang time bonus (+10-15%), it should trigger
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // No onside kick
-                .NextDouble(0.95)  // Very deep kick (75+ yards)
+                .NextDouble(0.6)   // Deep kick (~60 yards, lands at 95 = receiving team's 5-yard line)
                 .NextDouble(0.5)   // Not out of bounds
                 .NextDouble(0.35); // Marginal fair catch value (would fail baseline but pass with bonuses)
 
@@ -488,9 +491,11 @@ namespace UnitTestProject1
 
             // Assert
             // With deep field position (< 10 yard line) and long hang time,
-            // fair catch probability increases significantly
+            // fair catch probability increases significantly (baseline 25% + 20% field + 10-15% hang time)
             // We can't guarantee it will always trigger with 0.35, but the test documents the behavior
-            Assert.IsTrue(play.KickDistance >= 75, "Should be a very deep kick");
+            var landingSpot = 35 + play.KickDistance;
+            var receivingTeamFieldPosition = 100 - landingSpot;
+            Assert.IsTrue(receivingTeamFieldPosition <= 10, "Ball should land at receiving team's 10-yard line or closer to test deep territory bonus");
         }
 
         [TestMethod]
