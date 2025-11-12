@@ -320,21 +320,13 @@ namespace StateLibrary
 
         private void DoPuntPlay()
         {
-            //Check if there was a block & if there was, assemble the result
-            var blockedCheck = new PuntBlockOccurredSkillsCheck(_rng);
-            blockedCheck.Execute(_game);
-
-            if (blockedCheck.Occurred)
-            {
-                //Blocked!  Ball is loose!!
-                FumbleOccurred();
-            }
-            else
-            {
-                //no block, kick is up...
-                var punt = new Punt(_rng);
-                punt.Execute(_game);
-            }
+            // Punt.Execute() now handles all punt logic internally including:
+            // - Block checks with skill-based probabilities
+            // - Recovery determination (offense vs defense)
+            // - Return yardage calculations
+            // - Safety checks
+            var punt = new Punt(_rng);
+            punt.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
         }
