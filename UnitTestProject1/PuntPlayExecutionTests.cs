@@ -1277,20 +1277,20 @@ namespace UnitTestProject1
 
             // Test 2: Blocked punt (defense recovers)
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(1).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.01).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
 
             // Test 3: Touchback
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(0).NextDouble(0.95).NextDouble(0.5).NextDouble(0.8).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.5).NextDouble(0.8).NextDouble(0.5));
 
             // Test 4: Fair catch
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(0).NextDouble(0.6).NextDouble(0.5).NextDouble(0.8)
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.8)
                 .NextDouble(0.9).NextDouble(0.1).NextDouble(0.5));
 
             // Test 5: Normal return
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(0).NextDouble(0.6).NextDouble(0.5).NextDouble(0.8)
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.8)
                 .NextDouble(0.9).NextDouble(0.9).NextDouble(0.95).NextDouble(0.5).NextDouble(0.5));
         }
 
