@@ -1013,6 +1013,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)       // YAC opportunity succeeds
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)              // No big play
+                .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1035,6 +1036,7 @@ namespace UnitTestProject1
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)      // FAIL - Sack!
                 .SackYards(sackYards)
+                .NextDouble(0.99)               // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1050,6 +1052,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)       // YAC success
                 .YACRandomFactor(0.7)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1065,6 +1068,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)       // YAC success
                 .YACRandomFactor(0.8)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
