@@ -404,9 +404,9 @@ namespace UnitTestProject1
         [TestMethod]
         public void FieldGoal_Blocked_ReturnedIntoEndZone_DefensiveTD()
         {
-            // Arrange
+            // Arrange - Test defensive TD from opponent territory with excellent return
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
-            game.FieldPosition = 8; // Close to own end zone
+            game.FieldPosition = 35; // Opponent 35-yard line
             var play = (FieldGoalPlay)game.CurrentPlay;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
@@ -416,7 +416,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.01)  // BLOCKED!
                 .NextDouble(0.3)   // Defense recovers
-                .NextDouble(0.01)  // Return into end zone (very low)
+                .NextDouble(0.99)  // Excellent return for TD (~70 yards)
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -428,7 +428,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.Blocked, "Should be blocked");
-            Assert.IsTrue(play.IsTouchdown, "Should be TD in end zone");
+            Assert.IsTrue(play.IsTouchdown, "Should be TD on long return");
             Assert.AreEqual(16, game.AwayScore, "Away team should score TD (10 + 6)");
         }
 
