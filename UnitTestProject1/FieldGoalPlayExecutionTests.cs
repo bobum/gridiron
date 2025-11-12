@@ -31,7 +31,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block (> 1.5% for PAT)
                 .NextDouble(0.5)   // Make (98% for PAT)
                 .NextDouble(0.5);  // Elapsed time
 
@@ -62,7 +62,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Miss (unlikely but possible)
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
@@ -96,7 +96,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Make (high probability for short FG)
                 .NextDouble(0.5);  // Elapsed time
 
@@ -131,7 +131,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.4)   // Make (good kicker at 47 yards)
                 .NextDouble(0.5);  // Elapsed time
 
@@ -161,7 +161,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Miss
                 .NextDouble(0.3)   // Wide right
                 .NextDouble(0.5);  // Elapsed time
@@ -203,7 +203,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.2)   // Make (excellent kicker at 67 yards ~40% chance)
                 .NextDouble(0.5);  // Elapsed time
 
@@ -233,7 +233,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.8)   // Miss (likely at 67 yards)
                 .NextDouble(0.85)  // Short
                 .NextDouble(0.5);  // Elapsed time
@@ -327,8 +327,9 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED!
-                .NextDouble(0.6)   // Offense recovers/ball dead (>= 40%)
+                .NextDouble(0.01)  // BLOCKED! (< 2.5%)
+                .NextDouble(0.6)   // Offense recovers (>= 50%)
+                .NextDouble(0.5)   // Recovery yardage
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -353,10 +354,9 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED!
-                .NextDouble(0.3)   // Defense recovers (< 40%)
-                .NextDouble(0.5)   // Base return
-                .NextDouble(0.5)   // Random factor
+                .NextDouble(0.01)  // BLOCKED!
+                .NextDouble(0.3)   // Defense recovers (< 50%)
+                .NextDouble(0.5)   // Return yardage
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -383,10 +383,9 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED!
+                .NextDouble(0.01)  // BLOCKED!
                 .NextDouble(0.3)   // Defense recovers
-                .NextDouble(0.8)   // Good return
-                .NextDouble(0.8)   // Random factor for TD
+                .NextDouble(0.99)  // Excellent return for TD
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -415,10 +414,9 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED!
+                .NextDouble(0.01)  // BLOCKED!
                 .NextDouble(0.3)   // Defense recovers
-                .NextDouble(0.05)  // Ball bounces backward
-                .NextDouble(0.1)   // Into end zone
+                .NextDouble(0.01)  // Return into end zone (very low)
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -432,6 +430,258 @@ namespace UnitTestProject1
             Assert.IsTrue(play.Blocked, "Should be blocked");
             Assert.IsTrue(play.IsTouchdown, "Should be TD in end zone");
             Assert.AreEqual(16, game.AwayScore, "Away team should score TD (10 + 6)");
+        }
+
+        #endregion
+
+        #region Enhanced Blocked Field Goal Tests
+
+        [TestMethod]
+        public void FieldGoal_Blocked_DefenseRecovers_ShortReturn()
+        {
+            // Arrange - Test defense recovers blocked FG and returns 15 yards
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 70; // 30-yard line
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 7;
+            game.AwayScore = 10;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.01)  // BLOCKED! (< 2.5% for 47-yard kick)
+                .NextDouble(0.3)   // Defense recovers (< 50%)
+                .NextDouble(0.6)   // Return calculation - base ~15 yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Kick should be blocked");
+            Assert.IsFalse(play.IsGood, "Blocked kick is not good");
+            Assert.IsNotNull(play.BlockedBy, "Should track who blocked");
+            Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
+            Assert.IsTrue(play.DefensePlayersOnField.Contains(play.RecoveredBy), "Defense should have recovered");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+            Assert.IsTrue(play.YardsGained > 0, "Should have positive return yards");
+        }
+
+        [TestMethod]
+        public void FieldGoal_Blocked_DefenseRecovers_Touchdown()
+        {
+            // Arrange - Test defensive TD on blocked FG return (scoop and score)
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 95; // 5-yard line (near opponent goal)
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 14;
+            game.AwayScore = 17;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.01)  // BLOCKED!
+                .NextDouble(0.3)   // Defense recovers
+                .NextDouble(0.99)  // Excellent return (near 100 yards)
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsTrue(play.IsTouchdown, "Should be TD on return");
+            Assert.IsNotNull(play.RecoveredBy, "Should track recoverer");
+            Assert.AreEqual(23, game.AwayScore, "Away team should score TD (17 + 6)");
+            Assert.AreEqual(100, play.EndFieldPosition, "Should be at opponent goal");
+        }
+
+        [TestMethod]
+        public void FieldGoal_Blocked_OffenseRecovers_Safety()
+        {
+            // Arrange - Test offense recovers in own end zone = safety
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 5; // Very close to own goal
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 10;
+            game.AwayScore = 14;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.01)  // BLOCKED!
+                .NextDouble(0.6)   // Offense recovers (>= 50%)
+                .NextDouble(0.8)   // Recovery yardage (high = more loss)
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsTrue(play.IsSafety, "Should be safety");
+            Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
+            Assert.IsTrue(play.OffensePlayersOnField.Contains(play.RecoveredBy), "Offense should have recovered");
+            Assert.AreEqual(16, game.AwayScore, "Away team should get 2 points (14 + 2)");
+            Assert.AreEqual(0, play.EndFieldPosition, "Should be at goal line");
+        }
+
+        [TestMethod]
+        public void FieldGoal_Blocked_OffenseRecovers_LossOfYards()
+        {
+            // Arrange - Test offense recovers with yardage loss
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 70; // 30-yard line
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.01)  // BLOCKED!
+                .NextDouble(0.6)   // Offense recovers
+                .NextDouble(0.5)   // Recovery yardage
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsFalse(play.IsSafety, "Should not be safety");
+            Assert.IsFalse(play.IsTouchdown, "Should not be TD");
+            Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
+            Assert.IsTrue(play.OffensePlayersOnField.Contains(play.RecoveredBy), "Offense should have recovered");
+            Assert.IsTrue(play.YardsGained < 0, "Should lose yards");
+            Assert.IsTrue(play.PossessionChange, "Possession should change (turnover on downs)");
+        }
+
+        [TestMethod]
+        public void FieldGoal_LongKick_HigherBlockProbability()
+        {
+            // Arrange - Test that 55+ yard kicks have higher block chance
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 40; // 60-yard line (77-yard attempt)
+            var play = (FieldGoalPlay)game.CurrentPlay;
+
+            // Use NextDouble value that would block for long kick but not short kick
+            // Long kicks: 6.5% base, so 0.06 would block
+            // Short kicks: 1.5% base, so 0.06 would NOT block
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.03)  // Would block long kick (< 6.5%)
+                .NextDouble(0.3)   // Defense recovers
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Long kick should have higher block probability");
+            Assert.AreEqual(77, play.AttemptDistance, "Should be 77-yard attempt");
+        }
+
+        [TestMethod]
+        public void FieldGoal_ShortKick_LowerBlockProbability()
+        {
+            // Arrange - Test that XP/short FGs have lower block chance
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: true);
+            game.FieldPosition = 97; // 3-yard line (20-yard PAT)
+            var play = (FieldGoalPlay)game.CurrentPlay;
+
+            // Use NextDouble value that would NOT block for short kick
+            // Extra points: 1.5% base, so 0.03 would NOT block
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.03)  // Would NOT block PAT (> 1.5%)
+                .NextDouble(0.5)   // Make check
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+
+            // Assert
+            Assert.IsFalse(play.Blocked, "Short kick should have lower block probability");
+            Assert.AreEqual(20, play.AttemptDistance, "Should be 20-yard PAT");
+        }
+
+        [TestMethod]
+        public void FieldGoal_BadSnap_HigherBlockProbability()
+        {
+            // Arrange - Test that bad snaps dramatically increase block chance
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 70;
+            var play = (FieldGoalPlay)game.CurrentPlay;
+
+            // Make long snapper terrible to ensure bad snap
+            var snapper = play.OffensePlayersOnField.First(p => p.Position == Positions.LS);
+            snapper.Blocking = 10; // Terrible snapper
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.01)  // Bad snap occurs
+                .NextDouble(0.5)   // Base loss
+                .NextDouble(0.5)   // Random factor
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+
+            // Assert
+            // This tests bad snap scenario, not blocked kick
+            // Bad snaps bypass the block check entirely
+            Assert.IsFalse(play.GoodSnap, "Should be bad snap");
+            Assert.IsFalse(play.Blocked, "Bad snap prevents kick, no block");
+        }
+
+        [TestMethod]
+        public void FieldGoal_Blocked_DefenseRecovers_Safety()
+        {
+            // Arrange - Test defense recovers and runs backwards into kicking team's end zone
+            var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
+            game.FieldPosition = 3; // Very close to own goal
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 7;
+            game.AwayScore = 7;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.01)  // BLOCKED!
+                .NextDouble(0.3)   // Defense recovers
+                .NextDouble(0.01)  // Very low return (negative/into end zone)
+                .NextDouble(0.5);  // Elapsed time
+
+            var fieldGoal = new FieldGoal(rng);
+
+            // Act
+            fieldGoal.Execute(game);
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsTrue(play.IsSafety, "Should be safety when defense runs into kicking team end zone");
+            Assert.AreEqual(0, play.EndFieldPosition, "Should be at goal line");
         }
 
         #endregion
@@ -451,7 +701,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Attempt
                 .NextDouble(0.5);  // Elapsed time
 
@@ -475,7 +725,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Likely miss from 116 yards
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
@@ -505,7 +755,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.4)   // Should make with excellent kicker
                 .NextDouble(0.5);  // Elapsed time
 
@@ -534,7 +784,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.75)  // More likely to miss with poor kicker (0.75 > 0.73)
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
@@ -559,7 +809,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Miss
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
@@ -589,7 +839,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Miss
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
@@ -619,19 +869,19 @@ namespace UnitTestProject1
 
             // Test 1: Made field goal
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(0).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.5).NextDouble(0.5));
 
             // Test 2: Missed field goal
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(0).NextDouble(0.95).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.5).NextDouble(0.5));
 
             // Test 3: Made extra point
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(true), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(0).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.5).NextDouble(0.5));
 
             // Test 4: Blocked kick
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextInt(1).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.01).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
 
             // Test 5: Bad snap
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
@@ -694,8 +944,23 @@ namespace UnitTestProject1
                 LastName = "Snapper",
                 Blocking = 70,
                 Speed = 50,
-                Strength = 60
+                Strength = 60,
+                Awareness = 60
             });
+
+            // Add offensive line for block calculation
+            for (int i = 0; i < 5; i++)
+            {
+                fieldGoalPlay.OffensePlayersOnField.Add(new Player
+                {
+                    Position = i < 2 ? Positions.T : (i < 4 ? Positions.G : Positions.C),
+                    LastName = $"OLineman{i}",
+                    Blocking = 70,
+                    Strength = 70,
+                    Awareness = 65,
+                    Speed = 50
+                });
+            }
 
             // Add defensive line for blocking attempts
             for (int i = 0; i < 3; i++)
@@ -706,7 +971,9 @@ namespace UnitTestProject1
                     LastName = $"Defender{i}",
                     Speed = 70,
                     Strength = 80,
-                    Tackling = 70
+                    Tackling = 70,
+                    Awareness = 65,
+                    Agility = 60
                 });
             }
 

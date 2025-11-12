@@ -77,6 +77,16 @@ namespace DomainObjects
         public Player? BlockedBy { get; set; }
 
         /// <summary>
+        /// Player who recovered the blocked kick
+        /// </summary>
+        public Player? RecoveredBy { get; set; }
+
+        /// <summary>
+        /// Yards gained/lost on recovery
+        /// </summary>
+        public int RecoveryYards { get; set; }
+
+        /// <summary>
         /// If blocked and returned, the return segments
         /// </summary>
         public List<ReturnSegment>? BlockReturnSegments { get; set; }

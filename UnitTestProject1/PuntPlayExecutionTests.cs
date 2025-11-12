@@ -83,7 +83,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.96)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -120,7 +120,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED! (Next(2) returns 1)
+                .NextDouble(0.01)  // BLOCKED!
                 .NextDouble(0.6)   // Defense recovers (>= 50%)
                 .NextDouble(0.5)   // Ball bounce (baseBounce: -10 + 12.5 = 2.5 yards)
                 .NextDouble(0.6)   // Random factor (6 - 5 = 1 yard)
@@ -148,7 +148,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED! (Next(2) returns 1)
+                .NextDouble(0.01)  // BLOCKED!
                 .NextDouble(0.3)   // Offense recovers (< 50%)
                 .NextDouble(0.7)   // Loss calculation
                 .NextDouble(0.5);  // Elapsed time
@@ -179,7 +179,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // BLOCKED! (Next(2) returns 1)
+                .NextDouble(0.01)  // BLOCKED!
                 .NextDouble(0.6)   // Defense recovers (>= 50%)
                 .NextDouble(0.7)   // Ball bounce forward (baseBounce: -10 + 17.5 = 7.5 yards)
                 .NextDouble(0.5)   // Random factor (5 - 5 = 0 yards, total 7.5 yards to TD)
@@ -199,6 +199,118 @@ namespace UnitTestProject1
             Assert.AreEqual(7, game.HomeScore, "Home score should not change");
         }
 
+        [TestMethod]
+        public void Punt_GoodSnap_LowBlockProbability()
+        {
+            // Arrange - Test that good snaps have low (~1%) block rate
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Use RNG value that would NOT block with good snap
+            // Good snap: ~1% block rate, so 0.02 should NOT block
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.02)  // Would NOT block (> 1%)
+                .NextDouble(0.5)   // Punt distance
+                .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No out of bounds
+                .NextDouble(0.99)  // No downed
+                .NextDouble(0.99)  // No fair catch
+                .NextDouble(0.99)  // No muff
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            Assert.IsFalse(play.Blocked, "Good snap should have low block probability");
+            Assert.IsTrue(play.GoodSnap, "Should be marked as good snap");
+        }
+
+        [TestMethod]
+        public void Punt_BadSnap_HighBlockProbability()
+        {
+            // Arrange - Test that bad snaps dramatically increase block chance
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Make long snapper terrible to ensure bad snap
+            var snapper = play.OffensePlayersOnField.FirstOrDefault(p => p.Position == Positions.LS);
+            if (snapper != null)
+            {
+                snapper.Blocking = 10; // Terrible snapper
+            }
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.01)  // Bad snap occurs
+                .NextDouble(0.5)   // Bad snap yards
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            // Bad snap prevents kick entirely, no block check occurs
+            Assert.IsFalse(play.GoodSnap, "Should be bad snap");
+            Assert.IsFalse(play.Blocked, "Bad snap prevents kick, no block");
+        }
+
+        [TestMethod]
+        public void Punt_EliteRusherVsWeakLine_HigherBlockChance()
+        {
+            // Arrange - Test that skill differential affects block probability
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            var play = (PuntPlay)game.CurrentPlay;
+
+            // Create elite defensive rusher
+            var eliteRusher = new Player
+            {
+                Position = Positions.DE,
+                LastName = "EliteRusher",
+                Speed = 95,
+                Strength = 95,
+                Tackling = 85,
+                Awareness = 80,
+                Agility = 85
+            };
+            play.DefensePlayersOnField.Add(eliteRusher);
+
+            // Weaken offensive line
+            foreach (var olineman in play.OffensePlayersOnField.Where(p =>
+                p.Position == Positions.T || p.Position == Positions.G || p.Position == Positions.C))
+            {
+                olineman.Strength = 40;
+                olineman.Awareness = 40;
+            }
+
+            // Use RNG that would block with skill advantage
+            // Base 1% + skill differential bonus
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextDouble(0.015) // Would block with skill advantage (~1-2%)
+                .NextDouble(0.6)   // Defense recovers
+                .NextDouble(0.5)   // Ball bounce
+                .NextDouble(0.5)   // Random factor
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Elite rusher vs weak line should increase block chance");
+            Assert.IsNotNull(play.BlockedBy, "Should track who blocked");
+        }
+
         #endregion
 
         #region Touchback Tests
@@ -212,7 +324,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Punt distance
                 .NextDouble(0.9);  // Hang time random
 
@@ -241,7 +353,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.1);  // OUT OF BOUNDS!
@@ -273,7 +385,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.85)  // Punt distance
                 .NextDouble(0.7)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -301,7 +413,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.35)  // 45-yard punt (lands at ~95 yard line)
                 .NextDouble(0.9)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -331,7 +443,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.65)  // Punt distance
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.9)   // Not out of bounds
@@ -359,7 +471,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.63)  // 52-yard punt (lands at own 8, field position 92)
                 .NextDouble(0.9)   // Hang time random (good hang time ~4.8s)
                 .NextDouble(0.8)   // Not out of bounds
@@ -389,7 +501,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -422,7 +534,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -458,7 +570,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.65)  // Punt distance
                 .NextDouble(0.6)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -496,7 +608,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.05)  // Short punt ~38 yards (lands at ~98)
                 .NextDouble(0.3)   // Short hang time (poor coverage)
                 .NextDouble(0.8)   // Not out of bounds
@@ -533,7 +645,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance (includes randomness)
                 .NextDouble(0.5)   // Hang time random
                 .NextDouble(0.8)   // Not out of bounds
@@ -586,7 +698,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Punt distance (very long)
                 .NextDouble(0.5);  // Hang time random
 
@@ -614,7 +726,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Normal punt
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -682,7 +794,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.0)   // Minimum punt distance (shanked)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -711,7 +823,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Maximum punt distance (~61 yards)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -738,7 +850,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Long punt to reach 100
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -768,7 +880,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // Block occurs
+                .NextDouble(0.01)  // Block occurs
                 .NextDouble(0.6)   // Defense recovers (>= 50%)
                 .NextDouble(0.05)  // Ball bounces backward (baseBounce near min: -10 + 1.25 = -8.75)
                 .NextDouble(0.1)   // Random factor backward (1 - 5 = -4)
@@ -800,7 +912,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(1)        // Block occurs
+                .NextDouble(0.01)  // Block occurs
                 .NextDouble(0.3)   // Offense recovers (< 50%)
                 .NextDouble(0.05)  // Large loss (-5 + -4.5 = -9.5 yards)
                 .NextDouble(0.5);  // Elapsed time
@@ -831,7 +943,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.35)  // Punt ~45 yards (lands at ~95, near goal line)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -862,7 +974,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Moderate punt ~46 yards (lands at ~96)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.05)  // OUT OF BOUNDS!
@@ -889,7 +1001,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -923,7 +1035,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance (will use default player)
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -949,7 +1061,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -978,7 +1090,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.9)   // Long hang time (good coverage)
                 .NextDouble(0.8)   // Not out of bounds
@@ -1014,7 +1126,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.2)   // Short hang time (poor coverage)
                 .NextDouble(0.8)   // Not out of bounds
@@ -1044,7 +1156,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Normal punt
                 .NextDouble(0.5)   // Hang time
                 .NextDouble(0.8)   // Not out of bounds
@@ -1076,7 +1188,7 @@ namespace UnitTestProject1
 
                 var rng = new TestFluentSeedableRandom()
                     .NextDouble(0.99)  // No bad snap
-                    .NextInt(0)        // No block
+                    .NextDouble(0.99)  // No block
                     .NextDouble(0.5 + (i * 0.1))   // Varying punt distances
                     .NextDouble(0.5)   // Hang time
                     .NextDouble(0.8)   // Not out of bounds
@@ -1130,7 +1242,7 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
-                .NextInt(0)        // No block
+                .NextDouble(0.99)  // No block
                 .NextDouble(0.31)  // Precise punt ~44 yards (lands at ~99, near goal line)
                 .NextDouble(0.7)   // Good hang time
                 .NextDouble(0.8)   // Not out of bounds
