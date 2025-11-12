@@ -343,15 +343,9 @@ namespace StateLibrary
 
         private void DoFumbleCheck()
         {
-            var fumbleCheck = new FumbleOccurredSkillsCheck(_rng);
-            fumbleCheck.Execute(_game);
-
-            //if true - possession skills check and fumble action
-            if (fumbleCheck.Occurred)
-            {
-                FumbleOccurred();
-            }
-
+            // Fumbles are now checked and handled directly in play execution
+            // (Run.cs, Pass.cs, Kickoff.cs, etc.) so this method just transitions
+            // to the next state
             _machine.Fire(Trigger.PlayResult);
         }
 
