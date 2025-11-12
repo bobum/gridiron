@@ -153,7 +153,16 @@ namespace StateLibrary.Plays
                 play.RecoveryYards = recoveryYards;
                 play.YardsGained = recoveryYards;
 
-                play.Result.LogInformation($"{recoverer.LastName} falls on it for the offense, loss of {Math.Abs(recoveryYards)} yards.");
+                // Check if offense recovered in their own end zone (safety)
+                if (game.FieldPosition + recoveryYards <= 0)
+                {
+                    play.IsSafety = true;
+                    play.Result.LogInformation($"{recoverer.LastName} falls on it in the end zone! SAFETY!");
+                }
+                else
+                {
+                    play.Result.LogInformation($"{recoverer.LastName} falls on it for the offense, loss of {Math.Abs(recoveryYards)} yards.");
+                }
             }
             else
             {
@@ -175,8 +184,8 @@ namespace StateLibrary.Plays
                 // Calculate final position after bounce and recovery
                 var finalPosition = game.FieldPosition + (int)bouncedYards;
 
-                // Check if ball bounced into end zone (defensive TD)
-                if (finalPosition <= 0)
+                // Check if defense reaches either end zone (TD)
+                if (finalPosition <= 0 || finalPosition >= 100)
                 {
                     play.IsTouchdown = true;
                     play.RecoveryYards = (int)bouncedYards;
@@ -185,19 +194,6 @@ namespace StateLibrary.Plays
                     if (recoverer != null)
                     {
                         play.Result.LogInformation($"{recoverer.LastName} recovers the blocked punt in the end zone! TOUCHDOWN!");
-                    }
-                }
-                // Check if defense returns it all the way (ran it to opponent's end zone)
-                else if (finalPosition >= 100)
-                {
-                    play.IsTouchdown = true;
-                    var recoveryYards = 100 - game.FieldPosition;
-                    play.RecoveryYards = recoveryYards;
-                    play.YardsGained = recoveryYards;
-
-                    if (recoverer != null)
-                    {
-                        play.Result.LogInformation($"{recoverer.LastName} scoops it up and takes it to the house! TOUCHDOWN!");
                     }
                 }
                 else

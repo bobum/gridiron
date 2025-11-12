@@ -788,6 +788,40 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
+        public void Punt_BlockedPuntOffenseRecoversInEndZone_Safety()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 5;  // Very close to own end zone
+            var play = (PuntPlay)game.CurrentPlay;
+            play.Possession = Possession.Home;
+            game.HomeScore = 14;
+            game.AwayScore = 10;
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99)  // No bad snap
+                .NextInt(1)        // Block occurs
+                .NextDouble(0.3)   // Offense recovers (< 50%)
+                .NextDouble(0.05)  // Large loss (-5 + -4.5 = -9.5 yards)
+                .NextDouble(0.5);  // Elapsed time
+
+            var punt = new Punt(rng);
+
+            // Act
+            punt.Execute(game);
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert
+            Assert.IsTrue(play.Blocked, "Should be blocked");
+            Assert.IsTrue(play.IsSafety, "Should be safety when offense recovers in own end zone");
+            Assert.AreEqual(12, game.AwayScore, "Away team should score safety (10 + 2)");
+            Assert.AreEqual(14, game.HomeScore, "Home score should not change");
+            Assert.AreEqual(0, play.EndFieldPosition, "Should be at 0-yard line");
+            Assert.IsTrue(play.PossessionChange, "Possession should change after safety");
+        }
+
+        [TestMethod]
         public void Punt_MuffedCatchAtOwn1YardLine_DangerousPosition()
         {
             // Arrange
