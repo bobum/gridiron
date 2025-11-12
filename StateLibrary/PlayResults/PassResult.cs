@@ -14,6 +14,43 @@ namespace StateLibrary.PlayResults
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
 
+            // Check for fumble with safety (handle early)
+            if (play.IsSafety)
+            {
+                play.EndFieldPosition = 0;
+                game.FieldPosition = 0;
+
+                // Determine who scores the safety based on who recovered
+                Possession scoringTeam;
+                if (play.Fumbles.Count > 0 && play.PossessionChange)
+                {
+                    // Defense recovered in offense's end zone - defense scores
+                    scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                }
+                else
+                {
+                    // Offense recovered in own end zone or normal safety - defense scores
+                    scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                }
+
+                game.AddSafety(scoringTeam);
+                play.PossessionChange = true;
+                return;
+            }
+
+            // Check for fumble with defensive TD
+            if (play.IsTouchdown && play.Fumbles.Count > 0 && play.PossessionChange)
+            {
+                // Defensive TD on fumble recovery
+                play.EndFieldPosition = 100;
+                game.FieldPosition = 100;
+
+                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddTouchdown(defendingTeam);
+                play.PossessionChange = true;
+                return;
+            }
+
             // Calculate new field position
             var newFieldPosition = game.FieldPosition + play.YardsGained;
 

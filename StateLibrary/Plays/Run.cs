@@ -93,11 +93,31 @@ namespace StateLibrary.Plays
             play.RunSegments.Add(segment);
             play.YardsGained = finalYards;
 
-            // Update elapsed time (run plays take 5-8 seconds)
-            play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+            // Calculate current field position after the run
+            var currentFieldPosition = game.FieldPosition + finalYards;
 
-            // Log the play-by-play narrative
-            LogRunPlayNarrative(play, ballCarrier, direction, blockingSuccess, finalYards, yardsToGoal);
+            // Check for fumble (before logging the narrative)
+            var fumbleCheck = new FumbleOccurredSkillsCheck(
+                _rng,
+                ballCarrier,
+                play.DefensePlayersOnField,
+                PlayType.Run,
+                false);
+            fumbleCheck.Execute(game);
+
+            if (fumbleCheck.Occurred)
+            {
+                segment.EndedInFumble = true;
+                HandleFumbleRecovery(game, play, ballCarrier, currentFieldPosition);
+            }
+            else
+            {
+                // Update elapsed time (run plays take 5-8 seconds)
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+
+                // Log the play-by-play narrative
+                LogRunPlayNarrative(play, ballCarrier, direction, blockingSuccess, finalYards, yardsToGoal);
+            }
         }
 
         private Player? DetermineBallCarrier(RunPlay play)
@@ -194,6 +214,101 @@ namespace StateLibrary.Plays
                 RunDirection.Sweep => "on the sweep",
                 _ => "forward"
             };
+        }
+
+        private void HandleFumbleRecovery(Game game, RunPlay play, Player fumbler, int fumbleSpot)
+        {
+            // Calculate fumble recovery
+            var recoveryCheck = new FumbleRecoverySkillsCheckResult(
+                _rng,
+                fumbler,
+                play.OffensePlayersOnField,
+                play.DefensePlayersOnField,
+                fumbleSpot);
+            recoveryCheck.Execute(game);
+
+            var recovery = recoveryCheck.Result;
+
+            // Create fumble record
+            var fumble = new DomainObjects.Fumble
+            {
+                FumbledBy = fumbler,
+                FumbleSpot = fumbleSpot,
+                OutOfBounds = recovery.OutOfBounds
+            };
+
+            if (recovery.OutOfBounds)
+            {
+                // Ball OOB - offense keeps possession at fumble spot
+                fumble.RecoveredBy = fumbler; // Technically not recovered, but offense retains
+                fumble.RecoverySpot = fumbleSpot;
+                fumble.ReturnYards = 0;
+
+                play.Result.LogInformation($"{fumbler.LastName} fumbles! Ball goes out of bounds. {play.Possession} retains possession.");
+                play.YardsGained = fumbleSpot - play.StartFieldPosition;
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+            }
+            else if (recovery.RecoveredBy != null)
+            {
+                fumble.RecoveredBy = recovery.RecoveredBy;
+                fumble.RecoverySpot = recovery.RecoverySpot;
+                fumble.ReturnYards = recovery.ReturnYards;
+
+                // Determine if defense recovered
+                var defenseRecovered = play.DefensePlayersOnField.Contains(recovery.RecoveredBy);
+
+                if (defenseRecovered)
+                {
+                    // Defense recovered
+                    var finalPosition = fumbleSpot + recovery.ReturnYards;
+
+                    // Check for TD
+                    if (finalPosition >= 100)
+                    {
+                        fumble.RecoveryTouchdown = true;
+                        play.IsTouchdown = true;
+                        play.YardsGained = 100 - play.StartFieldPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} FUMBLES! {recovery.RecoveredBy.LastName} picks it up and takes it ALL THE WAY for a TOUCHDOWN!");
+                    }
+                    // Check for safety (recovered in fumbling team's end zone)
+                    else if (finalPosition <= 0)
+                    {
+                        play.IsSafety = true;
+                        play.YardsGained = -1 * play.StartFieldPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} FUMBLES! {recovery.RecoveredBy.LastName} recovers in the end zone! SAFETY!");
+                    }
+                    else
+                    {
+                        play.YardsGained = finalPosition - play.StartFieldPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} FUMBLES! {recovery.RecoveredBy.LastName} recovers and returns it {Math.Abs(recovery.ReturnYards)} yards!");
+                    }
+
+                    play.PossessionChange = true;
+                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 4.0);
+                }
+                else
+                {
+                    // Offense recovered
+                    var finalPosition = fumbleSpot + recovery.ReturnYards;
+
+                    // Check for safety (recovered in own end zone)
+                    if (finalPosition <= 0)
+                    {
+                        play.IsSafety = true;
+                        play.YardsGained = -1 * play.StartFieldPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers in the end zone! SAFETY!");
+                    }
+                    else
+                    {
+                        play.YardsGained = finalPosition - play.StartFieldPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers for the offense.");
+                    }
+
+                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+                }
+            }
+
+            play.Fumbles.Add(fumble);
         }
     }
 }

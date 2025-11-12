@@ -195,6 +195,27 @@ namespace StateLibrary.Plays
             // Formula: base + distance factor
             var estimatedHangTime = 3.5 + (play.KickDistance / 20.0);
 
+            // Check for muffed catch (similar to punt muffs)
+            var muffChance = 0.015; // 1.5% base
+
+            // Higher chance on short/line-drive kicks
+            if (landingSpot < 50) // Short kick (less than ~15 yards)
+                muffChance = 0.04; // 4%
+
+            // Returner skill factor
+            var returnerSkill = (returner.Awareness + returner.Agility) / 2.0;
+            var skillFactor = 1.0 - (returnerSkill / 150.0); // 0.33 to 1.0
+            muffChance *= skillFactor;
+
+            var muffed = _rng.NextDouble() < muffChance;
+
+            if (muffed)
+            {
+                play.MuffedCatch = true;
+                HandleMuffedKickoff(game, play, returner, landingSpot);
+                return;
+            }
+
             // Check if returner signals for fair catch
             var fairCatchCheck = new FairCatchOccurredSkillsCheck(_rng, estimatedHangTime, landingSpot);
             fairCatchCheck.Execute(game);
@@ -230,8 +251,24 @@ namespace StateLibrary.Plays
 
             play.ReturnSegments.Add(segment);
 
-            // Calculate final field position (from receiving team's perspective)
+            // Calculate field position after return (from receiving team's perspective)
             var fieldPosition = 100 - landingSpot + returnYards;
+
+            // Check for fumble during return
+            var fumbleCheck = new FumbleOccurredSkillsCheck(
+                _rng,
+                returner,
+                play.OffensePlayersOnField, // Coverage team (kicking team)
+                PlayType.Kickoff,
+                false);
+            fumbleCheck.Execute(game);
+
+            if (fumbleCheck.Occurred)
+            {
+                segment.EndedInFumble = true;
+                HandleKickoffFumbleRecovery(game, play, returner, fieldPosition);
+                return; // Fumble ends the return
+            }
 
             // Check for safety (returner tackled in own end zone)
             if (fieldPosition <= 0)
@@ -261,6 +298,163 @@ namespace StateLibrary.Plays
 
             // Kickoff return takes 5-8 seconds
             play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+        }
+
+        private void HandleKickoffFumbleRecovery(Game game, KickoffPlay play, Player fumbler, int fumbleSpot)
+        {
+            // Calculate fumble recovery
+            var recoveryCheck = new FumbleRecoverySkillsCheckResult(
+                _rng,
+                fumbler,
+                play.DefensePlayersOnField, // Receiving team
+                play.OffensePlayersOnField, // Kicking team (coverage)
+                fumbleSpot);
+            recoveryCheck.Execute(game);
+
+            var recovery = recoveryCheck.Result;
+
+            // Create fumble record
+            var fumble = new DomainObjects.Fumble
+            {
+                FumbledBy = fumbler,
+                FumbleSpot = fumbleSpot,
+                OutOfBounds = recovery.OutOfBounds
+            };
+
+            if (recovery.OutOfBounds)
+            {
+                // Ball OOB - receiving team (defense) keeps possession at fumble spot
+                fumble.RecoveredBy = fumbler;
+                fumble.RecoverySpot = fumbleSpot;
+                fumble.ReturnYards = 0;
+
+                play.Result.LogInformation($"{fumbler.LastName} fumbles! Ball goes out of bounds. Receiving team retains possession.");
+                play.EndFieldPosition = fumbleSpot;
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+            }
+            else if (recovery.RecoveredBy != null)
+            {
+                fumble.RecoveredBy = recovery.RecoveredBy;
+                fumble.RecoverySpot = recovery.RecoverySpot;
+                fumble.ReturnYards = recovery.ReturnYards;
+
+                // Check if kicking team (offense) recovered
+                var kickingTeamRecovered = play.OffensePlayersOnField.Contains(recovery.RecoveredBy);
+
+                if (kickingTeamRecovered)
+                {
+                    // Kicking team recovered - possession doesn't change (they retain)
+                    var finalPosition = fumbleSpot + recovery.ReturnYards;
+
+                    // Check for TD
+                    if (finalPosition >= 100)
+                    {
+                        fumble.RecoveryTouchdown = true;
+                        play.IsTouchdown = true;
+                        play.EndFieldPosition = 100;
+                        play.Result.LogInformation($"{fumbler.LastName} FUMBLES! {recovery.RecoveredBy.LastName} picks it up and takes it ALL THE WAY for a TOUCHDOWN!");
+                    }
+                    // Check for safety (recovered in kicking team's end zone - very rare)
+                    else if (finalPosition <= 0)
+                    {
+                        play.IsSafety = true;
+                        play.EndFieldPosition = 0;
+                        play.Result.LogInformation($"{fumbler.LastName} FUMBLES! {recovery.RecoveredBy.LastName} recovers in the end zone! SAFETY!");
+                    }
+                    else
+                    {
+                        play.EndFieldPosition = finalPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} FUMBLES! {recovery.RecoveredBy.LastName} recovers for the kicking team and returns it {Math.Abs(recovery.ReturnYards)} yards!");
+                    }
+
+                    play.PossessionChange = false; // Kicking team retains possession
+                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 4.0);
+                }
+                else
+                {
+                    // Receiving team recovered their own fumble
+                    var finalPosition = fumbleSpot + recovery.ReturnYards;
+
+                    // Check for safety (recovered in own end zone)
+                    if (finalPosition <= 0)
+                    {
+                        play.IsSafety = true;
+                        play.EndFieldPosition = 0;
+                        play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers in the end zone! SAFETY!");
+                    }
+                    // Check for TD (very rare - recovering own fumble for TD)
+                    else if (finalPosition >= 100)
+                    {
+                        play.IsTouchdown = true;
+                        play.EndFieldPosition = 100;
+                        play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers and somehow takes it to the house! TOUCHDOWN!");
+                    }
+                    else
+                    {
+                        play.EndFieldPosition = finalPosition;
+                        play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers for the receiving team.");
+                    }
+
+                    play.PossessionChange = true; // Receiving team gets possession
+                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+                }
+            }
+
+            play.Fumbles.Add(fumble);
+        }
+
+        private void HandleMuffedKickoff(Game game, KickoffPlay play, Player returner, int landingSpot)
+        {
+            play.Result.LogInformation($"The kick is muffed by {returner.LastName}!");
+
+            // Determine who recovers the muff
+            // Receiving team more likely to recover (60%) - similar to punt muffs
+            var receivingTeamRecoveryChance = 0.6;
+            var receivingTeamRecovers = _rng.NextDouble() < receivingTeamRecoveryChance;
+
+            if (receivingTeamRecovers)
+            {
+                // Receiving team recovers their own muff
+                var recoverer = play.DefensePlayersOnField
+                    .OrderByDescending(p => p.Speed + p.Awareness)
+                    .FirstOrDefault() ?? returner;
+
+                play.RecoveredBy = recoverer;
+
+                // Usually lose yards on muffed recovery
+                var recoveryYards = -5 + (int)(_rng.NextDouble() * 10); // -5 to +5 yards from muff spot
+                var fieldPosition = 100 - landingSpot + recoveryYards;
+
+                // Clamp to field boundaries
+                fieldPosition = Math.Max(1, Math.Min(99, fieldPosition));
+
+                play.EndFieldPosition = fieldPosition;
+                play.PossessionChange = true; // Receiving team gets possession
+
+                play.Result.LogInformation($"{recoverer.LastName} manages to fall on it! Receiving team keeps possession at the {fieldPosition}-yard line.");
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 2.0);
+            }
+            else
+            {
+                // Kicking team recovers!
+                var recoverer = play.OffensePlayersOnField
+                    .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
+                               p.Position == Positions.LB || p.Position == Positions.WR)
+                    .OrderByDescending(p => p.Speed)
+                    .FirstOrDefault() ?? play.OffensePlayersOnField.First();
+
+                play.RecoveredBy = recoverer;
+
+                // Ball spotted where recovered
+                var fieldPosition = 100 - landingSpot;
+                fieldPosition = Math.Max(1, Math.Min(99, fieldPosition));
+
+                play.EndFieldPosition = fieldPosition;
+                play.PossessionChange = false; // Kicking team retains possession
+
+                play.Result.LogInformation($"{recoverer.LastName} recovers for the kicking team! Great special teams play!");
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 2.0);
+            }
         }
     }
 }
