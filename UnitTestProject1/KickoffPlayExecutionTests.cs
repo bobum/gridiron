@@ -402,9 +402,9 @@ namespace UnitTestProject1
             returner.Agility = 35;
 
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.33)  // Deep kick (lands at ~97 yard line: 65.5 + (-3.1) = 62.4 → 35 + 62.4 = 97.4)
-                .NextDouble(0.5)   // Out of bounds check
-                .NextDouble(0.02)  // Terrible return (negative yards: -5 from clamp)
+                .NextDouble(0.32)  // Kick distance: 65.5 + (-3.6) = 61.9 → 35 + 61 = 96
+                .NextDouble(0.5)   // Out of bounds check (96 > 95, so 3% chance)
+                .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
