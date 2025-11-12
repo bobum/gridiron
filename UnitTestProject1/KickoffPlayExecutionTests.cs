@@ -471,13 +471,13 @@ namespace UnitTestProject1
             var play = (KickoffPlay)game.CurrentPlay;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
-            kicker.Kicking = 85; // Excellent kicker for deep kick
+            kicker.Kicking = 90; // Excellent kicker for deep kick
 
             // RNG value of 0.35 should NOT trigger fair catch normally (baseline 0.25)
             // But with deep field position bonus, it should trigger
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // No onside kick
-                .NextDouble(0.85)  // Very deep kick (80+ yards)
+                .NextDouble(0.95)  // Very deep kick (75+ yards)
                 .NextDouble(0.5)   // Not out of bounds
                 .NextDouble(0.35); // Marginal fair catch value (would fail baseline but pass with bonuses)
 
