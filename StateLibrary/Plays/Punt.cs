@@ -68,7 +68,23 @@ namespace StateLibrary.Plays
             play.GoodSnap = true;
 
             // Check for blocked punt
-            var blockCheck = new PuntBlockOccurredSkillsCheck(_rng);
+            // Get players for block calculation
+            var offensiveLine = play.OffensePlayersOnField
+                .Where(p => p.Position == Positions.T || p.Position == Positions.G ||
+                            p.Position == Positions.C || p.Position == Positions.TE)
+                .ToList();
+
+            var defensiveRushers = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
+                            p.Position == Positions.LB || p.Position == Positions.OLB)
+                .ToList();
+
+            var blockCheck = new PuntBlockOccurredSkillsCheck(
+                _rng,
+                punter,
+                offensiveLine,
+                defensiveRushers,
+                play.GoodSnap);
             blockCheck.Execute(game);
 
             if (blockCheck.Occurred)

@@ -21,13 +21,30 @@ namespace StateLibrary.PlayResults
                 play.EndFieldPosition = 0;
                 game.FieldPosition = 0;
 
-                // Determine who gets the 2 points
-                // If NOT blocked: bad snap, offense tackled in own end zone → defense scores
-                // If blocked and possession changed: defense recovered and ran backwards → offense scores
-                // If blocked and possession didn't change: offense recovered in end zone → defense scores
-                var scoringTeam = (play.Blocked && play.PossessionChange)
-                    ? play.Possession  // Defense recovered and ran backwards, original team gets points
-                    : (play.Possession == Possession.Home ? Possession.Away : Possession.Home); // Offense tackled in end zone, defense gets points
+                // Determine who gets the 2 points based on who recovered the ball
+                Possession scoringTeam;
+
+                if (play.Blocked && play.RecoveredBy != null)
+                {
+                    // For blocked kicks, check who actually recovered the ball
+                    var recoveredByDefense = play.DefensePlayersOnField.Contains(play.RecoveredBy);
+
+                    if (recoveredByDefense)
+                    {
+                        // Defense recovered and ran backwards into kicking team's end zone → offense scores
+                        scoringTeam = play.Possession;
+                    }
+                    else
+                    {
+                        // Offense recovered in their own end zone → defense scores
+                        scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                    }
+                }
+                else
+                {
+                    // Not blocked (bad snap or other scenario): offense tackled in own end zone → defense scores
+                    scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                }
 
                 game.AddSafety(scoringTeam);
 
@@ -35,10 +52,10 @@ namespace StateLibrary.PlayResults
                 return; // Safety ends the play immediately
             }
 
-            // Handle blocked kick scenarios
+            // Handle blocked field goal
             if (play.Blocked)
             {
-                HandleBlockedKick(game, play);
+                HandleBlockedFieldGoalRecovery(game, play);
                 return;
             }
 
@@ -91,45 +108,51 @@ namespace StateLibrary.PlayResults
             LogFieldGoalSummary(play);
         }
 
-        private void HandleBlockedKick(Game game, FieldGoalPlay play)
+        private void HandleBlockedFieldGoalRecovery(Game game, FieldGoalPlay play)
         {
-            var newFieldPosition = game.FieldPosition + play.YardsGained;
-
-            // Check if blocked kick was returned for touchdown
-            if (play.IsTouchdown && (newFieldPosition <= 0 || newFieldPosition >= 100))
+            if (play.IsTouchdown)
             {
-                // Set end position based on which end zone
-                if (newFieldPosition >= 100)
-                {
-                    play.EndFieldPosition = 100;
-                    game.FieldPosition = 100;
-                }
-                else // newFieldPosition <= 0 - ball in kicking team's end zone
-                {
-                    play.EndFieldPosition = 0;
-                    game.FieldPosition = 0;
-                }
+                // Defensive touchdown on blocked FG return
+                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddTouchdown(defendingTeam);
 
-                // Defense scored
-                var scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
-                game.AddTouchdown(scoringTeam);
+                play.EndFieldPosition = 100;
+                game.FieldPosition = 100;
                 play.PossessionChange = true;
             }
-            else if (play.PossessionChange)
+            else if (play.IsSafety)
             {
-                // Defense recovered but no TD
-                play.EndFieldPosition = newFieldPosition;
-                game.FieldPosition = newFieldPosition;
-                game.CurrentDown = Downs.First;
-                game.YardsToGo = 10;
+                // Safety already handled in safety block above, but this is here for clarity
+                // This shouldn't be reached since safety is handled first
+                play.EndFieldPosition = 0;
+                game.FieldPosition = 0;
+                play.PossessionChange = true;
             }
             else
             {
-                // Offense recovered or ball is dead - turnover on downs
-                play.EndFieldPosition = game.FieldPosition;
-                play.PossessionChange = true;
-                game.CurrentDown = Downs.First;
-                game.YardsToGo = 10;
+                // Normal recovery - set field position
+                var newFieldPosition = Math.Max(0, Math.Min(100, game.FieldPosition + play.YardsGained));
+                play.EndFieldPosition = newFieldPosition;
+                game.FieldPosition = newFieldPosition;
+
+                // Check possession change (if defense recovered)
+                var recoveredByDefense = play.RecoveredBy != null &&
+                    play.DefensePlayersOnField.Contains(play.RecoveredBy);
+
+                if (recoveredByDefense)
+                {
+                    // Defense recovered - they get possession
+                    play.PossessionChange = true;
+                    game.CurrentDown = Downs.First;
+                    game.YardsToGo = 10;
+                }
+                else
+                {
+                    // Offense recovered - turnover on downs (FG attempts are on 4th down)
+                    play.PossessionChange = true;
+                    game.CurrentDown = Downs.First;
+                    game.YardsToGo = 10;
+                }
             }
         }
 

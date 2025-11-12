@@ -3,6 +3,7 @@ using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
+using StateLibrary.SkillsCheckResults;
 using System;
 using System.Linq;
 
@@ -67,7 +68,24 @@ namespace StateLibrary.Plays
             play.GoodSnap = true;
 
             // Check for blocked field goal
-            var blockCheck = new FieldGoalBlockOccurredSkillsCheck(_rng);
+            // Get offensive line and defensive rushers for block calculation
+            var offensiveLine = play.OffensePlayersOnField
+                .Where(p => p.Position == Positions.T || p.Position == Positions.G ||
+                            p.Position == Positions.C || p.Position == Positions.TE)
+                .ToList();
+
+            var defensiveRushers = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
+                            p.Position == Positions.LB || p.Position == Positions.OLB)
+                .ToList();
+
+            var blockCheck = new FieldGoalBlockOccurredSkillsCheck(
+                _rng,
+                kicker,
+                play.AttemptDistance,
+                offensiveLine,
+                defensiveRushers,
+                play.GoodSnap);
             blockCheck.Execute(game);
 
             if (blockCheck.Occurred)
@@ -121,7 +139,7 @@ namespace StateLibrary.Plays
             play.Blocked = true;
             play.IsGood = false;
 
-            // Find the blocker
+            // Find the blocker (defensive line or linebacker)
             var blocker = play.DefensePlayersOnField
                 .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
                            p.Position == Positions.LB || p.Position == Positions.OLB)
@@ -139,37 +157,72 @@ namespace StateLibrary.Plays
                 play.Result.LogInformation($"FIELD GOAL is BLOCKED!");
             }
 
-            // Determine if defense recovers and returns
-            var defenseRecoveryChance = 0.4; // 40% chance defense recovers cleanly
+            // Determine recovery (50/50 base chance)
+            var defenseRecoveryChance = 0.5;
             var defenseRecovers = _rng.NextDouble() < defenseRecoveryChance;
 
             if (defenseRecovers)
             {
-                // Defense recovers and can return
-                var returner = blocker ?? play.DefensePlayersOnField
-                    .OrderByDescending(p => p.Speed)
+                // Defense recovers - can advance for TD ("scoop and score")
+                var recoverer = play.DefensePlayersOnField
+                    .OrderByDescending(p => p.Speed + p.Awareness)
                     .FirstOrDefault();
 
-                if (returner != null)
+                if (recoverer == null)
                 {
-                    // Calculate return yards
-                    var baseReturn = -5.0 + (_rng.NextDouble() * 20.0); // -5 to +15 yards
-                    var randomFactor = (_rng.NextDouble() * 10.0) - 5.0; // ±5 yards
-                    var returnYards = baseReturn + randomFactor;
+                    recoverer = blocker ?? play.DefensePlayersOnField.FirstOrDefault();
+                }
 
-                    var finalPosition = game.FieldPosition + (int)returnYards;
+                play.RecoveredBy = recoverer;
 
-                    // Check for touchdown (defense reaches either end zone)
-                    if (finalPosition <= 0 || finalPosition >= 100)
+                if (recoverer != null)
+                {
+                    // Calculate return yardage using skills check
+                    var returnCheck = new BlockedFieldGoalReturnYardsSkillsCheckResult(_rng, recoverer);
+                    returnCheck.Execute(game);
+
+                    var returnYards = (int)returnCheck.Result;
+                    play.RecoveryYards = returnYards;
+
+                    // Calculate final field position (from kicking team's perspective)
+                    var finalPosition = game.FieldPosition + returnYards;
+
+                    // Check for touchdown
+                    if (finalPosition >= 100)
                     {
                         play.IsTouchdown = true;
-                        play.YardsGained = (int)returnYards;
-                        play.Result.LogInformation($"{returner.LastName} returns the blocked kick for a TOUCHDOWN!");
+                        play.YardsGained = 100 - game.FieldPosition;
+                        play.Result.LogInformation($"{recoverer.LastName} picks it up and takes it ALL THE WAY! TOUCHDOWN on the blocked field goal!");
+
+                        // Create return segment for statistics
+                        var segment = new ReturnSegment
+                        {
+                            BallCarrier = recoverer,
+                            YardsGained = play.YardsGained,
+                            EndedInFumble = false
+                        };
+                        play.BlockReturnSegments = new System.Collections.Generic.List<ReturnSegment> { segment };
+                    }
+                    // Check for safety (returned into kicking team's end zone)
+                    else if (finalPosition <= 0)
+                    {
+                        play.IsSafety = true;
+                        play.YardsGained = -1 * game.FieldPosition;
+                        play.Result.LogInformation($"{recoverer.LastName} recovers in the end zone! SAFETY!");
                     }
                     else
                     {
-                        play.YardsGained = Math.Min((int)returnYards, 100 - game.FieldPosition);
-                        play.Result.LogInformation($"{returner.LastName} returns the blocked kick {play.YardsGained} yards!");
+                        play.YardsGained = returnYards;
+                        play.Result.LogInformation($"{recoverer.LastName} recovers and returns it {returnYards} yards!");
+
+                        // Create return segment for statistics
+                        var segment = new ReturnSegment
+                        {
+                            BallCarrier = recoverer,
+                            YardsGained = returnYards,
+                            EndedInFumble = false
+                        };
+                        play.BlockReturnSegments = new System.Collections.Generic.List<ReturnSegment> { segment };
                     }
                 }
 
@@ -177,10 +230,51 @@ namespace StateLibrary.Plays
             }
             else
             {
-                // Offense recovers or ball is dead
-                play.YardsGained = 0;
-                play.PossessionChange = true; // Turnover on downs
-                play.Result.LogInformation($"Blocked kick falls incomplete.");
+                // Offense recovers (usually negative yards)
+                var recoverer = play.OffensePlayersOnField
+                    .OrderByDescending(p => p.Speed)
+                    .FirstOrDefault();
+
+                if (recoverer == null && kicker != null)
+                {
+                    recoverer = kicker;
+                }
+
+                play.RecoveredBy = recoverer;
+
+                // Offense recovery: -5 to -15 yards typical
+                var recoveryYards = -5 - (int)(_rng.NextDouble() * 10);
+                recoveryYards = Math.Max(-1 * game.FieldPosition, recoveryYards); // Can't go past own goal
+
+                // Check for safety (recovered in own end zone)
+                if (game.FieldPosition + recoveryYards <= 0)
+                {
+                    play.IsSafety = true;
+                    play.YardsGained = -1 * game.FieldPosition;
+                    if (recoverer != null)
+                    {
+                        play.Result.LogInformation($"{recoverer.LastName} falls on it in the end zone! SAFETY!");
+                    }
+                    else
+                    {
+                        play.Result.LogInformation($"Ball recovered in the end zone! SAFETY!");
+                    }
+                }
+                else
+                {
+                    play.RecoveryYards = recoveryYards;
+                    play.YardsGained = recoveryYards;
+                    if (recoverer != null)
+                    {
+                        play.Result.LogInformation($"{recoverer.LastName} falls on it for the offense, loss of {Math.Abs(recoveryYards)} yards.");
+                    }
+                    else
+                    {
+                        play.Result.LogInformation($"Offense recovers the blocked kick, loss of {Math.Abs(recoveryYards)} yards.");
+                    }
+                }
+
+                play.PossessionChange = true; // Turnover on downs (4th down FG attempt)
             }
 
             // Blocked kicks take 3-6 seconds
