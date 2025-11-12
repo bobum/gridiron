@@ -21,13 +21,30 @@ namespace StateLibrary.PlayResults
                 play.EndFieldPosition = 0;
                 game.FieldPosition = 0;
 
-                // Determine who gets the 2 points
-                // If NOT blocked: bad snap, offense tackled in own end zone → defense scores
-                // If blocked and possession changed: defense recovered and ran backwards → offense scores
-                // If blocked and possession didn't change: offense recovered in end zone → defense scores
-                var scoringTeam = (play.Blocked && play.PossessionChange)
-                    ? play.Possession  // Defense recovered and ran backwards, original team gets points
-                    : (play.Possession == Possession.Home ? Possession.Away : Possession.Home); // Offense tackled in end zone, defense gets points
+                // Determine who gets the 2 points based on who recovered the ball
+                Possession scoringTeam;
+
+                if (play.Blocked && play.RecoveredBy != null)
+                {
+                    // For blocked kicks, check who actually recovered the ball
+                    var recoveredByDefense = play.DefensePlayersOnField.Contains(play.RecoveredBy);
+
+                    if (recoveredByDefense)
+                    {
+                        // Defense recovered and ran backwards into kicking team's end zone → offense scores
+                        scoringTeam = play.Possession;
+                    }
+                    else
+                    {
+                        // Offense recovered in their own end zone → defense scores
+                        scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                    }
+                }
+                else
+                {
+                    // Not blocked (bad snap or other scenario): offense tackled in own end zone → defense scores
+                    scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                }
 
                 game.AddSafety(scoringTeam);
 
