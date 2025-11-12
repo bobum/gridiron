@@ -418,15 +418,15 @@ namespace UnitTestProject1
             var game = CreateGameWithKickoffPlay();
             var play = (KickoffPlay)game.CurrentPlay;
 
-            // Use a shorter kick to avoid deep field position bonuses
+            // Use a shorter kick to avoid all field position and hang time bonuses
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
-            kicker.Kicking = 60; // Moderate kicker for medium kick
+            kicker.Kicking = 50; // Weaker kicker for shorter kick
 
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // No onside kick
-                .NextDouble(0.4)   // Medium kick (~50 yards, lands at 85 = receiving team's 15-yard line)
+                .NextDouble(0.2)   // Short kick (~40 yards, lands at 75 = receiving team's 25-yard line)
                 .NextDouble(0.5)   // Not out of bounds
-                .NextDouble(0.99)  // No fair catch (well above max probability with bonuses)
+                .NextDouble(0.999) // No fair catch (absolute maximum to prevent any fair catch)
                 .NextDouble(0.5)   // Return yards
                 .NextDouble(0.5);  // Elapsed time
 
