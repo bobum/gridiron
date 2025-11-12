@@ -65,10 +65,26 @@ namespace UnitTestProject1
         public void FumbleOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            var rng = new TestFluentSeedableRandom()
-                .NextInt(2); // Fumble does not occur when value != 1
 
-            var fumbleResult = new FumbleOccurredSkillsCheck(rng);
+            // Create a ball carrier with high awareness (less likely to fumble)
+            var ballCarrier = new Player
+            {
+                FirstName = "Test",
+                LastName = "Runner",
+                Position = Positions.RB,
+                Awareness = 90  // High awareness = less fumbles
+            };
+
+            // Create a defender
+            var defenders = new List<Player>
+            {
+                new Player { FirstName = "Test", LastName = "Defender", Position = Positions.LB, Strength = 50, Speed = 50 }
+            };
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.99); // High value = no fumble (> fumble probability)
+
+            var fumbleResult = new FumbleOccurredSkillsCheck(rng, ballCarrier, defenders, PlayType.Run, false);
             fumbleResult.Execute(game);
 
             Assert.IsFalse(fumbleResult.Occurred);
@@ -78,10 +94,27 @@ namespace UnitTestProject1
         public void FumbleOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            var rng = new TestFluentSeedableRandom()
-                .NextInt(1); // Fumble occurs when value == 1
 
-            var fumbleResult = new FumbleOccurredSkillsCheck(rng);
+            // Create a ball carrier with low awareness (more likely to fumble)
+            var ballCarrier = new Player
+            {
+                FirstName = "Test",
+                LastName = "Runner",
+                Position = Positions.RB,
+                Awareness = 10  // Low awareness = more fumbles
+            };
+
+            // Create strong defenders
+            var defenders = new List<Player>
+            {
+                new Player { FirstName = "Test", LastName = "Defender1", Position = Positions.LB, Strength = 90, Speed = 90 },
+                new Player { FirstName = "Test", LastName = "Defender2", Position = Positions.LB, Strength = 85, Speed = 85 }
+            };
+
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.01); // Low value = fumble occurs (< fumble probability)
+
+            var fumbleResult = new FumbleOccurredSkillsCheck(rng, ballCarrier, defenders, PlayType.Run, false);
             fumbleResult.Execute(game);
 
             Assert.IsTrue(fumbleResult.Occurred);
