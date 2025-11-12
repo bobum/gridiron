@@ -430,8 +430,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // No onside kick
                 .NextDouble(0.2)   // Short kick (~40 yards, lands at 75 = receiving team's 25-yard line)
                 .NextDouble(0.5)   // Not out of bounds
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.999) // No fair catch (absolute maximum to prevent any fair catch)
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -755,8 +757,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.3)   // Lower RNG with weak kicker
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -782,8 +786,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Normal kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.85)  // Good return with excellent returner
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -812,8 +818,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Normal kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.2)   // Poor return with slow returner
+                .NextDouble(0.99)  // No fumble
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
