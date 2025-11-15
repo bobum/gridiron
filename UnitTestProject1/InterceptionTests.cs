@@ -391,13 +391,51 @@ namespace UnitTestProject1
         private Game CreateGameWithPassPlay()
         {
             var game = _testGame.GetGame();
-            var passPlay = new PassPlay();
-            passPlay.Possession = Possession.Home;
-            passPlay.OffensePlayersOnField = _teams.HomeTeam.ActiveRoster.Take(11).ToList();
-            passPlay.DefensePlayersOnField = _teams.AwayTeam.ActiveRoster.Take(11).ToList();
+            var passPlay = new PassPlay
+            {
+                Possession = Possession.Home,
+                Down = Downs.First,
+                StartFieldPosition = 25,
+                ElapsedTime = 0
+            };
+
+            // Set offensive players (pass formation)
+            passPlay.OffensePlayersOnField = new List<Player>
+            {
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.QB][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.RB][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.C][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.G][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.G][1],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.T][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.T][1],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.WR][0],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.WR][1],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.WR][2],
+                _teams.HomeTeam.OffenseDepthChart.Chart[Positions.TE][0]
+            };
+
+            // Set defensive players (nickel defense)
+            passPlay.DefensePlayersOnField = new List<Player>
+            {
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DE][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DE][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.DT][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.LB][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.CB][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.CB][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.S][0],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.S][1],
+                _teams.VisitorTeam.DefenseDepthChart.Chart[Positions.FS][0]
+            };
+
             game.CurrentPlay = passPlay;
             game.FieldPosition = 25;
-            passPlay.StartFieldPosition = game.FieldPosition;
+            game.YardsToGo = 10;
+            game.CurrentDown = Downs.First;
+
             return game;
         }
 
