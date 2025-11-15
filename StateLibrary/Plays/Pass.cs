@@ -224,7 +224,9 @@ namespace StateLibrary.Plays
                         {
                             FumbledBy = result.Interceptor,
                             RecoveredBy = result.FumbleRecovery?.RecoveredBy,
-                            FumbleYardLine = interceptionSpot - result.ReturnYards,
+                            FumbleSpot = interceptionSpot - result.ReturnYards,
+                            RecoverySpot = result.FumbleRecovery?.RecoverySpot ?? 0,
+                            ReturnYards = result.FumbleRecovery?.ReturnYards ?? 0,
                             OutOfBounds = result.FumbleRecovery?.OutOfBounds ?? false
                         };
                         play.Fumbles.Add(fumble);
