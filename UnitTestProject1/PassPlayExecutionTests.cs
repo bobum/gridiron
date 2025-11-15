@@ -87,6 +87,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(7)
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -109,6 +110,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(10)                   // Would be 10, limited by field position
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -330,6 +332,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.9)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -412,6 +415,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);               // 4 + 0.99*3 = 6.97 seconds (
 
             // Act
@@ -435,6 +439,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(5)
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(1.0);               // 2 + 1.0*2 = 4.0
 
             // Act
