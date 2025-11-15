@@ -140,8 +140,105 @@ namespace StateLibrary.Plays
                     // Clamp to field boundaries
                     interceptionSpot = Math.Max(0, Math.Min(100, interceptionSpot));
 
-                    // Handle interception return
-                    HandleInterceptionReturn(game, play, qb, receiver, interceptionSpot, passType);
+                    // Use SkillsCheckResult to handle full interception scenario
+                    var interceptionResult = new InterceptionSkillsCheckResult(
+                        _rng,
+                        qb,
+                        receiver,
+                        play.OffensePlayersOnField,
+                        play.DefensePlayersOnField,
+                        interceptionSpot);
+                    interceptionResult.Execute(game);
+
+                    var result = interceptionResult.Result;
+
+                    // Log interception
+                    play.Result.LogInformation($"INTERCEPTION! {result.Interceptor.LastName} picks off {qb.LastName}!");
+
+                    if (result.IsPickSix)
+                    {
+                        play.IsTouchdown = true;
+                        play.YardsGained = -1 * play.StartFieldPosition; // Defense scores
+                        play.Result.LogInformation($"{result.Interceptor.LastName} takes it ALL THE WAY! PICK-SIX TOUCHDOWN!");
+                    }
+                    else if (result.FumbledDuringReturn)
+                    {
+                        play.Result.LogInformation($"{result.Interceptor.LastName} returns it {result.ReturnYards} yards but fumbles!");
+
+                        // Handle fumble recovery logging
+                        if (result.FumbleRecovery.OutOfBounds)
+                        {
+                            play.Result.LogInformation($"Fumble goes out of bounds at the {result.FinalPosition} yard line.");
+                        }
+                        else
+                        {
+                            play.Result.LogInformation($"{result.FumbleRecovery.RecoveredBy.LastName} recovers the fumble!");
+                        }
+
+                        play.YardsGained = result.FinalPosition - play.StartFieldPosition;
+                    }
+                    else
+                    {
+                        // Normal interception return
+                        play.YardsGained = result.FinalPosition - play.StartFieldPosition;
+                        if (result.ReturnYards > 0)
+                        {
+                            play.Result.LogInformation($"{result.Interceptor.LastName} returns it {result.ReturnYards} yards!");
+                        }
+                    }
+
+                    // Create the Interception domain object
+                    var interception = new DomainObjects.Interception
+                    {
+                        InterceptedBy = result.Interceptor,
+                        ThrownBy = qb,
+                        InterceptionYardLine = interceptionSpot,
+                        ReturnYards = result.ReturnYards,
+                        FumbledDuringReturn = result.FumbledDuringReturn,
+                        RecoveredBy = result.FumbledDuringReturn ? result.FumbleRecovery?.RecoveredBy : null
+                    };
+
+                    // Create pass segment for the intercepted pass
+                    var segment = new PassSegment
+                    {
+                        Passer = qb,
+                        Receiver = receiver,
+                        IsComplete = false,
+                        Type = passType,
+                        AirYards = 0,
+                        YardsAfterCatch = 0,
+                        EndedInFumble = false
+                    };
+
+                    play.PassSegments.Add(segment);
+
+                    // Mark interception and possession change
+                    play.Interception = true;
+                    play.InterceptionDetails = interception;
+                    play.PossessionChange = result.PossessionChange;
+
+                    // Handle fumbles during return
+                    if (result.FumbledDuringReturn)
+                    {
+                        var fumble = new Fumble
+                        {
+                            FumbledBy = result.Interceptor,
+                            RecoveredBy = result.FumbleRecovery?.RecoveredBy,
+                            FumbleYardLine = interceptionSpot - result.ReturnYards,
+                            OutOfBounds = result.FumbleRecovery?.OutOfBounds ?? false
+                        };
+                        play.Fumbles.Add(fumble);
+
+                        // Check if offense recovered - they get possession back
+                        if (result.FumbleRecovery?.RecoveredBy != null &&
+                            play.OffensePlayersOnField.Contains(result.FumbleRecovery.RecoveredBy))
+                        {
+                            play.PossessionChange = false; // Offense gets ball back
+                        }
+                    }
+
+                    // Update elapsed time
+                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0);
                 }
                 else
                 {
@@ -395,101 +492,5 @@ namespace StateLibrary.Plays
             play.Fumbles.Add(fumble);
         }
 
-        private void HandleInterceptionReturn(Game game, PassPlay play, Player qb, Player intendedReceiver, int interceptionSpot, PassType passType)
-        {
-            // Select interceptor (defensive back with best coverage/awareness)
-            var interceptor = play.DefensePlayersOnField
-                .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
-                           p.Position == Positions.FS || p.Position == Positions.LB)
-                .OrderByDescending(p => p.Coverage + p.Awareness + p.Speed)
-                .FirstOrDefault();
-
-            if (interceptor == null)
-            {
-                // Fallback - shouldn't happen
-                interceptor = play.DefensePlayersOnField.First();
-            }
-
-            play.Result.LogInformation($"INTERCEPTION! {interceptor.LastName} picks off {qb.LastName}!");
-
-            // Calculate interception return yardage
-            var returnResult = new InterceptionReturnSkillsCheckResult(
-                _rng,
-                interceptor,
-                play.OffensePlayersOnField,
-                interceptionSpot);
-            returnResult.Execute(game);
-
-            var returnInfo = returnResult.Result;
-
-            // Create interception record
-            var interception = new DomainObjects.Interception
-            {
-                InterceptedBy = interceptor,
-                ThrownBy = qb,
-                InterceptionYardLine = interceptionSpot,
-                ReturnYards = returnInfo.ReturnYards,
-                FumbledDuringReturn = false
-            };
-
-            // Calculate final field position after return
-            // Interception return moves toward offense's 0 (opposite direction)
-            var finalPosition = interceptionSpot - returnInfo.ReturnYards;
-
-            // Check for pick-six (touchdown)
-            if (finalPosition <= 0)
-            {
-                play.IsTouchdown = true;
-                play.YardsGained = -1 * play.StartFieldPosition; // Defense scores
-                play.Result.LogInformation($"{interceptor.LastName} takes it ALL THE WAY! PICK-SIX TOUCHDOWN!");
-            }
-            else
-            {
-                // Check for fumble during interception return
-                var fumbleCheck = new FumbleOccurredSkillsCheck(
-                    _rng,
-                    interceptor,
-                    play.OffensePlayersOnField,
-                    PlayType.Pass,
-                    isQBSack: false);
-                fumbleCheck.Execute(game);
-
-                if (fumbleCheck.Occurred)
-                {
-                    interception.FumbledDuringReturn = true;
-                    play.Result.LogInformation($"{interceptor.LastName} returns it {returnInfo.ReturnYards} yards but fumbles!");
-                    HandleFumbleRecovery(game, play, interceptor, finalPosition);
-                }
-                else
-                {
-                    // Normal interception return
-                    play.YardsGained = finalPosition - play.StartFieldPosition;
-                    if (returnInfo.ReturnYards > 0)
-                    {
-                        play.Result.LogInformation($"{interceptor.LastName} returns it {returnInfo.ReturnYards} yards!");
-                    }
-                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0);
-                }
-            }
-
-            // Create pass segment for the intercepted pass
-            var segment = new PassSegment
-            {
-                Passer = qb,
-                Receiver = intendedReceiver,
-                IsComplete = false,
-                Type = passType,
-                AirYards = 0,
-                YardsAfterCatch = 0,
-                EndedInFumble = false
-            };
-
-            play.PassSegments.Add(segment);
-
-            // Mark interception and possession change
-            play.Interception = true;
-            play.InterceptionDetails = interception;
-            play.PossessionChange = true;
-        }
     }
 }
