@@ -26,6 +26,7 @@ namespace UnitTestProject1
                 .NextDouble(0.6)                     // Base yards random factor
                 .NextDouble(0.8)                     // Tackle break check (fails)
                 .NextDouble(0.9)                     // Big run check (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.73);      // Elapsed time (5 + 0.73*3 = ~7.2 seconds)
 
             // Act
@@ -54,6 +55,7 @@ namespace UnitTestProject1
                 .NextDouble(0.6)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time (5 + 0.33*3 = 6.0 seconds)
 
             var run = new Run(rng);
@@ -77,6 +79,7 @@ namespace UnitTestProject1
                 .NextDouble(0.6)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             var run = new Run(rng);
@@ -98,6 +101,7 @@ namespace UnitTestProject1
                 .NextDouble(0.6)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -131,6 +135,7 @@ namespace UnitTestProject1
                 .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .NextDouble(0.6)                     // Tackle break (fails)
                 .NextDouble(0.8)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Test with bad blocking (blocking check fails)
@@ -141,6 +146,7 @@ namespace UnitTestProject1
                 .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .NextDouble(0.6)                     // Tackle break (fails)
                 .NextDouble(0.8)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -179,6 +185,7 @@ namespace UnitTestProject1
                 .NextDouble(0.1)                     // Tackle break (succeeds!)
                 .NextInt(5)                          // Tackle break yards (5)
                 .NextDouble(0.8)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -217,6 +224,7 @@ namespace UnitTestProject1
                 .NextDouble(0.5)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Test WITH big run
@@ -228,6 +236,7 @@ namespace UnitTestProject1
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.05)                    // Big run (succeeds!)
                 .NextInt(25)                         // Breakaway yards
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -266,6 +275,7 @@ namespace UnitTestProject1
                 .NextInt(5)                          // Tackle break yards
                 .NextDouble(0.01)                    // Big run (succeeds)
                 .NextInt(30)                         // Breakaway yards (would exceed goal line)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -292,6 +302,7 @@ namespace UnitTestProject1
                 .NextDouble(0.1)                     // Base yards random factor (produces negative yards: 0.1 * 25 - 15 = -12.5)
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -319,6 +330,7 @@ namespace UnitTestProject1
                 .NextDouble(0.5)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.83);      // Elapsed time (5 + 0.83*3 = 7.5 seconds)
 
             // Act
@@ -349,6 +361,7 @@ namespace UnitTestProject1
                 .NextDouble(0.72)                    // Base yards random factor: 0.72*25-15 = 3.0
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -377,6 +390,7 @@ namespace UnitTestProject1
                 .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -404,6 +418,7 @@ namespace UnitTestProject1
                 .NextDouble(0.2)                     // Base yards random factor: 0.2*25-15 = -10
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -438,6 +453,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.1)               // TACKLE BREAK! (succeeds)
                 .NextInt(6)                          // TackleBreakYardsSkillsCheckResult: 6 yards
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -478,6 +494,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.1)
                 .NextInt(3)                          // Min: 3 yards
                 .BreakawayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Test maximum (8 yards)
@@ -489,6 +506,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.1)
                 .NextInt(8)                          // Max: 8 yards
                 .BreakawayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -524,6 +542,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.05)                // BREAKAWAY! (succeeds)
                 .NextInt(30)                         // BreakawayYardsSkillsCheckResult: 30 yards
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -560,6 +579,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.05)
                 .NextInt(15)                         // Min: 15 yards
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Test maximum (44 yards)
@@ -571,6 +591,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.05)
                 .NextInt(44)                         // Max: 44 yards
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -608,6 +629,7 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.1)               // Tackle break (succeeds)
                 .NextInt(5)                          // TackleBreakYardsSkillsCheckResult: 5 yards
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -645,6 +667,7 @@ namespace UnitTestProject1
                 .NextInt(8)                          // TackleBreakYardsSkillsCheckResult: 8 yards
                 .BreakawayCheck(0.02)                // Breakaway (succeeds)
                 .NextInt(40)                         // BreakawayYardsSkillsCheckResult: 40 yards
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -672,6 +695,7 @@ namespace UnitTestProject1
                 .NextDouble(0.05)                    // Minimal base yards: 0.05*25-15 = -13.75
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act

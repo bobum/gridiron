@@ -420,6 +420,7 @@ namespace UnitTestProject1
                 .NextDouble(nextDouble)
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -436,6 +437,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -448,6 +450,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)
                 .AirYards(10)
                 .PassCompletionCheck(0.9)
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
         }
 

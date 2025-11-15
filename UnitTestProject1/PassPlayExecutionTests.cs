@@ -32,6 +32,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.5)        // Fail - tackled immediately
                 .YACYards(2)
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -60,6 +61,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(8)
                 .PassCompletionCheck(0.9)        // Incomplete
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -86,6 +88,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(7)
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -108,6 +111,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(10)                   // Would be 10, limited by field position
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -142,6 +146,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.59)       // 60% base - succeeds
                 .YACOpportunityCheck(0.8)        // Fail
                 .YACYards(3)
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // With pressure scenario (completion drops to ~40%)
@@ -152,6 +157,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.59)       // 40% with pressure - fails
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -190,6 +196,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -218,6 +225,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -254,6 +262,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.9)            // Adds to base YAC
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -292,6 +301,7 @@ namespace UnitTestProject1
                 .YACRandomFactor(0.5)            // Moderate random factor
                 .BigPlayCheck(0.04)              // BIG PLAY! (< 0.05)
                 .BigPlayBonusYards(25)           // Extra yards from breaking free
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -326,6 +336,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.9)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -408,6 +419,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);               // 4 + 0.99*3 = 6.97 seconds (
 
             // Act
@@ -431,6 +443,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(5)
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(1.0);               // 2 + 1.0*2 = 4.0
 
             // Act
@@ -458,6 +471,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(8)                     // SackYardsSkillsCheckResult should use this
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -480,6 +494,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(10)                    // Would be -10, but clamped to -4
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -508,6 +523,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.9)        // Fail - tackled immediately
                 .ImmediateTackleYards(1)
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -538,6 +554,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.9)        // Fail
                 .ImmediateTackleYards(1)
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -566,6 +583,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.9)        // FAIL - tackled immediately
                 .ImmediateTackleYards(2)         // YardsAfterCatchSkillsCheckResult returns 0-2
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -602,6 +620,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
                 .BigPlayCheck(0.5)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -643,6 +662,7 @@ namespace UnitTestProject1
                 .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
                 .BigPlayCheck(0.03)              // BIG PLAY! (< 0.05 and speed > 85)
                 .BigPlayBonusYards(20)           // Extra 20 yards
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -681,6 +701,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)        // SUCCESS
                 .YACRandomFactor(0.5)            // Random factor: 2
                 .BigPlayCheck(0.03)              // Would trigger, but speed 80 < 85
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -716,6 +737,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)        // YAC success
                 .YACRandomFactor(0.75)           // Good random factor
                 .BigPlayCheck(0.5)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -745,6 +767,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(6)                     // SackYardsSkillsCheckResult: -6 yards
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -1013,6 +1036,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)       // YAC opportunity succeeds
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)              // No big play
+                .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1027,6 +1051,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)     // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.9)       // Incomplete (high value = fail)
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1035,6 +1060,7 @@ namespace UnitTestProject1
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)      // FAIL - Sack!
                 .SackYards(sackYards)
+                .NextDouble(0.99)               // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1050,6 +1076,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)       // YAC success
                 .YACRandomFactor(0.7)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -1065,6 +1092,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)       // YAC success
                 .YACRandomFactor(0.8)
                 .BigPlayCheck(0.9)
+                .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 

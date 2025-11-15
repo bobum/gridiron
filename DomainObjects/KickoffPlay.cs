@@ -91,6 +91,11 @@ namespace DomainObjects
         /// </summary>
         public bool FairCatch { get; set; }
 
+        /// <summary>
+        /// Whether the returner muffed the catch
+        /// </summary>
+        public bool MuffedCatch { get; set; }
+
         // ========================================
         // CONVENIENCE PROPERTIES
         // ========================================

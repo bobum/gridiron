@@ -299,21 +299,14 @@ namespace StateLibrary
 
         private void DoPassPlay()
         {
-            //Check if there was a block & if there was, assemble the result
-            var interceptionCheck = new InterceptionOccurredSkillsCheck(_rng);
-            interceptionCheck.Execute(_game);
-
-            if (interceptionCheck.Occurred)
-            {
-                //Intercepted!!!
-                InterceptionOccurred();
-            }
-            else
-            {
-                //no interception, kick is up...
-                var passPlay = new Pass(_rng);
-                passPlay.Execute(_game);
-            }
+            // Pass.Execute() now handles all pass logic internally including:
+            // - Sack checks with skill-based probabilities
+            // - Pass completion determination
+            // - Interception checks (after incomplete passes)
+            // - Fumble checks (after catches and during interception returns)
+            // - Yards after catch calculations
+            var passPlay = new Pass(_rng);
+            passPlay.Execute(_game);
 
             _machine.Fire(Trigger.Fumble);
         }
@@ -343,15 +336,9 @@ namespace StateLibrary
 
         private void DoFumbleCheck()
         {
-            var fumbleCheck = new FumbleOccurredSkillsCheck(_rng);
-            fumbleCheck.Execute(_game);
-
-            //if true - possession skills check and fumble action
-            if (fumbleCheck.Occurred)
-            {
-                FumbleOccurred();
-            }
-
+            // Fumbles are now checked and handled directly in play execution
+            // (Run.cs, Pass.cs, Kickoff.cs, etc.) so this method just transitions
+            // to the next state
             _machine.Fire(Trigger.PlayResult);
         }
 
@@ -453,18 +440,6 @@ namespace StateLibrary
                 var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penaltyOccurredSkillsCheck.Penalty);
                 penaltySkillsCheckResult.Execute(_game);
             }
-        }
-
-        /// <summary>
-        /// If we determine at anytime there has been an interception, we use this method to determine who took possession
-        /// </summary>
-        private void InterceptionOccurred()
-        {
-            var possessionChangeResult = new InterceptionPossessionChangeSkillsCheckResult();
-            possessionChangeResult.Execute(_game);
-
-            var interceptionResult = new Interception(possessionChangeResult.Possession);
-            interceptionResult.Execute(_game);
         }
 
         #endregion

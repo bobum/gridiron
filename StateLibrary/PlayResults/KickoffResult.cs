@@ -52,6 +52,17 @@ namespace StateLibrary.PlayResults
                 return; // Fair catch ends the play
             }
 
+            // Handle muffed catch
+            if (play.MuffedCatch)
+            {
+                // Ball is set at recovery spot, possession as determined by recovery
+                game.FieldPosition = play.EndFieldPosition;
+                play.PossessionChange = play.PossessionChange; // Already set in Kickoff.cs
+                game.CurrentDown = Downs.First;
+                game.YardsToGo = 10;
+                return; // Muff ends the play
+            }
+
             // Handle out of bounds
             if (play.OutOfBounds)
             {
@@ -91,14 +102,24 @@ namespace StateLibrary.PlayResults
             // Handle kickoff return touchdown
             if (play.IsTouchdown)
             {
-                // Receiving team scores
-                var receivingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
-                game.AddTouchdown(receivingTeam);
+                // Check if this is a defensive TD from fumble recovery
+                if (play.Fumbles.Count > 0 && play.PossessionChange)
+                {
+                    // Kicking team recovered fumble and scored
+                    var kickingTeam = play.Possession;
+                    game.AddTouchdown(kickingTeam);
+                    play.Result.LogInformation($"FUMBLE RECOVERY TOUCHDOWN by the kicking team!");
+                }
+                else
+                {
+                    // Normal return TD - receiving team scores
+                    var receivingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                    game.AddTouchdown(receivingTeam);
+                    play.Result.LogInformation($"Kickoff return TOUCHDOWN!");
+                }
 
                 game.FieldPosition = 100;
                 play.PossessionChange = true; // Will kick off again after TD
-
-                play.Result.LogInformation($"Kickoff return TOUCHDOWN!");
                 return;
             }
 

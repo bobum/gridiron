@@ -218,6 +218,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.9)        // INCOMPLETE (> 0.75)
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -246,6 +247,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)
                 .AirYards(15)
                 .PassCompletionCheck(0.9)        // INCOMPLETE
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -493,6 +495,7 @@ namespace UnitTestProject1
                 .NextDouble(nextDouble)               // Base yards calculation
                 .TackleBreakCheck(0.9)                // No tackle break
                 .BreakawayCheck(0.9)                  // No breakaway
+                .NextDouble(0.99)                     // No fumble (fumble check added in enhanced system)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
