@@ -132,6 +132,44 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
+        /// Sets the interception occurred check value. Lower values (&lt; interception probability) mean pass is intercepted.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom InterceptionOccurredCheck(double value)
+        {
+            ValidateProbability(value, nameof(InterceptionOccurredCheck),
+                "Determines if incomplete pass is intercepted. " +
+                "Base 3.5% probability, adjusted by QB skill vs coverage skill and pressure. " +
+                "Lower values (< interception probability) result in interception.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the base return random factor for interception returns (0-7 yards base).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom InterceptionReturnBase(double value)
+        {
+            ValidateRandomFactor(value, nameof(InterceptionReturnBase),
+                "Base return calculation for interceptions. Formula: 8.0 + (factor * 7.0) yields 8-15 yards base return.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the variance random factor for interception returns (-5 to +25 yards variance).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom InterceptionReturnVariance(double value)
+        {
+            ValidateRandomFactor(value, nameof(InterceptionReturnVariance),
+                "Variance calculation for interceptions. Formula: (factor * 30.0) - 5.0 yields -5 to +25 yards variance.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
         /// Sets the elapsed time random factor (0.0-1.0, used in calculation: base + factor * range).
         /// For normal passes: 4.0 + (factor * 3.0) = 4.0 to 7.0 seconds
         /// For sacks: 2.0 + (factor * 2.0) = 2.0 to 4.0 seconds

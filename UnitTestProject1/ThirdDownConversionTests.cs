@@ -450,6 +450,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)
                 .AirYards(10)
                 .PassCompletionCheck(0.9)
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
         }
 

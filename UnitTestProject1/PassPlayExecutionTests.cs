@@ -61,6 +61,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(8)
                 .PassCompletionCheck(0.9)        // Incomplete
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -156,6 +157,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.59)       // 40% with pressure - fails
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -1049,6 +1051,7 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)     // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.9)       // Incomplete (high value = fail)
+                .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
         }
 
