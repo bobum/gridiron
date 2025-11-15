@@ -22,26 +22,26 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            var qb = new Player { LastName = "Brady", Passing = 80, Awareness = 85 };
-            var receiver = new Player { LastName = "Moss", Catching = 90 };
-            var interceptor = new Player 
-            { 
-                LastName = "Sanders", 
+            var qb = new Player { LastName = "Brady", Passing = 80, Awareness = 85, Speed = 75 };
+            var receiver = new Player { LastName = "Moss", Catching = 90, Speed = 85 };
+            var interceptor = new Player
+            {
+                LastName = "Sanders",
                 Position = Positions.CB,
-                Coverage = 95, 
-                Awareness = 90, 
-                Speed = 92,
-                Agility = 88
+                Coverage = 95,
+                Awareness = 90,
+                Speed = 88,
+                Agility = 85
             };
 
             var offense = new List<Player> { qb, receiver };
             var defense = new List<Player> { interceptor };
-            
+
             var interceptionSpot = 50; // Midfield
 
             var rng = new TestFluentSeedableRandom()
-                .InterceptionReturnBase(0.5)      // 8 + (0.5 * 7) = 11.5 yards base
-                .InterceptionReturnVariance(0.5)   // (0.5 * 30) - 5 = 10 yards variance
+                .InterceptionReturnBase(0.3)      // 8 + (0.3 * 7) = 10.1 yards base
+                .InterceptionReturnVariance(0.2)   // (0.2 * 30) - 5 = 1 yard variance
                 .NextDouble(0.99);                 // No fumble during return
 
             // Act
@@ -107,27 +107,27 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            var qb = new Player { LastName = "Brady", Passing = 80, Awareness = 85 };
-            var receiver = new Player { LastName = "Moss", Catching = 90 };
+            var qb = new Player { LastName = "Brady", Passing = 80, Awareness = 85, Speed = 70 };
+            var receiver = new Player { LastName = "Moss", Catching = 90, Speed = 80 };
             var interceptor = new Player
             {
                 LastName = "Sanders",
                 Position = Positions.CB,
                 Coverage = 95,
-                Speed = 92,
-                Awareness = 90,
-                Agility = 88
+                Speed = 85,
+                Awareness = 50,  // Low awareness = higher fumble probability
+                Agility = 85
             };
 
             var offense = new List<Player> { qb, receiver };
             var defense = new List<Player> { interceptor };
-            
+
             var interceptionSpot = 50;
 
             var rng = new TestFluentSeedableRandom()
-                .InterceptionReturnBase(0.5)       // ~11 yards base
-                .InterceptionReturnVariance(0.5)   // ~10 yards variance
-                .NextDouble(0.01)                  // FUMBLE during return!
+                .InterceptionReturnBase(0.3)       // Smaller return
+                .InterceptionReturnVariance(0.2)   // Less variance
+                .NextDouble(0.005)                 // FUMBLE during return! (well below 1.125% threshold)
                 .NextDouble(0.5)                   // Fumble recovery - who gets it
                 .NextInt(5)                        // Recovery yardage
                 .NextDouble(0.5);                  // Not out of bounds
