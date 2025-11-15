@@ -128,9 +128,12 @@ namespace UnitTestProject1
                 .InterceptionReturnBase(0.3)       // Smaller return
                 .InterceptionReturnVariance(0.2)   // Less variance
                 .NextDouble(0.005)                 // FUMBLE during return! (well below 1.125% threshold)
-                .NextDouble(0.5)                   // Fumble recovery - who gets it
-                .NextInt(5)                        // Recovery yardage
-                .NextDouble(0.5);                  // Not out of bounds
+                // FumbleRecoverySkillsCheckResult sequence:
+                .NextDouble(0.5)                   // Out of bounds check (0.5 > 0.12 = not OOB)
+                .NextDouble(0.5)                   // Bounce direction (0.5 = forward bounce)
+                .NextDouble(0.3)                   // Bounce yards (forward = 0-8 yards)
+                .NextDouble(0.5)                   // Recovery check (0.5 < ~0.75 = offense recovers)
+                .NextDouble(0.5);                  // Return yards for offense
 
             // Act
             var result = new InterceptionSkillsCheckResult(rng, qb, receiver, offense, defense, interceptionSpot);
