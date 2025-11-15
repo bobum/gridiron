@@ -109,15 +109,14 @@ namespace UnitTestProject1
             var game = _testGame.GetGame();
             var qb = new Player { LastName = "Brady", Passing = 80, Awareness = 85 };
             var receiver = new Player { LastName = "Moss", Catching = 90 };
-            var interceptor = new Player 
-            { 
-                LastName = "Sanders", 
+            var interceptor = new Player
+            {
+                LastName = "Sanders",
                 Position = Positions.CB,
                 Coverage = 95,
                 Speed = 92,
                 Awareness = 90,
-                Agility = 88,
-                Carrying = 70
+                Agility = 88
             };
 
             var offense = new List<Player> { qb, receiver };
