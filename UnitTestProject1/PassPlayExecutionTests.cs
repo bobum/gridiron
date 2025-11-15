@@ -145,6 +145,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.59)       // 60% base - succeeds
                 .YACOpportunityCheck(0.8)        // Fail
                 .YACYards(3)
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // With pressure scenario (completion drops to ~40%)
@@ -193,6 +194,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -467,6 +469,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(8)                     // SackYardsSkillsCheckResult should use this
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -489,6 +492,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(10)                    // Would be -10, but clamped to -4
+                .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -577,6 +581,7 @@ namespace UnitTestProject1
                 .PassCompletionCheck(0.5)
                 .YACOpportunityCheck(0.9)        // FAIL - tackled immediately
                 .ImmediateTackleYards(2)         // YardsAfterCatchSkillsCheckResult returns 0-2
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -613,6 +618,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
                 .BigPlayCheck(0.5)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -654,6 +660,7 @@ namespace UnitTestProject1
                 .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
                 .BigPlayCheck(0.03)              // BIG PLAY! (< 0.05 and speed > 85)
                 .BigPlayBonusYards(20)           // Extra 20 yards
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
@@ -692,6 +699,7 @@ namespace UnitTestProject1
                 .YACOpportunityCheck(0.2)        // SUCCESS
                 .YACRandomFactor(0.5)            // Random factor: 2
                 .BigPlayCheck(0.03)              // Would trigger, but speed 80 < 85
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
             // Act
