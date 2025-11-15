@@ -124,10 +124,15 @@ namespace UnitTestProject1
         public void InterceptionOccurredSkillsCheckTrueTest()
         {
             var game = _testGame.GetGame();
-            var rng = new TestFluentSeedableRandom()
-                .NextInt(1); // Interception occurs when value == 1
 
-            var interceptionResult = new InterceptionOccurredSkillsCheck(rng);
+            // Create QB with low passing skill and receiver
+            var qb = new Player { Passing = 40, Awareness = 40 }; // Low skill = higher INT chance
+            var receiver = new Player { Catching = 70 };
+
+            var rng = new TestFluentSeedableRandom()
+                .InterceptionOccurredCheck(0.01); // Low value = interception occurs
+
+            var interceptionResult = new InterceptionOccurredSkillsCheck(rng, qb, receiver, underPressure: true);
             interceptionResult.Execute(game);
 
             Assert.IsTrue(interceptionResult.Occurred);
@@ -137,10 +142,15 @@ namespace UnitTestProject1
         public void InterceptionOccurredSkillsCheckFalseTest()
         {
             var game = _testGame.GetGame();
-            var rng = new TestFluentSeedableRandom()
-                .NextInt(2); // Interception does not occur when value != 1
 
-            var interceptionResult = new InterceptionOccurredSkillsCheck(rng);
+            // Create QB and receiver
+            var qb = new Player { Passing = 80, Awareness = 80 }; // Good skill = lower INT chance
+            var receiver = new Player { Catching = 70 };
+
+            var rng = new TestFluentSeedableRandom()
+                .InterceptionOccurredCheck(0.99); // High value = no interception
+
+            var interceptionResult = new InterceptionOccurredSkillsCheck(rng, qb, receiver, underPressure: false);
             interceptionResult.Execute(game);
 
             Assert.IsFalse(interceptionResult.Occurred);
