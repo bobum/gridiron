@@ -51,6 +51,19 @@ namespace StateLibrary.PlayResults
                 return;
             }
 
+            // Check for pick-six (interception returned for touchdown)
+            if (play.IsTouchdown && play.Interception && play.PossessionChange)
+            {
+                // Defensive TD on interception return
+                play.EndFieldPosition = 0; // Defense scores at offense's 0 yard line
+                game.FieldPosition = 0;
+
+                var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddTouchdown(defendingTeam);
+                play.PossessionChange = true;
+                return;
+            }
+
             // Calculate new field position
             var newFieldPosition = game.FieldPosition + play.YardsGained;
 

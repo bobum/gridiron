@@ -129,26 +129,43 @@ namespace StateLibrary.Plays
             }
             else
             {
-                // Incomplete pass
-                play.Result.LogInformation($"{qb.LastName} pass incomplete, intended for {receiver.LastName}.");
+                // Incomplete pass - check for interception
+                var interceptionCheck = new InterceptionOccurredSkillsCheck(_rng, qb, receiver, underPressure);
+                interceptionCheck.Execute(game);
 
-                // Create the pass segment for incomplete
-                var segment = new PassSegment
+                if (interceptionCheck.Occurred)
                 {
-                    Passer = qb,
-                    Receiver = receiver,
-                    IsComplete = isComplete,
-                    Type = passType,
-                    AirYards = 0,
-                    YardsAfterCatch = yardsAfterCatch,
-                    EndedInFumble = false
-                };
+                    // INTERCEPTION!
+                    var interceptionSpot = game.FieldPosition + airYards;
+                    // Clamp to field boundaries
+                    interceptionSpot = Math.Max(0, Math.Min(100, interceptionSpot));
 
-                play.PassSegments.Add(segment);
-                play.YardsGained = totalYards;
+                    // Handle interception return
+                    HandleInterceptionReturn(game, play, qb, receiver, interceptionSpot, passType);
+                }
+                else
+                {
+                    // Incomplete pass (not intercepted)
+                    play.Result.LogInformation($"{qb.LastName} pass incomplete, intended for {receiver.LastName}.");
 
-                // Update elapsed time (pass plays take 4-7 seconds - slightly faster than runs)
-                play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
+                    // Create the pass segment for incomplete
+                    var segment = new PassSegment
+                    {
+                        Passer = qb,
+                        Receiver = receiver,
+                        IsComplete = isComplete,
+                        Type = passType,
+                        AirYards = 0,
+                        YardsAfterCatch = yardsAfterCatch,
+                        EndedInFumble = false
+                    };
+
+                    play.PassSegments.Add(segment);
+                    play.YardsGained = totalYards;
+
+                    // Update elapsed time (pass plays take 4-7 seconds - slightly faster than runs)
+                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
+                }
             }
         }
 
@@ -376,6 +393,103 @@ namespace StateLibrary.Plays
             }
 
             play.Fumbles.Add(fumble);
+        }
+
+        private void HandleInterceptionReturn(Game game, PassPlay play, Player qb, Player intendedReceiver, int interceptionSpot, PassType passType)
+        {
+            // Select interceptor (defensive back with best coverage/awareness)
+            var interceptor = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
+                           p.Position == Positions.FS || p.Position == Positions.LB)
+                .OrderByDescending(p => p.Coverage + p.Awareness + p.Speed)
+                .FirstOrDefault();
+
+            if (interceptor == null)
+            {
+                // Fallback - shouldn't happen
+                interceptor = play.DefensePlayersOnField.First();
+            }
+
+            play.Result.LogInformation($"INTERCEPTION! {interceptor.LastName} picks off {qb.LastName}!");
+
+            // Calculate interception return yardage
+            var returnResult = new InterceptionReturnSkillsCheckResult(
+                _rng,
+                interceptor,
+                play.OffensePlayersOnField,
+                interceptionSpot);
+            returnResult.Execute(game);
+
+            var returnInfo = returnResult.Result;
+
+            // Create interception record
+            var interception = new DomainObjects.Interception
+            {
+                InterceptedBy = interceptor,
+                ThrownBy = qb,
+                InterceptionYardLine = interceptionSpot,
+                ReturnYards = returnInfo.ReturnYards,
+                FumbledDuringReturn = false
+            };
+
+            // Calculate final field position after return
+            // Interception return moves toward offense's 0 (opposite direction)
+            var finalPosition = interceptionSpot - returnInfo.ReturnYards;
+
+            // Check for pick-six (touchdown)
+            if (finalPosition <= 0)
+            {
+                play.IsTouchdown = true;
+                play.YardsGained = -1 * play.StartFieldPosition; // Defense scores
+                play.Result.LogInformation($"{interceptor.LastName} takes it ALL THE WAY! PICK-SIX TOUCHDOWN!");
+            }
+            else
+            {
+                // Check for fumble during interception return
+                var fumbleCheck = new FumbleOccurredSkillsCheck(
+                    _rng,
+                    interceptor,
+                    play.OffensePlayersOnField,
+                    PlayType.Pass,
+                    isQBSack: false);
+                fumbleCheck.Execute(game);
+
+                if (fumbleCheck.Occurred)
+                {
+                    interception.FumbledDuringReturn = true;
+                    play.Result.LogInformation($"{interceptor.LastName} returns it {returnInfo.ReturnYards} yards but fumbles!");
+                    HandleFumbleRecovery(game, play, interceptor, finalPosition);
+                }
+                else
+                {
+                    // Normal interception return
+                    play.YardsGained = finalPosition - play.StartFieldPosition;
+                    if (returnInfo.ReturnYards > 0)
+                    {
+                        play.Result.LogInformation($"{interceptor.LastName} returns it {returnInfo.ReturnYards} yards!");
+                    }
+                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0);
+                }
+            }
+
+            // Create pass segment for the intercepted pass
+            var segment = new PassSegment
+            {
+                Passer = qb,
+                Receiver = intendedReceiver,
+                IsComplete = false,
+                Type = passType,
+                AirYards = 0,
+                YardsAfterCatch = 0,
+                EndedInFumble = false
+            };
+
+            play.PassSegments.Add(segment);
+
+            // Mark interception and possession change
+            play.Interception = true;
+            play.InterceptionDetails = interception;
+            play.PossessionChange = true;
         }
     }
 }
