@@ -156,6 +156,9 @@ namespace UnitTestProject1
             Assert.IsFalse(interceptionResult.Occurred);
         }
 
+        // NOTE: Tests commented out - these test the old penalty architecture
+        // New penalty tests are in PenaltySkillsChecksTests.cs
+        /*
         [TestMethod]
         public void PenaltyOccurredSkillsCheckKickoffTrueOnAwayTeamTest()
         {
@@ -193,6 +196,7 @@ namespace UnitTestProject1
             Assert.IsFalse(penaltyCheck.Occurred);
             Assert.IsNull(penaltyCheck.Penalty);
         }
+        */
 
         [TestMethod]
         public void PuntOccurredSkillsCheckFalseTest()
