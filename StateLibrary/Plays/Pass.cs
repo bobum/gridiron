@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -39,6 +40,25 @@ namespace StateLibrary.Plays
             // Check pass protection (sack check)
             var protectionCheck = new PassProtectionSkillsCheck(_rng);
             protectionCheck.Execute(game);
+
+            // Check for blocking penalties during pass protection
+            var offensiveLine = play.OffensePlayersOnField
+                .Where(p => p.Position == Positions.T || p.Position == Positions.G || p.Position == Positions.C)
+                .ToList();
+            var defensiveLine = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
+                           p.Position == Positions.LB || p.Position == Positions.OLB)
+                .ToList();
+
+            var blockingPenaltyCheck = new BlockingPenaltyOccurredSkillsCheck(
+                _rng, offensiveLine, defensiveLine, PlayType.Pass);
+            blockingPenaltyCheck.Execute(game);
+
+            if (blockingPenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, blockingPenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
 
             if (!protectionCheck.Occurred)
             {
@@ -77,6 +97,24 @@ namespace StateLibrary.Plays
             var yardsAfterCatch = 0;
             var totalYards = 0;
 
+            // Check for coverage penalties (only if pass is incomplete)
+            if (!isComplete)
+            {
+                var defensiveBacks = play.DefensePlayersOnField
+                    .Where(p => p.Position == Positions.CB || p.Position == Positions.S || p.Position == Positions.FS)
+                    .ToList();
+
+                var coveragePenaltyCheck = new CoveragePenaltyOccurredSkillsCheck(
+                    _rng, receiver, defensiveBacks, isComplete, airYards);
+                coveragePenaltyCheck.Execute(game);
+
+                if (coveragePenaltyCheck.Occurred)
+                {
+                    CheckAndAddPenalty(game, play, coveragePenaltyCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                }
+            }
+
             if (isComplete)
             {
                 // Pass completed - calculate yards after catch
@@ -86,6 +124,24 @@ namespace StateLibrary.Plays
                 // Ensure we don't exceed field boundaries
                 var yardsToGoal = 100 - game.FieldPosition;
                 totalYards = Math.Min(totalYards, yardsToGoal);
+
+                // Check for tackle penalties on the receiver
+                var tacklers = play.DefensePlayersOnField
+                    .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
+                               p.Position == Positions.FS || p.Position == Positions.LB || p.Position == Positions.OLB)
+                    .OrderByDescending(p => p.Speed + p.Tackling)
+                    .Take(2)
+                    .ToList();
+
+                var receiverTacklePenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                    _rng, receiver, tacklers, TackleContext.Receiver);
+                receiverTacklePenaltyCheck.Execute(game);
+
+                if (receiverTacklePenaltyCheck.Occurred)
+                {
+                    CheckAndAddPenalty(game, play, receiverTacklePenaltyCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                }
 
                 // Create the pass segment
                 var segment = new PassSegment
@@ -184,6 +240,27 @@ namespace StateLibrary.Plays
                         if (result.ReturnYards > 0)
                         {
                             play.Result.LogInformation($"{result.Interceptor.LastName} returns it {result.ReturnYards} yards!");
+                        }
+                    }
+
+                    // Check for tackle penalties during interception return
+                    if (result.ReturnYards > 0 && !result.IsPickSix && !result.FumbledDuringReturn)
+                    {
+                        var returnTacklers = play.OffensePlayersOnField
+                            .Where(p => p.Position == Positions.WR || p.Position == Positions.RB ||
+                                       p.Position == Positions.TE || p.Position == Positions.QB)
+                            .OrderByDescending(p => p.Speed + p.Tackling)
+                            .Take(2)
+                            .ToList();
+
+                        var returnTacklePenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                            _rng, result.Interceptor, returnTacklers, TackleContext.Returner);
+                        returnTacklePenaltyCheck.Execute(game);
+
+                        if (returnTacklePenaltyCheck.Occurred)
+                        {
+                            CheckAndAddPenalty(game, play, returnTacklePenaltyCheck.PenaltyThatOccurred,
+                                PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
                         }
                     }
 
@@ -315,6 +392,17 @@ namespace StateLibrary.Plays
             };
 
             play.PassSegments.Add(segment);
+
+            // Check for roughing the passer penalty
+            var tacklePenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                _rng, qb, sackers, TackleContext.PasserInPocket);
+            tacklePenaltyCheck.Execute(game);
+
+            if (tacklePenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, tacklePenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
 
             if (fumbleCheck.Occurred)
             {
@@ -492,6 +580,42 @@ namespace StateLibrary.Plays
             }
 
             play.Fumbles.Add(fumble);
+        }
+
+        private void CheckAndAddPenalty(
+            Game game,
+            PassPlay play,
+            PenaltyNames penaltyName,
+            PenaltyOccuredWhen occurredWhen,
+            List<Player> homePlayersOnField,
+            List<Player> awayPlayersOnField)
+        {
+            var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                _rng,
+                penaltyName,
+                occurredWhen,
+                homePlayersOnField,
+                awayPlayersOnField,
+                play.Possession,
+                game.FieldPosition
+            );
+            penaltyEffect.Execute(game);
+
+            if (penaltyEffect.Result != null)
+            {
+                var penalty = new Penalty
+                {
+                    Name = penaltyEffect.Result.PenaltyName,
+                    CalledOn = penaltyEffect.Result.CalledOn,
+                    Player = penaltyEffect.Result.CommittedBy,
+                    OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                    Yards = penaltyEffect.Result.Yards,
+                    Accepted = penaltyEffect.Result.Accepted
+                };
+                play.Penalties.Add(penalty);
+
+                play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
+            }
         }
 
     }

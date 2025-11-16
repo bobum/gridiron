@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -45,6 +46,25 @@ namespace StateLibrary.Plays
 
             var blockingSuccess = blockingCheck.Occurred;
             var blockingModifier = blockingSuccess ? 1.2 : 0.8; // +20% or -20% yards
+
+            // Check for blocking penalties during run blocking
+            var offensiveLine = play.OffensePlayersOnField
+                .Where(p => p.Position == Positions.T || p.Position == Positions.G || p.Position == Positions.C)
+                .ToList();
+            var defensiveLine = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
+                           p.Position == Positions.LB || p.Position == Positions.OLB)
+                .ToList();
+
+            var blockingPenaltyCheck = new BlockingPenaltyOccurredSkillsCheck(
+                _rng, offensiveLine, defensiveLine, PlayType.Run);
+            blockingPenaltyCheck.Execute(game);
+
+            if (blockingPenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, blockingPenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
 
             // Calculate base yardage using SkillsCheckResult
             var runYardsResult = new RunYardsSkillsCheckResult(_rng, ballCarrier, play.OffensePlayersOnField, play.DefensePlayersOnField);
@@ -95,6 +115,25 @@ namespace StateLibrary.Plays
 
             // Calculate current field position after the run
             var currentFieldPosition = game.FieldPosition + finalYards;
+
+            // Check for tackle penalties on the ball carrier
+            var tacklers = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.LB || p.Position == Positions.OLB ||
+                           p.Position == Positions.DE || p.Position == Positions.DT ||
+                           p.Position == Positions.CB || p.Position == Positions.S || p.Position == Positions.FS)
+                .OrderByDescending(p => p.Speed + p.Tackling)
+                .Take(2)
+                .ToList();
+
+            var tacklePenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                _rng, ballCarrier, tacklers, TackleContext.BallCarrier);
+            tacklePenaltyCheck.Execute(game);
+
+            if (tacklePenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, tacklePenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
 
             // Check for fumble (before logging the narrative)
             var fumbleCheck = new FumbleOccurredSkillsCheck(
@@ -309,6 +348,42 @@ namespace StateLibrary.Plays
             }
 
             play.Fumbles.Add(fumble);
+        }
+
+        private void CheckAndAddPenalty(
+            Game game,
+            RunPlay play,
+            PenaltyNames penaltyName,
+            PenaltyOccuredWhen occurredWhen,
+            List<Player> homePlayersOnField,
+            List<Player> awayPlayersOnField)
+        {
+            var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                _rng,
+                penaltyName,
+                occurredWhen,
+                homePlayersOnField,
+                awayPlayersOnField,
+                play.Possession,
+                game.FieldPosition
+            );
+            penaltyEffect.Execute(game);
+
+            if (penaltyEffect.Result != null)
+            {
+                var penalty = new Penalty
+                {
+                    Name = penaltyEffect.Result.PenaltyName,
+                    CalledOn = penaltyEffect.Result.CalledOn,
+                    Player = penaltyEffect.Result.CommittedBy,
+                    OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                    Yards = penaltyEffect.Result.Yards,
+                    Accepted = penaltyEffect.Result.Accepted
+                };
+                play.Penalties.Add(penalty);
+
+                play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -298,6 +299,24 @@ namespace StateLibrary.Plays
 
             play.IsGood = makeCheck.Occurred;
 
+            // Check for roughing/running into kicker penalty
+            var rushers = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
+                           p.Position == Positions.LB || p.Position == Positions.OLB)
+                .OrderByDescending(p => p.Speed + p.Strength)
+                .Take(2)
+                .ToList();
+
+            var kickerPenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                _rng, kicker, rushers, TackleContext.Kicker);
+            kickerPenaltyCheck.Execute(game);
+
+            if (kickerPenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, kickerPenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
+
             if (play.IsGood)
             {
                 if (play.IsExtraPoint)
@@ -343,6 +362,42 @@ namespace StateLibrary.Plays
 
             // Possession changes regardless of make/miss (scoring or turnover on downs)
             play.PossessionChange = true;
+        }
+
+        private void CheckAndAddPenalty(
+            Game game,
+            FieldGoalPlay play,
+            PenaltyNames penaltyName,
+            PenaltyOccuredWhen occurredWhen,
+            List<Player> homePlayersOnField,
+            List<Player> awayPlayersOnField)
+        {
+            var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                _rng,
+                penaltyName,
+                occurredWhen,
+                homePlayersOnField,
+                awayPlayersOnField,
+                play.Possession,
+                game.FieldPosition
+            );
+            penaltyEffect.Execute(game);
+
+            if (penaltyEffect.Result != null)
+            {
+                var penalty = new Penalty
+                {
+                    Name = penaltyEffect.Result.PenaltyName,
+                    CalledOn = penaltyEffect.Result.CalledOn,
+                    Player = penaltyEffect.Result.CommittedBy,
+                    OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                    Yards = penaltyEffect.Result.Yards,
+                    Accepted = penaltyEffect.Result.Accepted
+                };
+                play.Penalties.Add(penalty);
+
+                play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
+            }
         }
     }
 }

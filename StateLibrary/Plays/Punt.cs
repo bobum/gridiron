@@ -5,6 +5,7 @@ using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -246,6 +247,24 @@ namespace StateLibrary.Plays
 
             play.HangTime = hangTime;
 
+            // Check for roughing/running into kicker penalty
+            var rushers = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.DE || p.Position == Positions.DT ||
+                           p.Position == Positions.LB || p.Position == Positions.OLB)
+                .OrderByDescending(p => p.Speed + p.Strength)
+                .Take(2)
+                .ToList();
+
+            var kickerPenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                _rng, punter, rushers, TackleContext.Kicker);
+            kickerPenaltyCheck.Execute(game);
+
+            if (kickerPenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, kickerPenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
+
             // Calculate where punt lands
             var puntLandingSpot = game.FieldPosition + puntDistance;
 
@@ -413,6 +432,27 @@ namespace StateLibrary.Plays
 
             var totalYards = puntDistance + returnYards;
 
+            // Check for tackle penalties on the returner
+            if (returnYards > 0)
+            {
+                var tacklers = play.OffensePlayersOnField
+                    .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
+                               p.Position == Positions.LB || p.Position == Positions.WR)
+                    .OrderByDescending(p => p.Speed + p.Tackling)
+                    .Take(2)
+                    .ToList();
+
+                var returnTacklePenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                    _rng, returner, tacklers, TackleContext.Returner);
+                returnTacklePenaltyCheck.Execute(game);
+
+                if (returnTacklePenaltyCheck.Occurred)
+                {
+                    CheckAndAddPenalty(game, play, returnTacklePenaltyCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                }
+            }
+
             // Create return segment
             var segment = new ReturnSegment
             {
@@ -450,6 +490,42 @@ namespace StateLibrary.Plays
 
             // Punt returns take hang time + return time (2-6 seconds for return)
             play.ElapsedTime += hangTime + 2.0 + (_rng.NextDouble() * 4.0);
+        }
+
+        private void CheckAndAddPenalty(
+            Game game,
+            PuntPlay play,
+            PenaltyNames penaltyName,
+            PenaltyOccuredWhen occurredWhen,
+            List<Player> homePlayersOnField,
+            List<Player> awayPlayersOnField)
+        {
+            var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                _rng,
+                penaltyName,
+                occurredWhen,
+                homePlayersOnField,
+                awayPlayersOnField,
+                play.Possession,
+                game.FieldPosition
+            );
+            penaltyEffect.Execute(game);
+
+            if (penaltyEffect.Result != null)
+            {
+                var penalty = new Penalty
+                {
+                    Name = penaltyEffect.Result.PenaltyName,
+                    CalledOn = penaltyEffect.Result.CalledOn,
+                    Player = penaltyEffect.Result.CommittedBy,
+                    OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                    Yards = penaltyEffect.Result.Yards,
+                    Accepted = penaltyEffect.Result.Accepted
+                };
+                play.Penalties.Add(penalty);
+
+                play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
+            }
         }
     }
 }
