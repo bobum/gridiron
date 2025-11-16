@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using DomainObjects;
 using DomainObjects.Helpers;
 using DomainObjects.Time;
@@ -12,7 +14,6 @@ using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
 using Fumble = StateLibrary.Actions.Fumble;
 using Interception = StateLibrary.Actions.Interception;
-using Penalty = StateLibrary.Actions.Penalty;
 
 namespace StateLibrary
 {
@@ -352,11 +353,11 @@ namespace StateLibrary
             }
 
             //if we have a penalty/penalties then lets apply it/them
-            if (_game.CurrentPlay.Penalties.Count > 0)
-            {
-                var penaltyResult = new Penalty();
-                penaltyResult.Execute(_game);
-            }
+            // TODO: Implement penalty enforcement in Phase 2
+            // if (_game.CurrentPlay.Penalties.Count > 0)
+            // {
+            //     Apply penalty enforcement logic here
+            // }
 
             //check for penalties during and after the play, scores, injuries, quarter expiration
             var postPlay = new PostPlay();
@@ -432,14 +433,95 @@ namespace StateLibrary
 
         private void PenaltyCheck(PenaltyOccuredWhen penaltyOccuredWhen)
         {
-            var penaltyOccurredSkillsCheck = new PenaltyOccurredSkillsCheck(penaltyOccuredWhen, _rng);
-            penaltyOccurredSkillsCheck.Execute(_game);
-
-            if (penaltyOccurredSkillsCheck.Occurred)
+            // Only pre-snap penalties are checked here
+            // Other penalties (blocking, coverage, tackle, post-play) are checked within Play classes
+            if (penaltyOccuredWhen == PenaltyOccuredWhen.Before)
             {
-                var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penaltyOccurredSkillsCheck.Penalty);
-                penaltySkillsCheckResult.Execute(_game);
+                var preSnapCheck = new PreSnapPenaltyOccurredSkillsCheck(_rng, _game.CurrentPlay.PlayType);
+                preSnapCheck.Execute(_game);
+
+                if (preSnapCheck.Occurred)
+                {
+                    // Create penalty effect with proper context
+                    var homePlayersOnField = _game.CurrentPlay.OffensePlayersOnField.Concat(_game.CurrentPlay.DefensePlayersOnField).ToList();
+                    var awayPlayersOnField = new List<Player>(); // TODO: Get actual away players on field
+
+                    var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                        _rng,
+                        preSnapCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.Before,
+                        homePlayersOnField,
+                        awayPlayersOnField,
+                        _game.CurrentPlay.Possession,
+                        _game.FieldPosition
+                    );
+                    penaltyEffect.Execute(_game);
+
+                    // Add the penalty to the current play
+                    if (penaltyEffect.Result != null)
+                    {
+                        var penalty = new Penalty
+                        {
+                            Name = penaltyEffect.Result.PenaltyName,
+                            CalledOn = penaltyEffect.Result.CalledOn,
+                            Player = penaltyEffect.Result.CommittedBy,
+                            OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                            Yards = penaltyEffect.Result.Yards,
+                            Accepted = penaltyEffect.Result.Accepted
+                        };
+                        _game.CurrentPlay.Penalties.Add(penalty);
+                    }
+                }
             }
+            else if (penaltyOccuredWhen == PenaltyOccuredWhen.After)
+            {
+                // Post-play penalties (taunting, unsportsmanlike conduct, etc.)
+                var homePlayersOnField = _game.CurrentPlay.OffensePlayersOnField.Concat(_game.CurrentPlay.DefensePlayersOnField).ToList();
+                var awayPlayersOnField = new List<Player>(); // TODO: Get actual away players on field
+
+                // Determine if big play or turnover occurred for context
+                var bigPlayOccurred = Math.Abs(_game.CurrentPlay.YardsGained) >= 20;
+                var turnoverOccurred = _game.CurrentPlay.PossessionChange &&
+                                      (_game.CurrentPlay.Interception || _game.CurrentPlay.Fumbles.Count > 0);
+
+                var postPlayCheck = new PostPlayPenaltyOccurredSkillsCheck(
+                    _rng,
+                    homePlayersOnField,
+                    awayPlayersOnField,
+                    bigPlayOccurred,
+                    turnoverOccurred);
+                postPlayCheck.Execute(_game);
+
+                if (postPlayCheck.Occurred)
+                {
+                    var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                        _rng,
+                        postPlayCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.After,
+                        homePlayersOnField,
+                        awayPlayersOnField,
+                        _game.CurrentPlay.Possession,
+                        _game.FieldPosition
+                    );
+                    penaltyEffect.Execute(_game);
+
+                    // Add the penalty to the current play
+                    if (penaltyEffect.Result != null)
+                    {
+                        var penalty = new Penalty
+                        {
+                            Name = penaltyEffect.Result.PenaltyName,
+                            CalledOn = penaltyEffect.Result.CalledOn,
+                            Player = penaltyEffect.Result.CommittedBy,
+                            OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                            Yards = penaltyEffect.Result.Yards,
+                            Accepted = penaltyEffect.Result.Accepted
+                        };
+                        _game.CurrentPlay.Penalties.Add(penalty);
+                    }
+                }
+            }
+            // During penalties are handled in Play classes
         }
 
         #endregion

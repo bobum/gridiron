@@ -5,6 +5,7 @@ using StateLibrary.Interfaces;
 using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace StateLibrary.Plays
@@ -241,6 +242,26 @@ namespace StateLibrary.Plays
 
             var returnYards = (int)returnCheck.Result;
 
+            // Check for blocking penalties during return (illegal blocks, blocks in the back)
+            var returnBlockers = play.DefensePlayersOnField
+                .Where(p => p.Position == Positions.WR || p.Position == Positions.RB ||
+                           p.Position == Positions.CB || p.Position == Positions.S)
+                .ToList();
+            var coverageTeam = play.OffensePlayersOnField
+                .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
+                           p.Position == Positions.LB || p.Position == Positions.WR)
+                .ToList();
+
+            var blockingPenaltyCheck = new BlockingPenaltyOccurredSkillsCheck(
+                _rng, returnBlockers, coverageTeam, PlayType.Kickoff);
+            blockingPenaltyCheck.Execute(game);
+
+            if (blockingPenaltyCheck.Occurred)
+            {
+                CheckAndAddPenalty(game, play, blockingPenaltyCheck.PenaltyThatOccurred,
+                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+            }
+
             // Create return segment
             var segment = new ReturnSegment
             {
@@ -292,6 +313,27 @@ namespace StateLibrary.Plays
 
             // Clamp to valid field position
             fieldPosition = Math.Max(1, Math.Min(99, fieldPosition));
+
+            // Check for tackle penalties on the returner
+            if (returnYards > 0)
+            {
+                var tacklers = play.OffensePlayersOnField
+                    .Where(p => p.Position == Positions.CB || p.Position == Positions.S ||
+                               p.Position == Positions.LB || p.Position == Positions.WR)
+                    .OrderByDescending(p => p.Speed + p.Tackling)
+                    .Take(2)
+                    .ToList();
+
+                var tacklePenaltyCheck = new TacklePenaltyOccurredSkillsCheck(
+                    _rng, returner, tacklers, TackleContext.Returner);
+                tacklePenaltyCheck.Execute(game);
+
+                if (tacklePenaltyCheck.Occurred)
+                {
+                    CheckAndAddPenalty(game, play, tacklePenaltyCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                }
+            }
 
             play.EndFieldPosition = fieldPosition;
             play.Result.LogInformation($"{returner.LastName} returns the kickoff {returnYards} yards to the {fieldPosition}-yard line.");
@@ -454,6 +496,42 @@ namespace StateLibrary.Plays
 
                 play.Result.LogInformation($"{recoverer.LastName} recovers for the kicking team! Great special teams play!");
                 play.ElapsedTime += 5.0 + (_rng.NextDouble() * 2.0);
+            }
+        }
+
+        private void CheckAndAddPenalty(
+            Game game,
+            KickoffPlay play,
+            PenaltyNames penaltyName,
+            PenaltyOccuredWhen occurredWhen,
+            List<Player> homePlayersOnField,
+            List<Player> awayPlayersOnField)
+        {
+            var penaltyEffect = new PenaltyEffectSkillsCheckResult(
+                _rng,
+                penaltyName,
+                occurredWhen,
+                homePlayersOnField,
+                awayPlayersOnField,
+                play.Possession,
+                game.FieldPosition
+            );
+            penaltyEffect.Execute(game);
+
+            if (penaltyEffect.Result != null)
+            {
+                var penalty = new Penalty
+                {
+                    Name = penaltyEffect.Result.PenaltyName,
+                    CalledOn = penaltyEffect.Result.CalledOn,
+                    Player = penaltyEffect.Result.CommittedBy,
+                    OccuredWhen = penaltyEffect.Result.OccurredWhen,
+                    Yards = penaltyEffect.Result.Yards,
+                    Accepted = penaltyEffect.Result.Accepted
+                };
+                play.Penalties.Add(penalty);
+
+                play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
             }
         }
     }

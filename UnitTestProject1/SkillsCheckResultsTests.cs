@@ -61,6 +61,9 @@ namespace UnitTestProject1
             Assert.AreEqual(Possession.Away, interceptionResult.Possession);
         }
 
+        // NOTE: Tests commented out - these test the old penalty architecture
+        // New penalty tests are in PenaltySkillsChecksTests.cs
+        /*
         [TestMethod]
         public void KickoffPenaltySkillsCheckResultTest()
         {
@@ -125,6 +128,7 @@ namespace UnitTestProject1
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
                 Penalties.List.Single(p => p.Name == PenaltyNames.OffensiveHolding).Name);
         }
+        */
 
         #region AirYardsSkillsCheckResult Tests
 

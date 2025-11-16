@@ -23,9 +23,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (0.15 > 0.10 = RB gets ball)
                 .NextInt(4)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking check (moderate success)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.6)                     // Base yards random factor
                 .NextDouble(0.8)                     // Tackle break check (fails)
                 .NextDouble(0.9)                     // Big run check (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.73);      // Elapsed time (5 + 0.73*3 = ~7.2 seconds)
 
@@ -52,9 +54,11 @@ namespace UnitTestProject1
                 .NextDouble(0.11)                    // QB check (0.11 > 0.10 = RB gets ball)
                 .NextInt(4)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.6)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time (5 + 0.33*3 = 6.0 seconds)
 
@@ -76,9 +80,11 @@ namespace UnitTestProject1
                 .NextDouble(0.05)                    // QB check (0.05 < 0.10 = QB scrambles)
                 .NextInt(4)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.6)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -98,9 +104,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction = Middle
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.6)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -132,9 +140,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .NextDouble(0.6)                     // Tackle break (fails)
                 .NextDouble(0.8)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -143,9 +153,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.6)               // Bad blocking (fails)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .NextDouble(0.6)                     // Tackle break (fails)
                 .NextDouble(0.8)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -181,11 +193,13 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)                     // Base yards random factor
                 .NextDouble(0.1)                     // Tackle break (succeeds!)
                 .NextInt(5)                          // Tackle break yards (5)
                 .NextDouble(0.8)                     // Big run (fails)
-                .NextDouble(0.99)                     // No fumble
+                .NextDouble(0.99)                    // No tackle penalty
+                .NextDouble(0.99)                    // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
             // Act
@@ -221,9 +235,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -232,10 +248,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.05)                    // Big run (succeeds!)
                 .NextInt(25)                         // Breakaway yards
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -270,11 +288,13 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)                     // Base yards factor
                 .NextDouble(0.05)                    // Tackle break (succeeds)
                 .NextInt(5)                          // Tackle break yards
                 .NextDouble(0.01)                    // Big run (succeeds)
                 .NextInt(30)                         // Breakaway yards (would exceed goal line)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -299,9 +319,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.7)               // Bad blocking (fails)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.1)                     // Base yards random factor (produces negative yards: 0.1 * 25 - 15 = -12.5)
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.33);      // Elapsed time
 
@@ -327,9 +349,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)                     // Base yards factor
                 .NextDouble(0.8)                     // Tackle break (fails)
                 .NextDouble(0.9)                     // Big run (fails)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.83);      // Elapsed time (5 + 0.83*3 = 7.5 seconds)
 
@@ -358,9 +382,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.72)                    // Base yards random factor: 0.72*25-15 = 3.0
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -387,9 +413,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -415,9 +443,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.7)               // Bad blocking (fails)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.2)                     // Base yards random factor: 0.2*25-15 = -10
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -449,10 +479,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.7)                     // Base yards factor: 0.7*25-15 = 2.5
                 .TackleBreakCheck(0.1)               // TACKLE BREAK! (succeeds)
                 .NextInt(6)                          // TackleBreakYardsSkillsCheckResult: 6 yards
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -490,10 +522,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)
                 .NextInt(2)
                 .RunBlockingCheck(0.5)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)
                 .TackleBreakCheck(0.1)
                 .NextInt(3)                          // Min: 3 yards
                 .BreakawayCheck(0.9)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -502,10 +536,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)
                 .NextInt(2)
                 .RunBlockingCheck(0.5)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)
                 .TackleBreakCheck(0.1)
                 .NextInt(8)                          // Max: 8 yards
                 .BreakawayCheck(0.9)
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -538,10 +574,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Blocking
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)                     // Base yards factor
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.05)                // BREAKAWAY! (succeeds)
                 .NextInt(30)                         // BreakawayYardsSkillsCheckResult: 30 yards
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -575,10 +613,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)
                 .NextInt(2)
                 .RunBlockingCheck(0.5)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.05)
                 .NextInt(15)                         // Min: 15 yards
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -587,10 +627,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)
                 .NextInt(2)
                 .RunBlockingCheck(0.5)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.5)
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.05)
                 .NextInt(44)                         // Max: 44 yards
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -625,10 +667,12 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB gets ball)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.68)                    // Base yards: 0.68*25-15 = 2.0 randomFactor
                 .TackleBreakCheck(0.1)               // Tackle break (succeeds)
                 .NextInt(5)                          // TackleBreakYardsSkillsCheckResult: 5 yards
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -662,11 +706,13 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.3)               // Great blocking (succeeds)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.9)                     // Max base yards: 0.9*25-15 = 7.5
                 .TackleBreakCheck(0.05)              // Tackle break (succeeds)
                 .NextInt(8)                          // TackleBreakYardsSkillsCheckResult: 8 yards
                 .BreakawayCheck(0.02)                // Breakaway (succeeds)
                 .NextInt(40)                         // BreakawayYardsSkillsCheckResult: 40 yards
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -692,9 +738,11 @@ namespace UnitTestProject1
                 .NextDouble(0.15)                    // QB check (RB)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.8)               // Bad blocking (fails)
+                .NextDouble(0.99)                    // No blocking penalty
                 .NextDouble(0.05)                    // Minimal base yards: 0.05*25-15 = -13.75
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.99)                    // No tackle penalty
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
 
