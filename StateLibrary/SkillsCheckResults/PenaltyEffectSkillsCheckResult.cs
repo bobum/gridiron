@@ -62,11 +62,14 @@ namespace StateLibrary.SkillsCheckResults
             // If no eligible players (empty list), penalty doesn't occur
             if (eligiblePlayers == null || eligiblePlayers.Count == 0)
             {
+                // IMPORTANT: Consume Next() even when failing to maintain consistent random value consumption
+                // This ensures tests with queue-based RNG work correctly
+                _rng.Next(1);  // Dummy call to maintain consumption pattern
                 Result = null;
                 return;
             }
 
-            // For now, select randomly from eligible players
+            // Select randomly from eligible players
             // TODO: In future, weight by position and player discipline/skills
             var playerIndex = _rng.Next(eligiblePlayers.Count);
             var committedBy = eligiblePlayers[playerIndex];
