@@ -33,6 +33,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block (> 1.5% for PAT)
                 .NextDouble(0.5)   // Make (98% for PAT)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -64,6 +65,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Miss (unlikely but possible)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
 
@@ -98,6 +100,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Make (high probability for short FG)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -133,6 +136,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.4)   // Make (good kicker at 47 yards)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -163,6 +167,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Miss
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.3)   // Wide right
                 .NextDouble(0.5);  // Elapsed time
 
@@ -205,6 +210,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.2)   // Make (excellent kicker at 67 yards ~40% chance)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -235,6 +241,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.8)   // Miss (likely at 67 yards)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.85)  // Short
                 .NextDouble(0.5);  // Elapsed time
 
@@ -611,6 +618,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.03)  // Would NOT block PAT (> 1.5%)
                 .NextDouble(0.5)   // Make check
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -703,6 +711,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Attempt
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -727,6 +736,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Likely miss from 116 yards
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
 
@@ -757,6 +767,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.4)   // Should make with excellent kicker
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var fieldGoal = new FieldGoal(rng);
@@ -786,6 +797,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.75)  // More likely to miss with poor kicker (0.75 > 0.73)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
 
@@ -811,6 +823,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Miss
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
 
@@ -841,6 +854,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Miss
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.5)   // Miss direction
                 .NextDouble(0.5);  // Elapsed time
 
@@ -869,15 +883,15 @@ namespace UnitTestProject1
 
             // Test 1: Made field goal
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.5).NextDouble(0.99).NextDouble(0.5));
 
             // Test 2: Missed field goal
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.99).NextDouble(0.5).NextDouble(0.5));
 
             // Test 3: Made extra point
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(true), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.5).NextDouble(0.99).NextDouble(0.5));
 
             // Test 4: Blocked kick
             ExecuteFieldGoalScenario(CreateGameWithFieldGoalPlay(false), new TestFluentSeedableRandom()
