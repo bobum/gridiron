@@ -470,10 +470,10 @@ namespace UnitTestProject1
                 .PassTypeDetermination(0.6)
                 .AirYards(airYards)
                 .PassCompletionCheck(0.4)
-                .NextDouble(0.99)                     // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)             // YAC opportunity succeeds
                 .YACRandomFactor(0.5)                 // Random factor for YAC
                 .BigPlayCheck(0.9)                    // No big play (0.9 > 0.05)
+                .NextDouble(0.99)                     // Receiver tackle penalty check (no penalty)
                 .NextDouble(0.99)                     // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
