@@ -6,7 +6,6 @@ using StateLibrary.SkillsCheckResults;
 using System.Collections.Generic;
 using System.Linq;
 using UnitTestProject1.Helpers;
-using static StateLibrary.SkillsChecks.TacklePenaltyOccurredSkillsCheck;
 
 namespace UnitTestProject1
 {

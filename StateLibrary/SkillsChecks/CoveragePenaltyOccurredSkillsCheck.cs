@@ -138,7 +138,7 @@ namespace StateLibrary.SkillsChecks
             foreach (var penaltyName in penalties)
             {
                 var basePenalty = Penalties.List.Single(p => p.Name == penaltyName);
-                var baseOdds = basePenalty.Odds;
+                var baseOdds = (double)basePenalty.Odds; // Convert float to double
 
                 // Context-specific adjustments
                 if (penaltyName == PenaltyNames.DefensivePassInterference)
