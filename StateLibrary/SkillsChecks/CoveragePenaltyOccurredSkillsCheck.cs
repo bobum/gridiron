@@ -112,11 +112,11 @@ namespace StateLibrary.SkillsChecks
                 adjustmentFactor *= 1.5 - (avgCoverage / 100.0 * 0.8);
             }
 
-            // Adjust based on receiver skills
-            var receiverRouteRunning = _receiver?.RouteRunning ?? 50;
+            // Adjust based on receiver skills (catching represents overall receiver ability)
+            var receiverCatching = _receiver?.Catching ?? 50;
 
-            // Better route running = more penalties drawn (0.9x to 1.3x)
-            adjustmentFactor *= 0.9 + (receiverRouteRunning / 100.0 * 0.4);
+            // Better catching/route skills = more penalties drawn (0.9x to 1.3x)
+            adjustmentFactor *= 0.9 + (receiverCatching / 100.0 * 0.4);
 
             // Deep passes = more DPI (harder to cover)
             if (_airYards > 20)

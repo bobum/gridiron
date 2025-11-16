@@ -137,14 +137,13 @@ namespace StateLibrary.SkillsChecks
         {
             var adjustmentFactor = 1.0;
 
-            // Adjust based on tackler aggression/discipline
+            // Adjust based on tackler strength (stronger = more penalties due to harder hits)
             if (_tacklers.Any())
             {
-                var avgTacklerDiscipline = _tacklers.Average(p =>
-                    100 - p.Aggressiveness); // Higher aggressiveness = less discipline
+                var avgTacklerStrength = _tacklers.Average(p => p.Strength);
 
-                // Less disciplined = more penalties (0.8x to 1.4x)
-                adjustmentFactor *= 1.4 - (avgTacklerDiscipline / 100.0 * 0.6);
+                // Stronger tacklers = slightly more penalties (0.9x to 1.2x)
+                adjustmentFactor *= 0.9 + (avgTacklerStrength / 100.0 * 0.3);
             }
 
             // Context-specific adjustments

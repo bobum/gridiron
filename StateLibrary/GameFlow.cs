@@ -12,7 +12,6 @@ using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
 using Fumble = StateLibrary.Actions.Fumble;
 using Interception = StateLibrary.Actions.Interception;
-using Penalty = StateLibrary.Actions.Penalty;
 
 namespace StateLibrary
 {
@@ -352,11 +351,11 @@ namespace StateLibrary
             }
 
             //if we have a penalty/penalties then lets apply it/them
-            if (_game.CurrentPlay.Penalties.Count > 0)
-            {
-                var penaltyResult = new Penalty();
-                penaltyResult.Execute(_game);
-            }
+            // TODO: Implement penalty enforcement in Phase 2
+            // if (_game.CurrentPlay.Penalties.Count > 0)
+            // {
+            //     Apply penalty enforcement logic here
+            // }
 
             //check for penalties during and after the play, scores, injuries, quarter expiration
             var postPlay = new PostPlay();
@@ -432,14 +431,9 @@ namespace StateLibrary
 
         private void PenaltyCheck(PenaltyOccuredWhen penaltyOccuredWhen)
         {
-            var penaltyOccurredSkillsCheck = new PenaltyOccurredSkillsCheck(penaltyOccuredWhen, _rng);
-            penaltyOccurredSkillsCheck.Execute(_game);
-
-            if (penaltyOccurredSkillsCheck.Occurred)
-            {
-                var penaltySkillsCheckResult = new PenaltySkillsCheckResult(penaltyOccurredSkillsCheck.Penalty);
-                penaltySkillsCheckResult.Execute(_game);
-            }
+            // TODO: Implement new penalty architecture in Phase 2
+            // This will use PreSnapPenaltyOccurredSkillsCheck, BlockingPenaltyOccurredSkillsCheck, etc.
+            // For now, penalties are disabled until Phase 2 integration
         }
 
         #endregion

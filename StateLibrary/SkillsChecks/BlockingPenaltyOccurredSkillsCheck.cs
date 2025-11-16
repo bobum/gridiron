@@ -104,8 +104,7 @@ namespace StateLibrary.SkillsChecks
             // Adjust based on offensive line skill
             if (_offensiveLinemen.Any())
             {
-                var avgOLineSkill = _offensiveLinemen.Average(p =>
-                    (p.PassBlocking + p.RunBlocking) / 2.0);
+                var avgOLineSkill = _offensiveLinemen.Average(p => p.Blocking);
 
                 // Better O-line = fewer holding penalties (0.7x to 1.3x)
                 adjustmentFactor *= 1.3 - (avgOLineSkill / 100.0 * 0.6);
@@ -117,9 +116,9 @@ namespace StateLibrary.SkillsChecks
                 var avgDLineSkill = _defensivePlayers
                     .Where(p => p.Position == Positions.DE || p.Position == Positions.DT)
                     .DefaultIfEmpty()
-                    .Average(p => p?.PassRush ?? 50);
+                    .Average(p => p?.Tackling ?? 50);
 
-                // Better pass rush = more holding (0.8x to 1.4x)
+                // Better tackling = more holding (0.8x to 1.4x)
                 adjustmentFactor *= 0.8 + (avgDLineSkill / 100.0 * 0.6);
             }
 

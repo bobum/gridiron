@@ -112,16 +112,8 @@ namespace StateLibrary.SkillsChecks
                 adjustmentFactor *= 2.0; // Higher chance of unsportsmanlike conduct
             }
 
-            // Adjust based on player composure/discipline
-            var allPlayers = _homePlayersOnField.Concat(_awayPlayersOnField).ToList();
-            if (allPlayers.Any())
-            {
-                var avgComposure = allPlayers.Average(p =>
-                    100 - p.Aggressiveness); // Higher aggressiveness = more likely to get flagged
-
-                // Less composed players = more penalties (0.8x to 1.5x)
-                adjustmentFactor *= 1.5 - (avgComposure / 100.0 * 0.7);
-            }
+            // Note: Could adjust based on player discipline/morale if we add those properties later
+            // For now, use baseline probability
 
             return baseProbability * adjustmentFactor;
         }

@@ -6,6 +6,7 @@ using StateLibrary.SkillsCheckResults;
 using System.Collections.Generic;
 using System.Linq;
 using UnitTestProject1.Helpers;
+using static StateLibrary.SkillsChecks.TacklePenaltyOccurredSkillsCheck;
 
 namespace UnitTestProject1
 {
@@ -103,8 +104,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99);
 
-            var oLine = CreateOffensiveLinemen(5, passBlocking: 80, runBlocking: 80);
-            var dLine = CreateDefensiveLine(4, passRush: 60);
+            var oLine = CreateOffensiveLinemen(5, blocking: 80);
+            var dLine = CreateDefensiveLine(4, tackling: 60);
 
             var check = new BlockingPenaltyOccurredSkillsCheck(rng, oLine, dLine, PlayType.Pass);
 
@@ -125,8 +126,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.005);
 
-            var oLine = CreateOffensiveLinemen(5, passBlocking: 50, runBlocking: 50);
-            var dLine = CreateDefensiveLine(4, passRush: 80); // Strong rush = more holding
+            var oLine = CreateOffensiveLinemen(5, blocking: 50);
+            var dLine = CreateDefensiveLine(4, tackling: 80); // Strong rush = more holding
 
             var check = new BlockingPenaltyOccurredSkillsCheck(rng, oLine, dLine, PlayType.Pass);
 
@@ -144,25 +145,21 @@ namespace UnitTestProject1
             // Arrange
             var game = _testGame.GetGame();
 
-            var oLine = CreateOffensiveLinemen(5, passBlocking: 60, runBlocking: 60);
+            var oLine = CreateOffensiveLinemen(5, blocking: 60);
 
             // Test with weak pass rush
-            var weakDLine = CreateDefensiveLine(4, passRush: 40);
+            var weakDLine = CreateDefensiveLine(4, tackling: 40);
             var rng1 = new TestFluentSeedableRandom().NextDouble(0.015);
             var check1 = new BlockingPenaltyOccurredSkillsCheck(rng1, oLine, weakDLine, PlayType.Pass);
             check1.Execute(game);
-            var occurred1 = check1.Occurred;
 
             // Test with strong pass rush (same roll should cause penalty)
-            var strongDLine = CreateDefensiveLine(4, passRush: 95);
+            var strongDLine = CreateDefensiveLine(4, tackling: 95);
             var rng2 = new TestFluentSeedableRandom().NextDouble(0.015);
             var check2 = new BlockingPenaltyOccurredSkillsCheck(rng2, oLine, strongDLine, PlayType.Pass);
             check2.Execute(game);
-            var occurred2 = check2.Occurred;
 
-            // Assert - strong pass rush more likely to cause penalty
-            // (This may not always be true with the same roll, but pattern should hold)
-            // Just verify both executed without error
+            // Assert - both should execute without error
             Assert.IsNotNull(check1);
             Assert.IsNotNull(check2);
         }
@@ -179,7 +176,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99);
 
-            var receiver = new Player { RouteRunning = 70, LastName = "Receiver" };
+            var receiver = new Player { Catching = 70, LastName = "Receiver" };
             var dbs = CreateDefensiveBacks(3, coverage: 75);
 
             var check = new CoveragePenaltyOccurredSkillsCheck(rng, receiver, dbs, false, 15);
@@ -200,7 +197,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.003); // Low roll
 
-            var receiver = new Player { RouteRunning = 85, LastName = "Receiver" };
+            var receiver = new Player { Catching = 85, LastName = "Receiver" };
             var dbs = CreateDefensiveBacks(2, coverage: 60); // Weak coverage
 
             var check = new CoveragePenaltyOccurredSkillsCheck(
@@ -226,7 +223,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.002);
 
-            var receiver = new Player { RouteRunning = 75, LastName = "Receiver" };
+            var receiver = new Player { Catching = 75, LastName = "Receiver" };
             var dbs = CreateDefensiveBacks(2, coverage: 65);
 
             var check = new CoveragePenaltyOccurredSkillsCheck(
@@ -256,7 +253,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99);
 
             var ballCarrier = new Player { LastName = "Runner" };
-            var tacklers = CreateDefenders(2, aggressiveness: 40); // Disciplined
+            var tacklers = CreateDefenders(2, strength: 70); // Normal players
 
             var check = new TacklePenaltyOccurredSkillsCheck(
                 rng, ballCarrier, tacklers, TackleContext.BallCarrier);
@@ -278,7 +275,7 @@ namespace UnitTestProject1
                 .NextDouble(0.002); // Low roll
 
             var qb = new Player { Position = Positions.QB, LastName = "Quarterback" };
-            var tacklers = CreateDefenders(1, aggressiveness: 80); // Aggressive
+            var tacklers = CreateDefenders(1, strength: 80);
 
             var check = new TacklePenaltyOccurredSkillsCheck(
                 rng, qb, tacklers, TackleContext.PasserInPocket);
@@ -300,7 +297,7 @@ namespace UnitTestProject1
                 .NextDouble(0.001); // Very low roll
 
             var kicker = new Player { Position = Positions.P, LastName = "Punter" };
-            var tacklers = CreateDefenders(1, aggressiveness: 70);
+            var tacklers = CreateDefenders(1, strength: 70);
 
             var check = new TacklePenaltyOccurredSkillsCheck(
                 rng, kicker, tacklers, TackleContext.Kicker);
@@ -320,18 +317,18 @@ namespace UnitTestProject1
             var game = _testGame.GetGame();
             var ballCarrier = new Player { LastName = "Runner" };
 
-            // Disciplined tacklers
-            var disciplinedTacklers = CreateDefenders(2, aggressiveness: 30);
+            // Normal tacklers
+            var normalTacklers = CreateDefenders(2, strength: 50);
             var rng1 = new TestFluentSeedableRandom().NextDouble(0.005);
             var check1 = new TacklePenaltyOccurredSkillsCheck(
-                rng1, ballCarrier, disciplinedTacklers, TackleContext.BallCarrier);
+                rng1, ballCarrier, normalTacklers, TackleContext.BallCarrier);
             check1.Execute(game);
 
-            // Aggressive tacklers
-            var aggressiveTacklers = CreateDefenders(2, aggressiveness: 95);
+            // Strong tacklers (higher penalty chance based on implementation)
+            var strongTacklers = CreateDefenders(2, strength: 95);
             var rng2 = new TestFluentSeedableRandom().NextDouble(0.005);
             var check2 = new TacklePenaltyOccurredSkillsCheck(
-                rng2, ballCarrier, aggressiveTacklers, TackleContext.BallCarrier);
+                rng2, ballCarrier, strongTacklers, TackleContext.BallCarrier);
             check2.Execute(game);
 
             // Assert - both should execute without error
@@ -351,8 +348,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99);
 
-            var homePlayers = CreatePlayers(11, aggressiveness: 50);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 50);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             var check = new PostPlayPenaltyOccurredSkillsCheck(
                 rng, homePlayers, awayPlayers, false, false);
@@ -373,8 +370,8 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.0002); // Very low roll
 
-            var homePlayers = CreatePlayers(11, aggressiveness: 70);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 70);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             var check = new PostPlayPenaltyOccurredSkillsCheck(
                 rng, homePlayers, awayPlayers,
@@ -398,8 +395,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            var homePlayers = CreatePlayers(11, aggressiveness: 60);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 60);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             // Normal play
             var rng1 = new TestFluentSeedableRandom().NextDouble(0.002);
@@ -428,10 +425,11 @@ namespace UnitTestProject1
             // Arrange
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.6); // Will select team based on AwayOdds
+                .NextDouble(0.6)  // Will select team based on AwayOdds
+                .NextInt(0);      // Player index
 
-            var homePlayers = CreatePlayers(11, aggressiveness: 50);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 50);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             var result = new PenaltyEffectSkillsCheckResult(
                 rng,
@@ -459,10 +457,12 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            var rng = new TestFluentSeedableRandom().NextDouble(0.5);
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)
+                .NextInt(0);
 
-            var homePlayers = CreatePlayers(11, aggressiveness: 50);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 50);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             var result = new PenaltyEffectSkillsCheckResult(
                 rng,
@@ -486,10 +486,12 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            var rng = new TestFluentSeedableRandom().NextDouble(0.5);
+            var rng = new TestFluentSeedableRandom()
+                .NextDouble(0.5)
+                .NextInt(0);
 
-            var homePlayers = CreatePlayers(11, aggressiveness: 50);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 50);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             var result = new PenaltyEffectSkillsCheckResult(
                 rng,
@@ -515,15 +517,15 @@ namespace UnitTestProject1
             var game = _testGame.GetGame();
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)  // AwayOdds roll
-                .Next(0);         // Player index
+                .NextInt(0);      // Player index
 
             var homePlayers = new List<Player>
             {
-                new Player { FirstName = "Home", LastName = "Player1", TeamName = "HomeTeam" }
+                new Player { FirstName = "Home", LastName = "Player1" }
             };
             var awayPlayers = new List<Player>
             {
-                new Player { FirstName = "Away", LastName = "Player1", TeamName = "AwayTeam" }
+                new Player { FirstName = "Away", LastName = "Player1" }
             };
 
             var result = new PenaltyEffectSkillsCheckResult(
@@ -554,10 +556,10 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)  // Team selection
                 .NextDouble(0.5)  // Yards calculation
-                .Next(0);         // Player selection
+                .NextInt(0);      // Player selection
 
-            var homePlayers = CreatePlayers(11, aggressiveness: 50);
-            var awayPlayers = CreatePlayers(11, aggressiveness: 50);
+            var homePlayers = CreatePlayers(11);
+            var awayPlayers = CreatePlayers(11);
 
             var result = new PenaltyEffectSkillsCheckResult(
                 rng,
@@ -581,7 +583,7 @@ namespace UnitTestProject1
 
         #region Helper Methods
 
-        private List<Player> CreateOffensiveLinemen(int count, int passBlocking, int runBlocking)
+        private List<Player> CreateOffensiveLinemen(int count, int blocking)
         {
             var players = new List<Player>();
             for (int i = 0; i < count; i++)
@@ -589,15 +591,14 @@ namespace UnitTestProject1
                 players.Add(new Player
                 {
                     Position = Positions.G,
-                    PassBlocking = passBlocking,
-                    RunBlocking = runBlocking,
+                    Blocking = blocking,
                     LastName = $"OL{i}"
                 });
             }
             return players;
         }
 
-        private List<Player> CreateDefensiveLine(int count, int passRush)
+        private List<Player> CreateDefensiveLine(int count, int tackling)
         {
             var players = new List<Player>();
             for (int i = 0; i < count; i++)
@@ -605,7 +606,7 @@ namespace UnitTestProject1
                 players.Add(new Player
                 {
                     Position = Positions.DE,
-                    PassRush = passRush,
+                    Tackling = tackling,
                     LastName = $"DL{i}"
                 });
             }
@@ -627,7 +628,7 @@ namespace UnitTestProject1
             return players;
         }
 
-        private List<Player> CreateDefenders(int count, int aggressiveness)
+        private List<Player> CreateDefenders(int count, int strength)
         {
             var players = new List<Player>();
             for (int i = 0; i < count; i++)
@@ -635,14 +636,14 @@ namespace UnitTestProject1
                 players.Add(new Player
                 {
                     Position = Positions.LB,
-                    Aggressiveness = aggressiveness,
+                    Strength = strength,
                     LastName = $"Defender{i}"
                 });
             }
             return players;
         }
 
-        private List<Player> CreatePlayers(int count, int aggressiveness)
+        private List<Player> CreatePlayers(int count)
         {
             var players = new List<Player>();
             for (int i = 0; i < count; i++)
@@ -650,7 +651,6 @@ namespace UnitTestProject1
                 players.Add(new Player
                 {
                     Position = Positions.WR,
-                    Aggressiveness = aggressiveness,
                     FirstName = "Test",
                     LastName = $"Player{i}"
                 });
