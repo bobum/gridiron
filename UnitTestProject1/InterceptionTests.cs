@@ -363,15 +363,18 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)           // Protection holds
+                .NextDouble(0.99)                   // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.1)               // QB under pressure
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)         // Forward pass
                 .AirYards(15)
                 .PassCompletionCheck(0.99)          // Incomplete
+                .NextDouble(0.99)                   // Coverage penalty check (no penalty)
                 .InterceptionOccurredCheck(0.01)    // INTERCEPTED!
                 .InterceptionReturnBase(0.5)
                 .InterceptionReturnVariance(0.5)
                 .NextDouble(0.99)                   // No fumble during return
+                .NextDouble(0.99)                   // Interception return tackle penalty check (no penalty)
                 .NextDouble(0.5)                    // Elapsed time
                 .ElapsedTimeRandomFactor(0.5);
 
