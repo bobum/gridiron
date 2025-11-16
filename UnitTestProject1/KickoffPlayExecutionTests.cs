@@ -29,8 +29,12 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Kick distance
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.5)   // Return yardage
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
+                .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -93,8 +97,12 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.1)   // Short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.3)   // Return yardage
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
+                .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -294,9 +302,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Out of bounds check
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
-                .NextDouble(0.95)  // Excellent return
+                .NextDouble(0.95)  // Excellent return (will be TD)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (TD returns early, no tackle penalty check)
 
             var kickoff = new Kickoff(rng);
 
@@ -332,9 +341,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Out of bounds check
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
-                .NextDouble(0.99)  // Maximum return
+                .NextDouble(0.99)  // Maximum return (will be TD)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (TD returns early, no tackle penalty check)
 
             var kickoff = new Kickoff(rng);
 
@@ -433,7 +443,9 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.999) // No fair catch (absolute maximum to prevent any fair catch)
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -568,9 +580,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Out of bounds check
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
-                .NextDouble(0.05)  // Very poor return (negative yards: -5 from clamp)
+                .NextDouble(0.05)  // Very poor return (negative yards: -5 from clamp, will be safety)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (safety returns early, no tackle penalty check)
 
             var kickoff = new Kickoff(rng);
 
@@ -608,9 +621,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Out of bounds check (96 > 95, so 3% chance)
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
-                .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1
+                .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1 (safety)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (safety returns early, no tackle penalty check)
 
             var kickoff = new Kickoff(rng);
 
@@ -647,9 +661,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Out of bounds check (96 > 95, so 3% chance)
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
-                .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1
+                .NextDouble(0.0)   // Return: min value -5 after clamp → fieldPosition = 100-96-5 = -1 (safety)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (safety returns early, no tackle penalty check)
 
             var kickoff = new Kickoff(rng);
 
@@ -760,7 +775,9 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -789,7 +806,9 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.85)  // Good return with excellent returner
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -821,7 +840,9 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
                 .NextDouble(0.2)   // Poor return with slow returner
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
                 .NextDouble(0.5);  // Elapsed time
 
             var kickoff = new Kickoff(rng);
@@ -887,9 +908,10 @@ namespace UnitTestProject1
                 .NextDouble(0.5)   // Out of bounds
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check
-                .NextDouble(0.99)  // Max return
+                .NextDouble(0.99)  // Max return (will be TD)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
                 .NextDouble(0.99)  // No fumble
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (TD returns early, no tackle penalty check)
 
             var kickoff = new Kickoff(rng);
 
@@ -914,15 +936,18 @@ namespace UnitTestProject1
             // Test various scenarios to ensure no exceptions
 
             // Scenario 1: Normal kickoff with return
-            // RNG sequence: onside check, kick distance, out of bounds check, fair catch check, return yards, elapsed time
+            // RNG sequence: onside check, kick distance, out of bounds check, muff, fair catch, return yards, blocking penalty, fumble, tackle penalty, elapsed time
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Onside kick check (> 0.05 = no onside)
                 .NextDouble(0.5)   // Kick distance (inside KickoffDistanceSkillsCheckResult)
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.5)   // Return yards (inside KickoffReturnYardsSkillsCheckResult)
-                .NextDouble(0.5)   // Elapsed time (normal return)
-                .NextDouble(0.5)); // Extra for safety
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
+                .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
+                .NextDouble(0.5)); // Elapsed time (normal return)
 
             // Scenario 2: Touchback
             // RNG sequence: onside check, kick distance, out of bounds check
@@ -953,15 +978,17 @@ namespace UnitTestProject1
                 .NextDouble(0.5)); // Buffer
 
             // Scenario 5: Return TD
-            // RNG sequence: onside check, kick distance, out of bounds check, fair catch check, return yards, elapsed time
+            // RNG sequence: onside check, kick distance, out of bounds check, muff, fair catch, return yards, blocking penalty, fumble, elapsed time
             ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
                 .NextDouble(0.5)   // Onside kick check
                 .NextDouble(0.1)   // Short kick
                 .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
                 .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
                 .NextDouble(0.99)  // Excellent return → TD
-                .NextDouble(0.5)   // Elapsed time
-                .NextDouble(0.5)); // Buffer
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
+                .NextDouble(0.99)  // No fumble
+                .NextDouble(0.5)); // Elapsed time (TD returns early, no tackle penalty)
 
             // Scenario 6: Fair catch
             // RNG sequence: onside check, kick distance, out of bounds check, fair catch check

@@ -1077,10 +1077,9 @@ namespace UnitTestProject1
                 .AirYards(airYards)
                 .PassCompletionCheck(0.4)       // Complete (< 0.5 + skill bonus)
                 .NextDouble(0.99)               // Receiver tackle penalty check (no penalty)
-                .ImmediateTackleYards(2)        // For immediate tackle scenario (if YAC fails)
                 .YACOpportunityCheck(0.3)       // YAC opportunity succeeds
-                .YACRandomFactor(0.5)
-                .BigPlayCheck(0.9)              // No big play
+                .YACRandomFactor(0.5)           // Random factor for YAC
+                .BigPlayCheck(0.9)              // No big play (0.9 > 0.05)
                 .NextDouble(0.99)               // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -1106,6 +1105,7 @@ namespace UnitTestProject1
         {
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)      // FAIL - Sack!
+                .NextDouble(0.99)               // Blocking penalty check (no penalty)
                 .SackYards(sackYards)
                 .NextDouble(0.99)               // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)               // No fumble on sack
