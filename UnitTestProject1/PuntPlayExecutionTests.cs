@@ -86,14 +86,14 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.8)   // Not downed
                 .NextDouble(0.8)   // Not fair catch
                 .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards factors...
-                .NextDouble(0.5)
-                .NextDouble(0.5)
-                .NextDouble(0.5);
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No returner penalty
+                .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
 
@@ -214,11 +214,13 @@ namespace UnitTestProject1
                 .NextDouble(0.02)  // Would NOT block (> 1%)
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.99)  // No out of bounds
                 .NextDouble(0.99)  // No downed
                 .NextDouble(0.99)  // No fair catch
                 .NextDouble(0.99)  // No muff
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -327,7 +329,8 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Punt distance
-                .NextDouble(0.9);  // Hang time random
+                .NextDouble(0.9)   // Hang time random
+                .NextDouble(0.99); // No kicker penalty
 
             var punt = new Punt(rng);
 
@@ -357,6 +360,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.1);  // OUT OF BOUNDS!
 
             var punt = new Punt(rng);
@@ -389,6 +393,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.85)  // Punt distance
                 .NextDouble(0.7)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.2);  // DOWNED!
 
@@ -417,6 +422,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.35)  // 45-yard punt (lands at ~95 yard line)
                 .NextDouble(0.9)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.1);  // DOWNED! (high probability near goal line)
 
@@ -447,6 +453,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.65)  // Punt distance
                 .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.9)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.2);  // FAIR CATCH! (55% chance with hang time + field position)
@@ -475,6 +482,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.63)  // 52-yard punt (lands at own 8, field position 92)
                 .NextDouble(0.9)   // Hang time random (good hang time ~4.8s)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.6)   // Not downed (0.6 >= 50% threshold at spot 92)
                 .NextDouble(0.15); // FAIR CATCH! (60% chance: deep + good hang time)
@@ -505,6 +513,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
@@ -538,6 +547,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
@@ -574,11 +584,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.65)  // Punt distance
                 .NextDouble(0.6)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards (includes randomness)
+                .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -612,11 +624,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.05)  // Short punt ~38 yards (lands at ~98)
                 .NextDouble(0.3)   // Short hang time (poor coverage)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
                 .NextDouble(0.95)  // Great return ~20+ yards for TD
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -647,8 +661,9 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Punt distance (includes randomness)
+                .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed (but will be treated as downed due to no returner)
                 .NextDouble(0.5);  // Elapsed time
@@ -701,7 +716,8 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No bad snap
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Punt distance (very long)
-                .NextDouble(0.5);  // Hang time random
+                .NextDouble(0.5)   // Hang time random
+                .NextDouble(0.99); // No kicker penalty
 
             var punt = new Punt(rng);
 
@@ -730,6 +746,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Normal punt
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.05)  // DOWNED (low value ensures downed)
                 .NextDouble(0.5);  // Elapsed time
@@ -798,11 +815,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.0)   // Minimum punt distance (shanked)
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -827,6 +846,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.99)  // Maximum punt distance (~61 yards)
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.05)  // DOWNED (low value ensures downed at yard ~81)
                 .NextDouble(0.5);  // Elapsed time
@@ -854,8 +874,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.95)  // Long punt to reach 100
                 .NextDouble(0.5)   // Hang time
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.99); // No kicker penalty
 
             var punt = new Punt(rng);
 
@@ -947,6 +966,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.35)  // Punt ~45 yards (lands at ~95, near goal line)
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
@@ -978,8 +998,8 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Moderate punt ~46 yards (lands at ~96)
                 .NextDouble(0.5)   // Hang time
-                .NextDouble(0.05)  // OUT OF BOUNDS!
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.99)  // No kicker penalty
+                .NextDouble(0.05); // OUT OF BOUNDS!
 
             var punt = new Punt(rng);
 
@@ -1005,12 +1025,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Punt distance
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
                 .NextDouble(0.0)   // Minimal return (could lose yards)
-                .NextDouble(0.5);  // Elapsed time
+                .NextDouble(0.5);  // Elapsed time (no returner penalty if return <= 0)
 
             var punt = new Punt(rng);
 
@@ -1039,6 +1060,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance (will use default player)
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.05)  // DOWNED (low value ensures downed)
                 .NextDouble(0.5);  // Elapsed time
@@ -1065,6 +1087,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.05)  // DOWNED (low value ensures downed)
                 .NextDouble(0.5);  // Elapsed time
@@ -1094,11 +1117,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.9)   // Long hang time (good coverage)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
                 .NextDouble(0.9)   // Great return potential
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -1130,11 +1155,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.5)   // Punt distance
                 .NextDouble(0.2)   // Short hang time (poor coverage)
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
                 .NextDouble(0.5)   // Return attempt
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -1160,11 +1187,13 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.6)   // Normal punt
                 .NextDouble(0.5)   // Hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.9)   // Not downed
                 .NextDouble(0.9)   // Not fair catch
                 .NextDouble(0.95)  // No muff
                 .NextDouble(0.5)   // Return yards
+                .NextDouble(0.99)  // No returner penalty
                 .NextDouble(0.5);  // Elapsed time
 
             var punt = new Punt(rng);
@@ -1192,11 +1221,13 @@ namespace UnitTestProject1
                     .NextDouble(0.99)  // No block
                     .NextDouble(0.5 + (i * 0.1))   // Varying punt distances
                     .NextDouble(0.5)   // Hang time
+                    .NextDouble(0.99)  // No kicker penalty
                     .NextDouble(0.8)   // Not out of bounds
                     .NextDouble(0.9)   // Not downed
                     .NextDouble(0.9)   // Not fair catch
                     .NextDouble(0.95)  // No muff
                     .NextDouble(0.5)   // Return yards
+                    .NextDouble(0.99)  // No returner penalty
                     .NextDouble(0.5);  // Elapsed time
 
                 var punt = new Punt(rng);
@@ -1246,6 +1277,7 @@ namespace UnitTestProject1
                 .NextDouble(0.99)  // No block
                 .NextDouble(0.31)  // Precise punt ~44 yards (lands at ~99, near goal line)
                 .NextDouble(0.7)   // Good hang time
+                .NextDouble(0.99)  // No kicker penalty
                 .NextDouble(0.8)   // Not out of bounds
                 .NextDouble(0.05)  // DOWNED near goal line
                 .NextDouble(0.5);  // Elapsed time
@@ -1281,17 +1313,18 @@ namespace UnitTestProject1
 
             // Test 3: Touchback
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.5).NextDouble(0.8).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.5).NextDouble(0.99));
 
             // Test 4: Fair catch
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.8)
-                .NextDouble(0.9).NextDouble(0.1).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.99)
+                .NextDouble(0.8).NextDouble(0.9).NextDouble(0.1));
 
             // Test 5: Normal return
             ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.8)
-                .NextDouble(0.9).NextDouble(0.9).NextDouble(0.95).NextDouble(0.5).NextDouble(0.5));
+                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.99)
+                .NextDouble(0.8).NextDouble(0.9).NextDouble(0.9).NextDouble(0.95).NextDouble(0.5)
+                .NextDouble(0.99).NextDouble(0.5));
         }
 
         private void ExecutePuntScenario(Game game, TestFluentSeedableRandom rng)
