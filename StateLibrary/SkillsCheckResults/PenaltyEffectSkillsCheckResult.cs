@@ -59,6 +59,13 @@ namespace StateLibrary.SkillsCheckResults
                 ? _homePlayersOnField
                 : _awayPlayersOnField;
 
+            // If no eligible players (empty list), penalty doesn't occur
+            if (eligiblePlayers == null || eligiblePlayers.Count == 0)
+            {
+                Result = null;
+                return;
+            }
+
             // For now, select randomly from eligible players
             // TODO: In future, weight by position and player discipline/skills
             var playerIndex = _rng.Next(eligiblePlayers.Count);
