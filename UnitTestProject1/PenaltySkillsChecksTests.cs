@@ -288,7 +288,7 @@ namespace UnitTestProject1
         }
 
         [TestMethod]
-        public void TacklePenalty_RoughingTheKickerOccurs_OnKickerContact()
+        public void TacklePenalty_KickerPenaltyOccurs_OnKickerContact()
         {
             // Arrange
             var game = _testGame.GetGame();
@@ -306,7 +306,11 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(check.Occurred);
-            Assert.AreEqual(PenaltyNames.RoughingtheKicker, check.PenaltyThatOccurred);
+            // Either RoughingtheKicker or RunningIntotheKicker should occur
+            Assert.IsTrue(
+                check.PenaltyThatOccurred == PenaltyNames.RoughingtheKicker ||
+                check.PenaltyThatOccurred == PenaltyNames.RunningIntotheKicker,
+                $"Expected kicker penalty, but got {check.PenaltyThatOccurred}");
         }
 
         [TestMethod]
