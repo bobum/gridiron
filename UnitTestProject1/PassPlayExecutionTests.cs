@@ -25,11 +25,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(8)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.5)        // Fail - tackled immediately
                 .YACYards(2)
                 .NextDouble(0.99)                // No fumble
@@ -56,11 +58,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(8)
                 .PassCompletionCheck(0.9)        // Incomplete
+                .NextDouble(0.99)                // Coverage penalty check (no penalty) - only on incomplete
                 .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.99);
 
@@ -88,6 +92,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(7)
+                .NextDouble(0.99)                // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.99);
 
@@ -111,6 +116,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(10)                   // Would be 10, limited by field position
+                .NextDouble(0.99)                // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.99);
 
@@ -139,11 +145,13 @@ namespace UnitTestProject1
             // No pressure scenario
             var rngNoPressure = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.8)            // NO pressure
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.59)       // 60% base - succeeds
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.8)        // Fail
                 .YACYards(3)
                 .NextDouble(0.99)                // No fumble
@@ -152,11 +160,13 @@ namespace UnitTestProject1
             // With pressure scenario (completion drops to ~40%)
             var rngPressure = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.2)            // PRESSURE!
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.59)       // 40% with pressure - fails
+                .NextDouble(0.99)                // Coverage penalty check (no penalty) - only on incomplete
                 .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.99);
 
@@ -188,11 +198,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.10)     // SCREEN (< 0.15)
                 .AirYards(1)                     // Screen: -3 to +3 range
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
@@ -217,11 +229,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)        // PASS - Protection holds (lower = success)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.90)     // DEEP (> 0.85)
                 .AirYards(30)                    // Deep: 18-44 range
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
@@ -254,11 +268,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.9)            // Adds to base YAC
                 .BigPlayCheck(0.9)               // No big play
@@ -292,11 +308,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(15)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.5)            // Moderate random factor
                 .BigPlayCheck(0.04)              // BIG PLAY! (< 0.05)
@@ -328,11 +346,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.9)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.9)      // Deep pass
                 .AirYards(40)                    // Would be 40, limited by field
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.9)
                 .BigPlayCheck(0.9)               // No big play
@@ -377,14 +397,17 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.9)          // High value = elite receiver
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
+                .NextDouble(0.99)                // No fumble
                 .ElapsedTimeRandomFactor(0.99);
 
             // Act
@@ -411,11 +434,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)        // Success
                 .YACRandomFactor(0.5)
                 .BigPlayCheck(0.9)               // No big play
@@ -443,6 +468,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.8)        // FAIL - Sack!
                 .SackYards(5)
+                .NextDouble(0.99)                // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(1.0);               // 2 + 1.0*2 = 4.0
 
@@ -471,6 +497,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(8)                     // SackYardsSkillsCheckResult should use this
+                .NextDouble(0.99)                // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -494,6 +521,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(10)                    // Would be -10, but clamped to -4
+                .NextDouble(0.99)                // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -516,11 +544,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.10)     // Screen pass (< 0.15)
                 .AirYards(-2)                     // AirYardsSkillsCheckResult for screen: -3 to +2
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.9)        // Fail - tackled immediately
                 .ImmediateTackleYards(1)
                 .NextDouble(0.99)                // No fumble
@@ -547,11 +577,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.90)     // Deep pass (> 0.85)
                 .AirYards(18)                     // Would be 18-44, but clamped to 12 (only 12 yards to goal)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.9)        // Fail
                 .ImmediateTackleYards(1)
                 .NextDouble(0.99)                // No fumble
@@ -576,11 +608,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.9)        // FAIL - tackled immediately
                 .ImmediateTackleYards(2)         // YardsAfterCatchSkillsCheckResult returns 0-2
                 .NextDouble(0.99)                // No fumble
@@ -612,11 +646,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.2)        // SUCCESS - breaks tackles
                 .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
                 .BigPlayCheck(0.5)               // No big play
@@ -653,11 +689,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.2)        // SUCCESS
                 .YACRandomFactor(0.5)            // Random factor: 0.5 * 8 - 2 = 2
                 .BigPlayCheck(0.03)              // BIG PLAY! (< 0.05 and speed > 85)
@@ -693,11 +731,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.5)
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.2)        // SUCCESS
                 .YACRandomFactor(0.5)            // Random factor: 2
                 .BigPlayCheck(0.03)              // Would trigger, but speed 80 < 85
@@ -729,11 +769,13 @@ namespace UnitTestProject1
 
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)        // Protection holds
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)            // No pressure
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)      // Forward pass
                 .AirYards(15)                    // AirYardsSkillsCheckResult: 15 yards
                 .PassCompletionCheck(0.5)        // Complete
+                .NextDouble(0.99)                // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.2)        // YAC success
                 .YACRandomFactor(0.75)           // Good random factor
                 .BigPlayCheck(0.5)               // No big play
@@ -767,6 +809,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)       // FAIL - Sack!
                 .SackYards(6)                     // SackYardsSkillsCheckResult: -6 yards
+                .NextDouble(0.99)                // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)                // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
 
@@ -1027,11 +1070,13 @@ namespace UnitTestProject1
 
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(protectionCheck)
+                .NextDouble(0.99)               // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)           // No additional pressure
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)     // Forward pass
                 .AirYards(airYards)
                 .PassCompletionCheck(0.4)       // Complete (< 0.5 + skill bonus)
+                .NextDouble(0.99)               // Receiver tackle penalty check (no penalty)
                 .ImmediateTackleYards(2)        // For immediate tackle scenario (if YAC fails)
                 .YACOpportunityCheck(0.3)       // YAC opportunity succeeds
                 .YACRandomFactor(0.5)
@@ -1046,11 +1091,13 @@ namespace UnitTestProject1
 
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(protectionCheck)
+                .NextDouble(0.99)                // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.8)           // Heavy pressure
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)     // Forward pass
                 .AirYards(10)
                 .PassCompletionCheck(0.9)       // Incomplete (high value = fail)
+                .NextDouble(0.99)                // Coverage penalty check (no penalty) - only on incomplete
                 .InterceptionOccurredCheck(0.99) // No interception
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -1060,6 +1107,7 @@ namespace UnitTestProject1
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.95)      // FAIL - Sack!
                 .SackYards(sackYards)
+                .NextDouble(0.99)               // Roughing the passer penalty check (no penalty)
                 .NextDouble(0.99)               // No fumble on sack
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -1068,11 +1116,13 @@ namespace UnitTestProject1
         {
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.3)
+                .NextDouble(0.99)               // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.5)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.10)    // Screen (< 0.15)
                 .AirYards(airYards)
                 .PassCompletionCheck(0.3)       // Complete
+                .NextDouble(0.99)               // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.3)       // YAC success
                 .YACRandomFactor(0.7)
                 .BigPlayCheck(0.9)
@@ -1084,11 +1134,13 @@ namespace UnitTestProject1
         {
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.2)       // Excellent protection
+                .NextDouble(0.99)               // Blocking penalty check (no penalty)
                 .QBPressureCheck(0.3)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.90)    // Deep (> 0.85)
                 .AirYards(airYards)
                 .PassCompletionCheck(0.3)       // Complete
+                .NextDouble(0.99)               // Receiver tackle penalty check (no penalty)
                 .YACOpportunityCheck(0.2)       // YAC success
                 .YACRandomFactor(0.8)
                 .BigPlayCheck(0.9)
