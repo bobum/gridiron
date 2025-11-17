@@ -323,6 +323,28 @@ namespace UnitTestProject1.Helpers
                 .ElapsedTimeRandomFactor(0.5);
         }
 
+        /// <summary>
+        /// Run with BOTH blocking penalty AND tackle penalty.
+        /// Tests that multiple penalties can be detected on the same play.
+        ///
+        /// Random sequence: QB check → Direction → Blocking → BLOCKING PENALTY →
+        /// Base yards → Tackle break → Breakaway → TACKLE PENALTY → Fumble → Time
+        /// </summary>
+        public static TestFluentSeedableRandom WithBlockingAndTacklePenalty(int yards)
+        {
+            return new TestFluentSeedableRandom()
+                .NextDouble(0.15)                    // QB check (RB gets ball)
+                .NextInt(2)                          // Direction (Middle)
+                .RunBlockingCheck(0.5)               // Moderate blocking
+                .NextDouble(0.01)                    // BLOCKING PENALTY!
+                .NextDouble(0.6)                     // Base yards random factor
+                .TackleBreakCheck(0.9)               // No tackle break
+                .BreakawayCheck(0.9)                 // No breakaway
+                .NextDouble(0.01)                    // TACKLE PENALTY!
+                .NextDouble(0.99)                    // No fumble
+                .ElapsedTimeRandomFactor(0.5);
+        }
+
         #endregion
 
         #region Custom Builders

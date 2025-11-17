@@ -385,6 +385,34 @@ namespace UnitTestProject1.Helpers
 
         #endregion
 
+        #region Multiple Penalty Scenarios
+
+        /// <summary>
+        /// Completed pass with BOTH blocking penalty AND receiver tackle penalty.
+        /// Tests that multiple penalties can be detected on the same play.
+        ///
+        /// Random sequence: Protection → BLOCKING PENALTY → Pressure → Receiver → Type →
+        /// Air yards → Completion → RECEIVER TACKLE PENALTY → YAC fails → Yards → Fumble → Time
+        /// </summary>
+        public static TestFluentSeedableRandom WithBlockingAndTacklePenalty(int airYards = 10)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .NextDouble(0.01)                      // BLOCKING PENALTY!
+                .QBPressureCheck(0.8)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)
+                .AirYards(airYards)
+                .PassCompletionCheck(0.5)
+                .NextDouble(0.01)                      // RECEIVER TACKLE PENALTY!
+                .YACOpportunityCheck(0.8)
+                .ImmediateTackleYards(2)
+                .NextDouble(0.99)                      // No fumble
+                .ElapsedTimeRandomFactor(0.99);
+        }
+
+        #endregion
+
         #region Pressure Scenarios
 
         /// <summary>
