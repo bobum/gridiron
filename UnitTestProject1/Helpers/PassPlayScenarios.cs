@@ -306,13 +306,15 @@ namespace UnitTestProject1.Helpers
         /// <summary>
         /// Pass with blocking penalty (offensive holding during pass protection).
         ///
-        /// Random sequence: Same as completed pass but blocking penalty check = 0.01.
+        /// Random sequence: Same as completed pass but blocking penalty check = 0.01 + penalty effect random values.
         /// </summary>
         public static TestFluentSeedableRandom WithBlockingPenalty(int airYards = 10)
         {
             return new TestFluentSeedableRandom()
                 .PassProtectionCheck(0.7)
                 .NextDouble(0.01)                      // BLOCKING PENALTY!
+                .NextDouble(0.5)                       // Penalty effect: team selection
+                .NextInt(5)                            // Penalty effect: player selection
                 .QBPressureCheck(0.8)
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)
@@ -328,7 +330,7 @@ namespace UnitTestProject1.Helpers
         /// <summary>
         /// Completed pass with tackle penalty on receiver (unnecessary roughness, etc.).
         ///
-        /// Random sequence: Same as completed pass but receiver tackle penalty = 0.01.
+        /// Random sequence: Completion → YAC fails → Tackle → PENALTY → Effect → Fumble → Time
         /// </summary>
         public static TestFluentSeedableRandom WithReceiverTacklePenalty(int airYards = 10)
         {
@@ -339,10 +341,12 @@ namespace UnitTestProject1.Helpers
                 .ReceiverSelection(0.5)
                 .PassTypeDetermination(0.6)
                 .AirYards(airYards)
-                .PassCompletionCheck(0.5)
+                .PassCompletionCheck(0.5)              // Completion succeeds
+                .YACOpportunityCheck(0.8)              // YAC fails - tackled immediately
+                .ImmediateTackleYards(2)               // 2 yards after catch
                 .NextDouble(0.01)                      // RECEIVER TACKLE PENALTY!
-                .YACOpportunityCheck(0.8)
-                .ImmediateTackleYards(2)
+                .NextDouble(0.5)                       // Penalty effect: team selection
+                .NextInt(5)                            // Penalty effect: player selection
                 .NextDouble(0.99)                      // No fumble
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -380,6 +384,39 @@ namespace UnitTestProject1.Helpers
                 .PassCompletionCheck(0.9)              // Incomplete
                 .NextDouble(0.01)                      // PASS INTERFERENCE!
                 .InterceptionOccurredCheck(0.99)       // No interception
+                .ElapsedTimeRandomFactor(0.99);
+        }
+
+        #endregion
+
+        #region Multiple Penalty Scenarios
+
+        /// <summary>
+        /// Completed pass with BOTH blocking penalty AND receiver tackle penalty.
+        /// Tests that multiple penalties can be detected on the same play.
+        ///
+        /// Random sequence: Protection → BLOCKING PENALTY → Penalty effect →
+        /// Pressure → Receiver → Type → Air → Completion → YAC fails → Tackle →
+        /// TACKLE PENALTY → Penalty effect → Fumble → Time
+        /// </summary>
+        public static TestFluentSeedableRandom WithBlockingAndTacklePenalty(int airYards = 10)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .NextDouble(0.01)                      // BLOCKING PENALTY!
+                .NextDouble(0.5)                       // Penalty effect: team selection
+                .NextInt(5)                            // Penalty effect: player selection
+                .QBPressureCheck(0.8)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)
+                .AirYards(airYards)
+                .PassCompletionCheck(0.5)              // Completion succeeds
+                .YACOpportunityCheck(0.8)              // YAC fails - tackled immediately
+                .ImmediateTackleYards(2)               // 2 yards after catch
+                .NextDouble(0.01)                      // RECEIVER TACKLE PENALTY!
+                .NextDouble(0.5)                       // Penalty effect: team selection
+                .NextInt(5)                            // Penalty effect: player selection
+                .NextDouble(0.99)                      // No fumble
                 .ElapsedTimeRandomFactor(0.99);
         }
 
