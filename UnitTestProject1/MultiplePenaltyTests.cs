@@ -180,8 +180,8 @@ namespace UnitTestProject1
                 p == PenaltyNames.IllegalUseofHands),
                 "Should have a blocking penalty");
             Assert.IsTrue(penaltyTypes.Any(p =>
-                p == PenaltyNames.FaceMask ||
-                p == PenaltyNames.HorseCollar ||
+                p == PenaltyNames.FaceMask15Yards ||
+                p == PenaltyNames.HorseCollarTackle ||
                 p == PenaltyNames.UnnecessaryRoughness),
                 "Should have a tackle penalty");
         }
@@ -225,8 +225,8 @@ namespace UnitTestProject1
             // Assert
             Assert.AreEqual(1, passPlay.Penalties.Count, "Should have exactly one penalty");
             Assert.IsTrue(
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.FaceMask ||
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.HorseCollar ||
+                passPlay.Penalties[0].PenaltyType == PenaltyNames.FaceMask15Yards ||
+                passPlay.Penalties[0].PenaltyType == PenaltyNames.HorseCollarTackle ||
                 passPlay.Penalties[0].PenaltyType == PenaltyNames.UnnecessaryRoughness,
                 "Should be a tackle penalty");
         }
@@ -260,8 +260,8 @@ namespace UnitTestProject1
                 p == PenaltyNames.DefensiveHolding),
                 "Should have a blocking penalty");
             Assert.IsTrue(penaltyTypes.Any(p =>
-                p == PenaltyNames.FaceMask ||
-                p == PenaltyNames.HorseCollar ||
+                p == PenaltyNames.FaceMask15Yards ||
+                p == PenaltyNames.HorseCollarTackle ||
                 p == PenaltyNames.UnnecessaryRoughness),
                 "Should have a tackle penalty");
         }
@@ -306,8 +306,8 @@ namespace UnitTestProject1
             // Assert
             Assert.AreEqual(1, runPlay.Penalties.Count, "Should have exactly one penalty");
             Assert.IsTrue(
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.FaceMask ||
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.HorseCollar ||
+                runPlay.Penalties[0].PenaltyType == PenaltyNames.FaceMask15Yards ||
+                runPlay.Penalties[0].PenaltyType == PenaltyNames.HorseCollarTackle ||
                 runPlay.Penalties[0].PenaltyType == PenaltyNames.UnnecessaryRoughness,
                 "Should be a tackle penalty");
         }
