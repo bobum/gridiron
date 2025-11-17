@@ -282,7 +282,7 @@ namespace UnitTestProject1.Helpers
         /// <summary>
         /// Blocking penalty scenario - offensive holding during run.
         ///
-        /// Random sequence: Same as SimpleGain but blocking penalty = 0.01 (occurs).
+        /// Random sequence: Same as SimpleGain but blocking penalty = 0.01 (occurs) + penalty effect random values.
         /// This triggers BlockingPenaltyOccurredSkillsCheck to detect holding.
         /// </summary>
         /// <param name="yards">Yards that would have been gained</param>
@@ -293,6 +293,8 @@ namespace UnitTestProject1.Helpers
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.5)               // Moderate blocking
                 .NextDouble(0.01)                    // BLOCKING PENALTY! (< penalty threshold)
+                .NextDouble(0.5)                     // Penalty effect: team selection
+                .NextInt(5)                          // Penalty effect: player selection
                 .NextDouble(0.6)                     // Base yards random factor
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
@@ -304,7 +306,7 @@ namespace UnitTestProject1.Helpers
         /// <summary>
         /// Tackle penalty scenario - unnecessary roughness on tackle.
         ///
-        /// Random sequence: Same as SimpleGain but tackle penalty = 0.01 (occurs).
+        /// Random sequence: Same as SimpleGain but tackle penalty = 0.01 (occurs) + penalty effect random values.
         /// This triggers TacklePenaltyOccurredSkillsCheck with BallCarrier context.
         /// </summary>
         /// <param name="yards">Yards gained before penalty</param>
@@ -319,6 +321,8 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .NextDouble(0.01)                    // TACKLE PENALTY! (< penalty threshold)
+                .NextDouble(0.5)                     // Penalty effect: team selection
+                .NextInt(5)                          // Penalty effect: player selection
                 .NextDouble(0.99)                    // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -327,8 +331,8 @@ namespace UnitTestProject1.Helpers
         /// Run with BOTH blocking penalty AND tackle penalty.
         /// Tests that multiple penalties can be detected on the same play.
         ///
-        /// Random sequence: QB check → Direction → Blocking → BLOCKING PENALTY →
-        /// Base yards → Tackle break → Breakaway → TACKLE PENALTY → Fumble → Time
+        /// Random sequence: QB check → Direction → Blocking → BLOCKING PENALTY → Penalty effect →
+        /// Base yards → Tackle break → Breakaway → TACKLE PENALTY → Penalty effect → Fumble → Time
         /// </summary>
         public static TestFluentSeedableRandom WithBlockingAndTacklePenalty(int yards)
         {
@@ -337,10 +341,14 @@ namespace UnitTestProject1.Helpers
                 .NextInt(2)                          // Direction (Middle)
                 .RunBlockingCheck(0.5)               // Moderate blocking
                 .NextDouble(0.01)                    // BLOCKING PENALTY!
+                .NextDouble(0.5)                     // Penalty effect: team selection
+                .NextInt(5)                          // Penalty effect: player selection
                 .NextDouble(0.6)                     // Base yards random factor
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .NextDouble(0.01)                    // TACKLE PENALTY!
+                .NextDouble(0.5)                     // Penalty effect: team selection
+                .NextInt(5)                          // Penalty effect: player selection
                 .NextDouble(0.99)                    // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }

@@ -156,6 +156,29 @@ namespace UnitTestProject1
 
         #region Pass Play - Multiple Penalty Tests
 
+        // All possible blocking penalties
+        private static readonly PenaltyNames[] BlockingPenalties = new[]
+        {
+            PenaltyNames.OffensiveHolding,
+            PenaltyNames.IllegalUseofHands,
+            PenaltyNames.IllegalBlockAbovetheWaist,
+            PenaltyNames.Clipping,
+            PenaltyNames.ChopBlock,
+            PenaltyNames.LowBlock,
+            PenaltyNames.IllegalPeelback,
+            PenaltyNames.IllegalCrackback
+        };
+
+        // All possible tackle penalties for receivers/ball carriers
+        private static readonly PenaltyNames[] TacklePenalties = new[]
+        {
+            PenaltyNames.UnnecessaryRoughness,
+            PenaltyNames.FaceMask15Yards,
+            PenaltyNames.HorseCollarTackle,
+            PenaltyNames.PersonalFoul,
+            PenaltyNames.Tripping
+        };
+
         [TestMethod]
         public void PassPlay_DetectsBothBlockingAndTacklePenalties()
         {
@@ -175,14 +198,9 @@ namespace UnitTestProject1
                 "Should detect both blocking penalty and tackle penalty");
 
             var penaltyTypes = passPlay.Penalties.Select(p => p.PenaltyType).ToList();
-            Assert.IsTrue(penaltyTypes.Any(p =>
-                p == PenaltyNames.OffensiveHolding ||
-                p == PenaltyNames.IllegalUseofHands),
+            Assert.IsTrue(penaltyTypes.Any(p => BlockingPenalties.Contains(p)),
                 "Should have a blocking penalty");
-            Assert.IsTrue(penaltyTypes.Any(p =>
-                p == PenaltyNames.FaceMask15Yards ||
-                p == PenaltyNames.HorseCollarTackle ||
-                p == PenaltyNames.UnnecessaryRoughness),
+            Assert.IsTrue(penaltyTypes.Any(p => TacklePenalties.Contains(p)),
                 "Should have a tackle penalty");
         }
 
@@ -202,9 +220,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(1, passPlay.Penalties.Count, "Should have exactly one penalty");
-            Assert.IsTrue(
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.OffensiveHolding ||
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.IllegalUseofHands,
+            Assert.IsTrue(BlockingPenalties.Contains(passPlay.Penalties[0].PenaltyType),
                 "Should be a blocking penalty");
         }
 
@@ -224,10 +240,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(1, passPlay.Penalties.Count, "Should have exactly one penalty");
-            Assert.IsTrue(
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.FaceMask15Yards ||
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.HorseCollarTackle ||
-                passPlay.Penalties[0].PenaltyType == PenaltyNames.UnnecessaryRoughness,
+            Assert.IsTrue(TacklePenalties.Contains(passPlay.Penalties[0].PenaltyType),
                 "Should be a tackle penalty");
         }
 
@@ -254,15 +267,9 @@ namespace UnitTestProject1
                 "Should detect both blocking penalty and tackle penalty");
 
             var penaltyTypes = runPlay.Penalties.Select(p => p.PenaltyType).ToList();
-            Assert.IsTrue(penaltyTypes.Any(p =>
-                p == PenaltyNames.OffensiveHolding ||
-                p == PenaltyNames.IllegalUseofHands ||
-                p == PenaltyNames.DefensiveHolding),
+            Assert.IsTrue(penaltyTypes.Any(p => BlockingPenalties.Contains(p)),
                 "Should have a blocking penalty");
-            Assert.IsTrue(penaltyTypes.Any(p =>
-                p == PenaltyNames.FaceMask15Yards ||
-                p == PenaltyNames.HorseCollarTackle ||
-                p == PenaltyNames.UnnecessaryRoughness),
+            Assert.IsTrue(penaltyTypes.Any(p => TacklePenalties.Contains(p)),
                 "Should have a tackle penalty");
         }
 
@@ -282,10 +289,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(1, runPlay.Penalties.Count, "Should have exactly one penalty");
-            Assert.IsTrue(
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.OffensiveHolding ||
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.IllegalUseofHands ||
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.DefensiveHolding,
+            Assert.IsTrue(BlockingPenalties.Contains(runPlay.Penalties[0].PenaltyType),
                 "Should be a blocking penalty");
         }
 
@@ -305,10 +309,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(1, runPlay.Penalties.Count, "Should have exactly one penalty");
-            Assert.IsTrue(
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.FaceMask15Yards ||
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.HorseCollarTackle ||
-                runPlay.Penalties[0].PenaltyType == PenaltyNames.UnnecessaryRoughness,
+            Assert.IsTrue(TacklePenalties.Contains(runPlay.Penalties[0].PenaltyType),
                 "Should be a tackle penalty");
         }
 
