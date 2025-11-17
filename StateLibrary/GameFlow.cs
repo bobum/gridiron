@@ -345,12 +345,9 @@ namespace StateLibrary
 
         private void DoPostPlay()
         {
-            //if we have a pre-snap penalty - no need to check for others
-            if (_game.CurrentPlay.Penalties.Count == 0)
-            {
-                PenaltyCheck(PenaltyOccuredWhen.During);
-                PenaltyCheck(PenaltyOccuredWhen.After);
-            }
+            //check for during and after penalties (pre-snap penalties may have already been added)
+            PenaltyCheck(PenaltyOccuredWhen.During);
+            PenaltyCheck(PenaltyOccuredWhen.After);
 
             //if we have a penalty/penalties then lets apply it/them
             // TODO: Implement penalty enforcement in Phase 2
