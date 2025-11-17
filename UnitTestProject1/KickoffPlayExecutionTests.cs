@@ -847,37 +847,73 @@ namespace UnitTestProject1
         #region Integration Tests
 
         [TestMethod]
-        [Ignore("Test is broken on master branch - needs fixing. RNG sequences appear incorrect for multiple scenario execution.")]
         public void Kickoff_MultipleScenarios_AllExecuteWithoutError()
         {
             // Test various scenarios to ensure no exceptions
 
             // Scenario 1: Normal kickoff with return
-            ExecuteKickoffScenario(CreateGameWithKickoffPlay(),
-                KickoffPlayScenarios.NormalReturn(kickDistance: 0.5, returnYardage: 0.5));
+            // RNG sequence: onside check, kick distance, out of bounds check, muff, fair catch, return yards, blocking penalty, fumble, tackle penalty, elapsed time
+            ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // Onside kick check (> 0.05 = no onside)
+                .NextDouble(0.5)   // Kick distance (inside KickoffDistanceSkillsCheckResult)
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
+                .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
+                .NextDouble(0.5)   // Return yards (inside KickoffReturnYardsSkillsCheckResult)
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
+                .NextDouble(0.99)  // No fumble
+                .NextDouble(0.99)  // Tackle penalty check (no penalty)
+                .NextDouble(0.5)); // Elapsed time (normal return)
 
             // Scenario 2: Touchback
-            ExecuteKickoffScenario(CreateGameWithKickoffPlay(),
-                KickoffPlayScenarios.Touchback(kickDistance: 0.95));
+            // RNG sequence: onside check, kick distance, out of bounds check
+            ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.95)  // Long kick distance → touchback
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.5)); // Buffer
 
             // Scenario 3: Out of bounds
-            ExecuteKickoffScenario(CreateGameWithKickoffPlay(),
-                KickoffPlayScenarios.OutOfBounds());
+            // RNG sequence: onside check, kick distance, out of bounds check
+            ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.6)   // Kick distance
+                .NextDouble(0.05)  // Out of bounds (< 10%)
+                .NextDouble(0.5)); // Buffer
 
             // Scenario 4: Onside kick - kicking team recovers
+            // RNG sequence: onside check, kick distance, recovery check, elapsed time
             var game4 = CreateGameWithKickoffPlay();
             game4.HomeScore = 10;
             game4.AwayScore = 17;
-            ExecuteKickoffScenario(game4,
-                KickoffPlayScenarios.OnsideKickRecovered(onsideDistance: 0.3));
+            ExecuteKickoffScenario(game4, new TestFluentSeedableRandom()
+                .NextDouble(0.01)  // Onside kick check (< 0.05 = onside)
+                .NextDouble(0.3)   // Onside kick distance (10-15 yards)
+                .NextDouble(0.15)  // Kicking team recovers
+                .NextDouble(0.5)   // Elapsed time
+                .NextDouble(0.5)); // Buffer
 
             // Scenario 5: Return TD
-            ExecuteKickoffScenario(CreateGameWithKickoffPlay(),
-                KickoffPlayScenarios.ReturnTouchdown(kickDistance: 0.1));
+            // RNG sequence: onside check, kick distance, out of bounds check, muff, fair catch, return yards, blocking penalty, fumble, elapsed time
+            ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.1)   // Short kick
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.99)  // No muff
+                .NextDouble(0.9)   // Fair catch check (> 0.7 = no fair catch)
+                .NextDouble(0.99)  // Excellent return → TD
+                .NextDouble(0.99)  // Blocking penalty check (no penalty)
+                .NextDouble(0.99)  // No fumble
+                .NextDouble(0.5)); // Elapsed time (TD returns early, no tackle penalty)
 
             // Scenario 6: Fair catch
-            ExecuteKickoffScenario(CreateGameWithKickoffPlay(),
-                KickoffPlayScenarios.FairCatch(kickDistance: 0.6));
+            // RNG sequence: onside check, kick distance, out of bounds check, fair catch check
+            ExecuteKickoffScenario(CreateGameWithKickoffPlay(), new TestFluentSeedableRandom()
+                .NextDouble(0.5)   // Onside kick check
+                .NextDouble(0.6)   // Kick distance
+                .NextDouble(0.5)   // Out of bounds check
+                .NextDouble(0.1)   // Fair catch (< 0.25 = fair catch)
+                .NextDouble(0.5)); // Buffer
         }
 
         private void ExecuteKickoffScenario(Game game, TestFluentSeedableRandom rng)

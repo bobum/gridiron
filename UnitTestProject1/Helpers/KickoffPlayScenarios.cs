@@ -56,9 +56,6 @@ namespace UnitTestProject1.Helpers
         ///
         /// Random sequence: Kick distance → OOB check → Muff → Fair catch → Return yards →
         /// Blocking penalty → Fumble → Tackle penalty → Elapsed time
-        ///
-        /// NOTE: Onside kick check is CONDITIONAL - only consumed if trailing by 7+ points.
-        /// Normal scenarios don't include it since they're not in a trailing game state.
         /// </summary>
         /// <param name="kickDistance">Kick distance value (0-1), 0.5 = moderate ~70 yards</param>
         /// <param name="returnYardage">Return yardage value (0-1), 0.3 = short return</param>
