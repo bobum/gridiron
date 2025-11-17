@@ -19,17 +19,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var runPlay = (RunPlay)game.CurrentPlay;
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (0.15 > 0.10 = RB gets ball)
-                .NextInt(4)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking check (moderate success)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards random factor
-                .NextDouble(0.8)                     // Tackle break check (fails)
-                .NextDouble(0.9)                     // Big run check (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.73);      // Elapsed time (5 + 0.73*3 = ~7.2 seconds)
+            var rng = RunPlayScenarios.SimpleGain(yards: 5, direction: 4);
 
             // Act
             var run = new Run(rng);
@@ -49,18 +39,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             var runPlay = (RunPlay)game.CurrentPlay;
 
-            // Test RB gets the ball (NextDouble > 0.10)
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.11)                    // QB check (0.11 > 0.10 = RB gets ball)
-                .NextInt(4)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards factor
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.9)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time (5 + 0.33*3 = 6.0 seconds)
+            // Test RB gets the ball (uses SimpleGain which has QB check > 0.10)
+            var rng = RunPlayScenarios.SimpleGain(yards: 5, direction: 4);
 
             var run = new Run(rng);
             run.Execute(game);
@@ -75,18 +55,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             var runPlay = (RunPlay)game.CurrentPlay;
 
-            // Test QB scramble (NextDouble < 0.10)
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.05)                    // QB check (0.05 < 0.10 = QB scrambles)
-                .NextInt(4)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards factor
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.9)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Test QB scramble (uses QBScramble which has QB check < 0.10)
+            var rng = RunPlayScenarios.QBScramble(yards: 5, direction: 4);
 
             var run = new Run(rng);
             run.Execute(game);
@@ -100,17 +70,8 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var runPlay = (RunPlay)game.CurrentPlay;
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction = Middle
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards factor
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.9)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Uses SimpleGain with direction = Middle (2)
+            var rng = RunPlayScenarios.SimpleGain(yards: 5, direction: 2);
 
             // Act
             var run = new Run(rng);
@@ -136,30 +97,10 @@ namespace UnitTestProject1
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
             // Test with good blocking (blocking check succeeds)
-            var rngGoodBlocking = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
-                .NextDouble(0.6)                     // Tackle break (fails)
-                .NextDouble(0.8)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            var rngGoodBlocking = RunPlayScenarios.GoodBlocking(yards: 7);
 
             // Test with bad blocking (blocking check fails)
-            var rngBadBlocking = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.6)               // Bad blocking (fails)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
-                .NextDouble(0.6)                     // Tackle break (fails)
-                .NextDouble(0.8)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            var rngBadBlocking = RunPlayScenarios.BadBlocking(yards: 5);
 
             // Act
             var runGood = new Run(rngGoodBlocking);
@@ -188,19 +129,8 @@ namespace UnitTestProject1
             var runPlay = (RunPlay)game.CurrentPlay;
             SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
 
-            // Ensure tackle break occurs
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards random factor
-                .NextDouble(0.1)                     // Tackle break (succeeds!)
-                .NextInt(5)                          // Tackle break yards (5)
-                .NextDouble(0.8)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Uses TackleBreak scenario with 5 extra yards
+            var rng = RunPlayScenarios.TackleBreak(baseYards: 3, tackleBreakYards: 5);
 
             // Act
             var run = new Run(rng);
@@ -230,32 +160,11 @@ namespace UnitTestProject1
             var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier2.Speed = 95;
 
-            // Test WITHOUT big run
-            var rngNoBigRun = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards factor
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.9)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Test WITHOUT big run - uses SimpleGain
+            var rngNoBigRun = RunPlayScenarios.SimpleGain(yards: 5);
 
-            // Test WITH big run
-            var rngBigRun = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards factor
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.05)                    // Big run (succeeds!)
-                .NextInt(25)                         // Breakaway yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Test WITH big run - uses Breakaway scenario
+            var rngBigRun = RunPlayScenarios.Breakaway(baseYards: 5, breakawayYards: 25);
 
             // Act
             var runNormal = new Run(rngNoBigRun);
@@ -284,19 +193,8 @@ namespace UnitTestProject1
             game.FieldPosition = 95; // Near the goal line
             SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50); // Set up for big gain
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.4)               // Good blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards factor
-                .NextDouble(0.05)                    // Tackle break (succeeds)
-                .NextInt(5)                          // Tackle break yards
-                .NextDouble(0.01)                    // Big run (succeeds)
-                .NextInt(30)                         // Breakaway yards (would exceed goal line)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Uses MaximumYardage scenario (tackle break + breakaway would exceed goal line)
+            var rng = RunPlayScenarios.MaximumYardage(tackleBreakYards: 5, breakawayYards: 30);
 
             // Act
             var run = new Run(rng);
@@ -315,17 +213,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 30, defenseSkill: 90); // Weak offense vs strong defense
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.7)               // Bad blocking (fails)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.1)                     // Base yards random factor (produces negative yards: 0.1 * 25 - 15 = -12.5)
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.9)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.33);      // Elapsed time
+            // Uses TackleForLoss scenario
+            var rng = RunPlayScenarios.TackleForLoss(lossYards: 2);
 
             // Act
             var run = new Run(rng);
@@ -345,17 +234,8 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var initialElapsedTime = game.CurrentPlay.ElapsedTime;
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards factor
-                .NextDouble(0.8)                     // Tackle break (fails)
-                .NextDouble(0.9)                     // Big run (fails)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.83);      // Elapsed time (5 + 0.83*3 = 7.5 seconds)
+            // Uses SimpleGain scenario which sets elapsed time to ~6.5 seconds
+            var rng = RunPlayScenarios.SimpleGain(yards: 5);
 
             // Act
             var run = new Run(rng);
@@ -378,17 +258,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.72)                    // Base yards random factor: 0.72*25-15 = 3.0
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses BadBlocking scenario (blocking fails >= 0.5)
+            var rng = RunPlayScenarios.BadBlocking(yards: 5);
 
             // Act
             var run = new Run(rng);
@@ -409,17 +280,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50);
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.7)                     // Base yards random factor: 0.7*25-15 = 2.5
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses GoodBlocking scenario
+            var rng = RunPlayScenarios.GoodBlocking(yards: 8);
 
             // Act
             var run = new Run(rng);
@@ -439,17 +301,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 40, defenseSkill: 80);
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.7)               // Bad blocking (fails)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.2)                     // Base yards random factor: 0.2*25-15 = -10
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses TackleForLoss scenario
+            var rng = RunPlayScenarios.TackleForLoss(lossYards: 2);
 
             // Act
             var run = new Run(rng);
@@ -475,18 +328,8 @@ namespace UnitTestProject1
             ballCarrier.Strength = 88;
             ballCarrier.Agility = 85;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking fails (>= 0.5)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.7)                     // Base yards factor: 0.7*25-15 = 2.5
-                .TackleBreakCheck(0.1)               // TACKLE BREAK! (succeeds)
-                .NextInt(6)                          // TackleBreakYardsSkillsCheckResult: 6 yards
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses TackleBreak scenario with 6 yards added (original: blocking=0.5, baseYardsFactor=0.7)
+            var rng = RunPlayScenarios.TackleBreak(baseYards: 3, tackleBreakYards: 6, blockingValue: 0.5, baseYardsFactor: 0.7);
 
             // Act
             var run = new Run(rng);
@@ -518,32 +361,10 @@ namespace UnitTestProject1
             ballCarrier2.Agility = 85;
 
             // Test minimum (3 yards)
-            var rngMin = new TestFluentSeedableRandom()
-                .NextDouble(0.15)
-                .NextInt(2)
-                .RunBlockingCheck(0.5)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)
-                .TackleBreakCheck(0.1)
-                .NextInt(3)                          // Min: 3 yards
-                .BreakawayCheck(0.9)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            var rngMin = RunPlayScenarios.TackleBreak(baseYards: 3, tackleBreakYards: 3);
 
             // Test maximum (8 yards)
-            var rngMax = new TestFluentSeedableRandom()
-                .NextDouble(0.15)
-                .NextInt(2)
-                .RunBlockingCheck(0.5)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)
-                .TackleBreakCheck(0.1)
-                .NextInt(8)                          // Max: 8 yards
-                .BreakawayCheck(0.9)
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            var rngMax = RunPlayScenarios.TackleBreak(baseYards: 3, tackleBreakYards: 8);
 
             // Act
             var runMin = new Run(rngMin);
@@ -570,18 +391,8 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier.Speed = 95;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.05)                // BREAKAWAY! (succeeds)
-                .NextInt(30)                         // BreakawayYardsSkillsCheckResult: 30 yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses Breakaway scenario with 30 yards added
+            var rng = RunPlayScenarios.Breakaway(baseYards: 5, breakawayYards: 30);
 
             // Act
             var run = new Run(rng);
@@ -609,32 +420,10 @@ namespace UnitTestProject1
             ballCarrier2.Speed = 95;
 
             // Test minimum (15 yards)
-            var rngMin = new TestFluentSeedableRandom()
-                .NextDouble(0.15)
-                .NextInt(2)
-                .RunBlockingCheck(0.5)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)
-                .TackleBreakCheck(0.9)
-                .BreakawayCheck(0.05)
-                .NextInt(15)                         // Min: 15 yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            var rngMin = RunPlayScenarios.Breakaway(baseYards: 5, breakawayYards: 15);
 
             // Test maximum (44 yards)
-            var rngMax = new TestFluentSeedableRandom()
-                .NextDouble(0.15)
-                .NextInt(2)
-                .RunBlockingCheck(0.5)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)
-                .TackleBreakCheck(0.9)
-                .BreakawayCheck(0.05)
-                .NextInt(44)                         // Max: 44 yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            var rngMax = RunPlayScenarios.Breakaway(baseYards: 5, breakawayYards: 44);
 
             // Act
             var runMin = new Run(rngMin);
@@ -663,18 +452,8 @@ namespace UnitTestProject1
             ballCarrier.Agility = 88;
             ballCarrier.Strength = 80;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.68)                    // Base yards: 0.68*25-15 = 2.0 randomFactor
-                .TackleBreakCheck(0.1)               // Tackle break (succeeds)
-                .NextInt(5)                          // TackleBreakYardsSkillsCheckResult: 5 yards
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses TackleBreak scenario (good blocking + tackle break, no breakaway) (original: blocking=0.4, baseYardsFactor=0.68)
+            var rng = RunPlayScenarios.TackleBreak(baseYards: 5, tackleBreakYards: 5, blockingValue: 0.4, baseYardsFactor: 0.68);
 
             // Act
             var run = new Run(rng);
@@ -702,19 +481,8 @@ namespace UnitTestProject1
             ballCarrier.Agility = 95;
             ballCarrier.Strength = 90;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.3)               // Great blocking (succeeds)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.9)                     // Max base yards: 0.9*25-15 = 7.5
-                .TackleBreakCheck(0.05)              // Tackle break (succeeds)
-                .NextInt(8)                          // TackleBreakYardsSkillsCheckResult: 8 yards
-                .BreakawayCheck(0.02)                // Breakaway (succeeds)
-                .NextInt(40)                         // BreakawayYardsSkillsCheckResult: 40 yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses MaximumYardage scenario (great blocking + tackle break + breakaway)
+            var rng = RunPlayScenarios.MaximumYardage(tackleBreakYards: 8, breakawayYards: 40);
 
             // Act
             var run = new Run(rng);
@@ -734,17 +502,8 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 30, defenseSkill: 95);
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.8)               // Bad blocking (fails)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.05)                    // Minimal base yards: 0.05*25-15 = -13.75
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+            // Uses TackleForLoss scenario
+            var rng = RunPlayScenarios.TackleForLoss(lossYards: 3);
 
             // Act
             var run = new Run(rng);
