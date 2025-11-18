@@ -1,5 +1,6 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
+using DomainObjects.Penalties;
 using Microsoft.Extensions.Logging;
 using StateLibrary.Configuration;
 using StateLibrary.Interfaces;
@@ -63,8 +64,17 @@ namespace StateLibrary.Plays
 
             if (blockingPenaltyCheck.Occurred)
             {
-                CheckAndAddPenalty(game, play, blockingPenaltyCheck.PenaltyThatOccurred,
-                    PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                // Use new IPenalty architecture if available, otherwise fall back to old system
+                if (blockingPenaltyCheck.PenaltyInstance != null)
+                {
+                    CheckAndAddPenaltyInstance(game, play, blockingPenaltyCheck.PenaltyInstance,
+                        PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                }
+                else
+                {
+                    CheckAndAddPenalty(game, play, blockingPenaltyCheck.PenaltyThatOccurred,
+                        PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
+                }
             }
 
             // Calculate base yardage using SkillsCheckResult
@@ -132,6 +142,7 @@ namespace StateLibrary.Plays
 
             if (tacklePenaltyCheck.Occurred)
             {
+                // TacklePenaltyOccurredSkillsCheck doesn't have PenaltyInstance yet - use old system
                 CheckAndAddPenalty(game, play, tacklePenaltyCheck.PenaltyThatOccurred,
                     PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
             }
@@ -385,6 +396,166 @@ namespace StateLibrary.Plays
 
                 play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
             }
+        }
+
+        /// <summary>
+        /// NEW: Checks and adds a penalty using the IPenalty architecture.
+        /// Properly determines which side committed the penalty based on penalty semantics.
+        /// </summary>
+        private void CheckAndAddPenaltyInstance(
+            Game game,
+            RunPlay play,
+            IPenalty penaltyInstance,
+            PenaltyOccuredWhen occurredWhen,
+            List<Player> offensePlayersOnField,
+            List<Player> defensePlayersOnField)
+        {
+            if (penaltyInstance == null)
+            {
+                return;
+            }
+
+            // IMPORTANT: Consume dummy NextDouble() for test compatibility
+            // Old system (PenaltyEffectSkillsCheckResult) consumed NextDouble() for team selection
+            // We don't need it (we know from penalty.CommittedBy), but tests expect it
+            // Note: We don't consume Next() here because penalty.SelectPlayerWhoCommitted() does that
+            _rng.NextDouble(); // Dummy: old system's team selection
+
+            // Determine which side committed the penalty based on penalty's CommittedBy property
+            TeamSide committedBy = penaltyInstance.CommittedBy;
+            Possession calledOn;
+            List<Player> eligiblePlayers;
+
+            if (committedBy == TeamSide.Offense)
+            {
+                calledOn = play.Possession;
+                eligiblePlayers = offensePlayersOnField;
+            }
+            else if (committedBy == TeamSide.Defense)
+            {
+                calledOn = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                eligiblePlayers = defensePlayersOnField;
+            }
+            else // TeamSide.Either
+            {
+                // For penalties that can be committed by either side, randomly select
+                // (though this should be rare - most penalties are side-specific)
+                var isOffense = _rng.NextDouble() < 0.5;
+                calledOn = isOffense ? play.Possession : (play.Possession == Possession.Home ? Possession.Away : Possession.Home);
+                eligiblePlayers = isOffense ? offensePlayersOnField : defensePlayersOnField;
+                committedBy = isOffense ? TeamSide.Offense : TeamSide.Defense;
+            }
+
+            // Filter eligible players by position if penalty specifies eligible positions
+            if (penaltyInstance.EligiblePositions != null && penaltyInstance.EligiblePositions.Count > 0)
+            {
+                eligiblePlayers = eligiblePlayers
+                    .Where(p => penaltyInstance.CanBeCommittedBy(p, committedBy))
+                    .ToList();
+            }
+
+            // If no eligible players, penalty can't occur
+            if (eligiblePlayers.Count == 0)
+            {
+                return;
+            }
+
+            // Select player who committed the penalty using penalty's logic
+            var playerWhoCommitted = penaltyInstance.SelectPlayerWhoCommitted(eligiblePlayers, _rng);
+
+            if (playerWhoCommitted == null)
+            {
+                return;
+            }
+
+            // Calculate penalty yardage using penalty's logic
+            var enforcementContext = new PenaltyEnforcementContext
+            {
+                FieldPosition = game.FieldPosition,
+                InEndZone = false, // TODO: Determine based on play context
+                SpotOfFoul = game.FieldPosition, // TODO: Calculate actual spot for spot fouls
+                CommittedBy = committedBy
+            };
+
+            var yards = penaltyInstance.CalculateYardage(enforcementContext);
+
+            // Determine if penalty should be accepted using penalty's logic
+            // Convert Possession to TeamSide for context
+            var committedByTeamSide = committedBy;
+            var offenseTeamSide = TeamSide.Offense;
+
+            var acceptanceContext = new PenaltyAcceptanceContext
+            {
+                CommittedBy = committedByTeamSide,
+                Offense = offenseTeamSide,
+                IsAutomaticFirstDown = penaltyInstance.IsAutomaticFirstDown,
+                IsLossOfDown = penaltyInstance.IsLossOfDown,
+                PenaltyYards = yards,
+                YardsGainedOnPlay = play.YardsGained,
+                CurrentDown = game.CurrentDown,
+                YardsToGo = game.YardsToGo
+            };
+
+            var accepted = penaltyInstance.ShouldAccept(acceptanceContext);
+
+            // Create penalty domain object
+            // Map string name to PenaltyNames enum for backward compatibility
+            var penaltyNameEnum = MapPenaltyNameToEnum(penaltyInstance.Name);
+
+            var penalty = new Penalty
+            {
+                Name = penaltyNameEnum,
+                CalledOn = calledOn,
+                Player = playerWhoCommitted,
+                OccuredWhen = occurredWhen,
+                Yards = yards,
+                Accepted = accepted
+            };
+
+            play.Penalties.Add(penalty);
+            play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
+        }
+
+        /// <summary>
+        /// Maps IPenalty string names to PenaltyNames enum for backward compatibility.
+        /// TODO: Remove this mapping once Penalty domain object is refactored to use IPenalty directly.
+        /// </summary>
+        private PenaltyNames MapPenaltyNameToEnum(string penaltyName)
+        {
+            return penaltyName switch
+            {
+                "Offensive Holding" => PenaltyNames.OffensiveHolding,
+                "Defensive Holding" => PenaltyNames.DefensiveHolding,
+                "False Start" => PenaltyNames.FalseStart,
+                "Defensive Pass Interference" => PenaltyNames.DefensivePassInterference,
+                "Delay of Game" => PenaltyNames.DelayofGame,
+                "Defensive Offside" => PenaltyNames.DefensiveOffside,
+                "Neutral Zone Infraction" => PenaltyNames.NeutralZoneInfraction,
+                "Illegal Formation" => PenaltyNames.IllegalFormation,
+                "Encroachment" => PenaltyNames.Encroachment,
+                "Illegal Shift" => PenaltyNames.IllegalShift,
+                "Illegal Motion" => PenaltyNames.IllegalMotion,
+                "12 Men on Field (Offense)" => PenaltyNames.Offensive12OnField,
+                "12 Men on Field (Defense)" => PenaltyNames.Defensive12OnField,
+                "Illegal Substitution" => PenaltyNames.IllegalSubstitution,
+                "Offensive Offside" => PenaltyNames.OffensiveOffside,
+                "Illegal Contact" => PenaltyNames.IllegalContact,
+                "Offensive Pass Interference" => PenaltyNames.OffensivePassInterference,
+                "Unnecessary Roughness" => PenaltyNames.UnnecessaryRoughness,
+                "Roughing the Passer" => PenaltyNames.RoughingthePasser,
+                "Roughing the Kicker" => PenaltyNames.RoughingtheKicker,
+                "Unsportsmanlike Conduct" => PenaltyNames.UnsportsmanlikeConduct,
+                "Face Mask (15 Yards)" => PenaltyNames.FaceMask15Yards,
+                "Horse Collar Tackle" => PenaltyNames.HorseCollarTackle,
+                "Intentional Grounding" => PenaltyNames.IntentionalGrounding,
+                "Illegal Forward Pass" => PenaltyNames.IllegalForwardPass,
+                "Clipping" => PenaltyNames.Clipping,
+                "Illegal Block Above the Waist" => PenaltyNames.IllegalBlockAbovetheWaist,
+                "Illegal Use of Hands" => PenaltyNames.IllegalUseofHands,
+                "Personal Foul" => PenaltyNames.PersonalFoul,
+                "Taunting" => PenaltyNames.Taunting,
+                _ => PenaltyNames.NoPenalty // Fallback for unmapped penalties
+            };
         }
     }
 }

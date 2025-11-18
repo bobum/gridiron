@@ -420,6 +420,48 @@ namespace UnitTestProject1.Helpers
                 .ElapsedTimeRandomFactor(0.99);
         }
 
+        /// <summary>
+        /// Incomplete pass with defensive holding penalty.
+        /// Tests that defensive holding is correctly assigned to the defense.
+        /// </summary>
+        public static TestFluentSeedableRandom WithDefensiveHoldingPenalty(int airYards = 10)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .BlockingPenaltyCheck(0.99)             // No blocking penalty
+                .QBPressureCheck(0.8)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)
+                .AirYards(airYards)
+                .PassCompletionCheck(0.9)               // Incomplete
+                .CoveragePenaltyCheck(0.01)             // Coverage penalty occurs
+                .NextDouble(0.5)                        // Penalty effect: team selection
+                .NextInt(5)                             // Penalty effect: player selection
+                .InterceptionOccurredCheck(0.99)        // No interception
+                .ElapsedTimeRandomFactor(0.99);
+        }
+
+        /// <summary>
+        /// Incomplete pass with defensive pass interference penalty.
+        /// Tests that DPI is correctly assigned to the defense.
+        /// </summary>
+        public static TestFluentSeedableRandom WithDefensivePassInterferencePenalty(int airYards = 20)
+        {
+            return new TestFluentSeedableRandom()
+                .PassProtectionCheck(0.7)
+                .BlockingPenaltyCheck(0.99)             // No blocking penalty
+                .QBPressureCheck(0.8)
+                .ReceiverSelection(0.5)
+                .PassTypeDetermination(0.6)
+                .AirYards(airYards)
+                .PassCompletionCheck(0.9)               // Incomplete
+                .CoveragePenaltyCheck(0.01)             // Coverage penalty occurs
+                .NextDouble(0.5)                        // Penalty effect: team selection
+                .NextInt(5)                             // Penalty effect: player selection
+                .InterceptionOccurredCheck(0.99)        // No interception
+                .ElapsedTimeRandomFactor(0.99);
+        }
+
         #endregion
 
         #region Pressure Scenarios

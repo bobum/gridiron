@@ -74,7 +74,7 @@ namespace UnitTestProject1
             penaltySkillsCheckResult.Execute(game);
 
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
-                Penalties.List.Single(p => p.Name == PenaltyNames.IllegalBlockAbovetheWaist).Name);
+                PenaltyData.List.Single(p => p.Name == PenaltyNames.IllegalBlockAbovetheWaist).Name);
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace UnitTestProject1
             penaltySkillsCheckResult.Execute(game);
 
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
-                Penalties.List.Single(p => p.Name == PenaltyNames.RoughingtheKicker).Name);
+                PenaltyData.List.Single(p => p.Name == PenaltyNames.RoughingtheKicker).Name);
         }
 
         [TestMethod]
@@ -100,7 +100,7 @@ namespace UnitTestProject1
             penaltySkillsCheckResult.Execute(game);
 
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
-                Penalties.List.Single(p => p.Name == PenaltyNames.RoughingtheKicker).Name);
+                PenaltyData.List.Single(p => p.Name == PenaltyNames.RoughingtheKicker).Name);
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@ namespace UnitTestProject1
             penaltySkillsCheckResult.Execute(game);
 
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
-                Penalties.List.Single(p => p.Name == PenaltyNames.OffensiveHolding).Name);
+                PenaltyData.List.Single(p => p.Name == PenaltyNames.OffensiveHolding).Name);
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace UnitTestProject1
             penaltySkillsCheckResult.Execute(game);
 
             Assert.AreEqual(game.CurrentPlay.Penalties.First().Name,
-                Penalties.List.Single(p => p.Name == PenaltyNames.OffensiveHolding).Name);
+                PenaltyData.List.Single(p => p.Name == PenaltyNames.OffensiveHolding).Name);
         }
         */
 
