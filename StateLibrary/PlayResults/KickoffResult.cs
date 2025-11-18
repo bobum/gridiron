@@ -197,39 +197,55 @@ namespace StateLibrary.PlayResults
                 return;
             }
 
-            // Enforce penalty from the return spot
-            // game.FieldPosition is already set to the return spot (play.EndFieldPosition)
-            // NetYards: positive helps kicking team (penalty on receiving team), negative helps receiving team (penalty on kicking team)
-            finalFieldPosition = game.FieldPosition + enforcementResult.NetYards;
+            // Check if this is a kicking team penalty or receiving team penalty
+            var kickingTeamPenalty = play.Penalties.Any(p => p.Accepted && p.CalledOn == play.Possession);
 
-            // Bounds check
-            if (finalFieldPosition >= 100)
+            if (kickingTeamPenalty && play.Touchback)
             {
-                // Penalty pushed receiving team forward into end zone for TD
-                play.IsTouchdown = true;
-                game.FieldPosition = 100;
-                var receivingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
-                game.AddTouchdown(receivingTeam);
-                play.PossessionChange = true;
-                play.Result.LogInformation($"Penalty enforcement results in TOUCHDOWN!");
-                return;
+                // Kicking team penalty on touchback - rekick from adjusted kickoff spot
+                // Penalty helps receiving team, so kick from further back
+                // NetYards is negative for kicking team penalty, subtracting gives: 35 - (-5) = 40
+                finalFieldPosition = 35 - enforcementResult.NetYards;
+                game.FieldPosition = finalFieldPosition;
+                play.PossessionChange = false; // Kicking team rekicks
+                play.Result.LogInformation($"Penalty on kicking team. Rekick from the {game.FieldPosition}-yard line.");
             }
-            else if (finalFieldPosition <= 0)
+            else
             {
-                // Penalty pushed receiving team into own end zone for safety
-                play.IsSafety = true;
-                game.FieldPosition = 0;
-                game.AddSafety(play.Possession); // Kicking team gets safety
-                play.PossessionChange = true;
-                play.Result.LogInformation($"Penalty enforcement results in SAFETY!");
-                return;
-            }
+                // All other penalties - enforce from the return spot
+                // For kicking team penalty during return: NetYards is negative, subtracting adds: 88 - (-15) = 103
+                // For receiving team penalty: NetYards is positive, subtracting moves back: 40 - 10 = 30
+                finalFieldPosition = game.FieldPosition - enforcementResult.NetYards;
 
-            game.FieldPosition = finalFieldPosition;
-            game.CurrentDown = Downs.First;
-            game.YardsToGo = 10;
-            play.PossessionChange = true; // Normal change of possession after penalty enforcement
-            play.Result.LogInformation($"Penalty enforced. Ball at the {game.FieldPosition} yard line. 1st and 10.");
+                // Bounds check
+                if (finalFieldPosition >= 100)
+                {
+                    // Penalty pushed receiving team forward into end zone for TD
+                    play.IsTouchdown = true;
+                    game.FieldPosition = 100;
+                    var receivingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                    game.AddTouchdown(receivingTeam);
+                    play.PossessionChange = true;
+                    play.Result.LogInformation($"Penalty enforcement results in TOUCHDOWN!");
+                    return;
+                }
+                else if (finalFieldPosition <= 0)
+                {
+                    // Penalty pushed receiving team into own end zone for safety
+                    play.IsSafety = true;
+                    game.FieldPosition = 0;
+                    game.AddSafety(play.Possession); // Kicking team gets safety
+                    play.PossessionChange = true;
+                    play.Result.LogInformation($"Penalty enforcement results in SAFETY!");
+                    return;
+                }
+
+                game.FieldPosition = finalFieldPosition;
+                game.CurrentDown = Downs.First;
+                game.YardsToGo = 10;
+                play.PossessionChange = true; // Normal change of possession after penalty enforcement
+                play.Result.LogInformation($"Penalty enforced. Ball at the {game.FieldPosition} yard line. 1st and 10.");
+            }
         }
 
         /// <summary>
