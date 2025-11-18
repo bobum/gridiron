@@ -104,7 +104,7 @@ namespace DomainObjects.Helpers
             chart.Chart[Positions.H] = GetDepth(players, Positions.QB, 1); // Holder (often a backup QB or P)
             chart.Chart[Positions.TE] = GetDepth(players, Positions.TE, 2);    // Blocking
             chart.Chart[Positions.G] = GetDepth(players, Positions.G, 2);      // Blocking
-            chart.Chart[Positions.T] = GetDepth(players, Positions.T, 2);      // Blocking
+            chart.Chart[Positions.T] = GetDepth(players, Positions.T, 3);      // Blocking (need 3 for 11 total)
             chart.Chart[Positions.C] = GetDepth(players, Positions.C, 1);      // Center
             string json = JsonConvert.SerializeObject(chart);
             return chart;
