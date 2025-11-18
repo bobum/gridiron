@@ -1,6 +1,8 @@
 ﻿using DomainObjects;
 using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
+using StateLibrary.Services;
+using System;
 using System.Linq;
 
 namespace StateLibrary.PlayResults
@@ -90,9 +92,43 @@ namespace StateLibrary.PlayResults
             }
             else
             {
-                // Normal play result
-                play.EndFieldPosition = newFieldPosition;
-                game.FieldPosition = newFieldPosition;
+                // Normal play result - check for penalties before finalizing
+                var penaltyEnforcement = new PenaltyEnforcement(play.Result);
+
+                // Apply smart acceptance/decline logic to penalties
+                ApplyPenaltyAcceptanceLogic(game, play, penaltyEnforcement);
+
+                // Enforce penalties and get the result
+                var enforcementResult = penaltyEnforcement.EnforcePenalties(game, play, play.YardsGained);
+
+                // Update field position based on net yards (play result + penalties)
+                var finalFieldPosition = game.FieldPosition + enforcementResult.NetYards;
+
+                // Bounds check
+                if (finalFieldPosition >= 100)
+                {
+                    // Penalty pushed offense into end zone for TD
+                    play.IsTouchdown = true;
+                    play.EndFieldPosition = 100;
+                    game.FieldPosition = 100;
+                    game.AddTouchdown(play.Possession);
+                    play.PossessionChange = true;
+                    return;
+                }
+                else if (finalFieldPosition <= 0)
+                {
+                    // Penalty pushed offense into own end zone for safety
+                    play.IsSafety = true;
+                    play.EndFieldPosition = 0;
+                    game.FieldPosition = 0;
+                    var defendingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                    game.AddSafety(defendingTeam);
+                    play.PossessionChange = true;
+                    return;
+                }
+
+                play.EndFieldPosition = finalFieldPosition;
+                game.FieldPosition = finalFieldPosition;
 
                 // Two-point conversion failed - possession changes
                 if (play.IsTwoPointConversion)
@@ -100,33 +136,42 @@ namespace StateLibrary.PlayResults
                     play.PossessionChange = true;
                     play.Result.LogInformation($"Two-point conversion FAILED. No points scored.");
                 }
-                // Check for first down
-                else if (play.YardsGained >= game.YardsToGo)
+                // Apply down and distance from penalty enforcement
+                else if (enforcementResult.IsOffsetting)
                 {
-                    // First down!
+                    // Offsetting penalties - replay the down
+                    // Down stays the same, yards to go stays the same
+                    play.Result.LogInformation($"Offsetting penalties. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                }
+                else if (enforcementResult.AutomaticFirstDown)
+                {
+                    // Automatic first down from penalty
                     game.CurrentDown = Downs.First;
                     game.YardsToGo = 10;
                     play.Result.LogInformation($"First down! Ball at the {game.FieldPosition} yard line.");
                 }
+                else if (enforcementResult.NewDown == Downs.First && enforcementResult.NewYardsToGo == 10)
+                {
+                    // First down achieved
+                    game.CurrentDown = Downs.First;
+                    game.YardsToGo = 10;
+                    play.Result.LogInformation($"First down! Ball at the {game.FieldPosition} yard line.");
+                }
+                else if (enforcementResult.NewDown == Downs.None)
+                {
+                    // Turnover on downs
+                    play.PossessionChange = true;
+                    game.CurrentDown = Downs.First;
+                    game.YardsToGo = 10;
+                    play.Result.LogInformation($"Turnover on downs! Ball at the {game.FieldPosition} yard line.");
+                }
                 else
                 {
-                    // Advance the down
-                    var nextDown = AdvanceDown(game.CurrentDown);
-                    game.YardsToGo -= play.YardsGained;
+                    // Update down and distance from enforcement result
+                    game.CurrentDown = enforcementResult.NewDown;
+                    game.YardsToGo = Math.Max(1, enforcementResult.NewYardsToGo); // Ensure at least 1 yard to go
 
-                    if (nextDown == Downs.None)
-                    {
-                        // Turnover on downs - other team gets 1st and 10
-                        play.PossessionChange = true;
-                        game.CurrentDown = Downs.First;
-                        game.YardsToGo = 10;
-                        play.Result.LogInformation($"Turnover on downs! Ball at the {game.FieldPosition} yard line.");
-                    }
-                    else
-                    {
-                        game.CurrentDown = nextDown;
-                        play.Result.LogInformation($"Runner is down. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
-                    }
+                    play.Result.LogInformation($"Runner is down. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
                 }
             }
 
@@ -135,6 +180,31 @@ namespace StateLibrary.PlayResults
             if (finalCarrier != null)
             {
                 play.Result.LogInformation($"{finalCarrier.LastName}: {play.RunSegments.Count} carry for {play.YardsGained} yards.");
+            }
+        }
+
+        /// <summary>
+        /// Applies smart acceptance/decline logic to all penalties on the play.
+        /// </summary>
+        private void ApplyPenaltyAcceptanceLogic(Game game, RunPlay play, PenaltyEnforcement enforcement)
+        {
+            if (play.Penalties == null || !play.Penalties.Any())
+                return;
+
+            foreach (var penalty in play.Penalties)
+            {
+                // Determine which team committed the penalty
+                var penalizedTeam = penalty.CalledOn;
+
+                // Use smart acceptance logic
+                penalty.Accepted = enforcement.ShouldAcceptPenalty(
+                    game,
+                    penalty,
+                    penalizedTeam,
+                    play.Possession,
+                    play.YardsGained,
+                    play.Down,
+                    game.YardsToGo);
             }
         }
 
