@@ -488,9 +488,12 @@ namespace StateLibrary.Plays
             var accepted = penaltyInstance.ShouldAccept(acceptanceContext);
 
             // Create penalty domain object
+            // Map string name to PenaltyNames enum for backward compatibility
+            var penaltyNameEnum = MapPenaltyNameToEnum(penaltyInstance.Name);
+
             var penalty = new Penalty
             {
-                Name = penaltyInstance.Name,
+                Name = penaltyNameEnum,
                 CalledOn = calledOn,
                 Player = playerWhoCommitted,
                 OccuredWhen = occurredWhen,
@@ -500,6 +503,48 @@ namespace StateLibrary.Plays
 
             play.Penalties.Add(penalty);
             play.Result.LogInformation($"PENALTY: {penalty.Name} on {penalty.CalledOn}, {penalty.Yards} yards");
+        }
+
+        /// <summary>
+        /// Maps IPenalty string names to PenaltyNames enum for backward compatibility.
+        /// TODO: Remove this mapping once Penalty domain object is refactored to use IPenalty directly.
+        /// </summary>
+        private PenaltyNames MapPenaltyNameToEnum(string penaltyName)
+        {
+            return penaltyName switch
+            {
+                "Offensive Holding" => PenaltyNames.OffensiveHolding,
+                "Defensive Holding" => PenaltyNames.DefensiveHolding,
+                "False Start" => PenaltyNames.FalseStart,
+                "Defensive Pass Interference" => PenaltyNames.DefensivePassInterference,
+                "Delay of Game" => PenaltyNames.DelayofGame,
+                "Defensive Offside" => PenaltyNames.DefensiveOffside,
+                "Neutral Zone Infraction" => PenaltyNames.NeutralZoneInfraction,
+                "Illegal Formation" => PenaltyNames.IllegalFormation,
+                "Encroachment" => PenaltyNames.Encroachment,
+                "Illegal Shift" => PenaltyNames.IllegalShift,
+                "Illegal Motion" => PenaltyNames.IllegalMotion,
+                "12 Men on Field (Offense)" => PenaltyNames.Offensive12OnField,
+                "12 Men on Field (Defense)" => PenaltyNames.Defensive12OnField,
+                "Illegal Substitution" => PenaltyNames.IllegalSubstitution,
+                "Offensive Offside" => PenaltyNames.OffensiveOffside,
+                "Illegal Contact" => PenaltyNames.IllegalContact,
+                "Offensive Pass Interference" => PenaltyNames.OffensivePassInterference,
+                "Unnecessary Roughness" => PenaltyNames.UnnecessaryRoughness,
+                "Roughing the Passer" => PenaltyNames.RoughingthePasser,
+                "Roughing the Kicker" => PenaltyNames.RoughingtheKicker,
+                "Unsportsmanlike Conduct" => PenaltyNames.UnsportsmanlikeConduct,
+                "Face Mask (15 Yards)" => PenaltyNames.FaceMask15Yards,
+                "Horse Collar Tackle" => PenaltyNames.HorseCollarTackle,
+                "Intentional Grounding" => PenaltyNames.IntentionalGrounding,
+                "Illegal Forward Pass" => PenaltyNames.IllegalForwardPass,
+                "Clipping" => PenaltyNames.Clipping,
+                "Illegal Block Above the Waist" => PenaltyNames.IllegalBlockAbovetheWaist,
+                "Illegal Use of Hands" => PenaltyNames.IllegalUseofHands,
+                "Personal Foul" => PenaltyNames.PersonalFoul,
+                "Taunting" => PenaltyNames.Taunting,
+                _ => PenaltyNames.NoPenalty // Fallback for unmapped penalties
+            };
         }
     }
 }
