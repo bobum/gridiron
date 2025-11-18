@@ -53,7 +53,25 @@ namespace StateLibrary.Actions
             // Log the play call
             if (game.CurrentPlay.PlayType == PlayType.Kickoff)
             {
-                game.CurrentPlay.Result.LogInformation("Players are lined up for the kickoff");
+                // Check if this is a kickoff after extra point/2-pt conversion
+                if (game.Plays.Count >= 2 && game.Plays[game.Plays.Count - 1].Down == Downs.None)
+                {
+                    game.CurrentPlay.Result.LogInformation("Kickoff after the conversion attempt");
+                }
+                else
+                {
+                    game.CurrentPlay.Result.LogInformation("Players are lined up for the kickoff");
+                }
+            }
+            else if (game.CurrentPlay.PlayType == PlayType.FieldGoal && game.CurrentPlay.Down == Downs.None && game.Plays.Count > 0 && game.Plays.Last().IsTouchdown)
+            {
+                // This is an extra point attempt
+                game.CurrentPlay.Result.LogInformation("Extra point attempt");
+            }
+            else if ((game.CurrentPlay.PlayType == PlayType.Run || game.CurrentPlay.PlayType == PlayType.Pass) && game.CurrentPlay.Down == Downs.None && game.Plays.Count > 0 && game.Plays.Last().IsTouchdown)
+            {
+                // This is a 2-pt conversion attempt
+                game.CurrentPlay.Result.LogInformation("Going for 2!");
             }
             else if (game.CurrentPlay.PlayType == PlayType.Punt && game.CurrentPlay.Down == Downs.None && game.Plays.Count > 0 && game.Plays.Last().IsSafety)
             {
@@ -120,6 +138,100 @@ namespace StateLibrary.Actions
                     };
 
                     return currentPlay;
+                }
+
+                // Check if last play was extra point or 2-pt conversion attempt
+                // These have Down = None and the play before was a touchdown
+                if (lastPlay.Down == Downs.None && game.Plays.Count >= 2)
+                {
+                    var secondToLast = game.Plays[game.Plays.Count - 2];
+                    if (secondToLast.IsTouchdown)
+                    {
+                        // Last play was extra point or 2-pt conversion
+                        // Next play is kickoff by team that scored the touchdown
+                        var kickingTeam = lastPlay.Possession;
+
+                        // Kickoff from 35-yard line
+                        // Home's 35 = position 35, Away's 35 = position 65
+                        int kickoffPosition = (kickingTeam == Possession.Home) ? 35 : 65;
+
+                        game.FieldPosition = kickoffPosition;
+                        game.CurrentDown = Downs.None;
+
+                        currentPlay = new KickoffPlay
+                        {
+                            Possession = kickingTeam,
+                            Down = Downs.None,
+                            StartTime = lastPlay.StopTime,
+                            PossessionChange = false // Will change after kickoff is executed
+                        };
+
+                        return currentPlay;
+                    }
+                }
+
+                // Check if last play was a touchdown - if so, extra point or 2-pt conversion
+                if (lastPlay.IsTouchdown)
+                {
+                    var scoringTeam = lastPlay.Possession;
+
+                    // 10% chance of going for 2-pt conversion, 90% extra point
+                    var conversionChoice = _rng.NextDouble();
+
+                    if (conversionChoice < 0.10)
+                    {
+                        // 2-pt conversion attempt (Run or Pass from 2-yard line)
+                        // From opponent's 2-yard line
+                        // If Home scored: position 98 (opponent's 2), If Away scored: position 2
+                        int twoPointPosition = (scoringTeam == Possession.Home) ? 98 : 2;
+
+                        game.FieldPosition = twoPointPosition;
+                        game.CurrentDown = Downs.None; // Conversion attempt is not a down
+
+                        // Randomly choose run or pass for 2-pt conversion
+                        var playChoice = _rng.NextDouble();
+                        if (playChoice < 0.5)
+                        {
+                            currentPlay = new RunPlay
+                            {
+                                Possession = scoringTeam,
+                                Down = Downs.None,
+                                StartTime = lastPlay.StopTime,
+                                ElapsedTime = 1.5
+                            };
+                        }
+                        else
+                        {
+                            currentPlay = new PassPlay
+                            {
+                                Possession = scoringTeam,
+                                Down = Downs.None,
+                                StartTime = lastPlay.StopTime,
+                                ElapsedTime = 1.5
+                            };
+                        }
+
+                        return currentPlay;
+                    }
+                    else
+                    {
+                        // Extra point attempt (FieldGoal from 15-yard line)
+                        // From opponent's 15-yard line
+                        // If Home scored: position 85 (100 - 15), If Away scored: position 15
+                        int extraPointPosition = (scoringTeam == Possession.Home) ? 85 : 15;
+
+                        game.FieldPosition = extraPointPosition;
+                        game.CurrentDown = Downs.None; // Extra point is not a down
+
+                        currentPlay = new FieldGoalPlay
+                        {
+                            Possession = scoringTeam,
+                            Down = Downs.None,
+                            StartTime = lastPlay.StopTime
+                        };
+
+                        return currentPlay;
+                    }
                 }
 
                 // Determine possession for this play
