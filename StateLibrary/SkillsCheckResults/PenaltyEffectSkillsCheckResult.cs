@@ -112,8 +112,10 @@ namespace StateLibrary.SkillsCheckResults
 
             foreach (var player in eligiblePlayers)
             {
-                // If discipline is 0 (not initialized), use default weight
-                var discipline = player.Discipline > 0 ? player.Discipline : 70;
+                // Use discipline value directly (0-100 range)
+                // Discipline 0 = undisciplined (weight 120)
+                // Discipline 100 = highly disciplined (weight 20)
+                var discipline = player.Discipline;
                 var weight = (100 - discipline) + 20; // Inverse relationship
                 weights.Add(weight);
                 totalWeight += weight;
