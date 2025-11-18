@@ -164,6 +164,23 @@ namespace StateLibrary.Plays
                         PenaltyOccuredWhen.During, play.OffensePlayersOnField, play.DefensePlayersOnField);
                 }
 
+                // **INJURY CHECK: Receiver after being tackled**
+                var defendersInvolved = tacklers.Count;
+                var isBigPlay = totalYards >= 20;
+                var currentFieldPosition = game.FieldPosition + totalYards;
+                var isOutOfBounds = currentFieldPosition <= 0 || currentFieldPosition >= 100;
+                CheckForInjury(game, play, receiver, defendersInvolved, isOutOfBounds, isBigPlay, false);
+
+                // **INJURY CHECK: Tacklers (lower risk)**
+                foreach (var tackler in tacklers)
+                {
+                    // Defenders have 50% reduced injury rate
+                    if (_rng.NextDouble() < 0.5)
+                    {
+                        CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
+                    }
+                }
+
                 // Create the pass segment
                 var segment = new PassSegment
                 {
@@ -178,9 +195,6 @@ namespace StateLibrary.Plays
 
                 play.PassSegments.Add(segment);
                 play.YardsGained = totalYards;
-
-                // Calculate current field position after the catch
-                var currentFieldPosition = game.FieldPosition + totalYards;
 
                 // Check for fumble after the catch (similar probability to run plays)
                 var fumbleCheck = new FumbleOccurredSkillsCheck(
@@ -388,6 +402,21 @@ namespace StateLibrary.Plays
 
             // Calculate current field position after sack
             var currentFieldPosition = game.FieldPosition + sackYards;
+
+            // **INJURY CHECK: QB getting sacked (high risk)**
+            var defendersInvolved = sackers.Count;
+            var isBigPlay = Math.Abs(sackYards) >= 10; // Big sack loss
+            CheckForInjury(game, play, qb, defendersInvolved, false, isBigPlay, true); // isSack = true
+
+            // **INJURY CHECK: Sackers (lower risk)**
+            foreach (var tackler in sackers)
+            {
+                // Defenders have 50% reduced injury rate
+                if (_rng.NextDouble() < 0.5)
+                {
+                    CheckForInjury(game, play, tackler, 1, false, isBigPlay, false);
+                }
+            }
 
             // Check for fumble on the sack (strip sack) - higher probability than normal run
             var fumbleCheck = new FumbleOccurredSkillsCheck(
