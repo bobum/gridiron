@@ -793,10 +793,9 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Running into the Kicker",
+                    Name = PenaltyNames.RunningIntotheKicker,
                     Yards = 5,
                     CalledOn = Possession.Away,
-                    AutomaticFirstDown = true,
                     Accepted = true
                 }
             };
@@ -826,7 +825,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Delay of Game",
+                    Name = PenaltyNames.DelayofGame,
                     Yards = 5,
                     CalledOn = Possession.Home,
                     Accepted = true
@@ -856,7 +855,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Offsides",
+                    Name = PenaltyNames.DefensiveOffside,
                     Yards = 5,
                     CalledOn = Possession.Away,
                     Accepted = true
@@ -886,7 +885,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "False Start",
+                    Name = PenaltyNames.FalseStart,
                     Yards = 5,
                     CalledOn = Possession.Home,
                     Accepted = true
@@ -916,14 +915,14 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Offsides",
+                    Name = PenaltyNames.OffensiveOffside,
                     Yards = 5,
                     CalledOn = Possession.Home,
                     Accepted = true
                 },
                 new Penalty
                 {
-                    Name = "Encroachment",
+                    Name = PenaltyNames.Encroachment,
                     Yards = 5,
                     CalledOn = Possession.Away,
                     Accepted = true
@@ -955,10 +954,9 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Roughing the Kicker",
+                    Name = PenaltyNames.RoughingtheKicker,
                     Yards = 15,
                     CalledOn = Possession.Away,
-                    AutomaticFirstDown = true,
                     Accepted = true
                 }
             };
@@ -991,36 +989,6 @@ namespace UnitTestProject1
             // Assert - Normal FG execution
             Assert.IsTrue(play.PossessionChange, "Possession should change after score");
             Assert.AreEqual(3, game.HomeScore, "Should score 3 points");
-        }
-
-        [TestMethod]
-        public void FieldGoalResult_TwoPointConversion_DefensivePenalty_Retry()
-        {
-            // Arrange
-            var game = CreateGameWithFieldGoalPlay(false);
-            game.FieldPosition = 98; // 2-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
-            play.IsTwoPointConversion = true;
-            play.IsGood = false; // Failed 2-point
-
-            // Add defensive penalty (holding, 5 yards)
-            play.Penalties = new List<Penalty>
-            {
-                new Penalty
-                {
-                    Name = "Defensive Holding",
-                    Yards = 5,
-                    CalledOn = Possession.Away,
-                    Accepted = true
-                }
-            };
-
-            // Act
-            var fieldGoalResult = new FieldGoalResult();
-            fieldGoalResult.Execute(game);
-
-            // Assert - 2-point conversion can be retried from 1-yard line
-            Assert.IsTrue(game.FieldPosition >= 98, "Should be closer to or at goal line");
         }
 
         #endregion

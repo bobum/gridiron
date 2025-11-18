@@ -459,10 +459,9 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Defensive Holding",
+                    Name = PenaltyNames.DefensiveHolding,
                     Yards = 5,
                     CalledOn = Possession.Away,
-                    AutomaticFirstDown = true,
                     Accepted = false  // Will be set by acceptance logic
                 }
             };
@@ -493,7 +492,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Offensive Holding",
+                    Name = PenaltyNames.OffensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Home,
                     Accepted = false  // Will be set by acceptance logic
@@ -523,14 +522,14 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Offensive Holding",
+                    Name = PenaltyNames.OffensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Home,
                     Accepted = true
                 },
                 new Penalty
                 {
-                    Name = "Defensive Pass Interference",
+                    Name = PenaltyNames.DefensivePassInterference,
                     Yards = 15,
                     CalledOn = Possession.Away,
                     Accepted = true
@@ -554,9 +553,9 @@ namespace UnitTestProject1
             game.FieldPosition = 35;
             var play = (PuntPlay)game.CurrentPlay;
             play.YardsGained = 40; // Punt and return net 40 yards
-            play.ReturnSegments = new System.Collections.Generic.List<Segment>
+            play.ReturnSegments = new System.Collections.Generic.List<ReturnSegment>
             {
-                new Segment { Distance = 15, Direction = 1 }
+                new ReturnSegment { BallCarrier = new Player { LastName = "Returner" }, YardsGained = 15 }
             };
 
             // Add defensive holding penalty during return (10 yards)
@@ -564,7 +563,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Holding on Return",
+                    Name = PenaltyNames.OffensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Away,  // Receiving team penalty
                     Accepted = false  // Will be set by acceptance logic
@@ -595,7 +594,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Illegal Formation",
+                    Name = PenaltyNames.IllegalFormation,
                     Yards = 10,
                     CalledOn = Possession.Home,  // Punting team
                     Accepted = true
@@ -620,9 +619,9 @@ namespace UnitTestProject1
             var play = (PuntPlay)game.CurrentPlay;
             play.YardsGained = 80; // Return for TD
             play.IsTouchdown = true;
-            play.ReturnSegments = new System.Collections.Generic.List<Segment>
+            play.ReturnSegments = new System.Collections.Generic.List<ReturnSegment>
             {
-                new Segment { Distance = 80, Direction = 1 }
+                new ReturnSegment { BallCarrier = new Player { LastName = "Returner" }, YardsGained = 80 }
             };
 
             // Add defensive penalty (doesn't negate TD)
@@ -630,7 +629,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Unnecessary Roughness",
+                    Name = PenaltyNames.UnnecessaryRoughness,
                     Yards = 15,
                     CalledOn = Possession.Home,  // Punting team (defense on return)
                     Accepted = false  // Should be declined since TD stands

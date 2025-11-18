@@ -947,7 +947,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Offsides",
+                    Name = PenaltyNames.OffsideonFreeKick,
                     Yards = 5,
                     CalledOn = Possession.Home,
                     Accepted = true
@@ -976,7 +976,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Holding",
+                    Name = PenaltyNames.OffensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Away,
                     Accepted = true
@@ -1006,14 +1006,14 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Holding on Kicking Team",
+                    Name = PenaltyNames.DefensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Home,
                     Accepted = true
                 },
                 new Penalty
                 {
-                    Name = "Holding on Receiving Team",
+                    Name = PenaltyNames.OffensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Away,
                     Accepted = true
@@ -1042,7 +1042,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Face Mask",
+                    Name = PenaltyNames.FaceMask15Yards,
                     Yards = 15,
                     CalledOn = Possession.Home,
                     Accepted = false  // Should be declined since TD stands
@@ -1072,7 +1072,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Face Mask",
+                    Name = PenaltyNames.FaceMask15Yards,
                     Yards = 15,
                     CalledOn = Possession.Home,  // Kicking team
                     Accepted = true
@@ -1102,7 +1102,7 @@ namespace UnitTestProject1
             {
                 new Penalty
                 {
-                    Name = "Holding",
+                    Name = PenaltyNames.OffensiveHolding,
                     Yards = 10,
                     CalledOn = Possession.Away,  // Receiving team
                     Accepted = true

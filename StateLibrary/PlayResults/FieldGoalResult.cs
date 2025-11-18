@@ -138,8 +138,8 @@ namespace StateLibrary.PlayResults
             // Enforce penalties and get the result
             var enforcementResult = penaltyEnforcement.EnforcePenalties(game, play, play.YardsGained);
 
-            // Special handling for PAT/2-point conversion attempts
-            if (play.IsExtraPoint || play.IsTwoPointConversion)
+            // Special handling for PAT attempts
+            if (play.IsExtraPoint)
             {
                 HandlePATOrTwoPointPenalties(game, play, enforcementResult);
                 return;
