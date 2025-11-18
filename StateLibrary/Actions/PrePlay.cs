@@ -536,7 +536,7 @@ namespace StateLibrary.Actions
             TryAddUniquePlayers(chart, Positions.G, 2, playersOnField);
             TryAddUniquePlayers(chart, Positions.T, 2, playersOnField);
             TryAddUniquePlayers(chart, Positions.TE, 2, playersOnField);
-            TryAddUniquePlayers(chart, Positions.FB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.RB, 2, playersOnField);
 
             // Fill any remaining spots
             FillRemainingPlayers(chart, playersOnField, 11);

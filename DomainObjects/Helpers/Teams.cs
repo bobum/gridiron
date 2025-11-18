@@ -105,7 +105,7 @@ namespace DomainObjects.Helpers
             chart.Chart[Positions.G] = GetDepth(players, Positions.G, 2);      // Guard blocking
             chart.Chart[Positions.T] = GetDepth(players, Positions.T, 2);      // Tackle blocking
             chart.Chart[Positions.TE] = GetDepth(players, Positions.TE, 2);    // Tight end blocking
-            chart.Chart[Positions.FB] = GetDepth(players, Positions.FB, 2);    // Fullback protection
+            chart.Chart[Positions.RB] = GetDepth(players, Positions.RB, 2);    // Running back protection
             string json = JsonConvert.SerializeObject(chart);
             return chart;
         }
