@@ -94,6 +94,7 @@ namespace StateLibrary.SkillsCheckResults
         /// <summary>
         /// Selects a player from the eligible list, weighted by discipline.
         /// Players with lower discipline are more likely to commit penalties.
+        /// Uses Next() for compatibility with existing tests.
         /// </summary>
         private Player SelectPlayerByDiscipline(List<Player> eligiblePlayers)
         {
@@ -106,8 +107,8 @@ namespace StateLibrary.SkillsCheckResults
             // Calculate penalty weights for each player (lower discipline = higher weight)
             // Weight = (100 - Discipline) + 20 (to ensure minimum weight)
             // This means discipline 0 = weight 120, discipline 100 = weight 20
-            var weights = new List<double>();
-            double totalWeight = 0;
+            var weights = new List<int>();
+            int totalWeight = 0;
 
             foreach (var player in eligiblePlayers)
             {
@@ -119,8 +120,9 @@ namespace StateLibrary.SkillsCheckResults
             }
 
             // Select player using weighted random selection
-            var roll = _rng.NextDouble() * totalWeight;
-            var cumulativeWeight = 0.0;
+            // Use Next() for compatibility with existing tests
+            var roll = _rng.Next(totalWeight);
+            var cumulativeWeight = 0;
 
             for (int i = 0; i < eligiblePlayers.Count; i++)
             {
