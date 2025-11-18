@@ -17,6 +17,22 @@ namespace StateLibrary.PlayResults
             var play = (FieldGoalPlay)game.CurrentPlay;
             play.StartFieldPosition = game.FieldPosition;
 
+            // Check for penalties first - they may negate or modify the result
+            var hasPenalties = play.Penalties != null && play.Penalties.Any();
+            if (hasPenalties)
+            {
+                // Handle penalties first to see if they affect the result
+                HandlePenalties(game, play);
+
+                // If penalties were accepted, they handle all game state, so we're done
+                var hasAcceptedPenalties = play.Penalties.Any(p => p.Accepted);
+                if (hasAcceptedPenalties)
+                {
+                    LogFieldGoalSummary(play);
+                    return;
+                }
+            }
+
             // Handle safety (bad snap into end zone or tackled in end zone)
             if (play.IsSafety)
             {
@@ -51,6 +67,7 @@ namespace StateLibrary.PlayResults
                 game.AddSafety(scoringTeam);
 
                 play.PossessionChange = true;
+                LogFieldGoalSummary(play);
                 return; // Safety ends the play immediately
             }
 
@@ -58,6 +75,7 @@ namespace StateLibrary.PlayResults
             if (play.Blocked)
             {
                 HandleBlockedFieldGoalRecovery(game, play);
+                LogFieldGoalSummary(play);
                 return;
             }
 
@@ -106,9 +124,6 @@ namespace StateLibrary.PlayResults
                 game.YardsToGo = 10;
             }
 
-            // Handle penalties if any occurred
-            HandlePenalties(game, play);
-
             // Log result summary
             LogFieldGoalSummary(play);
         }
@@ -146,55 +161,64 @@ namespace StateLibrary.PlayResults
             }
 
             // Regular field goal penalty handling
-            var finalFieldPosition = game.FieldPosition + enforcementResult.NetYards - play.YardsGained;
-
-            // Bounds check
-            if (finalFieldPosition >= 100)
-            {
-                // Penalty pushed team into end zone for TD (rare on FG but possible)
-                play.IsTouchdown = true;
-                game.FieldPosition = 100;
-                var scoringTeam = play.Possession;
-                game.AddTouchdown(scoringTeam);
-                play.PossessionChange = true;
-                play.Result.LogInformation($"Penalty enforcement results in TOUCHDOWN!");
-                return;
-            }
-            else if (finalFieldPosition <= 0)
-            {
-                // Penalty pushed team into own end zone for safety
-                play.IsSafety = true;
-                game.FieldPosition = 0;
-                var scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
-                game.AddSafety(scoringTeam);
-                play.PossessionChange = true;
-                play.Result.LogInformation($"Penalty enforcement results in SAFETY!");
-                return;
-            }
-
-            game.FieldPosition = finalFieldPosition;
 
             // Apply down and distance from penalty enforcement
             if (enforcementResult.IsOffsetting)
             {
-                // Offsetting penalties - rekick
+                // Offsetting penalties - rekick from same spot
                 game.CurrentDown = Downs.Fourth; // FG attempts are always 4th down
+                game.YardsToGo = Math.Max(10, 100 - game.FieldPosition); // Distance to goal
+                play.PossessionChange = false; // Kicking team retains possession for rekick
                 play.Result.LogInformation($"Offsetting penalties. Rekick from the {game.FieldPosition}.");
-            }
-            else if (enforcementResult.AutomaticFirstDown)
-            {
-                // Automatic first down from penalty (e.g., defensive penalty on FG attempt)
-                game.CurrentDown = Downs.First;
-                game.YardsToGo = 10;
-                play.PossessionChange = false; // Kicking team retains possession
-                play.Result.LogInformation($"Automatic first down from penalty. Ball at the {game.FieldPosition} yard line.");
             }
             else
             {
-                // Update down and distance from enforcement result
-                game.CurrentDown = enforcementResult.NewDown;
-                game.YardsToGo = enforcementResult.NewYardsToGo;
-                play.Result.LogInformation($"After penalty: {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                // Calculate new field position from penalty
+                var finalFieldPosition = game.FieldPosition + enforcementResult.NetYards - play.YardsGained;
+
+                // Bounds check
+                if (finalFieldPosition >= 100)
+                {
+                    // Penalty pushed team into end zone for TD (rare on FG but possible)
+                    play.IsTouchdown = true;
+                    game.FieldPosition = 100;
+                    var scoringTeam = play.Possession;
+                    game.AddTouchdown(scoringTeam);
+                    play.PossessionChange = true;
+                    play.Result.LogInformation($"Penalty enforcement results in TOUCHDOWN!");
+                    return;
+                }
+                else if (finalFieldPosition <= 0)
+                {
+                    // Penalty pushed team into own end zone for safety
+                    play.IsSafety = true;
+                    game.FieldPosition = 0;
+                    var scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                    game.AddSafety(scoringTeam);
+                    play.PossessionChange = true;
+                    play.Result.LogInformation($"Penalty enforcement results in SAFETY!");
+                    return;
+                }
+
+                game.FieldPosition = finalFieldPosition;
+
+                if (enforcementResult.AutomaticFirstDown)
+                {
+                    // Automatic first down from penalty (e.g., defensive penalty on FG attempt)
+                    game.CurrentDown = Downs.First;
+                    game.YardsToGo = 10;
+                    play.PossessionChange = false; // Kicking team retains possession
+                    play.Result.LogInformation($"Automatic first down from penalty. Ball at the {game.FieldPosition} yard line.");
+                }
+                else
+                {
+                    // Offensive penalty or non-automatic-first-down defensive penalty
+                    // For field goals, this typically means rekick from the new spot
+                    game.CurrentDown = Downs.Fourth;
+                    game.YardsToGo = Math.Max(10, 100 - game.FieldPosition); // Distance to goal
+                    play.PossessionChange = false; // Kicking team retains possession for rekick
+                    play.Result.LogInformation($"After penalty: {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                }
             }
         }
 
@@ -224,6 +248,7 @@ namespace StateLibrary.PlayResults
 
         /// <summary>
         /// Applies smart acceptance/decline logic to all penalties on the play.
+        /// Skips penalties that already have an explicit Accepted value set.
         /// </summary>
         private void ApplyPenaltyAcceptanceLogic(Game game, FieldGoalPlay play, PenaltyEnforcement enforcement)
         {
@@ -232,6 +257,18 @@ namespace StateLibrary.PlayResults
 
             foreach (var penalty in play.Penalties)
             {
+                // Skip if already explicitly accepted or declined (e.g., in tests or scenarios)
+                // We only apply smart logic if Accepted hasn't been set yet
+                // Note: Default value of bool is false, so we can't distinguish between
+                // "explicitly set to false" and "not set". For now, we'll check if ANY
+                // penalties have Accepted = true, and if so, skip smart logic for all.
+                var hasExplicitAcceptance = play.Penalties.Any(p => p.Accepted);
+                if (hasExplicitAcceptance)
+                {
+                    // Don't override explicit acceptance decisions
+                    return;
+                }
+
                 // Determine which team committed the penalty
                 var penalizedTeam = penalty.CalledOn;
 
