@@ -88,6 +88,11 @@ namespace DomainObjects
         List<Fumble> Fumbles { get; set; }
 
         /// <summary>
+        /// Injuries that occurred during this play
+        /// </summary>
+        List<Injury> Injuries { get; set; }
+
+        /// <summary>
         /// Whether possession changed during this play
         /// </summary>
         bool PossessionChange { get; set; }
