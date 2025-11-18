@@ -1,5 +1,6 @@
 using DomainObjects;
 using DomainObjects.Helpers;
+using DomainObjects.Penalties;
 using StateLibrary.BaseClasses;
 using System;
 using System.Collections.Generic;
@@ -22,8 +23,14 @@ namespace StateLibrary.SkillsChecks
 
         /// <summary>
         /// The specific penalty that occurred (if Occurred == true)
+        /// DEPRECATED: Use PenaltyInstance instead
         /// </summary>
         public PenaltyNames PenaltyThatOccurred { get; private set; } = PenaltyNames.NoPenalty;
+
+        /// <summary>
+        /// The penalty instance (new architecture - use this instead of PenaltyThatOccurred)
+        /// </summary>
+        public IPenalty PenaltyInstance { get; private set; }
 
         public CoveragePenaltyOccurredSkillsCheck(
             ISeedableRandom rng,
@@ -69,6 +76,7 @@ namespace StateLibrary.SkillsChecks
                 // No penalty occurred
                 Occurred = false;
                 PenaltyThatOccurred = PenaltyNames.NoPenalty;
+                PenaltyInstance = null;
                 Margin = roll - adjustedProbability;
                 return;
             }
@@ -89,6 +97,19 @@ namespace StateLibrary.SkillsChecks
                 {
                     Occurred = true;
                     PenaltyThatOccurred = penaltyName;
+
+                    // NEW: Set penalty instance for new architecture
+                    // Map penalty names to penalty instances
+                    if (penaltyName == PenaltyNames.DefensivePassInterference)
+                    {
+                        PenaltyInstance = PenaltyRegistry.DefensivePassInterference;
+                    }
+                    else if (penaltyName == PenaltyNames.DefensiveHolding)
+                    {
+                        PenaltyInstance = PenaltyRegistry.DefensiveHolding;
+                    }
+                    // Other coverage penalties not yet implemented as classes
+
                     Margin = cumulativeProb - normalizedRoll;
                     return;
                 }
@@ -97,6 +118,7 @@ namespace StateLibrary.SkillsChecks
             // Fallback
             Occurred = false;
             PenaltyThatOccurred = PenaltyNames.NoPenalty;
+            PenaltyInstance = null;
         }
 
         private double CalculateContextAdjustedProbability(double baseProbability)

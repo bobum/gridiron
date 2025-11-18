@@ -1,5 +1,6 @@
 using DomainObjects;
 using DomainObjects.Helpers;
+using DomainObjects.Penalties;
 using StateLibrary.BaseClasses;
 using System;
 using System.Linq;
@@ -19,8 +20,14 @@ namespace StateLibrary.SkillsChecks
 
         /// <summary>
         /// The specific penalty that occurred (if Occurred == true)
+        /// DEPRECATED: Use PenaltyInstance instead
         /// </summary>
         public PenaltyNames PenaltyThatOccurred { get; private set; } = PenaltyNames.NoPenalty;
+
+        /// <summary>
+        /// The penalty instance (new architecture - use this instead of PenaltyThatOccurred)
+        /// </summary>
+        public IPenalty PenaltyInstance { get; private set; }
 
         public PreSnapPenaltyOccurredSkillsCheck(ISeedableRandom rng, PlayType playType)
         {
@@ -63,6 +70,7 @@ namespace StateLibrary.SkillsChecks
                 // No penalty occurred
                 Occurred = false;
                 PenaltyThatOccurred = PenaltyNames.NoPenalty;
+                PenaltyInstance = null;
                 Margin = roll - totalProbability; // How close to a penalty
                 return;
             }
@@ -79,6 +87,14 @@ namespace StateLibrary.SkillsChecks
                 {
                     Occurred = true;
                     PenaltyThatOccurred = penaltyName;
+
+                    // NEW: Set penalty instance for new architecture
+                    if (penaltyName == PenaltyNames.FalseStart)
+                    {
+                        PenaltyInstance = PenaltyRegistry.FalseStart;
+                    }
+                    // Other pre-snap penalties not yet implemented as classes
+
                     Margin = cumulativeProb - roll; // How far into the penalty range
                     return;
                 }
@@ -87,6 +103,7 @@ namespace StateLibrary.SkillsChecks
             // Fallback (should never reach here)
             Occurred = false;
             PenaltyThatOccurred = PenaltyNames.NoPenalty;
+            PenaltyInstance = null;
         }
     }
 }
