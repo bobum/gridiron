@@ -132,74 +132,185 @@ namespace StateLibrary.Actions
         private void SubstituteDefensivePlayers(Game game)
         {
             var currentPlay = game.CurrentPlay;
-
-            if (currentPlay.PlayType != PlayType.Run && currentPlay.PlayType != PlayType.Pass) return;
-
             Team defenseTeam = currentPlay.Possession == Possession.Home ? game.AwayTeam : game.HomeTeam;
-            var chart = defenseTeam.DefenseDepthChart.Chart;
             var playersOnField = new List<Player>();
 
-            // Linemen
-            AddUniquePlayers(chart, Positions.DE, currentPlay.PlayType == PlayType.Run ? 2 : 1, playersOnField, "defense");
-            AddUniquePlayers(chart, Positions.DT, 2, playersOnField, "defense");
-
-            // Linebackers
-            AddUniquePlayers(chart, Positions.LB, currentPlay.PlayType == PlayType.Run ? 3 : 4, playersOnField, "defense");
-
-            // Defensive backs (fill remaining spots to reach 11)
-            int remaining = 11 - playersOnField.Count;
-            var dbs = new List<Player>();
-            if (chart.TryGetValue(Positions.CB, out var cbs)) dbs.AddRange(cbs);
-            if (chart.TryGetValue(Positions.S, out var ss)) dbs.AddRange(ss);
-            if (chart.TryGetValue(Positions.FS, out var fss)) dbs.AddRange(fss);
-
-            int dbAdded = 0;
-            for (int i = 0; i < dbs.Count && dbAdded < remaining; i++)
+            // Handle special teams plays
+            if (currentPlay.PlayType == PlayType.Kickoff)
             {
-                var candidate = dbs[i];
-                if (!playersOnField.Contains(candidate))
+                var chart = defenseTeam.KickoffDefenseDepthChart.Chart;
+                SubstituteKickoffDefense(chart, playersOnField);
+            }
+            else if (currentPlay.PlayType == PlayType.Punt)
+            {
+                var chart = defenseTeam.PuntDefenseDepthChart.Chart;
+                SubstitutePuntDefense(chart, playersOnField);
+            }
+            else if (currentPlay.PlayType == PlayType.FieldGoal)
+            {
+                var chart = defenseTeam.FieldGoalDefenseDepthChart.Chart;
+                SubstituteFieldGoalDefense(chart, playersOnField);
+            }
+            else if (currentPlay.PlayType == PlayType.Run || currentPlay.PlayType == PlayType.Pass)
+            {
+                // Regular defense
+                var chart = defenseTeam.DefenseDepthChart.Chart;
+
+                // Linemen
+                AddUniquePlayers(chart, Positions.DE, currentPlay.PlayType == PlayType.Run ? 2 : 1, playersOnField, "defense");
+                AddUniquePlayers(chart, Positions.DT, 2, playersOnField, "defense");
+
+                // Linebackers
+                AddUniquePlayers(chart, Positions.LB, currentPlay.PlayType == PlayType.Run ? 3 : 4, playersOnField, "defense");
+
+                // Defensive backs (fill remaining spots to reach 11)
+                int remaining = 11 - playersOnField.Count;
+                var dbs = new List<Player>();
+                if (chart.TryGetValue(Positions.CB, out var cbs)) dbs.AddRange(cbs);
+                if (chart.TryGetValue(Positions.S, out var ss)) dbs.AddRange(ss);
+                if (chart.TryGetValue(Positions.FS, out var fss)) dbs.AddRange(fss);
+
+                int dbAdded = 0;
+                for (int i = 0; i < dbs.Count && dbAdded < remaining; i++)
                 {
-                    playersOnField.Add(candidate);
-                    dbAdded++;
+                    var candidate = dbs[i];
+                    if (!playersOnField.Contains(candidate))
+                    {
+                        playersOnField.Add(candidate);
+                        dbAdded++;
+                    }
                 }
             }
+            else
+            {
+                return; // Unknown play type
+            }
+
             if (playersOnField.Count < 11)
                 throw new InvalidOperationException("Unable to fill 11 unique defensive players on the field.");
 
             currentPlay.DefensePlayersOnField = playersOnField.Take(11).ToList();
             string json = JsonConvert.SerializeObject(currentPlay.DefensePlayersOnField);
+        }
 
+        private void SubstituteKickoffDefense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        {
+            // Kickoff return team: Fast returners and blockers
+            AddUniquePlayers(chart, Positions.WR, 2, playersOnField, "kickoff defense");
+            AddUniquePlayers(chart, Positions.RB, 2, playersOnField, "kickoff defense");
+            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "kickoff defense");
+            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "kickoff defense");
+            AddUniquePlayers(chart, Positions.LB, 2, playersOnField, "kickoff defense");
+            AddUniquePlayers(chart, Positions.TE, 1, playersOnField, "kickoff defense");
+        }
+
+        private void SubstitutePuntDefense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        {
+            // Punt return team: Returner and block/coverage players
+            AddUniquePlayers(chart, Positions.WR, 3, playersOnField, "punt defense");
+            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "punt defense");
+            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "punt defense");
+            AddUniquePlayers(chart, Positions.LB, 2, playersOnField, "punt defense");
+            AddUniquePlayers(chart, Positions.RB, 1, playersOnField, "punt defense");
+            AddUniquePlayers(chart, Positions.DE, 1, playersOnField, "punt defense");
+        }
+
+        private void SubstituteFieldGoalDefense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        {
+            // Field goal block unit: DL for rush, DBs for fake coverage
+            AddUniquePlayers(chart, Positions.DE, 2, playersOnField, "field goal defense");
+            AddUniquePlayers(chart, Positions.DT, 2, playersOnField, "field goal defense");
+            AddUniquePlayers(chart, Positions.LB, 3, playersOnField, "field goal defense");
+            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "field goal defense");
+            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "field goal defense");
         }
 
         private void SubstituteOffensivePlayers(Game game)
         {
             var currentPlay = game.CurrentPlay;
-
-            if (currentPlay.PlayType != PlayType.Run && currentPlay.PlayType != PlayType.Pass) return;
-                        
             Team offenseTeam = currentPlay.Possession == Possession.Home ? game.HomeTeam : game.AwayTeam;
-            var chart = offenseTeam.OffenseDepthChart.Chart;
             var playersOnField = new List<Player>();
 
-            // Always include 1 QB, 1 RB, 1 FB, 1 C, 2 G, 2 T
-            AddUniquePlayers(chart, Positions.QB, 1, playersOnField, "offense");
-            AddUniquePlayers(chart, Positions.RB, 1, playersOnField, "offense");
-            AddUniquePlayers(chart, Positions.FB, 1, playersOnField, "offense");
-            AddUniquePlayers(chart, Positions.C, 1, playersOnField, "offense");
-            AddUniquePlayers(chart, Positions.G, 2, playersOnField, "offense");
-            AddUniquePlayers(chart, Positions.T, 2, playersOnField, "offense");
+            // Handle special teams plays
+            if (currentPlay.PlayType == PlayType.Kickoff)
+            {
+                var chart = offenseTeam.KickoffOffenseDepthChart.Chart;
+                SubstituteKickoffOffense(chart, playersOnField);
+            }
+            else if (currentPlay.PlayType == PlayType.Punt)
+            {
+                var chart = offenseTeam.PuntOffenseDepthChart.Chart;
+                SubstitutePuntOffense(chart, playersOnField);
+            }
+            else if (currentPlay.PlayType == PlayType.FieldGoal)
+            {
+                var chart = offenseTeam.FieldGoalOffenseDepthChart.Chart;
+                SubstituteFieldGoalOffense(chart, playersOnField);
+            }
+            else if (currentPlay.PlayType == PlayType.Run || currentPlay.PlayType == PlayType.Pass)
+            {
+                // Regular offense
+                var chart = offenseTeam.OffenseDepthChart.Chart;
 
-            // WR and TE selection based on play type
-            AddUniquePlayers(chart, Positions.WR, currentPlay.PlayType == PlayType.Run ? 2 : 3, playersOnField, "offense");
-            AddUniquePlayers(chart, Positions.TE, currentPlay.PlayType == PlayType.Run ? 1 : 0, playersOnField, "offense");
+                // Always include 1 QB, 1 RB, 1 FB, 1 C, 2 G, 2 T
+                AddUniquePlayers(chart, Positions.QB, 1, playersOnField, "offense");
+                AddUniquePlayers(chart, Positions.RB, 1, playersOnField, "offense");
+                AddUniquePlayers(chart, Positions.FB, 1, playersOnField, "offense");
+                AddUniquePlayers(chart, Positions.C, 1, playersOnField, "offense");
+                AddUniquePlayers(chart, Positions.G, 2, playersOnField, "offense");
+                AddUniquePlayers(chart, Positions.T, 2, playersOnField, "offense");
+
+                // WR and TE selection based on play type
+                AddUniquePlayers(chart, Positions.WR, currentPlay.PlayType == PlayType.Run ? 2 : 3, playersOnField, "offense");
+                AddUniquePlayers(chart, Positions.TE, currentPlay.PlayType == PlayType.Run ? 1 : 0, playersOnField, "offense");
+            }
+            else
+            {
+                return; // Unknown play type
+            }
 
             if (playersOnField.Count < 11)
                 throw new InvalidOperationException("Unable to fill 11 unique offensive players on the field.");
 
             currentPlay.OffensePlayersOnField = playersOnField.Take(11).ToList();
             string json = JsonConvert.SerializeObject(currentPlay.OffensePlayersOnField);
+        }
 
+        private void SubstituteKickoffOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        {
+            // Kickoff team needs: K, mix of LB/CB/S for coverage
+            AddUniquePlayers(chart, Positions.K, 1, playersOnField, "kickoff offense");
 
+            // Fill remaining 10 spots with fast coverage players
+            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "kickoff offense");
+            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "kickoff offense");
+            AddUniquePlayers(chart, Positions.LB, 3, playersOnField, "kickoff offense");
+            AddUniquePlayers(chart, Positions.WR, 3, playersOnField, "kickoff offense");
+        }
+
+        private void SubstitutePuntOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        {
+            // Punt team needs: P, LS (long snapper), coverage players
+            AddUniquePlayers(chart, Positions.P, 1, playersOnField, "punt offense");
+            AddUniquePlayers(chart, Positions.C, 1, playersOnField, "punt offense"); // Long snapper
+
+            // Fill remaining spots with coverage team
+            AddUniquePlayers(chart, Positions.LB, 3, playersOnField, "punt offense");
+            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "punt offense");
+            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "punt offense");
+            AddUniquePlayers(chart, Positions.WR, 2, playersOnField, "punt offense");
+        }
+
+        private void SubstituteFieldGoalOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        {
+            // Field goal unit needs: K, holder (usually P or QB), LS, linemen to protect
+            AddUniquePlayers(chart, Positions.K, 1, playersOnField, "field goal offense");
+            AddUniquePlayers(chart, Positions.P, 1, playersOnField, "field goal offense"); // Holder
+            AddUniquePlayers(chart, Positions.C, 1, playersOnField, "field goal offense"); // Long snapper
+            AddUniquePlayers(chart, Positions.G, 2, playersOnField, "field goal offense");
+            AddUniquePlayers(chart, Positions.T, 2, playersOnField, "field goal offense");
+            AddUniquePlayers(chart, Positions.TE, 2, playersOnField, "field goal offense");
+            AddUniquePlayers(chart, Positions.FB, 2, playersOnField, "field goal offense");
         }
 
         private void AddUniquePlayers(Dictionary<Positions, List<Player>> chart, Positions position, int needed, List<Player> playersOnField, string unitName)
