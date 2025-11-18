@@ -220,33 +220,30 @@ namespace UnitTestProject1
         [TestMethod]
         public void Scenario_TurnoverChangesFieldPosition_CorrectFormatForNewPossession()
         {
-            // Home team fumbles at their own 30
+            // Home team fumbles at their own 30 (position 30 = Buffalo 30)
             _game.FieldPosition = 30;
             var beforeTurnover = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Buffalo 30", beforeTurnover);
 
-            // After turnover, the field position must be recalculated from new offense's perspective
-            // Same physical spot on field, but now from away team's perspective
-            // They are now 30 yards into opponent territory = position 70 (100 - 30)
-            _game.FieldPosition = 100 - 30; // = 70
+            // After turnover, field position DOES NOT FLIP (it's absolute)
+            // Position stays at 30, display is still "Buffalo 30" regardless of possession
+            // Possession parameter doesn't affect absolute field position display
             var afterTurnover = _game.FormatFieldPosition(Possession.Away);
-            Assert.AreEqual("Buffalo 30", afterTurnover); // Still "Buffalo 30" but from opponent's side
+            Assert.AreEqual("Buffalo 30", afterTurnover); // Same absolute position
         }
 
         [TestMethod]
         public void Scenario_InterceptionReturn_FieldPositionFromDefenderPerspective()
         {
-            // Home throws INT at opponent's 40 (position 60)
+            // Home throws INT at opponent's 40 (position 60 = Kansas City 40)
             _game.FieldPosition = 60;
             var homeView = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Kansas City 40", homeView);
 
-            // Away team (defender) intercepts - same physical spot
-            // Field position must be recalculated: 100 - 60 = 40
-            // From defender's perspective, they are now at their own 40
-            _game.FieldPosition = 100 - 60; // = 40
+            // Away team (defender) intercepts - field position DOES NOT FLIP
+            // Position stays at 60 (Kansas City 40) regardless of possession
             var awayView = _game.FormatFieldPosition(Possession.Away);
-            Assert.AreEqual("Kansas City 40", awayView);
+            Assert.AreEqual("Kansas City 40", awayView); // Same absolute position
         }
 
         #endregion
