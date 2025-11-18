@@ -54,7 +54,7 @@ namespace StateLibrary.SkillsChecks
             var baseProbability = 0.0;
             foreach (var penaltyName in eligiblePenalties)
             {
-                var penalty = Penalties.List.Single(p => p.Name == penaltyName);
+                var penalty = PenaltyData.List.Single(p => p.Name == penaltyName);
                 baseProbability += penalty.Odds;
             }
 
@@ -137,7 +137,7 @@ namespace StateLibrary.SkillsChecks
 
             foreach (var penaltyName in penalties)
             {
-                var basePenalty = Penalties.List.Single(p => p.Name == penaltyName);
+                var basePenalty = PenaltyData.List.Single(p => p.Name == penaltyName);
                 var baseOdds = (double)basePenalty.Odds; // Convert float to double
 
                 // Context-specific adjustments

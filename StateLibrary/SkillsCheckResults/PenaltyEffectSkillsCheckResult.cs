@@ -42,7 +42,7 @@ namespace StateLibrary.SkillsCheckResults
         public override void Execute(Game game)
         {
             // Get the base penalty definition from the static list
-            var penaltyDef = Penalties.List.SingleOrDefault(p => p.Name == _penaltyName);
+            var penaltyDef = PenaltyData.List.SingleOrDefault(p => p.Name == _penaltyName);
             if (penaltyDef == null)
             {
                 // Should never happen, but fallback

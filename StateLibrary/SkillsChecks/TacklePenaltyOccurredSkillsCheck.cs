@@ -52,7 +52,7 @@ namespace StateLibrary.SkillsChecks
             var baseProbability = 0.0;
             foreach (var penaltyName in eligiblePenalties)
             {
-                var penalty = Penalties.List.Single(p => p.Name == penaltyName);
+                var penalty = PenaltyData.List.Single(p => p.Name == penaltyName);
                 baseProbability += penalty.Odds;
             }
 
@@ -77,7 +77,7 @@ namespace StateLibrary.SkillsChecks
 
             foreach (var penaltyName in eligiblePenalties)
             {
-                var penalty = Penalties.List.Single(p => p.Name == penaltyName);
+                var penalty = PenaltyData.List.Single(p => p.Name == penaltyName);
                 cumulativeProb += penalty.Odds;
 
                 if (normalizedRoll < cumulativeProb)

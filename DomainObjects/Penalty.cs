@@ -20,11 +20,11 @@ namespace DomainObjects
         public bool Accepted { get; set; }
     }
 
-    public static class Penalties
+    public static class PenaltyData
     {
         public static List<Penalty> List { get; set; }
 
-        static Penalties()
+        static PenaltyData()
         {
             string penalties =
                 @"[{'Name':'OffensiveHolding','Odds':0.01900018,'HomeOdds':0.51,'AwayOdds':0.49},
