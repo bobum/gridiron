@@ -394,5 +394,238 @@ namespace UnitTestProject1
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should be 1st down");
             Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
         }
+
+        [TestMethod]
+        public void AwayTeamTouchdown_CompleteFlow_ExtraPointAndKickoff()
+        {
+            // Test that away team scoring TD follows same flow
+
+            // Arrange
+            var game = _testGame.GetGame();
+            var rng = new SeedableRandom(456);
+            var logger = new InMemoryLogger<Game>();
+            game.Logger = logger;
+
+            game.Plays.Add(new KickoffPlay { Possession = Possession.Home, Down = Downs.None, Result = logger });
+
+            game.HomeScore = 0;
+            game.AwayScore = 0;
+
+            // Away team scores touchdown
+            var passPlay = new PassPlay
+            {
+                Possession = Possession.Away,
+                Down = Downs.Third,
+                StartFieldPosition = 95,
+                YardsGained = 5,
+                EndFieldPosition = 100,
+                IsTouchdown = true,
+                PossessionChange = true,
+                Result = logger
+            };
+
+            game.CurrentPlay = passPlay;
+            game.FieldPosition = 95;
+
+            var passResult = new PassResult();
+            passResult.Execute(game);
+
+            Assert.AreEqual(6, game.AwayScore, "Away should have 6 points after TD");
+            game.Plays.Add(passPlay);
+
+            // Extra point
+            var prePlay1 = new PrePlay(rng);
+            prePlay1.Execute(game);
+
+            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay.PlayType);
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession,
+                "Away team should attempt extra point");
+            Assert.AreEqual(15, game.FieldPosition,
+                "Away team extra point from position 15 (opponent's 15)");
+
+            var extraPoint = (FieldGoalPlay)game.CurrentPlay;
+            extraPoint.IsGood = true; // Simulate good kick
+            game.Plays.Add(extraPoint);
+
+            // Kickoff
+            var prePlay2 = new PrePlay(rng);
+            prePlay2.Execute(game);
+
+            Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType);
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession,
+                "Away team should kick off");
+            Assert.AreEqual(65, game.FieldPosition,
+                "Away team kickoff from position 65 (their 35-yard line)");
+        }
+
+        [TestMethod]
+        public void MissedExtraPoint_StillTriggersKickoff()
+        {
+            // Verify that even if extra point is missed, kickoff still happens
+
+            // Arrange
+            var game = _testGame.GetGame();
+            var rng = new SeedableRandom(789);
+            var logger = new InMemoryLogger<Game>();
+            game.Logger = logger;
+
+            // Previous touchdown
+            var tdPlay = new RunPlay
+            {
+                Possession = Possession.Home,
+                IsTouchdown = true,
+                PossessionChange = true,
+                Result = logger
+            };
+            game.Plays.Add(tdPlay);
+
+            // Missed extra point
+            var missedXP = new FieldGoalPlay
+            {
+                Possession = Possession.Home,
+                Down = Downs.None,
+                StartFieldPosition = 85,
+                IsGood = false, // MISSED
+                PossessionChange = false,
+                Result = logger
+            };
+
+            game.CurrentPlay = missedXP;
+            game.FieldPosition = 85;
+            game.HomeScore = 6; // Only 6 from TD
+
+            var fgResult = new FieldGoalResult();
+            fgResult.Execute(game);
+
+            game.Plays.Add(missedXP);
+
+            // Act - Should still trigger kickoff
+            var prePlay = new PrePlay(rng);
+            prePlay.Execute(game);
+
+            // Assert
+            Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType,
+                "Kickoff should happen even after missed extra point");
+            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession,
+                "Home team should still kick off");
+            Assert.AreEqual(35, game.FieldPosition, "Kickoff from 35");
+        }
+
+        [TestMethod]
+        public void FailedTwoPointConversion_StillTriggersKickoff()
+        {
+            // Verify that failed 2-pt conversion still triggers kickoff
+
+            // Arrange
+            var game = _testGame.GetGame();
+            var rng = new SeedableRandom(999);
+            var logger = new InMemoryLogger<Game>();
+            game.Logger = logger;
+
+            // Previous touchdown
+            var tdPlay = new PassPlay
+            {
+                Possession = Possession.Away,
+                IsTouchdown = true,
+                PossessionChange = true,
+                Result = logger
+            };
+            game.Plays.Add(tdPlay);
+
+            // Failed 2-pt conversion
+            var failed2pt = new RunPlay
+            {
+                Possession = Possession.Away,
+                Down = Downs.None,
+                StartFieldPosition = 2,
+                YardsGained = 1, // Didn't reach goal line
+                EndFieldPosition = 1,
+                IsTouchdown = false, // FAILED
+                PossessionChange = false,
+                Result = logger
+            };
+
+            game.CurrentPlay = failed2pt;
+            game.FieldPosition = 2;
+            game.AwayScore = 6; // Only 6 from TD
+
+            var runResult = new RunResult();
+            runResult.Execute(game);
+
+            game.Plays.Add(failed2pt);
+
+            // Act - Should still trigger kickoff
+            var prePlay = new PrePlay(rng);
+            prePlay.Execute(game);
+
+            // Assert
+            Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType,
+                "Kickoff should happen even after failed 2-pt conversion");
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession,
+                "Away team should still kick off");
+            Assert.AreEqual(65, game.FieldPosition, "Away kickoff from 65");
+        }
+
+        [TestMethod]
+        public void ConversionAttempt_DoesNotChangePossession()
+        {
+            // Verify that possession doesn't change DURING the conversion attempt
+            // (it changes after the kickoff)
+
+            // Arrange
+            var game = _testGame.GetGame();
+            var rng = new SeedableRandom(111);
+            var logger = new InMemoryLogger<Game>();
+            game.Logger = logger;
+
+            game.Plays.Add(new KickoffPlay { Possession = Possession.Home, Down = Downs.None, Result = logger });
+
+            // Home scores TD
+            var tdPlay = new RunPlay
+            {
+                Possession = Possession.Home,
+                IsTouchdown = true,
+                PossessionChange = true, // TD triggers possession change flag
+                Result = logger
+            };
+            game.Plays.Add(tdPlay);
+
+            // Extra point is set up
+            var prePlay1 = new PrePlay(rng);
+            prePlay1.Execute(game);
+
+            // Verify extra point is for HOME team (same team that scored)
+            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay.PlayType);
+            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession,
+                "Extra point should be attempted by team that scored TD");
+            Assert.AreEqual(Downs.None, game.CurrentPlay.Down,
+                "Extra point should have Down = None");
+
+            var extraPoint = (FieldGoalPlay)game.CurrentPlay;
+            extraPoint.IsGood = true;
+            extraPoint.PossessionChange = false; // Extra point itself doesn't change possession
+
+            game.Plays.Add(extraPoint);
+
+            // Kickoff should also be by Home team
+            var prePlay2 = new PrePlay(rng);
+            prePlay2.Execute(game);
+
+            Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType);
+            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession,
+                "Kickoff should be by same team that scored TD");
+
+            var kickoff = (KickoffPlay)game.CurrentPlay;
+            kickoff.PossessionChange = true; // Kickoff DOES change possession
+
+            game.Plays.Add(kickoff);
+
+            // NOW possession should change to Away
+            var prePlay3 = new PrePlay(rng);
+            prePlay3.Execute(game);
+
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession,
+                "After kickoff, possession should finally change to opponent");
+        }
     }
 }
