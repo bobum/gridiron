@@ -62,14 +62,6 @@ namespace DomainObjects.Helpers
             }
         }
 
-        // Backwards compatibility overload - DEPRECATED
-        public static string FormatFieldPosition(int fieldPosition, Team? offenseTeam = null, Team? defenseTeam = null)
-        {
-            // This overload is deprecated but kept for backwards compatibility
-            // It tries to infer home/away from offense/defense but this is fragile
-            return FormatFieldPosition(fieldPosition, offenseTeam, defenseTeam);
-        }
-
         /// <summary>
         /// Gets a short description of field position with "yard line" suffix
         /// </summary>
@@ -83,13 +75,6 @@ namespace DomainObjects.Helpers
             }
 
             return $"{position} yard line";
-        }
-
-        // Backwards compatibility overload - DEPRECATED
-        public static string FormatFieldPositionWithYardLine(int fieldPosition, Team? offenseTeam = null, Team? defenseTeam = null)
-        {
-            // This overload is deprecated but kept for backwards compatibility
-            return FormatFieldPositionWithYardLine(fieldPosition, offenseTeam, defenseTeam);
         }
 
         /// <summary>
