@@ -187,12 +187,10 @@ namespace StateLibrary
             _machine.Configure(State.PostGame)
                 .OnEntry(DoPostGame, "Game over folks!");
 
-            // Keep the event handler active but don't write to console
+            // Log state transitions through the logging framework (not console)
             _machine.OnTransitioned(t =>
             {
-                // Event handler is active but produces no console output
-                // To debug state transitions, add logging here:
-                // _logger.LogDebug($"State transition: {t.Source} -> {t.Destination} via {t.Trigger}");
+                _logger.LogDebug($"State transition: {t.Source} -> {t.Destination} via {t.Trigger}");
             });
         }
 
