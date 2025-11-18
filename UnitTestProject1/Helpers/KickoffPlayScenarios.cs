@@ -63,14 +63,14 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(kickDistance)          // Kick distance
-                .NextDouble(0.5)                   // Out of bounds check (safe)
-                .NextDouble(0.99)                  // No muff
-                .NextDouble(0.9)                   // No fair catch (> 0.7)
-                .NextDouble(returnYardage)         // Return yardage
-                .NextDouble(0.99)                  // No blocking penalty
-                .NextDouble(0.99)                  // No fumble
-                .NextDouble(0.99)                  // No tackle penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.99)
+                .KickoffFairCatchCheck(0.9)
+                .KickoffReturnYards(returnYardage)
+                .BlockingPenaltyCheck(0.99)
+                .FumbleCheck(0.99)
+                .TacklePenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(kickDistance)          // Very deep kick (into end zone)
-                .NextDouble(0.5);                  // Out of bounds check (won't go OOB)
+                .KickoffOutOfBoundsCheck(0.5);
         }
 
         #endregion
@@ -122,7 +122,7 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(0.3)                   // Kick distance in danger zone
-                .NextDouble(0.05);                 // Out of bounds! (< 0.10)
+                .KickoffOutOfBoundsCheck(0.05);
         }
 
         #endregion
@@ -138,10 +138,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom OnsideKickRecovered(double onsideDistance = 0.3)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.01)                  // Trigger onside kick (< 0.05)
-                .NextDouble(onsideDistance)        // Onside kick distance (10-15 yards)
-                .NextDouble(0.15)                  // Kicking team recovers! (< 0.20-0.30)
-                .NextDouble(0.5);                  // Elapsed time
+                .OnsideKickDecisionCheck(0.01)
+                .OnsideKickDistance(onsideDistance)
+                .OnsideKickRecoveryCheck(0.15)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -153,10 +153,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom OnsideKickNotRecovered(double onsideDistance = 0.4)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.02)                  // Trigger onside kick
-                .NextDouble(onsideDistance)        // Onside kick distance
-                .NextDouble(0.85)                  // Receiving team recovers (>= 0.20-0.30)
-                .NextDouble(0.5);                  // Elapsed time
+                .OnsideKickDecisionCheck(0.02)
+                .OnsideKickDistance(onsideDistance)
+                .OnsideKickRecoveryCheck(0.85)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -165,10 +165,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom OnsideKickMinimumDistance(bool kickingTeamRecovers = true)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.01)                  // Trigger onside kick
-                .NextDouble(0.0)                   // Minimum distance (10 yards)
-                .NextDouble(kickingTeamRecovers ? 0.25 : 0.85)  // Recovery
-                .NextDouble(0.5);                  // Elapsed time
+                .OnsideKickDecisionCheck(0.01)
+                .OnsideKickDistance(0.0)
+                .OnsideKickRecoveryCheck(kickingTeamRecovers ? 0.25 : 0.85)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -185,10 +185,10 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(kickDistance)          // Kick distance
-                .NextDouble(0.5)                   // Out of bounds check
-                .NextDouble(0.99)                  // No muff
-                .NextDouble(0.3)                   // Fair catch! (< 0.7)
-                .NextDouble(0.5);                  // Elapsed time
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.99)
+                .KickoffFairCatchCheck(0.3)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -205,10 +205,10 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(0.5)                   // Kick distance
-                .NextDouble(0.5)                   // Out of bounds check
-                .NextDouble(0.01)                  // MUFF! (< muff threshold)
-                .NextDouble(kickingTeamRecovers ? 0.3 : 0.7)  // Recovery
-                .NextDouble(0.5);                  // Elapsed time
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.01)
+                .MuffRecoveryCheck(kickingTeamRecovers ? 0.3 : 0.7)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -228,13 +228,13 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(kickDistance)          // Kick distance (short = easier TD)
-                .NextDouble(0.5)                   // Out of bounds check
-                .NextDouble(0.99)                  // No muff
-                .NextDouble(0.9)                   // No fair catch
-                .NextDouble(0.95)                  // Excellent return! (TD)
-                .NextDouble(0.99)                  // No blocking penalty
-                .NextDouble(0.99)                  // No fumble
-                .NextDouble(0.5);                  // Elapsed time (NO tackle penalty for TD)
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.99)
+                .KickoffFairCatchCheck(0.9)
+                .KickoffReturnYards(0.95)
+                .BlockingPenaltyCheck(0.99)
+                .FumbleCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -260,14 +260,14 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(0.5)                   // Kick distance
-                .NextDouble(0.5)                   // Out of bounds check
-                .NextDouble(0.99)                  // No muff
-                .NextDouble(0.9)                   // No fair catch
-                .NextDouble(returnYardage)         // Return yardage before fumble
-                .NextDouble(0.99)                  // No blocking penalty
-                .NextDouble(0.01)                  // FUMBLE! during return
-                .NextDouble(0.99)                  // No tackle penalty (fumble ends play)
-                .NextDouble(0.5);                  // Elapsed time
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.99)
+                .KickoffFairCatchCheck(0.9)
+                .KickoffReturnYards(returnYardage)
+                .BlockingPenaltyCheck(0.99)
+                .FumbleCheck(0.01)
+                .TacklePenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -283,14 +283,14 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(0.5)                   // Kick distance
-                .NextDouble(0.5)                   // Out of bounds check
-                .NextDouble(0.99)                  // No muff
-                .NextDouble(0.9)                   // No fair catch
-                .NextDouble(returnYardage)         // Return yardage
-                .NextDouble(0.01)                  // BLOCKING PENALTY!
-                .NextDouble(0.99)                  // No fumble
-                .NextDouble(0.99)                  // No tackle penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.99)
+                .KickoffFairCatchCheck(0.9)
+                .KickoffReturnYards(returnYardage)
+                .BlockingPenaltyCheck(0.01)
+                .FumbleCheck(0.99)
+                .TacklePenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -302,14 +302,14 @@ namespace UnitTestProject1.Helpers
         {
             return new TestFluentSeedableRandom()
                 .NextDouble(0.5)                   // Kick distance
-                .NextDouble(0.5)                   // Out of bounds check
-                .NextDouble(0.99)                  // No muff
-                .NextDouble(0.9)                   // No fair catch
-                .NextDouble(returnYardage)         // Return yardage
-                .NextDouble(0.99)                  // No blocking penalty
-                .NextDouble(0.99)                  // No fumble
-                .NextDouble(0.01)                  // TACKLE PENALTY!
-                .NextDouble(0.5);                  // Elapsed time
+                .KickoffOutOfBoundsCheck(0.5)
+                .KickoffMuffCheck(0.99)
+                .KickoffFairCatchCheck(0.9)
+                .KickoffReturnYards(returnYardage)
+                .BlockingPenaltyCheck(0.99)
+                .FumbleCheck(0.99)
+                .TacklePenaltyCheck(0.01)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -340,10 +340,10 @@ namespace UnitTestProject1.Helpers
             if (isOnside)
             {
                 // Onside kick path
-                rng.NextDouble(0.01)                               // Trigger onside
-                    .NextDouble(kickDistance)                       // Onside distance
-                    .NextDouble(onsideRecovered ? 0.15 : 0.85)      // Recovery
-                    .NextDouble(0.5);                               // Elapsed time
+                rng.OnsideKickDecisionCheck(0.01)
+                    .OnsideKickDistance(kickDistance)
+                    .OnsideKickRecoveryCheck(onsideRecovered ? 0.15 : 0.85)
+                    .ElapsedTimeRandomFactor(0.5);
             }
             else
             {
@@ -354,41 +354,41 @@ namespace UnitTestProject1.Helpers
                 if (kickDistance >= 0.9)
                 {
                     // Touchback - short sequence
-                    rng.NextDouble(0.5);                            // Elapsed time
+                    rng.ElapsedTimeRandomFactor(0.5);
                 }
                 else
                 {
                     // Normal return path
-                    rng.NextDouble(outOfBounds ? 0.05 : 0.5);       // Out of bounds
+                    rng.KickoffOutOfBoundsCheck(outOfBounds ? 0.05 : 0.5);
 
                     if (!outOfBounds)
                     {
-                        rng.NextDouble(muff ? 0.01 : 0.99);         // Muff check
+                        rng.KickoffMuffCheck(muff ? 0.01 : 0.99);
 
                         if (!muff)
                         {
-                            rng.NextDouble(fairCatch ? 0.3 : 0.9);  // Fair catch
+                            rng.KickoffFairCatchCheck(fairCatch ? 0.3 : 0.9);
 
                             if (!fairCatch)
                             {
                                 // Full return sequence
-                                rng.NextDouble(returnYardage)       // Return yards
-                                    .NextDouble(blockingPenalty ? 0.01 : 0.99)  // Blocking penalty
-                                    .NextDouble(fumble ? 0.01 : 0.99);          // Fumble
+                                rng.KickoffReturnYards(returnYardage)
+                                    .BlockingPenaltyCheck(blockingPenalty ? 0.01 : 0.99)
+                                    .FumbleCheck(fumble ? 0.01 : 0.99);
 
                                 // Only add tackle penalty if not TD (simplified)
                                 if (returnYardage < 0.9)
                                 {
-                                    rng.NextDouble(tacklePenalty ? 0.01 : 0.99);  // Tackle penalty
+                                    rng.TacklePenaltyCheck(tacklePenalty ? 0.01 : 0.99);
                                 }
                             }
                         }
                         else
                         {
-                            rng.NextDouble(0.7);                    // Muff recovery
+                            rng.MuffRecoveryCheck(0.7);
                         }
 
-                        rng.NextDouble(0.5);                        // Elapsed time
+                        rng.ElapsedTimeRandomFactor(0.5);
                     }
                 }
             }

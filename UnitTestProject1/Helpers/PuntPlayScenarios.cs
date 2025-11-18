@@ -115,18 +115,18 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom NormalReturn(double puntDistance = 0.6, double returnYards = 0.5)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(puntDistance)          // Punt distance
                 .NextDouble(0.5)                   // Hang time random
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.95)                  // No muff
-                .NextDouble(returnYards)           // Return yards
-                .NextDouble(0.99)                  // No returner penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.95)
+                .PuntReturnYards(returnYards)
+                .TacklePenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -154,18 +154,18 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom ReturnTouchdown()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.05)                  // Short punt (easier to return for TD)
                 .NextDouble(0.3)                   // Short hang time (poor coverage)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.95)                  // No muff
-                .NextDouble(0.95)                  // Excellent return for TD
-                .NextDouble(0.99)                  // No returner penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.95)
+                .PuntReturnYards(0.95)
+                .TacklePenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -183,10 +183,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BadSnap(double baseLoss = 0.3, double randomFactor = 0.5)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.01)                  // BAD SNAP! (< ~2.2% with 70 blocking)
-                .NextDouble(baseLoss)              // Base loss (-5 to -20)
-                .NextDouble(randomFactor)          // Random factor (±2.5)
-                .NextDouble(0.7);                  // Elapsed time (4-8 seconds)
+                .BadSnapCheck(0.01)
+                .BadSnapYardsBase(baseLoss)
+                .BadSnapYardsRandom(randomFactor)
+                .ElapsedTimeRandomFactor(0.7);
         }
 
         /// <summary>
@@ -195,10 +195,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BadSnapSafety()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.01)                  // BAD SNAP!
-                .NextDouble(0.9)                   // Large loss (near max)
-                .NextDouble(0.8)                   // Random factor pushes into end zone
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.01)
+                .BadSnapYardsBase(0.9)
+                .BadSnapYardsRandom(0.8)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -215,11 +215,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedPuntOffenseRecovers(double recoveryYards = 0.7)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.3)                   // Offense recovers (< 50%)
-                .NextDouble(recoveryYards)         // Recovery yards (-5 to -10)
-                .NextDouble(0.5);                  // Elapsed time (3-6 seconds)
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.3)
+                .BlockedPuntRecoveryYards(recoveryYards)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -236,12 +236,12 @@ namespace UnitTestProject1.Helpers
             double randomFactor = 0.6)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.6)                   // Defense recovers (>= 50%)
-                .NextDouble(baseBounce)            // Ball bounce base (-10 to +15)
-                .NextDouble(randomFactor)          // Random factor (±5)
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.6)
+                .BlockedPuntBounceBase(baseBounce)
+                .BlockedPuntBounceRandom(randomFactor)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -250,12 +250,12 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedPuntTouchdown()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.6)                   // Defense recovers
-                .NextDouble(0.7)                   // Ball bounces forward
-                .NextDouble(0.5)                   // Random factor
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.6)
+                .BlockedPuntBounceBase(0.7)
+                .BlockedPuntBounceRandom(0.5)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -264,11 +264,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedPuntSafety()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.3)                   // Offense recovers
-                .NextDouble(0.05)                  // Large loss into end zone
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.3)
+                .BlockedPuntRecoveryYards(0.05)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -287,11 +287,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom Touchback(double puntDistance = 0.95)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(puntDistance)          // Very deep punt (into end zone)
                 .NextDouble(0.9)                   // Good hang time
-                .NextDouble(0.99);                 // No kicker penalty
+                .KickerPenaltyCheck(0.99);
         }
 
         #endregion
@@ -308,12 +308,12 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom OutOfBounds()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.5)                   // Moderate punt distance (~46 yards, won't touchback from midfield)
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.05);                 // OUT OF BOUNDS! (< 12% baseline threshold)
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.05);
         }
 
         #endregion
@@ -331,13 +331,13 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom Downed(double puntDistance = 0.85)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(puntDistance)          // Punt distance
                 .NextDouble(0.7)                   // Good hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.05);                 // DOWNED! (< 15% baseline threshold, works from any field position)
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.05);
         }
 
         /// <summary>
@@ -346,13 +346,13 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom CoffinCorner()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.31)                  // Precise distance to land near goal
                 .NextDouble(0.7)                   // Good hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.01);                 // DOWNED near goal line (very low to guarantee even at baseline)
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.01);
         }
 
         #endregion
@@ -370,15 +370,15 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom FairCatch(double puntDistance = 0.65)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(puntDistance)          // Punt distance
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.9)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.2)                   // FAIR CATCH! (< 0.55 threshold)
-                .NextDouble(0.5);                  // Elapsed time
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.9)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.2)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -387,15 +387,15 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom FairCatchDeep()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.63)                  // 52-yard punt lands deep
                 .NextDouble(0.9)                   // Good hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.6)                   // Not downed
-                .NextDouble(0.15)                  // FAIR CATCH! (60% chance deep)
-                .NextDouble(0.5);                  // Elapsed time
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.6)
+                .PuntFairCatchCheck(0.15)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -413,18 +413,18 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom MuffReceivingTeamRecovers(double recoveryYards = 0.3)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.35)                  // Punt distance (~45 yards, avoids touchback from midfield)
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.008)                 // MUFFED! (< 1% threshold even with great returner)
-                .NextDouble(0.4)                   // Receiving team recovers (< 60%)
-                .NextDouble(recoveryYards)         // Recovery yards (-5 to +5)
-                .NextDouble(0.5);                  // Elapsed time (hang + 2-4 seconds)
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.008)
+                .MuffRecoveryCheck(0.4)
+                .MuffRecoveryYards(recoveryYards)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -436,17 +436,17 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom MuffPuntingTeamRecovers()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.35)                  // Punt distance (~45 yards, avoids touchback from midfield)
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.008)                 // MUFFED! (< 1% threshold)
-                .NextDouble(0.7)                   // Punting team recovers (>= 60%)
-                .NextDouble(0.5);                  // Elapsed time
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.008)
+                .MuffRecoveryCheck(0.7)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -462,11 +462,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom WithRoughingTheKicker()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.95)                  // Touchback distance
                 .NextDouble(0.9)                   // Hang time
-                .NextDouble(0.01)                  // ROUGHING THE KICKER!
+                .KickerPenaltyCheck(0.01)
                 .NextDouble(0.5)                   // Penalty effect: team selection
                 .NextInt(5);                       // Penalty effect: player selection
         }
@@ -479,20 +479,20 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom WithReturnerTacklePenalty()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.6)                   // Punt distance
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.95)                  // No muff
-                .NextDouble(0.5)                   // Return yards (> 0 for penalty check)
-                .NextDouble(0.01)                  // RETURNER TACKLE PENALTY!
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.95)
+                .PuntReturnYards(0.5)
+                .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                   // Penalty effect: team selection
                 .NextInt(5)                        // Penalty effect: player selection
-                .NextDouble(0.5);                  // Elapsed time
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -506,18 +506,18 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom ShankedPunt()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.0)                   // Minimum punt distance (shanked)
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.95)                  // No muff
-                .NextDouble(0.5)                   // Return yards
-                .NextDouble(0.99)                  // No returner penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.95)
+                .PuntReturnYards(0.5)
+                .TacklePenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -526,17 +526,17 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom NegativeReturn()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
+                .BadSnapCheck(0.99)
+                .PuntBlockCheck(0.99)
                 .NextDouble(0.6)                   // Punt distance
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.9)                   // Not downed
-                .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.95)                  // No muff
-                .NextDouble(0.0)                   // Minimal/negative return
-                .NextDouble(0.5);                  // Elapsed time (no penalty check if return <= 0)
+                .KickerPenaltyCheck(0.99)
+                .PuntOutOfBoundsCheck(0.8)
+                .PuntDownedCheck(0.9)
+                .PuntFairCatchCheck(0.9)
+                .PuntMuffCheck(0.95)
+                .PuntReturnYards(0.0)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -570,41 +570,41 @@ namespace UnitTestProject1.Helpers
             // Bad snap path
             if (badSnap)
             {
-                rng.NextDouble(0.01)               // Bad snap occurs
-                    .NextDouble(0.5)               // Base loss
-                    .NextDouble(0.5)               // Random factor
-                    .NextDouble(0.5);              // Elapsed time
+                rng.BadSnapCheck(0.01)
+                    .BadSnapYardsBase(0.5)
+                    .BadSnapYardsRandom(0.5)
+                    .ElapsedTimeRandomFactor(0.5);
                 return rng;
             }
 
             // No bad snap
-            rng.NextDouble(0.99);                  // No bad snap
+            rng.BadSnapCheck(0.99);
 
             // Blocked punt path
             if (blocked)
             {
-                rng.NextDouble(0.01)               // BLOCKED!
-                    .NextDouble(offenseRecoversBlock ? 0.3 : 0.6); // Recovery
+                rng.PuntBlockCheck(0.01)
+                    .BlockedKickRecoveryCheck(offenseRecoversBlock ? 0.3 : 0.6);
 
                 if (offenseRecoversBlock)
                 {
-                    rng.NextDouble(0.7);           // Recovery yards
+                    rng.BlockedPuntRecoveryYards(0.7);
                 }
                 else
                 {
-                    rng.NextDouble(0.5)            // Ball bounce base
-                        .NextDouble(0.6);          // Ball bounce random
+                    rng.BlockedPuntBounceBase(0.5)
+                        .BlockedPuntBounceRandom(0.6);
                 }
 
-                rng.NextDouble(0.5);               // Elapsed time
+                rng.ElapsedTimeRandomFactor(0.5);
                 return rng;
             }
 
             // Normal punt path
-            rng.NextDouble(0.99)                   // No block
+            rng.PuntBlockCheck(0.99)
                 .NextDouble(puntDistance)          // Punt distance
                 .NextDouble(0.5)                   // Hang time
-                .NextDouble(kickerPenalty ? 0.01 : 0.99); // Kicker penalty
+                .KickerPenaltyCheck(kickerPenalty ? 0.01 : 0.99);
 
             if (kickerPenalty)
             {
@@ -618,48 +618,48 @@ namespace UnitTestProject1.Helpers
             }
 
             // Out of bounds
-            rng.NextDouble(outOfBounds ? 0.1 : 0.8);
+            rng.PuntOutOfBoundsCheck(outOfBounds ? 0.1 : 0.8);
             if (outOfBounds)
             {
                 return rng;
             }
 
             // Downed
-            rng.NextDouble(downed ? 0.2 : 0.9);
+            rng.PuntDownedCheck(downed ? 0.2 : 0.9);
             if (downed)
             {
                 return rng;
             }
 
             // Fair catch
-            rng.NextDouble(fairCatch ? 0.2 : 0.9);
+            rng.PuntFairCatchCheck(fairCatch ? 0.2 : 0.9);
             if (fairCatch)
             {
-                rng.NextDouble(0.5);               // Elapsed time
+                rng.ElapsedTimeRandomFactor(0.5);
                 return rng;
             }
 
             // Muff
-            rng.NextDouble(muff ? 0.02 : 0.95);
+            rng.PuntMuffCheck(muff ? 0.02 : 0.95);
             if (muff)
             {
-                rng.NextDouble(receivingTeamRecoversMuff ? 0.4 : 0.7); // Recovery
+                rng.MuffRecoveryCheck(receivingTeamRecoversMuff ? 0.4 : 0.7);
 
                 if (receivingTeamRecoversMuff)
                 {
-                    rng.NextDouble(0.3);           // Recovery yards
+                    rng.MuffRecoveryYards(0.3);
                 }
 
-                rng.NextDouble(0.5);               // Elapsed time
+                rng.ElapsedTimeRandomFactor(0.5);
                 return rng;
             }
 
             // Normal return
-            rng.NextDouble(returnYards);           // Return yards
+            rng.PuntReturnYards(returnYards);
 
             if (returnYards > 0)
             {
-                rng.NextDouble(returnerPenalty ? 0.01 : 0.99); // Returner penalty
+                rng.TacklePenaltyCheck(returnerPenalty ? 0.01 : 0.99);
 
                 if (returnerPenalty)
                 {
@@ -667,7 +667,7 @@ namespace UnitTestProject1.Helpers
                 }
             }
 
-            rng.NextDouble(0.5);                   // Elapsed time
+            rng.ElapsedTimeRandomFactor(0.5);
 
             return rng;
         }

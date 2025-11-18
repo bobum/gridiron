@@ -54,16 +54,16 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom SimpleGain(int yards, int direction = 2)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(direction)                  // Direction
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
-                .ElapsedTimeRandomFactor(0.5);       // ~6.5 seconds
+                .QBCheck(0.15)
+                .RunDirection(direction)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.6)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -77,16 +77,16 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom QBScramble(int yards, int direction = 2)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.05)                    // QB check (QB scrambles < 0.10)
-                .NextInt(direction)                  // Direction
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
-                .ElapsedTimeRandomFactor(0.5);       // ~6.5 seconds
+                .QBCheck(0.05)
+                .RunDirection(direction)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.6)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -101,15 +101,15 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom TackleForLoss(int lossYards = 2)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.8)               // Bad blocking (fails)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.05)                    // Low base yards factor (negative result)
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.8)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.05)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -135,15 +135,15 @@ namespace UnitTestProject1.Helpers
             nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble));
 
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.4)               // Good blocking (succeeds)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(nextDouble)              // Base yards calculation - precise value
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.4)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(nextDouble)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -164,15 +164,15 @@ namespace UnitTestProject1.Helpers
             nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble));
 
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.6)               // Bad blocking (fails)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(nextDouble)              // Base yards calculation - precise value
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.6)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(nextDouble)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -198,16 +198,16 @@ namespace UnitTestProject1.Helpers
                     "Tackle break yards must be 3-8 per TackleBreakYardsSkillsCheckResult");
 
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(blockingValue)     // Blocking (customizable)
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(baseYardsFactor)         // Base yards random factor (customizable)
-                .TackleBreakCheck(0.1)               // Tackle break succeeds!
-                .NextInt(tackleBreakYards)           // EXTRA: Tackle break yards
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(blockingValue)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(baseYardsFactor)
+                .TackleBreakCheck(0.1)
+                .TackleBreakYards(tackleBreakYards)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -226,16 +226,16 @@ namespace UnitTestProject1.Helpers
                     "Breakaway yards must be 15-44 per BreakawayYardsSkillsCheckResult");
 
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.5)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.05)                // Breakaway succeeds!
-                .NextInt(breakawayYards)             // EXTRA: Breakaway yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.5)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.05)
+                .BreakawayYards(breakawayYards)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -255,17 +255,17 @@ namespace UnitTestProject1.Helpers
                 throw new ArgumentOutOfRangeException(nameof(breakawayYards));
 
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.3)               // Great blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.9)                     // High base yards factor
-                .TackleBreakCheck(0.05)              // Tackle break succeeds!
-                .NextInt(tackleBreakYards)           // EXTRA: Tackle break yards
-                .BreakawayCheck(0.02)                // Breakaway succeeds!
-                .NextInt(breakawayYards)             // EXTRA: Breakaway yards
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.3)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.9)
+                .TackleBreakCheck(0.05)
+                .TackleBreakYards(tackleBreakYards)
+                .BreakawayCheck(0.02)
+                .BreakawayYards(breakawayYards)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -282,15 +282,15 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom Fumble(int yardsBeforeFumble)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.01)                    // FUMBLE! (< fumble threshold)
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.6)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.01)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -308,17 +308,17 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom WithBlockingPenalty(int yards)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.01)                    // BLOCKING PENALTY! (< penalty threshold)
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.01)
                 .NextDouble(0.5)                     // Penalty effect: team selection
                 .NextInt(5)                          // Penalty effect: player selection
-                .NextDouble(0.6)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.99)                    // No tackle penalty
-                .NextDouble(0.99)                    // No fumble
+                .RunBaseYardsRandom(0.6)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.99)
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -332,17 +332,17 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom WithTacklePenalty(int yards)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.6)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.01)                    // TACKLE PENALTY! (< penalty threshold)
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.99)
+                .RunBaseYardsRandom(0.6)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                     // Penalty effect: team selection
                 .NextInt(5)                          // Penalty effect: player selection
-                .NextDouble(0.99)                    // No fumble
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -356,19 +356,19 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom WithBlockingAndTacklePenalty(int yards)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                    // QB check (RB gets ball)
-                .NextInt(2)                          // Direction (Middle)
-                .RunBlockingCheck(0.5)               // Moderate blocking
-                .NextDouble(0.01)                    // BLOCKING PENALTY!
+                .QBCheck(0.15)
+                .RunDirection(2)
+                .RunBlockingCheck(0.5)
+                .BlockingPenaltyCheck(0.01)
                 .NextDouble(0.5)                     // Penalty effect: team selection
                 .NextInt(5)                          // Penalty effect: player selection
-                .NextDouble(0.6)                     // Base yards random factor
-                .TackleBreakCheck(0.9)               // No tackle break
-                .BreakawayCheck(0.9)                 // No breakaway
-                .NextDouble(0.01)                    // TACKLE PENALTY!
+                .RunBaseYardsRandom(0.6)
+                .TackleBreakCheck(0.9)
+                .BreakawayCheck(0.9)
+                .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                     // Penalty effect: team selection
                 .NextInt(5)                          // Penalty effect: player selection
-                .NextDouble(0.99)                    // No fumble
+                .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -399,23 +399,23 @@ namespace UnitTestProject1.Helpers
             double elapsedTimeFactor = 0.5)
         {
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(qbScrambles ? 0.05 : 0.15)
-                .NextInt(direction)
+                .QBCheck(qbScrambles ? 0.05 : 0.15)
+                .RunDirection(direction)
                 .RunBlockingCheck(blockingCheckValue)
-                .NextDouble(blockingPenalty ? 0.01 : 0.99)
-                .NextDouble(baseYardsFactor)
+                .BlockingPenaltyCheck(blockingPenalty ? 0.01 : 0.99)
+                .RunBaseYardsRandom(baseYardsFactor)
                 .TackleBreakCheck(tackleBreak ? 0.1 : 0.9);
 
             if (tackleBreak)
-                rng.NextInt(tackleBreakYards);
+                rng.TackleBreakYards(tackleBreakYards);
 
             rng.BreakawayCheck(breakaway ? 0.05 : 0.9);
 
             if (breakaway)
-                rng.NextInt(breakawayYards);
+                rng.BreakawayYards(breakawayYards);
 
-            rng.NextDouble(tacklePenalty ? 0.01 : 0.99)
-                .NextDouble(fumble ? 0.01 : 0.99)
+            rng.TacklePenaltyCheck(tacklePenalty ? 0.01 : 0.99)
+                .FumbleCheck(fumble ? 0.01 : 0.99)
                 .ElapsedTimeRandomFactor(elapsedTimeFactor);
 
             return rng;

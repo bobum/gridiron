@@ -73,11 +73,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom ExtraPointMade()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block (> 1.5% for PAT)
-                .NextDouble(0.5)                   // Make (98% for PAT)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(0.5)
+                .KickerPenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -89,12 +89,12 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom ExtraPointMissed()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(0.99)                  // Miss (rare for PAT)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.5)                   // Miss direction
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(0.99)
+                .KickerPenaltyCheck(0.99)
+                .MissDirection(0.5)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -110,11 +110,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom ShortFieldGoalMade()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(0.5)                   // Make (high probability)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(0.5)
+                .KickerPenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -131,11 +131,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom MediumFieldGoalMade(double makeValue = 0.4)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(makeValue)             // Make check
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(makeValue)
+                .KickerPenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -148,12 +148,12 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom MediumFieldGoalMissed(double missDirection = 0.3)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(0.995)                 // Miss (>= 99% threshold ensures miss even for short/easy kicks)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(missDirection)         // Miss direction
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(0.995)
+                .KickerPenaltyCheck(0.99)
+                .MissDirection(missDirection)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -170,11 +170,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom LongFieldGoalMade(double makeValue = 0.2)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(makeValue)             // Make check (excellent kicker needed)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(makeValue)
+                .KickerPenaltyCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -187,12 +187,12 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom LongFieldGoalMissed(double missDirection = 0.85)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(0.8)                   // Miss (likely at long distance)
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(missDirection)         // Miss direction (often short)
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(0.8)
+                .KickerPenaltyCheck(0.99)
+                .MissDirection(missDirection)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -210,10 +210,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BadSnap(double baseLoss = 0.5, double randomFactor = 0.5)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.01)                  // BAD SNAP! (< ~2.2% with 70 blocking)
-                .NextDouble(baseLoss)              // Base loss (-5 to -15)
-                .NextDouble(randomFactor)          // Random factor (±2.5)
-                .NextDouble(0.5);                  // Elapsed time (4-7 seconds)
+                .BadSnapCheck(0.01)
+                .BadSnapYardsBase(baseLoss)
+                .BadSnapYardsRandom(randomFactor)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -222,10 +222,10 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BadSnapSafety()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.01)                  // BAD SNAP!
-                .NextDouble(0.9)                   // Large loss (near max)
-                .NextDouble(0.9)                   // Random factor pushes into end zone
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.01)
+                .BadSnapYardsBase(0.9)
+                .BadSnapYardsRandom(0.9)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -242,11 +242,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedFieldGoalOffenseRecovers(double recoveryYards = 0.5)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.6)                   // Offense recovers (>= 50%)
-                .NextDouble(recoveryYards)         // Recovery yards (-5 to -15)
-                .NextDouble(0.5);                  // Elapsed time (3-6 seconds)
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.6)
+                .BlockedFieldGoalRecoveryYards(recoveryYards)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -259,11 +259,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedFieldGoalDefenseRecovers(double returnYards = 0.5)
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.3)                   // Defense recovers (< 50%)
-                .NextDouble(returnYards)           // Return yards (-5 to 100)
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.3)
+                .BlockedFieldGoalReturnYards(returnYards)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -272,11 +272,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedFieldGoalTouchdown()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.3)                   // Defense recovers
-                .NextDouble(0.99)                  // Excellent return for TD
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.3)
+                .BlockedFieldGoalReturnYards(0.99)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -285,11 +285,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedFieldGoalSafety()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.6)                   // Offense recovers
-                .NextDouble(0.8)                   // Large loss into end zone
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.6)
+                .BlockedFieldGoalRecoveryYards(0.8)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -299,11 +299,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom BlockedFieldGoalDefenseSafety()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.01)                  // BLOCKED!
-                .NextDouble(0.3)                   // Defense recovers
-                .NextDouble(0.01)                  // Very low return (negative/into end zone)
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.01)
+                .BlockedKickRecoveryCheck(0.3)
+                .BlockedFieldGoalReturnYards(0.01)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -313,11 +313,11 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom LongKickBlocked()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.03)                  // Would block long kick (< 6.5%)
-                .NextDouble(0.3)                   // Defense recovers
-                .NextDouble(0.5)                   // Return yards
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.03)
+                .BlockedKickRecoveryCheck(0.3)
+                .BlockedFieldGoalReturnYards(0.5)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -335,19 +335,19 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom WithRoughingTheKicker(bool kickIsMade = true)
         {
             var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(kickIsMade ? 0.5 : 0.95) // Make/miss check
-                .NextDouble(0.01)                  // ROUGHING THE KICKER!
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(kickIsMade ? 0.5 : 0.95)
+                .KickerPenaltyCheck(0.01)
                 .NextDouble(0.5)                   // Penalty effect: team selection
                 .NextInt(5);                       // Penalty effect: player selection
 
             if (!kickIsMade)
             {
-                rng.NextDouble(0.5);               // Miss direction (only if missed)
+                rng.MissDirection(0.5);
             }
 
-            rng.NextDouble(0.5);                   // Elapsed time
+            rng.ElapsedTimeRandomFactor(0.5);
 
             return rng;
         }
@@ -363,12 +363,12 @@ namespace UnitTestProject1.Helpers
         public static TestFluentSeedableRandom ExtremelyLongFieldGoal()
         {
             return new TestFluentSeedableRandom()
-                .NextDouble(0.99)                  // No bad snap
-                .NextDouble(0.99)                  // No block
-                .NextDouble(0.99)                  // Likely miss from 116 yards
-                .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.5)                   // Miss direction
-                .NextDouble(0.5);                  // Elapsed time
+                .BadSnapCheck(0.99)
+                .FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(0.99)
+                .KickerPenaltyCheck(0.99)
+                .MissDirection(0.5)
+                .ElapsedTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -396,39 +396,39 @@ namespace UnitTestProject1.Helpers
             // Bad snap path
             if (badSnap)
             {
-                rng.NextDouble(0.01)               // Bad snap occurs
-                    .NextDouble(0.5)               // Base loss
-                    .NextDouble(0.5)               // Random factor
-                    .NextDouble(0.5);              // Elapsed time
+                rng.BadSnapCheck(0.01)
+                    .BadSnapYardsBase(0.5)
+                    .BadSnapYardsRandom(0.5)
+                    .ElapsedTimeRandomFactor(0.5);
                 return rng;
             }
 
             // No bad snap
-            rng.NextDouble(0.99);                  // No bad snap
+            rng.BadSnapCheck(0.99);
 
             // Blocked kick path
             if (blocked)
             {
-                rng.NextDouble(0.01)               // BLOCKED!
-                    .NextDouble(offenseRecoversBlock ? 0.6 : 0.3); // Recovery
+                rng.FieldGoalBlockCheck(0.01)
+                    .BlockedKickRecoveryCheck(offenseRecoversBlock ? 0.6 : 0.3);
 
                 if (offenseRecoversBlock)
                 {
-                    rng.NextDouble(0.5);           // Recovery yards
+                    rng.BlockedFieldGoalRecoveryYards(0.5);
                 }
                 else
                 {
-                    rng.NextDouble(returnYards);   // Return yards
+                    rng.BlockedFieldGoalReturnYards(returnYards);
                 }
 
-                rng.NextDouble(0.5);               // Elapsed time
+                rng.ElapsedTimeRandomFactor(0.5);
                 return rng;
             }
 
             // Normal kick path
-            rng.NextDouble(0.99)                   // No block
-                .NextDouble(kickIsMade ? 0.5 : 0.95) // Make/miss check
-                .NextDouble(kickerPenalty ? 0.01 : 0.99); // Kicker penalty
+            rng.FieldGoalBlockCheck(0.99)
+                .FieldGoalMakeCheck(kickIsMade ? 0.5 : 0.95)
+                .KickerPenaltyCheck(kickerPenalty ? 0.01 : 0.99);
 
             if (kickerPenalty)
             {
@@ -437,10 +437,10 @@ namespace UnitTestProject1.Helpers
 
             if (!kickIsMade)
             {
-                rng.NextDouble(missDirection);     // Miss direction (only if missed)
+                rng.MissDirection(missDirection);
             }
 
-            rng.NextDouble(0.5);                   // Elapsed time
+            rng.ElapsedTimeRandomFactor(0.5);
 
             return rng;
         }

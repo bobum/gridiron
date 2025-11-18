@@ -404,6 +404,519 @@ namespace UnitTestProject1.Helpers
             return this;
         }
 
+        // Bad Snap methods
+
+        /// <summary>
+        /// Sets bad snap occurrence check. Lower values (&lt; ~2.2% with 70 blocking) mean bad snap occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BadSnapCheck(double value)
+        {
+            ValidateProbability(value, nameof(BadSnapCheck),
+                "Determines if snap is bad. Lower values (< ~2.2% with average long snapper) trigger bad snap.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets bad snap yards - base loss component (maps to -5 to -20 yards for punts, -5 to -15 for FGs).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BadSnapYardsBase(double value)
+        {
+            ValidateRandomFactor(value, nameof(BadSnapYardsBase),
+                "Base yardage loss on bad snap. Higher values = bigger loss. " +
+                "Punt: 0.0-1.0 maps to -5 to -20 yards. FG: 0.0-1.0 maps to -5 to -15 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets bad snap yards - random variance component (±2.5 yards).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BadSnapYardsRandom(double value)
+        {
+            ValidateRandomFactor(value, nameof(BadSnapYardsRandom),
+                "Random variance for bad snap yardage (±2.5 yards). Formula: (value - 0.5) * 5.0");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        // Block methods
+
+        /// <summary>
+        /// Sets punt block occurrence check. Lower values (&lt; ~1-30% based on skills) mean block occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom PuntBlockCheck(double value)
+        {
+            ValidateProbability(value, nameof(PuntBlockCheck),
+                "Determines if punt is blocked. Lower values (< block probability based on snap quality and line play) trigger block. " +
+                "Good snap: ~1% baseline. Bad snap: ~30% chance.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets field goal block occurrence check. Lower values (&lt; ~1.5-6.5% based on distance) mean block occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom FieldGoalBlockCheck(double value)
+        {
+            ValidateProbability(value, nameof(FieldGoalBlockCheck),
+                "Determines if field goal is blocked. Lower values (< block probability based on distance and line play) trigger block. " +
+                "PAT: ~1.5%. Short FG: ~2.5%. Long FG: ~6.5%.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets blocked kick recovery check. For punts: &lt; 0.5 = offense recovers. For FGs: &lt; 0.5 = defense recovers.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockedKickRecoveryCheck(double value)
+        {
+            ValidateProbability(value, nameof(BlockedKickRecoveryCheck),
+                "Determines who recovers blocked kick. " +
+                "Punts: < 0.5 = offense recovers, >= 0.5 = defense recovers. " +
+                "Field goals: < 0.5 = defense recovers, >= 0.5 = offense recovers.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets blocked punt recovery yards for offense (maps to -5 to -10 yards).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockedPuntRecoveryYards(double value)
+        {
+            ValidateRandomFactor(value, nameof(BlockedPuntRecoveryYards),
+                "Recovery yards when offense recovers blocked punt (always negative). " +
+                "Formula: -5.0 - (value * 5.0) yields -5 to -10 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets blocked field goal recovery yards for offense (maps to -5 to -15 yards).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockedFieldGoalRecoveryYards(double value)
+        {
+            ValidateRandomFactor(value, nameof(BlockedFieldGoalRecoveryYards),
+                "Recovery yards when offense recovers blocked field goal (always negative). " +
+                "Formula: -5.0 - (value * 10.0) yields -5 to -15 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets blocked punt ball bounce base component (-10 to +15 yards).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockedPuntBounceBase(double value)
+        {
+            ValidateRandomFactor(value, nameof(BlockedPuntBounceBase),
+                "Base bounce yards when defense recovers blocked punt. " +
+                "Formula: -10.0 + (value * 25.0) yields -10 to +15 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets blocked punt ball bounce random variance (±5 yards).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockedPuntBounceRandom(double value)
+        {
+            ValidateRandomFactor(value, nameof(BlockedPuntBounceRandom),
+                "Random variance for blocked punt bounce. Formula: (value - 0.5) * 10.0 yields ±5 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets blocked field goal return yards for defense (-5 to 100 yards).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockedFieldGoalReturnYards(double value)
+        {
+            ValidateRandomFactor(value, nameof(BlockedFieldGoalReturnYards),
+                "Return yards when defense recovers blocked field goal. " +
+                "Formula: baseReturn + (value * 100.0) - 50.0 yields -5 to 100 yards (clamped).");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        // Penalty methods
+
+        /// <summary>
+        /// Sets blocking penalty occurrence check. Lower values (&lt; ~2-5%) mean penalty occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom BlockingPenaltyCheck(double value)
+        {
+            ValidateProbability(value, nameof(BlockingPenaltyCheck),
+                "Determines if blocking penalty (holding, illegal block, etc.) occurs. " +
+                "Lower values (< ~2-5%) trigger penalty.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets kicker penalty occurrence check (roughing/running into kicker). Lower values (&lt; ~1-3%) mean penalty occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom KickerPenaltyCheck(double value)
+        {
+            ValidateProbability(value, nameof(KickerPenaltyCheck),
+                "Determines if roughing/running into kicker penalty occurs. " +
+                "Lower values (< ~1-3%) trigger penalty.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets tackle penalty occurrence check. Lower values (&lt; ~2-5%) mean penalty occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom TacklePenaltyCheck(double value)
+        {
+            ValidateProbability(value, nameof(TacklePenaltyCheck),
+                "Determines if tackle penalty (facemask, horse collar, unnecessary roughness) occurs. " +
+                "Lower values (< ~2-5%) trigger penalty.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets roughing the passer penalty check. Lower values (&lt; ~1-3%) mean penalty occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom RoughingPasserCheck(double value)
+        {
+            ValidateProbability(value, nameof(RoughingPasserCheck),
+                "Determines if roughing the passer penalty occurs. " +
+                "Lower values (< ~1-3%) trigger penalty.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets coverage penalty occurrence check (pass interference, illegal contact). Lower values (&lt; ~3-5%) mean penalty occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom CoveragePenaltyCheck(double value)
+        {
+            ValidateProbability(value, nameof(CoveragePenaltyCheck),
+                "Determines if coverage penalty (pass interference, illegal contact) occurs. " +
+                "Lower values (< ~3-5%) trigger penalty.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        // Punt special outcome methods
+
+        /// <summary>
+        /// Sets punt out of bounds check. Lower values (&lt; ~12-20%) mean punt goes out of bounds.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom PuntOutOfBoundsCheck(double value)
+        {
+            ValidateProbability(value, nameof(PuntOutOfBoundsCheck),
+                "Determines if punt goes out of bounds. " +
+                "Lower values (< ~12% baseline, up to 20% near goal line) trigger OOB.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets punt downed check. Lower values (&lt; ~15-55%) mean punt is downed by coverage team.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom PuntDownedCheck(double value)
+        {
+            ValidateProbability(value, nameof(PuntDownedCheck),
+                "Determines if punt is downed by coverage team. " +
+                "Lower values (< ~15% baseline, up to 55% inside 5-yard line) trigger downed.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets punt fair catch check. Lower values (&lt; ~25-55%) mean returner calls fair catch.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom PuntFairCatchCheck(double value)
+        {
+            ValidateProbability(value, nameof(PuntFairCatchCheck),
+                "Determines if returner calls fair catch. " +
+                "Lower values (< ~25% baseline with low hang time, up to 55% with high hang time or deep field position) trigger fair catch.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets punt muff check. Lower values (&lt; ~1-7%) mean returner muffs the catch.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom PuntMuffCheck(double value)
+        {
+            ValidateProbability(value, nameof(PuntMuffCheck),
+                "Determines if returner muffs the punt. " +
+                "Lower values (< ~1% with great returner/low hang time, up to 7% with poor returner/high hang time) trigger muff.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets muff recovery check. For punts: &lt; 0.6 = receiving team. For kickoffs: &gt;= 0.5 = receiving team.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom MuffRecoveryCheck(double value)
+        {
+            ValidateProbability(value, nameof(MuffRecoveryCheck),
+                "Determines who recovers muffed kick. " +
+                "Punts: < 0.6 = receiving team, >= 0.6 = punting team (60% receiving team recovers). " +
+                "Kickoffs: >= 0.5 = receiving team, < 0.5 = kicking team (50% split).");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets muff recovery yards (-5 to +5 yards from muff spot).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom MuffRecoveryYards(double value)
+        {
+            ValidateRandomFactor(value, nameof(MuffRecoveryYards),
+                "Yards from muff spot where ball is recovered. " +
+                "Formula: -5.0 + (value * 10.0) yields -5 to +5 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets punt return yards. Mapped to actual return yardage based on returner skill and coverage.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom PuntReturnYards(double value)
+        {
+            ValidateRandomFactor(value, nameof(PuntReturnYards),
+                "Return yardage for punt return. Lower values = shorter/negative return. " +
+                "Formula varies by returner skill and coverage. 0.95+ often yields TD return.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        // Kickoff special outcome methods
+
+        /// <summary>
+        /// Sets kickoff out of bounds check. Lower values (&lt; ~10%) mean kickoff goes out of bounds.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom KickoffOutOfBoundsCheck(double value)
+        {
+            ValidateProbability(value, nameof(KickoffOutOfBoundsCheck),
+                "Determines if kickoff goes out of bounds. " +
+                "Lower values (< ~10%) trigger OOB penalty.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets kickoff fair catch check. Lower values (&lt; ~70%) mean returner calls fair catch.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom KickoffFairCatchCheck(double value)
+        {
+            ValidateProbability(value, nameof(KickoffFairCatchCheck),
+                "Determines if returner calls fair catch on kickoff. " +
+                "Lower values (< ~70% deep in own territory) trigger fair catch.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets kickoff muff check. Lower values (&lt; ~2-5%) mean returner muffs the kickoff.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom KickoffMuffCheck(double value)
+        {
+            ValidateProbability(value, nameof(KickoffMuffCheck),
+                "Determines if returner muffs the kickoff. " +
+                "Lower values (< ~2-5%) trigger muff.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets kickoff return yards. Mapped to actual return yardage based on returner skill and coverage.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom KickoffReturnYards(double value)
+        {
+            ValidateRandomFactor(value, nameof(KickoffReturnYards),
+                "Return yardage for kickoff return. Lower values = shorter return. " +
+                "Formula varies by returner skill and coverage. 0.95+ often yields TD return.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets onside kick decision check (conditional - only consumed if team is trailing). Lower values (&lt; ~5%) trigger onside attempt.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom OnsideKickDecisionCheck(double value)
+        {
+            ValidateProbability(value, nameof(OnsideKickDecisionCheck),
+                "Determines if team attempts onside kick (only consumed if trailing by 7+ points). " +
+                "Lower values (< ~5%) trigger onside attempt.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets onside kick distance (10-15 yards typically).
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom OnsideKickDistance(double value)
+        {
+            ValidateRandomFactor(value, nameof(OnsideKickDistance),
+                "Distance traveled by onside kick. " +
+                "Formula: 10.0 + (value * 5.0) yields 10-15 yards.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets onside kick recovery check. Lower values (&lt; ~20-30%) mean kicking team recovers.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom OnsideKickRecoveryCheck(double value)
+        {
+            ValidateProbability(value, nameof(OnsideKickRecoveryCheck),
+                "Determines who recovers onside kick. " +
+                "Lower values (< ~20-30%) = kicking team recovers, >= ~20-30% = receiving team recovers.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        // Field Goal outcome methods
+
+        /// <summary>
+        /// Sets field goal make/miss check. Lower values (&lt; make probability) mean kick is good.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom FieldGoalMakeCheck(double value)
+        {
+            ValidateProbability(value, nameof(FieldGoalMakeCheck),
+                "Determines if field goal is made. " +
+                "Lower values (< make probability based on kicker skill and distance) result in made kick. " +
+                "PAT: ~98%. Short FG: ~85-95%. Medium FG: ~70-85%. Long FG: ~40-60%.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets miss direction (only consumed if kick misses). &lt; 0.4 = wide right, 0.4-0.8 = wide left, &gt; 0.8 = short.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom MissDirection(double value)
+        {
+            ValidateRandomFactor(value, nameof(MissDirection),
+                "Direction of missed field goal (only consumed if kick misses). " +
+                "< 0.4 = wide right, 0.4-0.8 = wide left, > 0.8 = short.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        // Run play specific methods
+
+        /// <summary>
+        /// Sets QB check for run plays. Lower values (&lt; 0.10) mean QB scrambles instead of handoff.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom QBCheck(double value)
+        {
+            ValidateProbability(value, nameof(QBCheck),
+                "Determines if QB scrambles or hands off to RB. " +
+                "Lower values (< 0.10) = QB scrambles, >= 0.10 = handoff to RB.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets run direction (0-4: 0=far left, 1=left, 2=middle, 3=right, 4=far right).
+        /// Valid range: 0 to 4
+        /// </summary>
+        public TestFluentSeedableRandom RunDirection(int value)
+        {
+            if (value < 0 || value > 4)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(RunDirection),
+                    value,
+                    "Run direction must be 0-4 (0=far left, 1=left, 2=middle, 3=right, 4=far right). Got: " + value);
+            }
+            _intQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets run base yards random factor. Used to calculate base yardage before blocks/breaks.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom RunBaseYardsRandom(double value)
+        {
+            ValidateRandomFactor(value, nameof(RunBaseYardsRandom),
+                "Random factor for run yardage calculation. " +
+                "Formula: baseYards + (value * 25.0) - 15.0 yields variable yards based on blocking/skills. " +
+                "Lower values (< 0.2) often result in losses. Higher values (> 0.8) result in good gains.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets tackle break yards (bonus yards when tackle is broken).
+        /// Valid range: 3 to 15
+        /// </summary>
+        public TestFluentSeedableRandom TackleBreakYards(int value)
+        {
+            ValidateYardage(value, nameof(TackleBreakYards), 3, 15,
+                "Bonus yards awarded when ball carrier breaks tackle. Typical range: 3-8 yards.");
+            _intQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets breakaway yards (bonus yards for breakaway run).
+        /// Valid range: 10 to 99
+        /// </summary>
+        public TestFluentSeedableRandom BreakawayYards(int value)
+        {
+            ValidateYardage(value, nameof(BreakawayYards), 10, 99,
+                "Bonus yards for breakaway run (when RB breaks into open field). Typical range: 15-44 yards.");
+            _intQueue.Enqueue(value);
+            return this;
+        }
+
+        // Fumble methods
+
+        /// <summary>
+        /// Sets fumble occurrence check. Lower values (&lt; ~1-3%) mean fumble occurs.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom FumbleCheck(double value)
+        {
+            ValidateProbability(value, nameof(FumbleCheck),
+                "Determines if ball carrier fumbles. " +
+                "Lower values (< ~1-3% based on carrier's awareness/strength and hits taken) trigger fumble.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
         // Generic methods for edge cases
 
         /// <summary>
