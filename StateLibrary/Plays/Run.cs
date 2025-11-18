@@ -465,23 +465,27 @@ namespace StateLibrary.Plays
             var enforcementContext = new PenaltyEnforcementContext
             {
                 FieldPosition = game.FieldPosition,
-                YardsToGoal = 100 - game.FieldPosition,
                 InEndZone = false, // TODO: Determine based on play context
-                SpotOfFoul = game.FieldPosition // TODO: Calculate actual spot for spot fouls
+                SpotOfFoul = game.FieldPosition, // TODO: Calculate actual spot for spot fouls
+                CommittedBy = committedBy
             };
 
             var yards = penaltyInstance.CalculateYardage(enforcementContext);
 
             // Determine if penalty should be accepted using penalty's logic
+            // Convert Possession to TeamSide for context
+            var committedByTeamSide = committedBy;
+            var offenseTeamSide = TeamSide.Offense;
+
             var acceptanceContext = new PenaltyAcceptanceContext
             {
-                CommittedBy = calledOn,
-                Offense = play.Possession,
+                CommittedBy = committedByTeamSide,
+                Offense = offenseTeamSide,
                 IsAutomaticFirstDown = penaltyInstance.IsAutomaticFirstDown,
                 IsLossOfDown = penaltyInstance.IsLossOfDown,
                 PenaltyYards = yards,
                 YardsGainedOnPlay = play.YardsGained,
-                CurrentDown = game.Down,
+                CurrentDown = game.CurrentDown,
                 YardsToGo = game.YardsToGo
             };
 
