@@ -82,9 +82,7 @@ namespace DomainObjects
         /// </summary>
         public string FormatFieldPosition(Possession possession)
         {
-            var offenseTeam = GetOffensiveTeam(possession);
-            var defenseTeam = GetDefensiveTeam(possession);
-            return FieldPositionHelper.FormatFieldPosition(FieldPosition, offenseTeam, defenseTeam);
+            return FieldPositionHelper.FormatFieldPosition(FieldPosition, HomeTeam, AwayTeam);
         }
 
         /// <summary>
@@ -92,9 +90,7 @@ namespace DomainObjects
         /// </summary>
         public string FormatFieldPosition(int fieldPosition, Possession possession)
         {
-            var offenseTeam = GetOffensiveTeam(possession);
-            var defenseTeam = GetDefensiveTeam(possession);
-            return FieldPositionHelper.FormatFieldPosition(fieldPosition, offenseTeam, defenseTeam);
+            return FieldPositionHelper.FormatFieldPosition(fieldPosition, HomeTeam, AwayTeam);
         }
 
         /// <summary>
@@ -102,9 +98,7 @@ namespace DomainObjects
         /// </summary>
         public string FormatFieldPositionWithYardLine(Possession possession)
         {
-            var offenseTeam = GetOffensiveTeam(possession);
-            var defenseTeam = GetDefensiveTeam(possession);
-            return FieldPositionHelper.FormatFieldPositionWithYardLine(FieldPosition, offenseTeam, defenseTeam);
+            return FieldPositionHelper.FormatFieldPositionWithYardLine(FieldPosition, HomeTeam, AwayTeam);
         }
 
         // ========================================

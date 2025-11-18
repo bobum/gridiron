@@ -3,14 +3,14 @@ namespace DomainObjects.Helpers
     /// <summary>
     /// Helper class to convert absolute field position (0-100) to NFL-style field position notation.
     ///
-    /// Internal representation:
-    /// - 0 = Offense's own goal line
+    /// IMPORTANT: Field position is ABSOLUTE (does not flip on possession changes)
+    /// - 0 = Home team's goal line
     /// - 50 = Midfield (50 yard line)
-    /// - 100 = Opponent's goal line (offense trying to score here)
+    /// - 100 = Away team's goal line
     ///
-    /// NFL-style notation examples:
-    /// - Position 20 → "Own 20" or "[TeamName] 20"
-    /// - Position 60 → "Opp 40" or "[OpponentName] 40"
+    /// Examples with Home=Buffalo, Away=Kansas City:
+    /// - Position 20, any possession → "Buffalo 20" (in Buffalo's territory)
+    /// - Position 80, any possession → "Kansas City 20" (in Kansas City's territory)
     /// - Position 50 → "50" (midfield)
     /// </summary>
     public static class FieldPositionHelper
@@ -18,11 +18,11 @@ namespace DomainObjects.Helpers
         /// <summary>
         /// Converts absolute field position to NFL-style yard line string
         /// </summary>
-        /// <param name="fieldPosition">Absolute position (0-100)</param>
-        /// <param name="offenseTeam">Team with possession (optional, for team name display)</param>
-        /// <param name="defenseTeam">Team defending (optional, for team name display)</param>
+        /// <param name="fieldPosition">Absolute position (0-100, where 0=Home goal, 100=Away goal)</param>
+        /// <param name="homeTeam">Home team</param>
+        /// <param name="awayTeam">Away team</param>
         /// <returns>NFL-style field position string</returns>
-        public static string FormatFieldPosition(int fieldPosition, Team? offenseTeam = null, Team? defenseTeam = null)
+        public static string FormatFieldPosition(int fieldPosition, Team? homeTeam, Team? awayTeam)
         {
             // Clamp to valid range
             if (fieldPosition < 0) fieldPosition = 0;
@@ -34,40 +34,48 @@ namespace DomainObjects.Helpers
                 return "50";
             }
 
-            // Own side of field (0-49)
+            // Position 0-49: In Home team's territory
             if (fieldPosition < 50)
             {
-                if (offenseTeam != null)
+                if (homeTeam != null)
                 {
-                    return $"{offenseTeam.City} {fieldPosition}";
+                    return $"{homeTeam.City} {fieldPosition}";
                 }
                 else
                 {
-                    return $"Own {fieldPosition}";
+                    return $"{fieldPosition}";
                 }
             }
-            // Opponent's side of field (51-100)
+            // Position 51-100: In Away team's territory
             else
             {
-                int yardsFromOpponentGoal = 100 - fieldPosition;
+                int yardsFromAwayGoal = 100 - fieldPosition;
 
-                if (defenseTeam != null)
+                if (awayTeam != null)
                 {
-                    return $"{defenseTeam.City} {yardsFromOpponentGoal}";
+                    return $"{awayTeam.City} {yardsFromAwayGoal}";
                 }
                 else
                 {
-                    return $"Opp {yardsFromOpponentGoal}";
+                    return $"{yardsFromAwayGoal}";
                 }
             }
+        }
+
+        // Backwards compatibility overload - DEPRECATED
+        public static string FormatFieldPosition(int fieldPosition, Team? offenseTeam = null, Team? defenseTeam = null)
+        {
+            // This overload is deprecated but kept for backwards compatibility
+            // It tries to infer home/away from offense/defense but this is fragile
+            return FormatFieldPosition(fieldPosition, offenseTeam, defenseTeam);
         }
 
         /// <summary>
         /// Gets a short description of field position with "yard line" suffix
         /// </summary>
-        public static string FormatFieldPositionWithYardLine(int fieldPosition, Team? offenseTeam = null, Team? defenseTeam = null)
+        public static string FormatFieldPositionWithYardLine(int fieldPosition, Team? homeTeam, Team? awayTeam)
         {
-            string position = FormatFieldPosition(fieldPosition, offenseTeam, defenseTeam);
+            string position = FormatFieldPosition(fieldPosition, homeTeam, awayTeam);
 
             if (position == "50")
             {
@@ -75,6 +83,13 @@ namespace DomainObjects.Helpers
             }
 
             return $"{position} yard line";
+        }
+
+        // Backwards compatibility overload - DEPRECATED
+        public static string FormatFieldPositionWithYardLine(int fieldPosition, Team? offenseTeam = null, Team? defenseTeam = null)
+        {
+            // This overload is deprecated but kept for backwards compatibility
+            return FormatFieldPositionWithYardLine(fieldPosition, offenseTeam, defenseTeam);
         }
 
         /// <summary>
