@@ -139,7 +139,8 @@ namespace UnitTestProject1
             var game = CreateGameAtFieldPosition(99, Possession.Home);
             SetPlayerSkills(game, 50, 90); // Weak vs strong
 
-            var rng = RunPlayScenarios.BadBlocking(yards: 0); // Stuffed, 0 yards
+            // Custom skills (50 vs 90) change baseYards to 1.0 instead of 3.0, so override random value
+            var rng = RunPlayScenarios.BadBlocking(yards: 0, yardsRandomOverride: 0.56); // Stuffed, 0 yards
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -330,7 +331,8 @@ namespace UnitTestProject1
         {
             var game = CreateGameAtFieldPosition(99, Possession.Home);
             SetPlayerSkills(game, 50, 90);
-            var rng = RunPlayScenarios.BadBlocking(yards: 0);
+            // Custom skills (50 vs 90) require override for precise 0 yards
+            var rng = RunPlayScenarios.BadBlocking(yards: 0, yardsRandomOverride: 0.56);
 
             ExecuteRunPlayWithResult(game, rng);
 

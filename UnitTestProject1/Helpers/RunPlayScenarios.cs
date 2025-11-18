@@ -152,13 +152,15 @@ namespace UnitTestProject1.Helpers
         /// Blocking check fails (>= 0.5 threshold).
         /// </summary>
         /// <param name="yards">Target yards to gain (calculates precise random value, often results in minimal/no gain)</param>
-        public static TestFluentSeedableRandom BadBlocking(int yards)
+        /// <param name="yardsRandomOverride">Optional override for yards random value (use when custom player skills affect calculation)</param>
+        public static TestFluentSeedableRandom BadBlocking(int yards, double? yardsRandomOverride = null)
         {
             // Calculate the precise NextDouble value needed to produce the desired yardage
-            // With bad blocking multiplier of 0.8
+            // Formula assumes typical 50/50 skills (baseYards ~= 3.0)
+            // For custom skills, use yardsRandomOverride parameter
             double targetBase = Math.Ceiling(yards / 0.8);
             double randomFactor = targetBase - 3.0;
-            double nextDouble = (randomFactor + 15.0) / 25.0;
+            double nextDouble = yardsRandomOverride ?? ((randomFactor + 15.0) / 25.0);
             nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble));
 
             return new TestFluentSeedableRandom()

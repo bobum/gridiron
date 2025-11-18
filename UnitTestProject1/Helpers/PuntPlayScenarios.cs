@@ -337,7 +337,7 @@ namespace UnitTestProject1.Helpers
                 .NextDouble(0.7)                   // Good hang time
                 .NextDouble(0.99)                  // No kicker penalty
                 .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.2);                  // DOWNED!
+                .NextDouble(0.05);                 // DOWNED! (< 15% baseline threshold, works from any field position)
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace UnitTestProject1.Helpers
                 .NextDouble(0.7)                   // Good hang time
                 .NextDouble(0.99)                  // No kicker penalty
                 .NextDouble(0.8)                   // Not out of bounds
-                .NextDouble(0.05);                 // DOWNED near goal line
+                .NextDouble(0.01);                 // DOWNED near goal line (very low to guarantee even at baseline)
         }
 
         #endregion
@@ -415,7 +415,7 @@ namespace UnitTestProject1.Helpers
             return new TestFluentSeedableRandom()
                 .NextDouble(0.99)                  // No bad snap
                 .NextDouble(0.99)                  // No block
-                .NextDouble(0.6)                   // Punt distance
+                .NextDouble(0.35)                  // Punt distance (~45 yards, avoids touchback from midfield)
                 .NextDouble(0.5)                   // Hang time
                 .NextDouble(0.99)                  // No kicker penalty
                 .NextDouble(0.8)                   // Not out of bounds
@@ -438,7 +438,7 @@ namespace UnitTestProject1.Helpers
             return new TestFluentSeedableRandom()
                 .NextDouble(0.99)                  // No bad snap
                 .NextDouble(0.99)                  // No block
-                .NextDouble(0.6)                   // Punt distance
+                .NextDouble(0.35)                  // Punt distance (~45 yards, avoids touchback from midfield)
                 .NextDouble(0.5)                   // Hang time
                 .NextDouble(0.99)                  // No kicker penalty
                 .NextDouble(0.8)                   // Not out of bounds
