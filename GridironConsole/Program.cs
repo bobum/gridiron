@@ -25,12 +25,10 @@ class Program
         Console.ReadLine();
         Console.WriteLine();
 
-        // Set up logger to display play-by-play
+        // Set up clean logger that only outputs messages (no log level, category, etc.)
         var loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder
-                .AddConsole()
-                .SetMinimumLevel(LogLevel.Information);
+            builder.AddCleanConsole(LogLevel.Information);
         });
         var logger = loggerFactory.CreateLogger<GameFlow>();
 
