@@ -788,13 +788,13 @@ namespace UnitTestProject1
             var play = (FieldGoalPlay)game.CurrentPlay;
             play.IsGood = false; // Missed FG
 
-            // Add defensive penalty (running into kicker, 5 yards, automatic first down)
+            // Add defensive penalty (roughing the kicker, 15 yards, automatic first down)
             play.Penalties = new List<Penalty>
             {
                 new Penalty
                 {
-                    Name = PenaltyNames.RunningIntotheKicker,
-                    Yards = 5,
+                    Name = PenaltyNames.RoughingtheKicker,
+                    Yards = 15,
                     CalledOn = Possession.Away,
                     Accepted = true
                 }

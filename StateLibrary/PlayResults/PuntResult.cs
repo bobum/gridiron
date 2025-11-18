@@ -16,6 +16,22 @@ namespace StateLibrary.PlayResults
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
 
+            // Check for penalties first - they may negate or modify the result
+            var hasPenalties = play.Penalties != null && play.Penalties.Any();
+            if (hasPenalties)
+            {
+                // Handle penalties first to see if they affect the result
+                HandlePenalties(game, play);
+
+                // If penalties were accepted, they handle all game state, so we're done
+                var hasAcceptedPenalties = play.Penalties.Any(p => p.Accepted);
+                if (hasAcceptedPenalties)
+                {
+                    LogPuntSummary(play);
+                    return;
+                }
+            }
+
             // Handle safety (bad snap into end zone or tackled in end zone)
             if (play.IsSafety)
             {
@@ -81,9 +97,6 @@ namespace StateLibrary.PlayResults
                 game.CurrentDown = Downs.First;
                 game.YardsToGo = 10;
             }
-
-            // Handle penalties if any occurred
-            HandlePenalties(game, play);
 
             // Log final punt summary
             LogPuntSummary(play);
@@ -159,19 +172,13 @@ namespace StateLibrary.PlayResults
                 play.PossessionChange = false; // Punting team retains possession
                 play.Result.LogInformation($"Automatic first down from penalty. Ball at the {game.FieldPosition} yard line.");
             }
-            else if (enforcementResult.NewDown == Downs.First && enforcementResult.NewYardsToGo == 10)
-            {
-                // First down achieved or possession change
-                game.CurrentDown = Downs.First;
-                game.YardsToGo = 10;
-                play.Result.LogInformation($"Ball at the {game.FieldPosition} yard line.");
-            }
             else
             {
-                // Update down and distance from enforcement result
-                game.CurrentDown = enforcementResult.NewDown;
-                game.YardsToGo = Math.Max(1, enforcementResult.NewYardsToGo);
-                play.Result.LogInformation($"After penalty: {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                // Regular punt penalty - possession changes after enforcement
+                game.CurrentDown = Downs.First;
+                game.YardsToGo = 10;
+                play.PossessionChange = true; // Possession changes on punts (unless automatic first down for punting team)
+                play.Result.LogInformation($"Penalty enforced. Ball at the {game.FieldPosition} yard line. 1st and 10.");
             }
         }
 
@@ -182,6 +189,14 @@ namespace StateLibrary.PlayResults
         {
             if (play.Penalties == null || !play.Penalties.Any())
                 return;
+
+            // Skip if already explicitly accepted or declined (e.g., in tests or scenarios)
+            var hasExplicitAcceptance = play.Penalties.Any(p => p.Accepted);
+            if (hasExplicitAcceptance)
+            {
+                // Don't override explicit acceptance decisions
+                return;
+            }
 
             foreach (var penalty in play.Penalties)
             {
