@@ -930,6 +930,218 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region Penalty Tests
+
+        [TestMethod]
+        public void KickoffResult_KickingTeamPenalty_Rekick()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            game.FieldPosition = 35;
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 25; // Normal touchback
+            play.Touchback = true;
+
+            // Add kicking team penalty (offsides, 5 yards)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.OffsideonFreeKick,
+                    Yards = 5,
+                    CalledOn = Possession.Home,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - Penalty enforced, rekick from 5 yards closer
+            Assert.AreEqual(40, game.FieldPosition, "Should rekick from 5 yards closer (35 + 5)");
+        }
+
+        [TestMethod]
+        public void KickoffResult_ReceivingTeamPenalty_EnforcedOnReturn()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 40; // Returned to 40
+            play.Touchback = false;
+
+            // Add receiving team holding penalty (10 yards)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.OffensiveHolding,
+                    Yards = 10,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - Penalty enforced from end of return
+            Assert.AreEqual(30, game.FieldPosition, "Should be moved back 10 yards (40 - 10)");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down");
+        }
+
+        [TestMethod]
+        public void KickoffResult_OffsettingPenalties_Rekick()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            game.FieldPosition = 35;
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 30;
+
+            // Add offsetting penalties
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.DefensiveHolding,
+                    Yards = 10,
+                    CalledOn = Possession.Home,
+                    Accepted = true
+                },
+                new Penalty
+                {
+                    Name = PenaltyNames.OffensiveHolding,
+                    Yards = 10,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - Offsetting penalties, rekick from original spot
+            Assert.AreEqual(35, game.FieldPosition, "Should rekick from original spot");
+        }
+
+        [TestMethod]
+        public void KickoffResult_PenaltyOnTouchdownReturn_StillScores()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 100;
+            play.IsTouchdown = true;
+
+            // Add kicking team penalty (doesn't negate TD)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.FaceMask15Yards,
+                    Yards = 15,
+                    CalledOn = Possession.Home,
+                    Accepted = false  // Should be declined since TD stands
+                }
+            };
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - TD should stand
+            Assert.AreEqual(100, game.FieldPosition, "Should be at goal line");
+            Assert.IsTrue(play.IsTouchdown, "Should be a touchdown");
+        }
+
+        [TestMethod]
+        public void KickoffResult_PenaltyPushesIntoEndZone_Touchdown()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            game.FieldPosition = 88; // Near goal line
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 88;
+
+            // Add kicking team penalty that pushes returner into end zone
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.FaceMask15Yards,
+                    Yards = 15,
+                    CalledOn = Possession.Home,  // Kicking team
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - Should result in touchdown
+            Assert.AreEqual(100, game.FieldPosition, "Should be pushed into end zone");
+            Assert.IsTrue(play.IsTouchdown, "Should be a touchdown");
+        }
+
+        [TestMethod]
+        public void KickoffResult_PenaltyPushesIntoOwnEndZone_Safety()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            game.FieldPosition = 8; // Near own goal line
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 8;
+
+            // Add receiving team penalty that pushes them into own end zone
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.OffensiveHolding,
+                    Yards = 10,
+                    CalledOn = Possession.Away,  // Receiving team
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - Should result in safety
+            Assert.AreEqual(0, game.FieldPosition, "Should be at goal line");
+            Assert.IsTrue(play.IsSafety, "Should be a safety");
+        }
+
+        [TestMethod]
+        public void KickoffResult_NoPenalties_NormalExecution()
+        {
+            // Arrange
+            var game = CreateGameWithKickoffPlay();
+            var play = (KickoffPlay)game.CurrentPlay;
+            play.EndFieldPosition = 30;
+            play.Touchback = false;
+
+            // No penalties
+            play.Penalties = new List<Penalty>();
+
+            // Act
+            var kickoffResult = new KickoffResult();
+            kickoffResult.Execute(game);
+
+            // Assert - Normal kickoff return
+            Assert.AreEqual(30, game.FieldPosition, "Should be at return spot");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+        }
+
+        #endregion
+
         #region Helper Methods
 
         private Game CreateGameWithKickoffPlay()

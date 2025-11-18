@@ -776,6 +776,223 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region Penalty Tests
+
+        [TestMethod]
+        public void FieldGoalResult_DefensivePenalty_AutomaticFirstDown()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(false);
+            game.FieldPosition = 70; // 30-yard line
+            game.CurrentDown = Downs.Fourth;
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.IsGood = false; // Missed FG
+
+            // Add defensive penalty (roughing the kicker, 15 yards, automatic first down)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.RoughingtheKicker,
+                    Yards = 15,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - Penalty gives automatic first down
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down from penalty");
+            Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
+            Assert.IsFalse(play.PossessionChange, "Kicking team should retain possession");
+        }
+
+        [TestMethod]
+        public void FieldGoalResult_OffensivePenalty_Rekick()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(false);
+            game.FieldPosition = 70;
+            game.CurrentDown = Downs.Fourth;
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.IsGood = true; // Good FG
+
+            // Add offensive penalty (delay of game, 5 yards)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.DelayofGame,
+                    Yards = 5,
+                    CalledOn = Possession.Home,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - Penalty moves FG attempt back
+            Assert.AreEqual(65, game.FieldPosition, "Should move back 5 yards (70 - 5)");
+        }
+
+        [TestMethod]
+        public void FieldGoalResult_PAT_DefensivePenalty_Retry()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(true); // PAT
+            game.FieldPosition = 98; // 2-yard line for PAT
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.IsGood = false; // Missed PAT
+            play.IsExtraPoint = true;
+
+            // Add defensive penalty (offsides, 5 yards)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.DefensiveOffside,
+                    Yards = 5,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - PAT can be retried from closer (half the distance)
+            Assert.IsTrue(game.FieldPosition > 98, "Should move closer to goal line");
+        }
+
+        [TestMethod]
+        public void FieldGoalResult_PAT_OffensivePenalty_RetryFurtherBack()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(true); // PAT
+            game.FieldPosition = 98; // 2-yard line for PAT
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.IsGood = true; // Good PAT
+            play.IsExtraPoint = true;
+
+            // Add offensive penalty (false start, 5 yards)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.FalseStart,
+                    Yards = 5,
+                    CalledOn = Possession.Home,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - PAT retry from further back
+            Assert.AreEqual(93, game.FieldPosition, "Should move back 5 yards (98 - 5)");
+        }
+
+        [TestMethod]
+        public void FieldGoalResult_OffsettingPenalties_Rekick()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(false);
+            game.FieldPosition = 70;
+            game.CurrentDown = Downs.Fourth;
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.IsGood = false; // Missed
+
+            // Add offsetting penalties
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.OffensiveOffside,
+                    Yards = 5,
+                    CalledOn = Possession.Home,
+                    Accepted = true
+                },
+                new Penalty
+                {
+                    Name = PenaltyNames.Encroachment,
+                    Yards = 5,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - Offsetting penalties, rekick from same spot
+            Assert.AreEqual(70, game.FieldPosition, "Field position should remain unchanged");
+            Assert.AreEqual(Downs.Fourth, game.CurrentDown, "Should still be fourth down for rekick");
+        }
+
+        [TestMethod]
+        public void FieldGoalResult_BlockedFieldGoalWithPenalty_Enforced()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(false);
+            game.FieldPosition = 70;
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.Blocked = true;
+            play.YardsGained = -5; // Blocked, lost yards
+            play.RecoveredBy = new Player { LastName = "Defender", Position = Positions.DT };
+
+            // Add defensive penalty (roughing the kicker, 15 yards, automatic first down)
+            play.Penalties = new List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = PenaltyNames.RoughingtheKicker,
+                    Yards = 15,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - Penalty negates block, gives automatic first down
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down from penalty");
+            Assert.IsFalse(play.PossessionChange, "Kicking team should retain possession");
+        }
+
+        [TestMethod]
+        public void FieldGoalResult_NoPenalties_NormalExecution()
+        {
+            // Arrange
+            var game = CreateGameWithFieldGoalPlay(false);
+            game.FieldPosition = 70;
+            var play = (FieldGoalPlay)game.CurrentPlay;
+            play.IsGood = true;
+
+            // No penalties
+            play.Penalties = new List<Penalty>();
+
+            // Act
+            var fieldGoalResult = new FieldGoalResult();
+            fieldGoalResult.Execute(game);
+
+            // Assert - Normal FG execution
+            Assert.IsTrue(play.PossessionChange, "Possession should change after score");
+            Assert.AreEqual(3, game.HomeScore, "Should score 3 points");
+        }
+
+        #endregion
+
         #region Helper Methods
 
         private Game CreateGameWithFieldGoalPlay(bool isExtraPoint)
