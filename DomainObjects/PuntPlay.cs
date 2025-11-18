@@ -47,6 +47,11 @@ namespace DomainObjects
         public Player? Punter { get; set; }
 
         /// <summary>
+        /// The long snapper
+        /// </summary>
+        public Player? LongSnapper { get; set; }
+
+        /// <summary>
         /// Distance the punt traveled in the air
         /// </summary>
         public int PuntDistance { get; set; }

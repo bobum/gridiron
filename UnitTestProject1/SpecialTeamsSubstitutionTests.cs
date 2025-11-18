@@ -81,10 +81,18 @@ namespace UnitTestProject1
             _prePlay.Execute(_game);
 
             // Assert
-            var kicker = _game.CurrentPlay.OffensePlayersOnField
-                .FirstOrDefault(p => p.Position == Positions.K || p.Position == Positions.P);
+            var kickoffPlay = (KickoffPlay)_game.CurrentPlay;
 
-            Assert.IsNotNull(kicker, "Kickoff offense must have a kicker (K or P)");
+            // Verify the Kicker property is set
+            Assert.IsNotNull(kickoffPlay.Kicker, "KickoffPlay.Kicker property should be set");
+
+            // Verify the kicker is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(kickoffPlay.Kicker),
+                "Kicker should be in OffensePlayersOnField");
+
+            // Verify the kicker has position K or P (punter can be fallback)
+            Assert.IsTrue(kickoffPlay.Kicker.Position == Positions.K || kickoffPlay.Kicker.Position == Positions.P,
+                "Kicker should have position K or P");
         }
 
         [TestMethod]
@@ -157,45 +165,65 @@ namespace UnitTestProject1
         [TestMethod]
         public void PuntPlay_OffenseHasPunter()
         {
-            // Arrange
-            _game.CurrentPlay = new PuntPlay
+            // Arrange - Create a safety so next play will be free kick (PuntPlay)
+            var safety = new RunPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.Fourth,
-                StartTime = 0
+                Down = Downs.First,
+                StartTime = 0,
+                StopTime = 5,
+                IsSafety = true
             };
+            _game.Plays.Add(safety);
 
             // Act
             _prePlay.Execute(_game);
 
             // Assert
-            // Punt offense should have 11 unique players
-            // Note: We don't check Position enum because players play different roles on special teams
-            // (e.g., a QB might be the holder, but their Position is still QB, not H)
-            Assert.AreEqual(11, _game.CurrentPlay.OffensePlayersOnField.Count);
-            var distinctPlayers = _game.CurrentPlay.OffensePlayersOnField.Distinct().Count();
-            Assert.AreEqual(11, distinctPlayers, "All punt offense players should be unique");
+            var puntPlay = (PuntPlay)_game.CurrentPlay;
+
+            // Verify the Punter property is set
+            Assert.IsNotNull(puntPlay.Punter, "PuntPlay.Punter property should be set");
+
+            // Verify the punter is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(puntPlay.Punter),
+                "Punter should be in OffensePlayersOnField");
+
+            // Verify the punter has the correct position
+            Assert.AreEqual(Positions.P, puntPlay.Punter.Position,
+                "Punter should have position P");
         }
 
         [TestMethod]
         public void PuntPlay_OffenseHasLongSnapper()
         {
-            // Arrange
-            _game.CurrentPlay = new PuntPlay
+            // Arrange - Create a safety so next play will be free kick (PuntPlay)
+            var safety = new RunPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.Fourth,
-                StartTime = 0
+                Down = Downs.First,
+                StartTime = 0,
+                StopTime = 5,
+                IsSafety = true
             };
+            _game.Plays.Add(safety);
 
             // Act
             _prePlay.Execute(_game);
 
             // Assert
-            // Verify we have 11 unique players (depth chart organization ensures right roles)
-            Assert.AreEqual(11, _game.CurrentPlay.OffensePlayersOnField.Count);
-            var distinctPlayers = _game.CurrentPlay.OffensePlayersOnField.Distinct().Count();
-            Assert.AreEqual(11, distinctPlayers, "All punt offense players should be unique");
+            var puntPlay = (PuntPlay)_game.CurrentPlay;
+
+            // Verify the LongSnapper property is set
+            Assert.IsNotNull(puntPlay.LongSnapper, "PuntPlay.LongSnapper property should be set");
+
+            // Verify the long snapper is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(puntPlay.LongSnapper),
+                "LongSnapper should be in OffensePlayersOnField");
+
+            // Verify the long snapper has the correct position
+            Assert.AreEqual(Positions.LS, puntPlay.LongSnapper.Position,
+                "LongSnapper should have position LS");
         }
 
         [TestMethod]
@@ -268,67 +296,105 @@ namespace UnitTestProject1
         [TestMethod]
         public void FieldGoalPlay_OffenseHasKicker()
         {
-            // Arrange
-            _game.CurrentPlay = new FieldGoalPlay
+            // Arrange - Create a touchdown so next play will be extra point (FieldGoalPlay)
+            // Advance RNG state to ensure we get FieldGoalPlay (not 2-point conversion)
+            for (int i = 0; i < 10; i++) _rng.NextDouble();
+
+            var touchdown = new RunPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.Fourth,
+                Down = Downs.First,
                 StartTime = 0,
-                IsExtraPoint = false
+                StopTime = 5,
+                IsTouchdown = true
             };
+            _game.Plays.Add(touchdown);
 
             // Act
             _prePlay.Execute(_game);
 
             // Assert
-            var kicker = _game.CurrentPlay.OffensePlayersOnField
-                .FirstOrDefault(p => p.Position == Positions.K);
+            var fieldGoalPlay = (FieldGoalPlay)_game.CurrentPlay;
 
-            Assert.IsNotNull(kicker, "Field goal unit must have a kicker (K)");
+            // Verify the Kicker property is set
+            Assert.IsNotNull(fieldGoalPlay.Kicker, "FieldGoalPlay.Kicker property should be set");
+
+            // Verify the kicker is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(fieldGoalPlay.Kicker),
+                "Kicker should be in OffensePlayersOnField");
+
+            // Verify the kicker has the correct position
+            Assert.AreEqual(Positions.K, fieldGoalPlay.Kicker.Position,
+                "Kicker should have position K");
         }
 
         [TestMethod]
         public void FieldGoalPlay_OffenseHasHolder()
         {
-            // Arrange
-            _game.CurrentPlay = new FieldGoalPlay
+            // Arrange - Create a touchdown so next play will be extra point (FieldGoalPlay)
+            // Advance RNG state to ensure we get FieldGoalPlay (not 2-point conversion)
+            for (int i = 0; i < 10; i++) _rng.NextDouble();
+
+            var touchdown = new RunPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.Fourth,
+                Down = Downs.First,
                 StartTime = 0,
-                IsExtraPoint = false
+                StopTime = 5,
+                IsTouchdown = true
             };
+            _game.Plays.Add(touchdown);
 
             // Act
             _prePlay.Execute(_game);
 
             // Assert
-            // Verify we have 11 unique players (depth chart includes holder role)
-            Assert.AreEqual(11, _game.CurrentPlay.OffensePlayersOnField.Count);
-            var distinctPlayers = _game.CurrentPlay.OffensePlayersOnField.Distinct().Count();
-            Assert.AreEqual(11, distinctPlayers, "Field goal unit should have 11 unique players");
+            var fieldGoalPlay = (FieldGoalPlay)_game.CurrentPlay;
+
+            // Verify the Holder property is set
+            Assert.IsNotNull(fieldGoalPlay.Holder, "FieldGoalPlay.Holder property should be set");
+
+            // Verify the holder is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(fieldGoalPlay.Holder),
+                "Holder should be in OffensePlayersOnField");
+
+            // Note: Holder position can be H, P, or QB (backup QB often holds)
+            // Just verify the holder is a valid player
         }
 
         [TestMethod]
         public void FieldGoalPlay_OffenseHasLongSnapper()
         {
-            // Arrange
-            _game.CurrentPlay = new FieldGoalPlay
+            // Arrange - Create a touchdown so next play will be extra point (FieldGoalPlay)
+            // Advance RNG state to ensure we get FieldGoalPlay (not 2-point conversion)
+            for (int i = 0; i < 10; i++) _rng.NextDouble();
+
+            var touchdown = new RunPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.Fourth,
+                Down = Downs.First,
                 StartTime = 0,
-                IsExtraPoint = false
+                StopTime = 5,
+                IsTouchdown = true
             };
+            _game.Plays.Add(touchdown);
 
             // Act
             _prePlay.Execute(_game);
 
             // Assert
-            // Verify we have 11 unique players (depth chart includes long snapper role)
-            Assert.AreEqual(11, _game.CurrentPlay.OffensePlayersOnField.Count);
-            var distinctPlayers = _game.CurrentPlay.OffensePlayersOnField.Distinct().Count();
-            Assert.AreEqual(11, distinctPlayers, "Field goal unit should have 11 unique players");
+            var fieldGoalPlay = (FieldGoalPlay)_game.CurrentPlay;
+
+            // Verify the LongSnapper property is set
+            Assert.IsNotNull(fieldGoalPlay.LongSnapper, "FieldGoalPlay.LongSnapper property should be set");
+
+            // Verify the long snapper is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(fieldGoalPlay.LongSnapper),
+                "LongSnapper should be in OffensePlayersOnField");
+
+            // Verify the long snapper has the correct position
+            Assert.AreEqual(Positions.LS, fieldGoalPlay.LongSnapper.Position,
+                "LongSnapper should have position LS");
         }
 
         [TestMethod]
@@ -454,29 +520,47 @@ namespace UnitTestProject1
             _prePlay.Execute(_game);
 
             // Assert
-            var kicker = _game.CurrentPlay.OffensePlayersOnField
-                .FirstOrDefault(p => p.Position == Positions.K || p.Position == Positions.P);
+            var kickoffPlay = (KickoffPlay)_game.CurrentPlay;
 
-            Assert.IsNotNull(kicker, "Away team kickoff offense must have a kicker");
+            // Verify the Kicker property is set
+            Assert.IsNotNull(kickoffPlay.Kicker, "KickoffPlay.Kicker property should be set for away team");
+
+            // Verify the kicker is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(kickoffPlay.Kicker),
+                "Kicker should be in OffensePlayersOnField");
+
+            // Verify we have 11 players
             Assert.AreEqual(11, _game.CurrentPlay.OffensePlayersOnField.Count);
         }
 
         [TestMethod]
         public void PuntPlay_AwayTeamOffenseHasPunter()
         {
-            // Arrange
-            _game.CurrentPlay = new PuntPlay
+            // Arrange - Create a safety by away team so next play will be free kick (PuntPlay)
+            var safety = new RunPlay
             {
                 Possession = Possession.Away,
-                Down = Downs.Fourth,
-                StartTime = 0
+                Down = Downs.First,
+                StartTime = 0,
+                StopTime = 5,
+                IsSafety = true
             };
+            _game.Plays.Add(safety);
 
             // Act
             _prePlay.Execute(_game);
 
             // Assert
-            // Verify away team has 11 unique players
+            var puntPlay = (PuntPlay)_game.CurrentPlay;
+
+            // Verify the Punter property is set
+            Assert.IsNotNull(puntPlay.Punter, "PuntPlay.Punter property should be set for away team");
+
+            // Verify the punter is in OffensePlayersOnField
+            Assert.IsTrue(_game.CurrentPlay.OffensePlayersOnField.Contains(puntPlay.Punter),
+                "Punter should be in OffensePlayersOnField");
+
+            // Verify we have 11 unique players
             Assert.AreEqual(11, _game.CurrentPlay.OffensePlayersOnField.Count);
             var distinctPlayers = _game.CurrentPlay.OffensePlayersOnField.Distinct().Count();
             Assert.AreEqual(11, distinctPlayers, "Away team punt offense should have 11 unique players");
