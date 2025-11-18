@@ -111,12 +111,13 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPosition_WithoutTeams_UsesGenericFormat()
         {
-            // Without team objects, should use "Own" and "Opp"
+            // Without team objects, returns just the numeric position
+            // With absolute positioning, there's no "Own" or "Opp" concept - it's always based on territory
             var result1 = FieldPositionHelper.FormatFieldPosition(20, null, null);
-            Assert.AreEqual("Own 20", result1);
+            Assert.AreEqual("20", result1);
 
             var result2 = FieldPositionHelper.FormatFieldPosition(60, null, null);
-            Assert.AreEqual("Opp 40", result2);
+            Assert.AreEqual("40", result2); // 100-60 = 40 (in away territory)
         }
 
         [TestMethod]
