@@ -305,7 +305,7 @@ namespace StateLibrary.Actions
         {
             // Punt team needs: P, LS (long snapper), coverage players
             TryAddUniquePlayers(chart, Positions.P, 1, playersOnField);
-            TryAddUniquePlayers(chart, Positions.C, 1, playersOnField); // Long snapper
+            TryAddUniquePlayers(chart, Positions.LS, 1, playersOnField); // Long snapper
 
             // Fill remaining spots with coverage team (flexible)
             TryAddUniquePlayers(chart, Positions.LB, 3, playersOnField);
@@ -319,10 +319,10 @@ namespace StateLibrary.Actions
 
         private void SubstituteFieldGoalOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
-            // Field goal unit needs: K, holder (usually P or QB), LS, linemen to protect
+            // Field goal unit needs: K, holder (H), LS (long snapper), linemen to protect
             TryAddUniquePlayers(chart, Positions.K, 1, playersOnField);
-            TryAddUniquePlayers(chart, Positions.P, 1, playersOnField); // Holder
-            TryAddUniquePlayers(chart, Positions.C, 1, playersOnField); // Long snapper
+            TryAddUniquePlayers(chart, Positions.H, 1, playersOnField); // Holder
+            TryAddUniquePlayers(chart, Positions.LS, 1, playersOnField); // Long snapper
 
             // Protection (flexible)
             TryAddUniquePlayers(chart, Positions.G, 2, playersOnField);

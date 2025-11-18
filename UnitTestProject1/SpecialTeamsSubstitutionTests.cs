@@ -191,9 +191,9 @@ namespace UnitTestProject1
 
             // Assert
             var longSnapper = _game.CurrentPlay.OffensePlayersOnField
-                .FirstOrDefault(p => p.Position == Positions.C);
+                .FirstOrDefault(p => p.Position == Positions.LS);
 
-            Assert.IsNotNull(longSnapper, "Punt offense must have a long snapper (C)");
+            Assert.IsNotNull(longSnapper, "Punt offense must have a long snapper (LS)");
         }
 
         [TestMethod]
@@ -300,9 +300,9 @@ namespace UnitTestProject1
 
             // Assert
             var holder = _game.CurrentPlay.OffensePlayersOnField
-                .FirstOrDefault(p => p.Position == Positions.P);
+                .FirstOrDefault(p => p.Position == Positions.H);
 
-            Assert.IsNotNull(holder, "Field goal unit must have a holder (P)");
+            Assert.IsNotNull(holder, "Field goal unit must have a holder (H)");
         }
 
         [TestMethod]
@@ -322,9 +322,9 @@ namespace UnitTestProject1
 
             // Assert
             var longSnapper = _game.CurrentPlay.OffensePlayersOnField
-                .FirstOrDefault(p => p.Position == Positions.C);
+                .FirstOrDefault(p => p.Position == Positions.LS);
 
-            Assert.IsNotNull(longSnapper, "Field goal unit must have a long snapper (C)");
+            Assert.IsNotNull(longSnapper, "Field goal unit must have a long snapper (LS)");
         }
 
         [TestMethod]
