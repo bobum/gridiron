@@ -117,7 +117,7 @@ namespace UnitTestProject1
                 defensiveTeam.DefenseDepthChart.Chart[Positions.DT][1],
                 defensiveTeam.DefenseDepthChart.Chart[Positions.LB][0],
                 defensiveTeam.DefenseDepthChart.Chart[Positions.LB][1],
-                defensiveTeam.DefenseDepthChart.Chart[Positions.OLB][0],
+                defensiveTeam.DefenseDepthChart.Chart[Positions.LB][2],
                 defensiveTeam.DefenseDepthChart.Chart[Positions.CB][0],
                 defensiveTeam.DefenseDepthChart.Chart[Positions.CB][1],
                 defensiveTeam.DefenseDepthChart.Chart[Positions.S][0],
