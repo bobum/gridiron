@@ -101,11 +101,11 @@ namespace DomainObjects.Helpers
             var chart = new DepthChart();
             chart.Chart[Positions.K] = GetDepth(players, Positions.K, 1);      // Kicker
             chart.Chart[Positions.LS] = GetDepth(players, Positions.LS, 1);    // Long Snapper
-            chart.Chart[Positions.H] = GetDepth(players, Positions.QB, 1); // Holder (often a backup QB or P)
-            chart.Chart[Positions.TE] = GetDepth(players, Positions.TE, 2);    // Blocking
-            chart.Chart[Positions.G] = GetDepth(players, Positions.G, 2);      // Blocking
-            chart.Chart[Positions.T] = GetDepth(players, Positions.T, 3);      // Blocking (need 3 for 11 total)
-            chart.Chart[Positions.C] = GetDepth(players, Positions.C, 1);      // Center
+            chart.Chart[Positions.H] = GetDepth(players, Positions.QB, 1);     // Holder (often a backup QB or P)
+            chart.Chart[Positions.G] = GetDepth(players, Positions.G, 2);      // Guard blocking
+            chart.Chart[Positions.T] = GetDepth(players, Positions.T, 2);      // Tackle blocking
+            chart.Chart[Positions.TE] = GetDepth(players, Positions.TE, 2);    // Tight end blocking
+            chart.Chart[Positions.FB] = GetDepth(players, Positions.FB, 2);    // Fullback protection
             string json = JsonConvert.SerializeObject(chart);
             return chart;
         }
