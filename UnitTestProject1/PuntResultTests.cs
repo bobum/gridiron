@@ -440,6 +440,237 @@ namespace UnitTestProject1
 
         #endregion
 
+        #region Penalty Tests
+
+        [TestMethod]
+        public void PuntResult_DefensivePenaltyAccepted_AutomaticFirstDown()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            game.CurrentDown = Downs.Fourth;
+            game.YardsToGo = 10;
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 35; // Punt goes 35 yards
+            play.Downed = true;
+
+            // Add defensive holding penalty (5 yards, automatic first down)
+            play.Penalties = new System.Collections.Generic.List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = "Defensive Holding",
+                    Yards = 5,
+                    CalledOn = Possession.Away,
+                    AutomaticFirstDown = true,
+                    Accepted = false  // Will be set by acceptance logic
+                }
+            };
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Penalty should be accepted and punting team gets automatic first down
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down from penalty");
+            Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
+            Assert.IsFalse(play.PossessionChange, "Punting team should retain possession");
+        }
+
+        [TestMethod]
+        public void PuntResult_OffensivePenaltyAccepted_Rekick()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            game.CurrentDown = Downs.Fourth;
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 25;
+            play.Downed = true;
+
+            // Add offensive holding penalty (10 yards)
+            play.Penalties = new System.Collections.Generic.List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = "Offensive Holding",
+                    Yards = 10,
+                    CalledOn = Possession.Home,
+                    Accepted = false  // Will be set by acceptance logic
+                }
+            };
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Penalty enforced, punt must be rekicked from further back
+            Assert.AreEqual(30, game.FieldPosition, "Should move back 10 yards (40 - 10)");
+        }
+
+        [TestMethod]
+        public void PuntResult_OffsettingPenalties_Rekick()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            game.CurrentDown = Downs.Fourth;
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 30;
+
+            // Add offsetting penalties
+            play.Penalties = new System.Collections.Generic.List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = "Offensive Holding",
+                    Yards = 10,
+                    CalledOn = Possession.Home,
+                    Accepted = true
+                },
+                new Penalty
+                {
+                    Name = "Defensive Pass Interference",
+                    Yards = 15,
+                    CalledOn = Possession.Away,
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Offsetting penalties, rekick from same spot
+            Assert.AreEqual(40, game.FieldPosition, "Field position should remain unchanged");
+            Assert.AreEqual(Downs.Fourth, game.CurrentDown, "Should still be fourth down for rekick");
+        }
+
+        [TestMethod]
+        public void PuntResult_PenaltyOnReturn_EnforcedFromSpot()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 35;
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 40; // Punt and return net 40 yards
+            play.ReturnSegments = new System.Collections.Generic.List<Segment>
+            {
+                new Segment { Distance = 15, Direction = 1 }
+            };
+
+            // Add defensive holding penalty during return (10 yards)
+            play.Penalties = new System.Collections.Generic.List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = "Holding on Return",
+                    Yards = 10,
+                    CalledOn = Possession.Away,  // Receiving team penalty
+                    Accepted = false  // Will be set by acceptance logic
+                }
+            };
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Penalty enforced against receiving team
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down");
+        }
+
+        [TestMethod]
+        public void PuntResult_PenaltyPushesPunterIntoEndZone_Safety()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 5; // Near own goal line
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 15;
+            play.Downed = true;
+
+            // Add offensive penalty that pushes team into own end zone
+            play.Penalties = new System.Collections.Generic.List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = "Illegal Formation",
+                    Yards = 10,
+                    CalledOn = Possession.Home,  // Punting team
+                    Accepted = true
+                }
+            };
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Should result in safety
+            Assert.AreEqual(0, game.FieldPosition, "Should be at goal line");
+            Assert.IsTrue(play.IsSafety, "Should be a safety");
+        }
+
+        [TestMethod]
+        public void PuntResult_DefensivePenaltyOnTouchdown_StillScores()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 20;
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 80; // Return for TD
+            play.IsTouchdown = true;
+            play.ReturnSegments = new System.Collections.Generic.List<Segment>
+            {
+                new Segment { Distance = 80, Direction = 1 }
+            };
+
+            // Add defensive penalty (doesn't negate TD)
+            play.Penalties = new System.Collections.Generic.List<Penalty>
+            {
+                new Penalty
+                {
+                    Name = "Unnecessary Roughness",
+                    Yards = 15,
+                    CalledOn = Possession.Home,  // Punting team (defense on return)
+                    Accepted = false  // Should be declined since TD stands
+                }
+            };
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - TD should stand
+            Assert.AreEqual(100, game.FieldPosition, "Should be at goal line");
+            Assert.IsTrue(play.IsTouchdown, "Should be a touchdown");
+        }
+
+        [TestMethod]
+        public void PuntResult_NoPenalties_NormalExecution()
+        {
+            // Arrange
+            var game = CreateGameWithPuntPlay();
+            game.FieldPosition = 40;
+            var play = (PuntPlay)game.CurrentPlay;
+            play.YardsGained = 30;
+            play.Downed = true;
+
+            // No penalties
+            play.Penalties = new System.Collections.Generic.List<Penalty>();
+
+            // Act
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // Assert - Normal punt execution
+            Assert.AreEqual(70, game.FieldPosition, "Should advance 30 yards (40 + 30)");
+            Assert.AreEqual(Downs.First, game.CurrentDown, "Should be first down");
+            Assert.IsTrue(play.PossessionChange, "Possession should change");
+        }
+
+        #endregion
+
         #region Helper Methods
 
         private Game CreateGameWithPuntPlay()

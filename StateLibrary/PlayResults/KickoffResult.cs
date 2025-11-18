@@ -1,6 +1,8 @@
 using DomainObjects;
 using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
+using StateLibrary.Services;
+using System.Linq;
 
 namespace StateLibrary.PlayResults
 {
@@ -130,6 +132,102 @@ namespace StateLibrary.PlayResults
             game.YardsToGo = 10;
 
             play.Result.LogInformation($"Kickoff return. Ball at the {game.FieldPosition}-yard line. 1st and 10.");
+
+            // Handle penalties if any occurred
+            HandlePenalties(game, play);
+        }
+
+        private void HandlePenalties(Game game, KickoffPlay play)
+        {
+            // Check if there are any penalties on the play
+            var hasAcceptedPenalties = play.Penalties != null && play.Penalties.Any();
+
+            if (!hasAcceptedPenalties)
+            {
+                return; // No penalties, nothing to do
+            }
+
+            // Apply smart acceptance/decline logic to penalties
+            var penaltyEnforcement = new PenaltyEnforcement(play.Result);
+            ApplyPenaltyAcceptanceLogic(game, play, penaltyEnforcement);
+
+            // Recheck after acceptance logic
+            hasAcceptedPenalties = play.Penalties.Any(p => p.Accepted);
+
+            if (!hasAcceptedPenalties)
+            {
+                return; // All penalties were declined
+            }
+
+            // Enforce penalties and get the result
+            var enforcementResult = penaltyEnforcement.EnforcePenalties(game, play, 0);
+
+            // Update field position based on penalty enforcement
+            var finalFieldPosition = game.FieldPosition + enforcementResult.NetYards;
+
+            // Bounds check
+            if (finalFieldPosition >= 100)
+            {
+                // Penalty pushed returner into end zone for TD
+                play.IsTouchdown = true;
+                game.FieldPosition = 100;
+                var receivingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                game.AddTouchdown(receivingTeam);
+                play.PossessionChange = true;
+                play.Result.LogInformation($"Penalty enforcement results in TOUCHDOWN!");
+                return;
+            }
+            else if (finalFieldPosition <= 0)
+            {
+                // Penalty pushed team into own end zone for safety
+                play.IsSafety = true;
+                game.FieldPosition = 0;
+                game.AddSafety(play.Possession);
+                play.PossessionChange = true;
+                play.Result.LogInformation($"Penalty enforcement results in SAFETY!");
+                return;
+            }
+
+            game.FieldPosition = finalFieldPosition;
+
+            // Apply down and distance from penalty enforcement
+            if (enforcementResult.IsOffsetting)
+            {
+                // Offsetting penalties - rekick
+                play.Result.LogInformation($"Offsetting penalties. Rekick from the {game.FieldPosition}.");
+            }
+            else
+            {
+                // Update down and distance
+                game.CurrentDown = Downs.First;
+                game.YardsToGo = 10;
+                play.Result.LogInformation($"After penalty: Ball at the {game.FieldPosition} yard line. 1st and 10.");
+            }
+        }
+
+        /// <summary>
+        /// Applies smart acceptance/decline logic to all penalties on the play.
+        /// </summary>
+        private void ApplyPenaltyAcceptanceLogic(Game game, KickoffPlay play, PenaltyEnforcement enforcement)
+        {
+            if (play.Penalties == null || !play.Penalties.Any())
+                return;
+
+            foreach (var penalty in play.Penalties)
+            {
+                // Determine which team committed the penalty
+                var penalizedTeam = penalty.CalledOn;
+
+                // Use smart acceptance logic
+                penalty.Accepted = enforcement.ShouldAcceptPenalty(
+                    game,
+                    penalty,
+                    penalizedTeam,
+                    play.Possession,
+                    0, // Kickoffs don't have yards gained in the same way
+                    Downs.First, // Kickoffs always result in first down
+                    game.YardsToGo);
+            }
         }
     }
 }
