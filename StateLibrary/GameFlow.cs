@@ -187,9 +187,11 @@ namespace StateLibrary
             _machine.Configure(State.PostGame)
                 .OnEntry(DoPostGame, "Game over folks!");
 
+            // Log state transitions through the logging framework (not console)
             _machine.OnTransitioned(t =>
-                Console.WriteLine(
-                    $"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
+            {
+                _logger.LogDebug($"State transition: {t.Source} -> {t.Destination} via {t.Trigger}");
+            });
         }
 
         public Game Execute()

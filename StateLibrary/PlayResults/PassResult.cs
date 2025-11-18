@@ -165,21 +165,21 @@ namespace StateLibrary.PlayResults
                     if (enforcementResult.IsOffsetting)
                     {
                         // Offsetting penalties - replay the down
-                        play.Result.LogInformation($"Offsetting penalties. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                        play.Result.LogInformation($"Offsetting penalties. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FormatFieldPosition(play.Possession)}.");
                     }
                     else if (enforcementResult.AutomaticFirstDown)
                     {
                         // Automatic first down from penalty
                         game.CurrentDown = Downs.First;
                         game.YardsToGo = 10;
-                        play.Result.LogInformation($"First down! Ball at the {game.FieldPosition} yard line.");
+                        play.Result.LogInformation($"First down! Ball at the {game.FormatFieldPositionWithYardLine(play.Possession)}.");
                     }
                     else if (enforcementResult.NewDown == Downs.First && enforcementResult.NewYardsToGo == 10)
                     {
                         // First down achieved
                         game.CurrentDown = Downs.First;
                         game.YardsToGo = 10;
-                        play.Result.LogInformation($"First down! Ball at the {game.FieldPosition} yard line.");
+                        play.Result.LogInformation($"First down! Ball at the {game.FormatFieldPositionWithYardLine(play.Possession)}.");
                     }
                     else if (enforcementResult.NewDown == Downs.None)
                     {
@@ -187,14 +187,14 @@ namespace StateLibrary.PlayResults
                         play.PossessionChange = true;
                         game.CurrentDown = Downs.First;
                         game.YardsToGo = 10;
-                        play.Result.LogInformation($"Turnover on downs! Ball at the {game.FieldPosition} yard line.");
+                        play.Result.LogInformation($"Turnover on downs! Ball at the {game.FormatFieldPositionWithYardLine(play.Possession)}.");
                     }
                     else
                     {
                         // Update down and distance from enforcement result
                         game.CurrentDown = enforcementResult.NewDown;
                         game.YardsToGo = Math.Max(1, enforcementResult.NewYardsToGo);
-                        play.Result.LogInformation($"{FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                        play.Result.LogInformation($"{FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FormatFieldPosition(play.Possession)}.");
                     }
                 }
                 else
@@ -206,7 +206,7 @@ namespace StateLibrary.PlayResults
                         // First down!
                         game.CurrentDown = Downs.First;
                         game.YardsToGo = 10;
-                        play.Result.LogInformation($"First down! Ball at the {game.FieldPosition} yard line.");
+                        play.Result.LogInformation($"First down! Ball at the {game.FormatFieldPositionWithYardLine(play.Possession)}.");
                     }
                     else
                     {
@@ -220,7 +220,7 @@ namespace StateLibrary.PlayResults
                             play.PossessionChange = true;
                             game.CurrentDown = Downs.First;
                             game.YardsToGo = 10;
-                            play.Result.LogInformation($"Turnover on downs! Ball at the {game.FieldPosition} yard line.");
+                            play.Result.LogInformation($"Turnover on downs! Ball at the {game.FormatFieldPositionWithYardLine(play.Possession)}.");
                         }
                         else
                         {
@@ -231,12 +231,12 @@ namespace StateLibrary.PlayResults
                             if (lastSegment != null && !lastSegment.IsComplete && play.YardsGained >= 0)
                             {
                                 // Incomplete pass
-                                play.Result.LogInformation($"Incomplete pass. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                                play.Result.LogInformation($"Incomplete pass. {FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FormatFieldPosition(play.Possession)}.");
                             }
                             else
                             {
                                 // Completed pass or sack
-                                play.Result.LogInformation($"{FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FieldPosition}.");
+                                play.Result.LogInformation($"{FormatDown(game.CurrentDown)} and {game.YardsToGo} at the {game.FormatFieldPosition(play.Possession)}.");
                             }
                         }
                     }

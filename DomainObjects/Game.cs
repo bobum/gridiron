@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using DomainObjects.Helpers;
 using Half = DomainObjects.Time.Half;
 
 namespace DomainObjects
@@ -24,7 +25,8 @@ namespace DomainObjects
         // Defaults to NullLogger so tests don't need to set it up
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        // Field position tracking (0 = offense's own goal line, 100 = opponent's goal line)
+        // Field position tracking (absolute position 0-100 on field, does not flip on possession changes)
+        // Use FormatFieldPosition(possession) to display in NFL notation (e.g., "Team 25 yard line")
         public int FieldPosition { get; set; } = 0; // Line of scrimmage
         public int YardsToGo { get; set; } = 10; // Yards needed for first down
         public Downs CurrentDown { get; set; } = Downs.First;
@@ -53,6 +55,50 @@ namespace DomainObjects
         {
             CurrentQuarter = Halves[0].Quarters[0];
             CurrentHalf = Halves[0];
+        }
+
+        // ========================================
+        // FIELD POSITION HELPERS
+        // ========================================
+
+        /// <summary>
+        /// Gets the offensive team (team with current possession)
+        /// </summary>
+        public Team GetOffensiveTeam(Possession possession)
+        {
+            return possession == Possession.Home ? HomeTeam : AwayTeam;
+        }
+
+        /// <summary>
+        /// Gets the defensive team (team without possession)
+        /// </summary>
+        public Team GetDefensiveTeam(Possession possession)
+        {
+            return possession == Possession.Home ? AwayTeam : HomeTeam;
+        }
+
+        /// <summary>
+        /// Formats current field position in NFL notation
+        /// </summary>
+        public string FormatFieldPosition(Possession possession)
+        {
+            return FieldPositionHelper.FormatFieldPosition(FieldPosition, HomeTeam, AwayTeam);
+        }
+
+        /// <summary>
+        /// Formats a specific field position in NFL notation
+        /// </summary>
+        public string FormatFieldPosition(int fieldPosition, Possession possession)
+        {
+            return FieldPositionHelper.FormatFieldPosition(fieldPosition, HomeTeam, AwayTeam);
+        }
+
+        /// <summary>
+        /// Formats current field position with "yard line" suffix
+        /// </summary>
+        public string FormatFieldPositionWithYardLine(Possession possession)
+        {
+            return FieldPositionHelper.FormatFieldPositionWithYardLine(FieldPosition, HomeTeam, AwayTeam);
         }
 
         // ========================================
