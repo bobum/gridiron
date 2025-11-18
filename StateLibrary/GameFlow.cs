@@ -187,9 +187,11 @@ namespace StateLibrary
             _machine.Configure(State.PostGame)
                 .OnEntry(DoPostGame, "Game over folks!");
 
-            _machine.OnTransitioned(t =>
-                Console.WriteLine(
-                    $"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
+            // Commented out to reduce console noise during game simulation
+            // Uncomment for debugging state machine transitions
+            //_machine.OnTransitioned(t =>
+            //    Console.WriteLine(
+            //        $"OnTransitioned: {t.Source} -> {t.Destination} via {t.Trigger}({string.Join(", ", t.Parameters)})"));
         }
 
         public Game Execute()
