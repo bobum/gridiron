@@ -43,10 +43,10 @@ public InjurySeverity Severity { get; set; }
    Result.Severity = DetermineSeverity();
 
     // Determine if player must leave immediately
-       // Game-ending and most moderate injuries require immediate removal
-     Result.RequiresImmediateRemoval = Result.Severity == InjurySeverity.GameEnding || 
- (Result.Severity == InjurySeverity.Moderate && _rng.NextDouble() < 0.8);
- }
+  // Game-ending and moderate injuries always require immediate removal
+    Result.RequiresImmediateRemoval = Result.Severity == InjurySeverity.GameEnding || 
+   Result.Severity == InjurySeverity.Moderate;
+    }
 
       /// <summary>
  /// Determines injury type based on position and play type.
@@ -110,16 +110,16 @@ if ((cumulative += concussion) > roll) return DomainObjects.InjuryType.Concussio
 
    if (roll < InjuryProbabilities.MINOR_INJURY_PROBABILITY)
     {
-      return InjurySeverity.Minor;
+ return InjurySeverity.Minor;
        }
 else if (roll < InjuryProbabilities.MINOR_INJURY_PROBABILITY + InjuryProbabilities.MODERATE_INJURY_PROBABILITY)
   {
 return InjurySeverity.Moderate;
       }
-         else
+     else
      {
         return InjurySeverity.GameEnding;
 }
-        }
+    }
  }
 }

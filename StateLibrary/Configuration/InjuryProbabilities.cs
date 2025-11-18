@@ -8,31 +8,31 @@ namespace StateLibrary.Configuration
     {
       // Base injury rates by play type (per play occurrence)
     /// <summary>
-    /// Base rate for run plays: 0.8% (high contact, frequent collisions)
+    /// Base rate for run plays: 3.0% (high contact, frequent collisions)
         /// </summary>
- public const double RUN_PLAY_BASE_RATE = 0.008;
+ public const double RUN_PLAY_BASE_RATE = 0.03;
 
         /// <summary>
-        /// Base rate for pass plays: 0.5% (less contact than runs)
-        /// </summary>
-      public const double PASS_PLAY_BASE_RATE = 0.005;
+   /// Base rate for pass plays: 3.0% (contact on tackles)
+    /// </summary>
+    public const double PASS_PLAY_BASE_RATE = 0.03;
 
      /// <summary>
-   /// Base rate for sacked QBs: 1.5% (vulnerable position)
+   /// Base rate for sacked QBs: 6.0% (vulnerable position, doubled from pass play)
         /// </summary>
-    public const double SACK_BASE_RATE = 0.015;
+    public const double SACK_BASE_RATE = 0.06;
 
         /// <summary>
-        /// Base rate for kickoff plays: 1.2% (highest impact collisions)
+ /// Base rate for kickoff plays: 5.0% (highest impact collisions)
 /// </summary>
-        public const double KICKOFF_BASE_RATE = 0.012;
+        public const double KICKOFF_BASE_RATE = 0.05;
 
-        /// <summary>
-     /// Base rate for punt returns: 0.9% (high-speed collisions)
+      /// <summary>
+     /// Base rate for punt returns: 4.0% (high-speed collisions)
      /// </summary>
-  public const double PUNT_RETURN_BASE_RATE = 0.009;
+  public const double PUNT_RETURN_BASE_RATE = 0.04;
 
-        /// <summary>
+ /// <summary>
         /// Base rate for field goal attempts: 0.1% (minimal contact)
         /// </summary>
         public const double FIELD_GOAL_BASE_RATE = 0.001;
@@ -70,10 +70,10 @@ namespace StateLibrary.Configuration
         public const double HIGH_CONTACT_POSITION_MULTIPLIER = 1.2;
 
         /// <summary>
-        /// QB baseline multiplier: 0.7x normal, but 1.5x on sacks
+        /// QB baseline multiplier: 0.7x normal, but 2.0x on sacks
         /// </summary>
      public const double QB_BASE_MULTIPLIER = 0.7;
-   public const double QB_SACK_MULTIPLIER = 1.5;
+   public const double QB_SACK_MULTIPLIER = 2.0;
 
     /// <summary>
         /// K/P position multiplier: 0.3x (minimal contact)

@@ -20,10 +20,12 @@ namespace StateLibrary.Plays
     public sealed class Run : IGameAction
     {
         private ISeedableRandom _rng;
+        private bool _enableInjuryChecks;
 
-        public Run(ISeedableRandom rng)
+        public Run(ISeedableRandom rng, bool enableInjuryChecks = false)
         {
             _rng = rng;
+          _enableInjuryChecks = enableInjuryChecks;
         }
 
         public void Execute(Game game)
@@ -152,17 +154,20 @@ namespace StateLibrary.Plays
             var isBigPlay = finalYards >= 20;
             var isOutOfBounds = currentFieldPosition <= 0 || currentFieldPosition >= 100;
 
-            CheckForInjury(game, play, ballCarrier, defendersInvolved, isOutOfBounds, isBigPlay, false);
+             if (_enableInjuryChecks)
+             {
+                CheckForInjury(game, play, ballCarrier, defendersInvolved, isOutOfBounds, isBigPlay, false);
 
-            // **INJURY CHECK: Tacklers (less frequent, but can happen)**
-            foreach (var tackler in tacklers)
+             // **INJURY CHECK: Tacklers (less frequent, but can happen)**
+               foreach (var tackler in tacklers)
             {
-                // Tacklers have lower injury rate (50% of ball carrier rate)
-                if (_rng.NextDouble() < 0.5)
-                {
-                    CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
-                }
-            }
+                    // Tacklers have lower injury rate (50% of ball carrier rate)
+                     if (_rng.NextDouble() < 0.5)
+         {
+                   CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
+   }
+               }
+               }
 
             // Check for fumble (before logging the narrative)
             var fumbleCheck = new FumbleOccurredSkillsCheck(
