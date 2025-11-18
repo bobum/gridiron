@@ -26,6 +26,25 @@ namespace StateLibrary.Actions
             // Assign the game's logger to this play so it can log play-by-play results
             game.CurrentPlay.Result = game.Logger;
 
+            // Log the current game situation
+            var downText = game.CurrentDown switch
+            {
+                Downs.First => "1st",
+                Downs.Second => "2nd",
+                Downs.Third => "3rd",
+                Downs.Fourth => "4th",
+                _ => "Kickoff"
+            };
+            var fieldPos = game.FormatFieldPosition(game.CurrentPlay.Possession);
+            if (game.CurrentDown == Downs.None)
+            {
+                game.Logger.LogInformation($"Kickoff at {fieldPos}");
+            }
+            else
+            {
+                game.Logger.LogInformation($"{downText} & {game.YardsToGo} at {fieldPos}");
+            }
+
             //now that we know the kind of play that is being called,
             //we sub in the right players
             SubstituteOffensivePlayers(game);
