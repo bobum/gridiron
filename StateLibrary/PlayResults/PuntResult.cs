@@ -124,10 +124,34 @@ namespace StateLibrary.PlayResults
             // Enforce penalties and get the result
             var enforcementResult = penaltyEnforcement.EnforcePenalties(game, play, play.YardsGained);
 
-            // Update field position based on penalty enforcement
-            // NetYards is positive for penalties against opponent (helps punting team)
-            // We subtract to move ball back towards receiving team's end zone
-            var finalFieldPosition = game.FieldPosition - enforcementResult.NetYards;
+            // Determine if this is a return penalty or a punting penalty
+            var isReturnPenalty = play.ReturnSegments != null && play.ReturnSegments.Any();
+            int finalFieldPosition;
+
+            if (enforcementResult.IsOffsetting)
+            {
+                // Offsetting penalties - rekick from original spot
+                finalFieldPosition = play.StartFieldPosition;
+                game.FieldPosition = finalFieldPosition;
+                play.EndFieldPosition = finalFieldPosition;
+                game.CurrentDown = Downs.Fourth; // Punts are always 4th down
+                play.PossessionChange = false; // Punting team rekicks
+                play.Result.LogInformation($"Offsetting penalties. Rekick from the {game.FieldPosition}.");
+                return;
+            }
+            else if (isReturnPenalty)
+            {
+                // Penalty during return - enforce from end of return
+                // game.FieldPosition is already set to end of return
+                // NetYards is the adjustment (positive helps punting team, negative hurts)
+                finalFieldPosition = game.FieldPosition + enforcementResult.NetYards;
+            }
+            else
+            {
+                // Penalty during punt (not return) - enforce from line of scrimmage
+                // Start from original position and apply penalty
+                finalFieldPosition = play.StartFieldPosition + enforcementResult.NetYards;
+            }
 
             // Bounds check
             if (finalFieldPosition >= 100)
@@ -147,7 +171,7 @@ namespace StateLibrary.PlayResults
                 play.IsSafety = true;
                 play.EndFieldPosition = 0;
                 game.FieldPosition = 0;
-                var scoringTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;
+                var scoringTeam = play.Possession;
                 game.AddSafety(scoringTeam);
                 play.PossessionChange = true;
                 return;
@@ -157,13 +181,7 @@ namespace StateLibrary.PlayResults
             game.FieldPosition = finalFieldPosition;
 
             // Apply down and distance from penalty enforcement
-            if (enforcementResult.IsOffsetting)
-            {
-                // Offsetting penalties - replay the down (rekick for punt)
-                game.CurrentDown = Downs.Fourth; // Punts are always 4th down
-                play.Result.LogInformation($"Offsetting penalties. Rekick from the {game.FieldPosition}.");
-            }
-            else if (enforcementResult.AutomaticFirstDown)
+            if (enforcementResult.AutomaticFirstDown)
             {
                 // Automatic first down from penalty (e.g., defensive penalty on punt)
                 game.CurrentDown = Downs.First;
