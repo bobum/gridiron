@@ -2,6 +2,7 @@
 using DomainObjects.Helpers;
 using DomainObjects.Penalties;
 using Microsoft.Extensions.Logging;
+using StateLibrary.Configuration;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
@@ -489,10 +490,10 @@ namespace StateLibrary.Plays
         {
             var random = _rng.NextDouble();
 
-            if (random < 0.15) return PassType.Screen;  // 15%
-            if (random < 0.50) return PassType.Short;   // 35%
-            if (random < 0.85) return PassType.Forward; // 35%
-            return PassType.Deep;                        // 15%
+            if (random < GameProbabilities.Passing.SCREEN_PASS_THRESHOLD) return PassType.Screen;
+            if (random < GameProbabilities.Passing.SHORT_PASS_THRESHOLD) return PassType.Short;
+            if (random < GameProbabilities.Passing.FORWARD_PASS_THRESHOLD) return PassType.Forward;
+            return PassType.Deep;
         }
 
         private int CalculateAirYards(PassType passType, int fieldPosition)

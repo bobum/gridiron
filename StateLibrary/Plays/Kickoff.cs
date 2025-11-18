@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
+using StateLibrary.Configuration;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
@@ -63,8 +64,8 @@ namespace StateLibrary.Plays
                 ? (game.HomeScore - game.AwayScore)
                 : (game.AwayScore - game.HomeScore);
 
-            // Very low probability for now - can be adjusted
-            return scoreDifferential <= -7 && _rng.NextDouble() < 0.05;
+            // Probability for onside attempt when trailing significantly
+            return scoreDifferential <= -7 && _rng.NextDouble() < GameProbabilities.Kickoffs.ONSIDE_ATTEMPT_PROBABILITY;
         }
 
         private void ExecuteOnsideKick(Game game, KickoffPlay play, Player kicker)
@@ -75,8 +76,9 @@ namespace StateLibrary.Plays
             play.Result.LogInformation($"{kicker.LastName} attempts an ONSIDE KICK!");
 
             // Recovery probability based on kicker skill and defense
-            // Onside kicks have roughly 20-30% success rate in NFL
-            var recoveryProb = 0.20 + (kicker.Kicking / 100.0) * 0.10;
+            var recoveryProb = GameProbabilities.Kickoffs.ONSIDE_RECOVERY_BASE_PROBABILITY
+                + (kicker.Kicking / GameProbabilities.Kickoffs.ONSIDE_RECOVERY_SKILL_DENOMINATOR)
+                    * GameProbabilities.Kickoffs.ONSIDE_RECOVERY_SKILL_BONUS;
 
             play.OnsideRecovered = _rng.NextDouble() < recoveryProb;
 
@@ -163,12 +165,13 @@ namespace StateLibrary.Plays
         private bool CheckOutOfBounds(int landingSpot)
         {
             // Kicks between 30-70 yards have small chance of going out of bounds
-            if (landingSpot < 65 || landingSpot > 95)
+            if (landingSpot < GameProbabilities.Kickoffs.KICKOFF_OOB_DANGER_MIN
+                || landingSpot > GameProbabilities.Kickoffs.KICKOFF_OOB_DANGER_MAX)
             {
-                return _rng.NextDouble() < 0.03; // 3% chance
+                return _rng.NextDouble() < GameProbabilities.Kickoffs.KICKOFF_OOB_NORMAL;
             }
 
-            return _rng.NextDouble() < 0.10; // 10% chance in the danger zone
+            return _rng.NextDouble() < GameProbabilities.Kickoffs.KICKOFF_OOB_DANGER_ZONE;
         }
 
         private void ExecuteKickoffReturn(Game game, KickoffPlay play, int landingSpot)
@@ -197,15 +200,15 @@ namespace StateLibrary.Plays
             var estimatedHangTime = 3.5 + (play.KickDistance / 20.0);
 
             // Check for muffed catch (similar to punt muffs)
-            var muffChance = 0.015; // 1.5% base
+            var muffChance = GameProbabilities.Kickoffs.KICKOFF_MUFF_BASE;
 
             // Higher chance on short/line-drive kicks
-            if (landingSpot < 50) // Short kick (less than ~15 yards)
-                muffChance = 0.04; // 4%
+            if (landingSpot < GameProbabilities.Kickoffs.KICKOFF_MUFF_SHORT_THRESHOLD)
+                muffChance = GameProbabilities.Kickoffs.KICKOFF_MUFF_SHORT_KICK;
 
             // Returner skill factor
             var returnerSkill = (returner.Awareness + returner.Agility) / 2.0;
-            var skillFactor = 1.0 - (returnerSkill / 150.0); // 0.33 to 1.0
+            var skillFactor = 1.0 - (returnerSkill / GameProbabilities.Kickoffs.KICKOFF_MUFF_SKILL_DENOMINATOR);
             muffChance *= skillFactor;
 
             var muffed = _rng.NextDouble() < muffChance;
@@ -450,8 +453,8 @@ namespace StateLibrary.Plays
             play.Result.LogInformation($"The kick is muffed by {returner.LastName}!");
 
             // Determine who recovers the muff
-            // Receiving team more likely to recover (60%) - similar to punt muffs
-            var receivingTeamRecoveryChance = 0.6;
+            // Receiving team more likely to recover - similar to punt muffs
+            var receivingTeamRecoveryChance = GameProbabilities.Kickoffs.KICKOFF_MUFF_RECEIVING_TEAM_RECOVERY;
             var receivingTeamRecovers = _rng.NextDouble() < receivingTeamRecoveryChance;
 
             if (receivingTeamRecovers)

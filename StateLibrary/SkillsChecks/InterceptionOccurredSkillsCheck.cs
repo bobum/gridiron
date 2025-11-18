@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System.Linq;
 
 namespace StateLibrary.SkillsChecks
@@ -44,8 +45,8 @@ namespace StateLibrary.SkillsChecks
                 ? defenders.Average(d => (d.Coverage * 2 + d.Awareness + d.Agility) / 4.0)
                 : 50;
 
-            // Base interception probability: 3.5% of incomplete passes
-            var interceptionProbability = 0.035;
+            // Base interception probability on incomplete passes
+            var interceptionProbability = GameProbabilities.Passing.INTERCEPTION_BASE_PROBABILITY;
 
             // Adjust based on skill differential
             var skillDiff = coverageSkill - qbSkill;
@@ -54,11 +55,13 @@ namespace StateLibrary.SkillsChecks
             // Pressure increases interception chance (bad throws)
             if (_underPressure)
             {
-                interceptionProbability += 0.02; // +2% under pressure
+                interceptionProbability += GameProbabilities.Passing.INTERCEPTION_PRESSURE_BONUS;
             }
 
-            // Clamp between 1% and 15%
-            interceptionProbability = Math.Max(0.01, Math.Min(0.15, interceptionProbability));
+            // Clamp to reasonable bounds
+            interceptionProbability = Math.Max(
+                GameProbabilities.Passing.INTERCEPTION_MIN_CLAMP,
+                Math.Min(GameProbabilities.Passing.INTERCEPTION_MAX_CLAMP, interceptionProbability));
 
             Occurred = _rng.NextDouble() < interceptionProbability;
         }

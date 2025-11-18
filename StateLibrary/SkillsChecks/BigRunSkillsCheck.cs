@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -20,12 +21,15 @@ namespace StateLibrary.SkillsChecks
 
         public override void Execute(Game game)
         {
-            // Base 8% chance for a big run, increased by speed
-            var speedBonus = (_ballCarrier.Speed - 70) / 500.0; // 0-6% bonus for speed above 70
-            var bigRunProbability = 0.08 + speedBonus;
+            // Base chance for a big run, increased by speed above threshold
+            var speedBonus = (_ballCarrier.Speed - GameProbabilities.Rushing.BIG_RUN_SPEED_THRESHOLD)
+                / GameProbabilities.Rushing.BIG_RUN_SPEED_DENOMINATOR;
+            var bigRunProbability = GameProbabilities.Rushing.BIG_RUN_BASE_PROBABILITY + speedBonus;
 
-            // Clamp between 3% and 15%
-            bigRunProbability = Math.Max(0.03, Math.Min(0.15, bigRunProbability));
+            // Clamp to reasonable bounds
+            bigRunProbability = Math.Max(
+                GameProbabilities.Rushing.BIG_RUN_MIN_CLAMP,
+                Math.Min(GameProbabilities.Rushing.BIG_RUN_MAX_CLAMP, bigRunProbability));
 
             Occurred = _rng.NextDouble() < bigRunProbability;
         }

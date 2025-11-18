@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System;
 
 namespace StateLibrary.SkillsChecks
@@ -36,43 +37,49 @@ namespace StateLibrary.SkillsChecks
 
             double baseMakeProbability;
 
-            if (_attemptDistance <= 30)
+            if (_attemptDistance <= GameProbabilities.FieldGoals.FG_DISTANCE_SHORT)
             {
                 // Extra points and very short field goals
-                baseMakeProbability = 0.98;
+                baseMakeProbability = GameProbabilities.FieldGoals.FG_MAKE_VERY_SHORT;
             }
-            else if (_attemptDistance <= 40)
+            else if (_attemptDistance <= GameProbabilities.FieldGoals.FG_DISTANCE_MEDIUM)
             {
                 // Routine field goals
-                baseMakeProbability = 0.90 - ((_attemptDistance - 30) * 0.01);
+                baseMakeProbability = GameProbabilities.FieldGoals.FG_MAKE_SHORT_BASE
+                    - ((_attemptDistance - GameProbabilities.FieldGoals.FG_DISTANCE_SHORT)
+                        * GameProbabilities.FieldGoals.FG_MAKE_SHORT_DECAY);
             }
-            else if (_attemptDistance <= 50)
+            else if (_attemptDistance <= GameProbabilities.FieldGoals.FG_DISTANCE_LONG)
             {
                 // Moderate field goals
-                baseMakeProbability = 0.80 - ((_attemptDistance - 40) * 0.015);
+                baseMakeProbability = GameProbabilities.FieldGoals.FG_MAKE_MEDIUM_BASE
+                    - ((_attemptDistance - GameProbabilities.FieldGoals.FG_DISTANCE_MEDIUM)
+                        * GameProbabilities.FieldGoals.FG_MAKE_MEDIUM_DECAY);
             }
-            else if (_attemptDistance <= 60)
+            else if (_attemptDistance <= GameProbabilities.FieldGoals.FG_DISTANCE_VERY_LONG)
             {
                 // Long field goals
-                baseMakeProbability = 0.65 - ((_attemptDistance - 50) * 0.025);
+                baseMakeProbability = GameProbabilities.FieldGoals.FG_MAKE_LONG_BASE
+                    - ((_attemptDistance - GameProbabilities.FieldGoals.FG_DISTANCE_LONG)
+                        * GameProbabilities.FieldGoals.FG_MAKE_LONG_DECAY);
             }
             else
             {
                 // Extremely long field goals (60+ yards)
-                baseMakeProbability = 0.40 - ((_attemptDistance - 60) * 0.03);
-                baseMakeProbability = Math.Max(baseMakeProbability, 0.10); // Minimum 10% for kicks < 70 yards
+                baseMakeProbability = GameProbabilities.FieldGoals.FG_MAKE_VERY_LONG_BASE
+                    - ((_attemptDistance - GameProbabilities.FieldGoals.FG_DISTANCE_VERY_LONG)
+                        * GameProbabilities.FieldGoals.FG_MAKE_VERY_LONG_DECAY);
+                baseMakeProbability = Math.Max(baseMakeProbability, GameProbabilities.FieldGoals.FG_MAKE_MIN_CLAMP);
             }
 
             // Adjust for kicker skill
-            // Kicking skill ranges from 0-100
-            // Average kicker (50 skill): no adjustment
-            // Excellent kicker (80+ skill): +15% to probability
-            // Poor kicker (30 skill): -15% to probability
-            var kickerSkillFactor = (_kicker.Kicking - 50) / 200.0; // -0.25 to +0.25
+            var kickerSkillFactor = (_kicker.Kicking - 50) / GameProbabilities.FieldGoals.FG_MAKE_SKILL_DENOMINATOR;
             baseMakeProbability += kickerSkillFactor;
 
-            // Clamp probability between 5% and 99%
-            baseMakeProbability = Math.Max(0.05, Math.Min(0.99, baseMakeProbability));
+            // Clamp probability to reasonable bounds
+            baseMakeProbability = Math.Max(
+                GameProbabilities.FieldGoals.FG_MAKE_MIN_CLAMP,
+                Math.Min(GameProbabilities.FieldGoals.FG_MAKE_MAX_CLAMP, baseMakeProbability));
 
             // Random check
             Occurred = _rng.NextDouble() < baseMakeProbability;

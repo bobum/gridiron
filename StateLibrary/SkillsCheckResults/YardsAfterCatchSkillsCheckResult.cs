@@ -2,6 +2,7 @@ using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using StateLibrary.SkillsChecks;
 
 namespace StateLibrary.SkillsCheckResults
@@ -42,10 +43,13 @@ namespace StateLibrary.SkillsCheckResults
             var randomFactor = (_rng.NextDouble() * 8) - 2;
             var totalYAC = Math.Max(0, (int)Math.Round(baseYAC + randomFactor));
 
-            // 5% chance for big play after catch if receiver is fast
-            if (_rng.NextDouble() < 0.05 && _receiver.Speed > 85)
+            // Chance for big play after catch if receiver is fast
+            if (_rng.NextDouble() < GameProbabilities.Passing.BIG_PLAY_YAC_PROBABILITY
+                && _receiver.Speed > GameProbabilities.Passing.BIG_PLAY_YAC_SPEED_THRESHOLD)
             {
-                totalYAC += _rng.Next(10, 30);
+                totalYAC += _rng.Next(
+                    GameProbabilities.Passing.BIG_PLAY_YAC_MIN_BONUS,
+                    GameProbabilities.Passing.BIG_PLAY_YAC_MAX_BONUS);
                 game.CurrentPlay.Result.LogInformation($"{_receiver.LastName} breaks free! Great run after catch!");
             }
 

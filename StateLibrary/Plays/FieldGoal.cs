@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
+using StateLibrary.Configuration;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
@@ -158,8 +159,8 @@ namespace StateLibrary.Plays
                 play.Result.LogInformation($"FIELD GOAL is BLOCKED!");
             }
 
-            // Determine recovery (50/50 base chance)
-            var defenseRecoveryChance = 0.5;
+            // Determine recovery
+            var defenseRecoveryChance = GameProbabilities.FieldGoals.BLOCKED_FG_DEFENSE_RECOVERY;
             var defenseRecovers = _rng.NextDouble() < defenseRecoveryChance;
 
             if (defenseRecovers)
@@ -334,11 +335,11 @@ namespace StateLibrary.Plays
                 var missType = _rng.NextDouble();
                 string missDirection;
 
-                if (missType < 0.4)
+                if (missType < GameProbabilities.FieldGoals.FG_MISS_WIDE_RIGHT_THRESHOLD)
                 {
                     missDirection = "WIDE RIGHT";
                 }
-                else if (missType < 0.8)
+                else if (missType < GameProbabilities.FieldGoals.FG_MISS_WIDE_LEFT_THRESHOLD)
                 {
                     missDirection = "WIDE LEFT";
                 }

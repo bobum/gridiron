@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -23,12 +24,15 @@ namespace StateLibrary.SkillsChecks
             // Calculate receiver's YAC potential based on speed, agility, and elusiveness
             var yacPotential = (_receiver.Speed + _receiver.Agility + _receiver.Rushing) / 3.0;
 
-            // Base 35% chance for good YAC opportunity, increased by receiver skills
-            var yacBonus = (yacPotential - 70) / 400.0; // 0-7.5% bonus for skills above 70
-            var yacProbability = 0.35 + yacBonus;
+            // Base chance for good YAC opportunity, increased by receiver skills above threshold
+            var yacBonus = (yacPotential - GameProbabilities.Passing.YAC_SKILL_THRESHOLD)
+                / GameProbabilities.Passing.YAC_SKILL_DENOMINATOR;
+            var yacProbability = GameProbabilities.Passing.YAC_OPPORTUNITY_BASE_PROBABILITY + yacBonus;
 
-            // Clamp between 15% and 55%
-            yacProbability = Math.Max(0.15, Math.Min(0.55, yacProbability));
+            // Clamp to reasonable bounds
+            yacProbability = Math.Max(
+                GameProbabilities.Passing.YAC_MIN_CLAMP,
+                Math.Min(GameProbabilities.Passing.YAC_MAX_CLAMP, yacProbability));
 
             Occurred = _rng.NextDouble() < yacProbability;
         }
