@@ -380,9 +380,20 @@ namespace UnitTestProject1
 
             var hasQB = _game.CurrentPlay.OffensePlayersOnField.Any(p => p.Position == Positions.QB);
             var hasRB = _game.CurrentPlay.OffensePlayersOnField.Any(p => p.Position == Positions.RB);
+            var receivers = _game.CurrentPlay.OffensePlayersOnField.Count(p => p.Position == Positions.WR);
 
-            Assert.IsTrue(hasQB, "Run play should have a QB");
-            Assert.IsTrue(hasRB, "Run play should have a RB");
+            Assert.IsTrue(hasQB, "Regular offense should have a QB");
+            Assert.IsTrue(hasRB, "Regular offense should have a RB");
+
+            // DetermineNextPlay randomly chooses run or pass - verify correct WR count for each
+            if (_game.CurrentPlay.PlayType == PlayType.Pass)
+            {
+                Assert.AreEqual(3, receivers, "Pass play should have 3 WRs");
+            }
+            else if (_game.CurrentPlay.PlayType == PlayType.Run)
+            {
+                Assert.AreEqual(2, receivers, "Run play should have 2 WRs");
+            }
         }
 
         [TestMethod]
@@ -411,8 +422,17 @@ namespace UnitTestProject1
             var hasQB = _game.CurrentPlay.OffensePlayersOnField.Any(p => p.Position == Positions.QB);
             var receivers = _game.CurrentPlay.OffensePlayersOnField.Count(p => p.Position == Positions.WR);
 
-            Assert.IsTrue(hasQB, "Pass play should have a QB");
-            Assert.AreEqual(3, receivers, "Pass play should have 3 WRs");
+            Assert.IsTrue(hasQB, "Regular offense should have a QB");
+
+            // DetermineNextPlay randomly chooses run or pass - verify correct WR count for each
+            if (_game.CurrentPlay.PlayType == PlayType.Pass)
+            {
+                Assert.AreEqual(3, receivers, "Pass play should have 3 WRs");
+            }
+            else if (_game.CurrentPlay.PlayType == PlayType.Run)
+            {
+                Assert.AreEqual(2, receivers, "Run play should have 2 WRs");
+            }
         }
 
         #endregion
