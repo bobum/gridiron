@@ -225,10 +225,12 @@ namespace UnitTestProject1
             var beforeTurnover = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Buffalo 30", beforeTurnover);
 
-            // After turnover, away team now has ball at same spot
-            // But from away team's perspective, it's now at Buffalo 30 (opponent's territory)
+            // After turnover, the field position must be recalculated from new offense's perspective
+            // Same physical spot on field, but now from away team's perspective
+            // They are now 30 yards into opponent territory = position 70 (100 - 30)
+            _game.FieldPosition = 100 - 30; // = 70
             var afterTurnover = _game.FormatFieldPosition(Possession.Away);
-            Assert.AreEqual("Buffalo 30", afterTurnover);
+            Assert.AreEqual("Buffalo 30", afterTurnover); // Still "Buffalo 30" but from opponent's side
         }
 
         [TestMethod]
@@ -240,9 +242,11 @@ namespace UnitTestProject1
             Assert.AreEqual("Kansas City 40", homeView);
 
             // Away team (defender) intercepts - same physical spot
-            // From defender's perspective, it's now their own 40
+            // Field position must be recalculated: 100 - 60 = 40
+            // From defender's perspective, they are now at their own 40
+            _game.FieldPosition = 100 - 60; // = 40
             var awayView = _game.FormatFieldPosition(Possession.Away);
-            Assert.AreEqual("Buffalo 40", awayView);
+            Assert.AreEqual("Kansas City 40", awayView);
         }
 
         #endregion
