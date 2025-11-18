@@ -15,9 +15,6 @@ namespace StateLibrary.Actions
 
         public void Execute(Game game)
         {
-            // Visual marker for start of play
-            game.CurrentPlay.Result.LogInformation("---");
-
             var didItHappen = _rng.NextDouble();
 
             //we can't have a muffed snap on a kick off - so don't even check
