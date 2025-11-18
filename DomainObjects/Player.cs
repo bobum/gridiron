@@ -21,7 +21,7 @@ namespace DomainObjects
         public int Strength { get; set; }        // 0-100
         public int Agility { get; set; }         // 0-100
         public int Awareness { get; set; }       // 0-100
-        public int InjuryRisk { get; set; }      // 0-100
+        public int Fragility { get; set; }      // 0-100 (higher = more injury-prone, renamed from InjuryRisk)
         public int Morale { get; set; }          // 0-100
         public int Discipline { get; set; }      // 0-100 (higher = fewer penalties)
 
@@ -42,5 +42,16 @@ namespace DomainObjects
         public int Potential { get; set; }       // 0-100
         public int Progression { get; set; }     // 0-100
         public int Health { get; set; }          // 0-100
+
+        // Injury tracking
+        /// <summary>
+        /// Current active injury for this player (null if not injured)
+        /// </summary>
+        public Injury? CurrentInjury { get; set; }
+
+        /// <summary>
+        /// Whether the player is currently injured and unavailable
+        /// </summary>
+        public bool IsInjured => CurrentInjury != null;
     }
 }
