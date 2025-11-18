@@ -121,15 +121,25 @@ namespace UnitTestProject1.Helpers
         /// Good blocking scenario - offensive line dominates, creates running lanes.
         /// Blocking check succeeds (< 0.5 threshold).
         /// </summary>
-        /// <param name="yards">Target yards to gain</param>
+        /// <param name="yards">Target yards to gain (calculates precise random value to achieve this)</param>
         public static TestFluentSeedableRandom GoodBlocking(int yards)
         {
+            // Calculate the precise NextDouble value needed to produce the desired yardage
+            // Formula from RunYardsSkillsCheckResult with good blocking:
+            // baseYards = (blockingQuality + runnerSkill) / 2 * 1.2 (good blocking multiplier)
+            // totalYards = baseYards + (random * 25 - 15)
+            // For typical skills (50), we need to reverse this to get the random value
+            double targetBase = Math.Ceiling(yards / 1.2);
+            double randomFactor = targetBase - 3.0;  // Adjust for base calculation
+            double nextDouble = (randomFactor + 15.0) / 25.0;
+            nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble));
+
             return new TestFluentSeedableRandom()
                 .NextDouble(0.15)                    // QB check (RB gets ball)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.4)               // Good blocking (succeeds)
                 .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.7)                     // Base yards random factor
+                .NextDouble(nextDouble)              // Base yards calculation - precise value
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .NextDouble(0.99)                    // No tackle penalty
@@ -141,15 +151,22 @@ namespace UnitTestProject1.Helpers
         /// Bad blocking scenario - offensive line fails, RB hit in backfield.
         /// Blocking check fails (>= 0.5 threshold).
         /// </summary>
-        /// <param name="yards">Target yards to gain (will be reduced by bad blocking)</param>
+        /// <param name="yards">Target yards to gain (calculates precise random value, often results in minimal/no gain)</param>
         public static TestFluentSeedableRandom BadBlocking(int yards)
         {
+            // Calculate the precise NextDouble value needed to produce the desired yardage
+            // With bad blocking multiplier of 0.8
+            double targetBase = Math.Ceiling(yards / 0.8);
+            double randomFactor = targetBase - 3.0;
+            double nextDouble = (randomFactor + 15.0) / 25.0;
+            nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble));
+
             return new TestFluentSeedableRandom()
                 .NextDouble(0.15)                    // QB check (RB gets ball)
                 .NextInt(2)                          // Direction
                 .RunBlockingCheck(0.6)               // Bad blocking (fails)
                 .NextDouble(0.99)                    // No blocking penalty
-                .NextDouble(0.7)                     // Base yards random factor
+                .NextDouble(nextDouble)              // Base yards calculation - precise value
                 .TackleBreakCheck(0.9)               // No tackle break
                 .BreakawayCheck(0.9)                 // No breakaway
                 .NextDouble(0.99)                    // No tackle penalty

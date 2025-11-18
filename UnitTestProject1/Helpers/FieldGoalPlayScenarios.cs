@@ -150,7 +150,7 @@ namespace UnitTestProject1.Helpers
             return new TestFluentSeedableRandom()
                 .NextDouble(0.99)                  // No bad snap
                 .NextDouble(0.99)                  // No block
-                .NextDouble(0.95)                  // Miss
+                .NextDouble(0.995)                 // Miss (>= 99% threshold ensures miss even for short/easy kicks)
                 .NextDouble(0.99)                  // No kicker penalty
                 .NextDouble(missDirection)         // Miss direction
                 .NextDouble(0.5);                  // Elapsed time

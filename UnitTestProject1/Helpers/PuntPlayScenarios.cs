@@ -310,10 +310,10 @@ namespace UnitTestProject1.Helpers
             return new TestFluentSeedableRandom()
                 .NextDouble(0.99)                  // No bad snap
                 .NextDouble(0.99)                  // No block
-                .NextDouble(0.6)                   // Punt distance
+                .NextDouble(0.5)                   // Moderate punt distance (~46 yards, won't touchback from midfield)
                 .NextDouble(0.5)                   // Hang time
                 .NextDouble(0.99)                  // No kicker penalty
-                .NextDouble(0.1);                  // OUT OF BOUNDS!
+                .NextDouble(0.05);                 // OUT OF BOUNDS! (< 12% baseline threshold)
         }
 
         #endregion
@@ -421,7 +421,7 @@ namespace UnitTestProject1.Helpers
                 .NextDouble(0.8)                   // Not out of bounds
                 .NextDouble(0.9)                   // Not downed
                 .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.02)                  // MUFFED! (< muff threshold)
+                .NextDouble(0.008)                 // MUFFED! (< 1% threshold even with great returner)
                 .NextDouble(0.4)                   // Receiving team recovers (< 60%)
                 .NextDouble(recoveryYards)         // Recovery yards (-5 to +5)
                 .NextDouble(0.5);                  // Elapsed time (hang + 2-4 seconds)
@@ -444,7 +444,7 @@ namespace UnitTestProject1.Helpers
                 .NextDouble(0.8)                   // Not out of bounds
                 .NextDouble(0.9)                   // Not downed
                 .NextDouble(0.9)                   // Not fair catch
-                .NextDouble(0.03)                  // MUFFED!
+                .NextDouble(0.008)                 // MUFFED! (< 1% threshold)
                 .NextDouble(0.7)                   // Punting team recovers (>= 60%)
                 .NextDouble(0.5);                  // Elapsed time
         }
