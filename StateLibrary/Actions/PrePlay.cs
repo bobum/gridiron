@@ -55,6 +55,11 @@ namespace StateLibrary.Actions
             {
                 game.CurrentPlay.Result.LogInformation("Players are lined up for the kickoff");
             }
+            else if (game.CurrentPlay.PlayType == PlayType.Punt && game.CurrentPlay.Down == Downs.None && game.Plays.Count > 0 && game.Plays.Last().IsSafety)
+            {
+                // This is a free kick after a safety
+                game.CurrentPlay.Result.LogInformation("Free kick formation after the safety");
+            }
             else if (game.CurrentPlay.PlayType == PlayType.Run)
             {
                 game.CurrentPlay.Result.LogInformation("The big package is in, looks like a run formation");
@@ -91,6 +96,31 @@ namespace StateLibrary.Actions
             else
             {
                 var lastPlay = game.Plays.Last();
+
+                // Check if last play was a safety - if so, team that committed safety must perform free kick
+                if (lastPlay.IsSafety)
+                {
+                    // Per NFL rules: Team scored upon performs free kick (punt) from their 20-yard line
+                    var kickingTeam = lastPlay.Possession; // Team that committed safety keeps possession for the kick
+
+                    // Calculate 20-yard line position based on which team is kicking
+                    // Absolute positioning: 0-49 is home territory, 50-100 is away territory
+                    // Home's 20 = position 20, Away's 20 = position 80
+                    int freeKickPosition = (kickingTeam == Possession.Home) ? 20 : 80;
+
+                    game.FieldPosition = freeKickPosition;
+                    game.CurrentDown = Downs.None; // Free kick is not a down
+
+                    currentPlay = new PuntPlay
+                    {
+                        Possession = kickingTeam,
+                        Down = Downs.None,
+                        StartTime = lastPlay.StopTime,
+                        PossessionChange = false // Will change after the punt is executed
+                    };
+
+                    return currentPlay;
+                }
 
                 // Determine possession for this play
                 var possession = lastPlay.PossessionChange

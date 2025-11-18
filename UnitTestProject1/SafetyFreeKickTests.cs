@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
 using StateLibrary.PlayResults;
+using StateLibrary.Plays;
 using UnitTestProject1.Helpers;
 
 namespace UnitTestProject1
@@ -197,6 +198,120 @@ namespace UnitTestProject1
                 "Home team should perform free kick");
             Assert.AreEqual(20, game.FieldPosition,
                 "Free kick from home's 20-yard line");
+        }
+
+        [TestMethod]
+        public void Safety_CompleteFlow_FreeKickAndPossessionChange()
+        {
+            // This is the comprehensive integration test that verifies the COMPLETE flow:
+            // 1. Safety occurs (Home commits, Away scores 2 points)
+            // 2. Next play is a free kick (punt) from Home's 20-yard line
+            // 3. Free kick is executed
+            // 4. After free kick, possession changes to Away team
+
+            // Arrange
+            var game = _testGame.GetGame();
+            var rng = new SeedableRandom(12345); // Fixed seed for reproducibility
+            var logger = new InMemoryLogger<Game>();
+            game.Logger = logger;
+
+            // Initial kickoff to start game
+            var kickoff = new KickoffPlay
+            {
+                Possession = Possession.Home,
+                Down = Downs.None,
+                StartTime = 0,
+                PossessionChange = false,
+                Result = logger
+            };
+            game.Plays.Add(kickoff);
+
+            // ===== STEP 1: Safety occurs =====
+            // Home team gets tackled in their own end zone
+            var runPlay = new RunPlay
+            {
+                Possession = Possession.Home,
+                Down = Downs.Second,
+                StartFieldPosition = 2,
+                YardsGained = -2,
+                EndFieldPosition = 0,
+                Result = logger
+            };
+
+            game.CurrentPlay = runPlay;
+            game.FieldPosition = 2;
+            game.HomeScore = 0;
+            game.AwayScore = 0;
+
+            // Execute the run play (which will set IsSafety in the actual execution)
+            runPlay.IsSafety = true;
+            runPlay.PossessionChange = true;
+
+            var runResult = new RunResult();
+            runResult.Execute(game);
+
+            // Verify safety scored
+            Assert.IsTrue(runPlay.IsSafety, "Play should be marked as safety");
+            Assert.AreEqual(0, game.HomeScore, "Home should have 0 points");
+            Assert.AreEqual(2, game.AwayScore, "Away should have 2 points from safety");
+            Assert.IsTrue(runPlay.PossessionChange, "Possession should change flag set");
+
+            // Add safety play to game (simulating PostPlay)
+            game.Plays.Add(runPlay);
+
+            // ===== STEP 2: PrePlay determines next play should be free kick =====
+            var prePlay = new PrePlay(rng);
+            prePlay.Execute(game);
+
+            // Verify free kick setup
+            Assert.IsNotNull(game.CurrentPlay, "Should have a current play");
+            Assert.AreEqual(PlayType.Punt, game.CurrentPlay.PlayType,
+                "Next play after safety MUST be a Punt (free kick)");
+            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession,
+                "Home team (who committed safety) must perform the free kick");
+            Assert.AreEqual(20, game.FieldPosition,
+                "Free kick MUST be from Home's 20-yard line (absolute position 20)");
+            Assert.AreEqual(Downs.None, game.CurrentPlay.Down,
+                "Free kick should have Down = None (it's not a regular down)");
+
+            // Verify players are on field for the punt
+            var freeKickPunt = (PuntPlay)game.CurrentPlay;
+            Assert.IsNotNull(freeKickPunt.Punter, "Free kick should have a punter assigned");
+            Assert.AreEqual(11, freeKickPunt.OffensePlayersOnField.Count,
+                "Should have 11 offensive players for free kick");
+            Assert.AreEqual(11, freeKickPunt.DefensePlayersOnField.Count,
+                "Should have 11 defensive players for free kick");
+
+            // ===== STEP 3: Execute the free kick (punt) =====
+            var punt = new Punt(rng);
+            punt.Execute(game);
+
+            // Let the punt result process
+            var puntResult = new PuntResult();
+            puntResult.Execute(game);
+
+            // ===== STEP 4: Verify possession changed to team that scored safety =====
+            Assert.IsTrue(freeKickPunt.PossessionChange,
+                "Free kick should result in possession change");
+
+            // Add free kick to plays
+            game.Plays.Add(freeKickPunt);
+
+            // Determine next play to see who has possession
+            var prePlay2 = new PrePlay(rng);
+            prePlay2.Execute(game);
+
+            // The next play should be for the Away team (who scored the safety)
+            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession,
+                "After free kick, possession should be with Away team (who scored the safety)");
+            Assert.AreEqual(Downs.First, game.CurrentDown,
+                "After free kick, should be 1st down");
+            Assert.AreEqual(10, game.YardsToGo,
+                "After free kick, should be 10 yards to go");
+
+            // Verify we're not doing another kickoff or punt
+            Assert.IsTrue(game.CurrentPlay.PlayType == PlayType.Run || game.CurrentPlay.PlayType == PlayType.Pass,
+                "After free kick, should be normal offensive play (run or pass)");
         }
     }
 }
