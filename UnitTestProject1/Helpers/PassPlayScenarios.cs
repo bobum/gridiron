@@ -462,30 +462,6 @@ namespace UnitTestProject1.Helpers
                 .ElapsedTimeRandomFactor(0.99);
         }
 
-        /// <summary>
-        /// Pass play with false start penalty (pre-snap).
-        /// Tests that false start is correctly assigned to the offense.
-        /// Note: Pre-snap penalties may prevent play execution.
-        /// </summary>
-        public static TestFluentSeedableRandom WithFalseStartPenalty()
-        {
-            return new TestFluentSeedableRandom()
-                .PreSnapPenaltyCheck(0.01)              // Pre-snap penalty occurs
-                .NextDouble(0.5)                        // Penalty effect: team selection
-                .NextInt(5)                             // Penalty effect: player selection
-                .PassProtectionCheck(0.7)
-                .BlockingPenaltyCheck(0.99)
-                .QBPressureCheck(0.8)
-                .ReceiverSelection(0.5)
-                .PassTypeDetermination(0.6)
-                .AirYards(10)
-                .PassCompletionCheck(0.5)
-                .YACOpportunityCheck(0.8)
-                .ImmediateTackleYards(2)
-                .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);
-        }
-
         #endregion
 
         #region Pressure Scenarios

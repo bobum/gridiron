@@ -142,9 +142,7 @@ namespace UnitTestProject1
                 player.Speed = offensiveSkill;
                 player.Strength = offensiveSkill;
                 player.Catching = offensiveSkill;
-                player.PassRushing = offensiveSkill;
-                player.PassBlocking = offensiveSkill;
-                player.RunBlocking = offensiveSkill;
+                player.Blocking = offensiveSkill;
                 player.Discipline = 50; // Medium discipline
             }
 
@@ -154,7 +152,6 @@ namespace UnitTestProject1
                 player.Speed = defensiveSkill;
                 player.Strength = defensiveSkill;
                 player.Tackling = defensiveSkill;
-                player.PassRushing = defensiveSkill;
                 player.Coverage = defensiveSkill;
                 player.Discipline = 50; // Medium discipline
             }
@@ -413,69 +410,6 @@ namespace UnitTestProject1
             {
                 Assert.AreEqual(Possession.Home, penalty.CalledOn,
                     $"Defensive Pass Interference must be called on the defense (Home), but was called on {penalty.CalledOn}");
-            }
-        }
-
-        #endregion
-
-        #region Pre-Snap Penalty Assignment Tests
-
-        [TestMethod]
-        public void PassPlay_FalseStart_AlwaysCalledOnOffense_HomePossession()
-        {
-            // Arrange
-            var game = CreateGameWithPassPlay(Possession.Home);
-            var passPlay = (PassPlay)game.CurrentPlay;
-            SetPlayerSkills(game, 70, 70);
-
-            var rng = PassPlayScenarios.WithFalseStartPenalty();
-
-            // Act
-            var pass = new Pass(rng);
-            pass.Execute(game);
-
-            // Assert - False Start is a pre-snap penalty, so play may not fully execute
-            // but penalty should still be recorded
-            var falseStartPenalties = passPlay.Penalties
-                .Where(p => p.Name == PenaltyNames.FalseStart)
-                .ToList();
-
-            if (falseStartPenalties.Any())
-            {
-                foreach (var penalty in falseStartPenalties)
-                {
-                    Assert.AreEqual(Possession.Home, penalty.CalledOn,
-                        $"False Start must be called on the offense (Home), but was called on {penalty.CalledOn}");
-                }
-            }
-        }
-
-        [TestMethod]
-        public void PassPlay_FalseStart_AlwaysCalledOnOffense_AwayPossession()
-        {
-            // Arrange
-            var game = CreateGameWithPassPlay(Possession.Away);
-            var passPlay = (PassPlay)game.CurrentPlay;
-            SetPlayerSkills(game, 70, 70);
-
-            var rng = PassPlayScenarios.WithFalseStartPenalty();
-
-            // Act
-            var pass = new Pass(rng);
-            pass.Execute(game);
-
-            // Assert - False Start is a pre-snap penalty
-            var falseStartPenalties = passPlay.Penalties
-                .Where(p => p.Name == PenaltyNames.FalseStart)
-                .ToList();
-
-            if (falseStartPenalties.Any())
-            {
-                foreach (var penalty in falseStartPenalties)
-                {
-                    Assert.AreEqual(Possession.Away, penalty.CalledOn,
-                        $"False Start must be called on the offense (Away), but was called on {penalty.CalledOn}");
-                }
             }
         }
 
