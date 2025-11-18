@@ -359,12 +359,17 @@ namespace UnitTestProject1
         public void RunPlay_StillSubstitutesCorrectly()
         {
             // Arrange
-            _game.CurrentPlay = new RunPlay
+            // Add a kickoff play to simulate game in progress (so DetermineNextPlay doesn't default to kickoff)
+            var kickoff = new KickoffPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.First,
-                ElapsedTime = 1.5
+                Down = Downs.None,
+                StartTime = 0,
+                PossessionChange = false
             };
+            _game.Plays.Add(kickoff);
+            _game.CurrentDown = Downs.First;
+            _game.YardsToGo = 10;
 
             // Act
             _prePlay.Execute(_game);
@@ -384,12 +389,17 @@ namespace UnitTestProject1
         public void PassPlay_StillSubstitutesCorrectly()
         {
             // Arrange
-            _game.CurrentPlay = new PassPlay
+            // Add a kickoff play to simulate game in progress (so DetermineNextPlay doesn't default to kickoff)
+            var kickoff = new KickoffPlay
             {
                 Possession = Possession.Home,
-                Down = Downs.Second,
-                ElapsedTime = 1.5
+                Down = Downs.None,
+                StartTime = 0,
+                PossessionChange = false
             };
+            _game.Plays.Add(kickoff);
+            _game.CurrentDown = Downs.Second;
+            _game.YardsToGo = 10;
 
             // Act
             _prePlay.Execute(_game);
