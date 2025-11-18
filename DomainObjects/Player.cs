@@ -23,6 +23,7 @@ namespace DomainObjects
         public int Awareness { get; set; }       // 0-100
         public int InjuryRisk { get; set; }      // 0-100
         public int Morale { get; set; }          // 0-100
+        public int Discipline { get; set; }      // 0-100 (higher = fewer penalties)
 
         // Position-specific skills
         public int Passing { get; set; }         // QB

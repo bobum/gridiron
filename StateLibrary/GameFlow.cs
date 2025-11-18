@@ -269,16 +269,79 @@ namespace StateLibrary
 
             if (_game.CurrentPlay.Penalties.Count > 0)
             {
-                //in here - at some point - if there is a presnap penalty - we need to handle it and go all the way to post play
-                _machine.Fire(Trigger.PlayResult);
-            }
-            else
-            {
-                var snap = new Snap(_rng);
-                snap.Execute(_game);
+                // Pre-snap penalty occurred - check if it's a dead ball foul
+                var penaltyEnforcement = new Services.PenaltyEnforcement(_game.Logger);
 
-                _machine.Fire(Trigger.Snap);
+                var hasDeadBallFoul = _game.CurrentPlay.Penalties
+                    .Any(p => penaltyEnforcement.IsDeadBallFoul(p.Name));
+
+                if (hasDeadBallFoul)
+                {
+                    // Dead ball foul - play does not execute, enforce penalty immediately
+                    _game.CurrentPlay.YardsGained = 0; // No play occurred
+                    _game.CurrentPlay.Result.LogInformation("Dead ball penalty - play aborted");
+
+                    // Enforce the pre-snap penalty
+                    var enforcementResult = penaltyEnforcement.EnforcePenalties(
+                        _game,
+                        _game.CurrentPlay,
+                        yardsGainedOnPlay: 0);
+
+                    // Update game state based on penalty
+                    var newFieldPosition = _game.FieldPosition + enforcementResult.NetYards;
+
+                    // Bounds check
+                    if (newFieldPosition >= 100)
+                    {
+                        newFieldPosition = 99; // Can't score on dead ball penalty
+                    }
+                    else if (newFieldPosition <= 0)
+                    {
+                        newFieldPosition = 1; // Can't safety on dead ball penalty
+                    }
+
+                    _game.FieldPosition = newFieldPosition;
+                    _game.CurrentPlay.EndFieldPosition = newFieldPosition;
+                    _game.CurrentPlay.StartFieldPosition = _game.FieldPosition - enforcementResult.NetYards;
+
+                    // Update down and distance
+                    if (enforcementResult.IsOffsetting)
+                    {
+                        // Replay down
+                        _game.CurrentPlay.Result.LogInformation(
+                            $"Offsetting penalties. {FormatDown(_game.CurrentDown)} and {_game.YardsToGo} at the {_game.FieldPosition}");
+                    }
+                    else
+                    {
+                        _game.CurrentDown = enforcementResult.NewDown;
+                        _game.YardsToGo = System.Math.Max(1, enforcementResult.NewYardsToGo);
+                        _game.CurrentPlay.Result.LogInformation(
+                            $"{FormatDown(_game.CurrentDown)} and {_game.YardsToGo} at the {_game.FieldPosition}");
+                    }
+
+                    // Skip to post play
+                    _machine.Fire(Trigger.PlayResult);
+                    return;
+                }
             }
+
+            // No dead ball penalty - execute normal snap
+            var snap = new Snap(_rng);
+            snap.Execute(_game);
+
+            _machine.Fire(Trigger.Snap);
+        }
+
+        private string FormatDown(Downs down)
+        {
+            return down switch
+            {
+                Downs.First => "1st",
+                Downs.Second => "2nd",
+                Downs.Third => "3rd",
+                Downs.Fourth => "4th",
+                _ => "?"
+            };
         }
 
         private void DoKickoffPlay()
