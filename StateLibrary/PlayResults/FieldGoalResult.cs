@@ -244,9 +244,6 @@ namespace StateLibrary.PlayResults
 
             // PAT/2-point attempts can be replayed from new spot after penalty
             play.Result.LogInformation($"Penalty on {(play.IsExtraPoint ? "extra point" : "2-point conversion")} attempt. Ball moved to the {game.FieldPosition}. Replay the down.");
-
-            // Visual marker for end of play
-            play.Result.LogInformation("---");
         }
 
         /// <summary>

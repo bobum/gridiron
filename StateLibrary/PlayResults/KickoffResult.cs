@@ -246,9 +246,6 @@ namespace StateLibrary.PlayResults
                 play.PossessionChange = true; // Normal change of possession after penalty enforcement
                 play.Result.LogInformation($"Penalty enforced. Ball at the {game.FieldPosition} yard line. 1st and 10.");
             }
-
-            // Visual marker for end of play
-            play.Result.LogInformation("---");
         }
 
         /// <summary>
