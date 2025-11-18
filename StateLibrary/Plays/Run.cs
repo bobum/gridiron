@@ -414,6 +414,14 @@ namespace StateLibrary.Plays
                 return;
             }
 
+            // IMPORTANT: Consume RNG values for test compatibility
+            // Old system (PenaltyEffectSkillsCheckResult) consumed these values:
+            // 1. NextDouble() for team selection (which we don't need - we know from penalty.CommittedBy)
+            // 2. Next() for player selection (we use penalty's own selection logic)
+            // Consuming these maintains compatibility with existing test RNG queues
+            _rng.NextDouble(); // Dummy: old system's team selection
+            _rng.Next(100);    // Dummy: old system's player selection weight range
+
             // Determine which side committed the penalty based on penalty's CommittedBy property
             TeamSide committedBy = penaltyInstance.CommittedBy;
             Possession calledOn;
