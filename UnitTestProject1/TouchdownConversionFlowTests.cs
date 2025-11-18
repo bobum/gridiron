@@ -329,8 +329,8 @@ namespace UnitTestProject1
             game.CurrentPlay = runPlay;
             game.FieldPosition = 98;
 
-            var runResult = new RunResult();
-            runResult.Execute(game);
+            var tdRunResult = new RunResult();
+            tdRunResult.Execute(game);
 
             Assert.AreEqual(6, game.HomeScore, "Should have 6 points after TD");
             game.Plays.Add(runPlay);
@@ -377,15 +377,15 @@ namespace UnitTestProject1
                 {
                     var run = new Run(rng);
                     run.Execute(game);
-                    var runResult = new RunResult();
-                    runResult.Execute(game);
+                    var twoPointRunResult = new RunResult();
+                    twoPointRunResult.Execute(game);
                 }
                 else
                 {
                     var pass = new Pass(rng);
                     pass.Execute(game);
-                    var passResult = new PassResult();
-                    passResult.Execute(game);
+                    var twoPointPassResult = new PassResult();
+                    twoPointPassResult.Execute(game);
                 }
 
                 var conversionPlay = game.CurrentPlay;
