@@ -25,7 +25,8 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame();
-            var rng = new SeedableRandom(100); // Seed that should trigger extra point (not 2-pt)
+            // Try different seeds until we get one that produces extra point (>= 0.10)
+            var rng = new SeedableRandom(50000); // Seed that produces value >= 0.10
             var logger = new InMemoryLogger<Game>();
             game.Logger = logger;
 
@@ -92,7 +93,8 @@ namespace UnitTestProject1
         {
             // Arrange - Use a seed that will trigger 2-pt conversion
             var game = _testGame.GetGame();
-            var rng = new SeedableRandom(999); // Different seed to potentially trigger 2-pt
+            // Try different seeds until we get one that produces 2-pt (< 0.10)
+            var rng = new SeedableRandom(1); // Seed that produces value < 0.10
             var logger = new InMemoryLogger<Game>();
             game.Logger = logger;
 
@@ -333,30 +335,62 @@ namespace UnitTestProject1
             Assert.AreEqual(6, game.HomeScore, "Should have 6 points after TD");
             game.Plays.Add(runPlay);
 
-            // ===== STEP 2: Extra Point Attempt =====
+            // ===== STEP 2: Extra Point OR 2-pt Conversion Attempt =====
             var prePlay1 = new PrePlay(rng);
             prePlay1.Execute(game);
 
-            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay.PlayType,
-                "Next play should be extra point");
-            Assert.AreEqual(85, game.FieldPosition, "Extra point from 15-yard line");
+            // Could be either extra point or 2-pt conversion depending on RNG
+            bool isExtraPoint = game.CurrentPlay.PlayType == PlayType.FieldGoal;
+            bool is2ptConversion = (game.CurrentPlay.PlayType == PlayType.Run ||
+                                   game.CurrentPlay.PlayType == PlayType.Pass) &&
+                                   game.CurrentPlay.Down == Downs.None;
 
-            var extraPoint = (FieldGoalPlay)game.CurrentPlay;
+            Assert.IsTrue(isExtraPoint || is2ptConversion,
+                "Next play should be extra point or 2-pt conversion");
 
-            // Execute the extra point
-            var fieldGoal = new FieldGoal(rng);
-            fieldGoal.Execute(game);
-
-            var fgResult = new FieldGoalResult();
-            fgResult.Execute(game);
-
-            // Assume it was good (we'll need to check based on execution)
-            if (extraPoint.IsGood)
+            if (isExtraPoint)
             {
-                Assert.AreEqual(7, game.HomeScore, "Should have 7 points after good XP");
-            }
+                Assert.AreEqual(85, game.FieldPosition, "Extra point from 15-yard line");
+                var extraPoint = (FieldGoalPlay)game.CurrentPlay;
 
-            game.Plays.Add(extraPoint);
+                // Execute the extra point
+                var fieldGoal = new FieldGoal(rng);
+                fieldGoal.Execute(game);
+
+                var fgResult = new FieldGoalResult();
+                fgResult.Execute(game);
+
+                // Check if it was good
+                if (extraPoint.IsGood)
+                {
+                    Assert.AreEqual(7, game.HomeScore, "Should have 7 points after good XP");
+                }
+
+                game.Plays.Add(extraPoint);
+            }
+            else // 2-pt conversion
+            {
+                Assert.AreEqual(98, game.FieldPosition, "2-pt conversion from 2-yard line");
+
+                // Execute the 2-pt attempt
+                if (game.CurrentPlay.PlayType == PlayType.Run)
+                {
+                    var run = new Run(rng);
+                    run.Execute(game);
+                    var runResult = new RunResult();
+                    runResult.Execute(game);
+                }
+                else
+                {
+                    var pass = new Pass(rng);
+                    pass.Execute(game);
+                    var passResult = new PassResult();
+                    passResult.Execute(game);
+                }
+
+                var conversionPlay = game.CurrentPlay;
+                game.Plays.Add(conversionPlay);
+            }
 
             // ===== STEP 3: Kickoff =====
             var prePlay2 = new PrePlay(rng);
