@@ -801,5 +801,123 @@ namespace StateLibrary.Plays
             };
         }
 
+        /// <summary>
+        /// Checks if a player sustains an injury during the play and handles substitution if needed
+        /// </summary>
+        private void CheckForInjury(Game game, PassPlay play, Player player, int defendersInvolved, bool isOutOfBounds, bool isBigPlay, bool isSack)
+        {
+            // Skip if player is already injured
+            if (player.IsInjured)
+                return;
+
+            var injuryCheck = new InjuryOccurredSkillsCheck(
+                   _rng,
+                   PlayType.Pass,
+     player,
+    defendersInvolved,
+ isOutOfBounds,
+                isBigPlay,
+    isSack);
+  injuryCheck.Execute(game);
+
+    if (injuryCheck.Occurred)
+     {
+         // Determine injury details
+       var injuryEffect = new InjuryEffectSkillsCheckResult(_rng, player, PlayType.Pass);
+            injuryEffect.Execute(game);
+
+    var injury = new Injury
+    {
+         Type = injuryEffect.Result.InjuryType,
+             Severity = injuryEffect.Result.Severity,
+    InjuredPlayer = player,
+     PlayNumber = game.Plays.Count,
+   RemovedFromPlay = injuryEffect.Result.RequiresImmediateRemoval,
+         PlaysUntilReturn = CalculateRecoveryTime(injuryEffect.Result.Severity)
+           };
+
+      // Set player's current injury
+     player.CurrentInjury = injury;
+
+    // Add to play's injury list
+    play.Injuries.Add(injury);
+
+   // Log the injury
+              LogInjury(play, injury);
+
+      // If player must be removed immediately, substitute them
+ if (injury.RemovedFromPlay)
+                {
+             SubstituteInjuredPlayer(game, play, player, injury);
+          }
+          }
+   }
+
+        /// <summary>
+        /// Calculates how many plays until player can return based on severity
+        /// </summary>
+        private int CalculateRecoveryTime(InjurySeverity severity)
+     {
+        return severity switch
+            {
+                InjurySeverity.Minor => _rng.Next(InjuryProbabilities.MINOR_INJURY_MIN_PLAYS, InjuryProbabilities.MINOR_INJURY_MAX_PLAYS + 1),
+              InjurySeverity.Moderate => InjuryProbabilities.MODERATE_INJURY_PLAYS,
+     InjurySeverity.GameEnding => InjuryProbabilities.GAME_ENDING_INJURY_PLAYS,
+             _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Logs injury information to the play-by-play
+    /// </summary>
+     private void LogInjury(PassPlay play, Injury injury)
+  {
+            var injuryTypeText = injury.Type switch
+       {
+        InjuryType.Ankle => "ankle",
+    InjuryType.Knee => "knee",
+         InjuryType.Shoulder => "shoulder",
+          InjuryType.Concussion => "head",
+     InjuryType.Hamstring => "hamstring",
+         _ => "injury"
+       };
+
+      play.Result.LogInformation($"⚠️  {injury.InjuredPlayer.LastName} is down on the field! Trainers are attending to a {injuryTypeText} injury.");
+        }
+
+        /// <summary>
+        /// Substitutes an injured player with a backup from the depth chart
+  /// </summary>
+  private void SubstituteInjuredPlayer(Game game, PassPlay play, Player injuredPlayer, Injury injury)
+   {
+  // Determine if player is on offense or defense
+     var isOffense = play.OffensePlayersOnField.Contains(injuredPlayer);
+var playersOnField = isOffense ? play.OffensePlayersOnField : play.DefensePlayersOnField;
+            var team = play.Possession == Possession.Home ? game.HomeTeam : game.AwayTeam;
+    var depthChart = isOffense ? team.OffenseDepthChart : team.DefenseDepthChart;
+
+   // Find replacement from depth chart
+  Player? replacement = null;
+            if (depthChart.Chart.TryGetValue(injuredPlayer.Position, out var playersAtPosition))
+  {
+    // Find first available player who is not injured and not already on field
+   replacement = playersAtPosition
+.FirstOrDefault(p => !p.IsInjured && !playersOnField.Contains(p));
+      }
+
+  if (replacement != null)
+    {
+         // Swap players
+    var index = playersOnField.IndexOf(injuredPlayer);
+             playersOnField[index] = replacement;
+       injury.ReplacementPlayer = replacement;
+
+ play.Result.LogInformation($"{injuredPlayer.LastName} is being helped off the field. {replacement.LastName} enters the game.");
+  }
+   else
+      {
+           play.Result.LogWarning($"No replacement available for {injuredPlayer.LastName} at {injuredPlayer.Position}! Team playing short-handed.");
+     }
+    }
     }
 }
