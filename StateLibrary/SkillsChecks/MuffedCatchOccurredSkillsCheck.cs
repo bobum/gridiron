@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -31,14 +32,15 @@ namespace StateLibrary.SkillsChecks
             // - Hang time (longer = more pressure)
             // - Random chance
 
-            var catchingFactor = _returner.Catching / 100.0;
-            var baseMuffChance = 0.05 - (catchingFactor * 0.04); // 5% to 1%
+            var catchingFactor = _returner.Catching / GameProbabilities.Punts.PUNT_MUFF_SKILL_DENOMINATOR;
+            var baseMuffChance = GameProbabilities.Punts.PUNT_MUFF_BASE
+                - (catchingFactor * GameProbabilities.Punts.PUNT_MUFF_SKILL_FACTOR);
 
             // Hang time pressure (longer hang time = defenders closer = more pressure)
-            if (_hangTime > 4.5)
-                baseMuffChance += 0.02;
-            else if (_hangTime > 4.0)
-                baseMuffChance += 0.01;
+            if (_hangTime > GameProbabilities.Punts.PUNT_MUFF_HIGH_HANG_THRESHOLD)
+                baseMuffChance += GameProbabilities.Punts.PUNT_MUFF_HIGH_HANG_TIME_BONUS;
+            else if (_hangTime > GameProbabilities.Punts.PUNT_MUFF_MEDIUM_HANG_THRESHOLD)
+                baseMuffChance += GameProbabilities.Punts.PUNT_MUFF_MEDIUM_HANG_TIME_BONUS;
 
             Occurred = _rng.NextDouble() < baseMuffChance;
         }

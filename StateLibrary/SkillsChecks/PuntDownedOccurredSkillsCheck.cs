@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -30,21 +31,21 @@ namespace StateLibrary.SkillsChecks
             // - Landing deep in opponent territory (near goal line)
             // - Good hang time (coverage gets there fast)
 
-            var baseDownedChance = 0.15; // 15% baseline
+            var baseDownedChance = GameProbabilities.Punts.PUNT_DOWNED_BASE;
 
             // Field position factor (from punting team's perspective)
-            if (_puntLandingSpot > 95) // Inside opponent's 5
-                baseDownedChance += 0.40;
-            else if (_puntLandingSpot > 90) // Inside opponent's 10
-                baseDownedChance += 0.25;
-            else if (_puntLandingSpot > 85) // Inside opponent's 15
-                baseDownedChance += 0.15;
+            if (_puntLandingSpot > GameProbabilities.Punts.PUNT_DOWNED_INSIDE_5_THRESHOLD)
+                baseDownedChance += GameProbabilities.Punts.PUNT_DOWNED_INSIDE_5_BONUS;
+            else if (_puntLandingSpot > GameProbabilities.Punts.PUNT_DOWNED_INSIDE_10_THRESHOLD)
+                baseDownedChance += GameProbabilities.Punts.PUNT_DOWNED_INSIDE_10_BONUS;
+            else if (_puntLandingSpot > GameProbabilities.Punts.PUNT_DOWNED_INSIDE_15_THRESHOLD)
+                baseDownedChance += GameProbabilities.Punts.PUNT_DOWNED_INSIDE_15_BONUS;
 
             // Hang time factor (better coverage)
-            if (_hangTime > 4.5)
-                baseDownedChance += 0.10;
-            else if (_hangTime > 4.0)
-                baseDownedChance += 0.05;
+            if (_hangTime > GameProbabilities.Punts.PUNT_MUFF_HIGH_HANG_THRESHOLD)
+                baseDownedChance += GameProbabilities.Punts.PUNT_DOWNED_HIGH_HANG_BONUS;
+            else if (_hangTime > GameProbabilities.Punts.PUNT_MUFF_MEDIUM_HANG_THRESHOLD)
+                baseDownedChance += GameProbabilities.Punts.PUNT_DOWNED_MEDIUM_HANG_BONUS;
 
             Occurred = _rng.NextDouble() < baseDownedChance;
         }

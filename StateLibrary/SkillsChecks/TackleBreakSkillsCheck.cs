@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System.Linq;
 
 namespace StateLibrary.SkillsChecks
@@ -39,12 +40,15 @@ namespace StateLibrary.SkillsChecks
                 ? tacklers.Average(t => (t.Tackling + t.Strength + t.Speed) / 3.0)
                 : 50;
 
-            // Calculate break tackle probability (30% base for elite backs)
+            // Calculate break tackle probability (base rate for elite backs)
             var skillDifferential = ballCarrierPower - tacklerPower;
-            var breakProbability = 0.25 + (skillDifferential / 250.0);
+            var breakProbability = GameProbabilities.Rushing.TACKLE_BREAK_BASE_PROBABILITY
+                + (skillDifferential / GameProbabilities.Rushing.TACKLE_BREAK_SKILL_DENOMINATOR);
 
-            // Clamp between 5% and 50%
-            breakProbability = Math.Max(0.05, Math.Min(0.50, breakProbability));
+            // Clamp to reasonable bounds
+            breakProbability = Math.Max(
+                GameProbabilities.Rushing.TACKLE_BREAK_MIN_CLAMP,
+                Math.Min(GameProbabilities.Rushing.TACKLE_BREAK_MAX_CLAMP, breakProbability));
 
             Occurred = _rng.NextDouble() < breakProbability;
         }

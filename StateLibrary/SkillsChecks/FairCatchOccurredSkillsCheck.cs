@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -30,21 +31,20 @@ namespace StateLibrary.SkillsChecks
             // - Long hang time (good coverage breathing down neck)
             // - Deep in own territory (don't risk muff/loss)
 
-            var baseFairCatchChance = 0.25; // 25% baseline
+            var baseFairCatchChance = GameProbabilities.Punts.PUNT_FAIR_CATCH_BASE;
 
             // Hang time factor (longer hang time = more pressure)
-            if (_hangTime > 4.5)
-                baseFairCatchChance += 0.15;
-            else if (_hangTime > 4.0)
-                baseFairCatchChance += 0.10;
+            if (_hangTime > GameProbabilities.Punts.PUNT_MUFF_HIGH_HANG_THRESHOLD)
+                baseFairCatchChance += GameProbabilities.Punts.PUNT_FAIR_CATCH_HIGH_HANG_BONUS;
+            else if (_hangTime > GameProbabilities.Punts.PUNT_MUFF_MEDIUM_HANG_THRESHOLD)
+                baseFairCatchChance += GameProbabilities.Punts.PUNT_FAIR_CATCH_MEDIUM_HANG_BONUS;
 
             // Field position factor (deep in own territory = more conservative)
-            // returnSpot is from opponent's perspective (100 - their field position)
             var actualFieldPosition = 100 - _returnSpot;
-            if (actualFieldPosition < 10) // Own 10 or closer
-                baseFairCatchChance += 0.20;
-            else if (actualFieldPosition < 20) // Own 20 or closer
-                baseFairCatchChance += 0.10;
+            if (actualFieldPosition < 10)
+                baseFairCatchChance += GameProbabilities.Punts.PUNT_FAIR_CATCH_OWN_10_BONUS;
+            else if (actualFieldPosition < 20)
+                baseFairCatchChance += GameProbabilities.Punts.PUNT_FAIR_CATCH_OWN_20_BONUS;
 
             Occurred = _rng.NextDouble() < baseFairCatchChance;
         }

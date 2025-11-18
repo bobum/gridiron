@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace StateLibrary.SkillsCheckResults
         public override void Execute(Game game)
         {
             // Check if fumble goes out of bounds
-            var outOfBoundsChance = 0.12; // 12% go OOB
+            var outOfBoundsChance = GameProbabilities.Turnovers.FUMBLE_OUT_OF_BOUNDS_PROBABILITY;
             var goesOutOfBounds = _rng.NextDouble() < outOfBoundsChance;
 
             if (goesOutOfBounds)
@@ -55,33 +56,35 @@ namespace StateLibrary.SkillsCheckResults
             int bounceYards;
             double offenseRecoveryChance;
 
-            if (bounceRandom < 0.4)
+            if (bounceRandom < GameProbabilities.Turnovers.FUMBLE_RECOVERY_BACKWARD_THRESHOLD)
             {
                 // Backward bounce (toward offense's goal)
                 bounceYards = -(int)(_rng.NextDouble() * 8); // -8 to 0 yards
-                offenseRecoveryChance = 0.50; // Defense closer on backward bounces
+                offenseRecoveryChance = GameProbabilities.Turnovers.FUMBLE_RECOVERY_BACKWARD_BASE;
             }
-            else if (bounceRandom < 0.7)
+            else if (bounceRandom < GameProbabilities.Turnovers.FUMBLE_RECOVERY_FORWARD_THRESHOLD)
             {
                 // Forward bounce (toward defense's goal)
                 bounceYards = (int)(_rng.NextDouble() * 8); // 0 to 8 yards
-                offenseRecoveryChance = 0.70; // Offense closer on forward bounces
+                offenseRecoveryChance = GameProbabilities.Turnovers.FUMBLE_RECOVERY_FORWARD_BASE;
             }
             else
             {
                 // Sideways/minimal bounce
                 bounceYards = (int)((_rng.NextDouble() * 4) - 2); // -2 to 2 yards
-                offenseRecoveryChance = 0.60; // Slight offense advantage (proximity)
+                offenseRecoveryChance = GameProbabilities.Turnovers.FUMBLE_RECOVERY_SIDEWAYS_BASE;
             }
 
             // Adjust recovery chance based on player awareness
             var offenseAvgAwareness = _offensePlayers.Average(p => p.Awareness);
             var defenseAvgAwareness = _defensePlayers.Average(p => p.Awareness);
             var awarenessDiff = (offenseAvgAwareness - defenseAvgAwareness) / 100.0;
-            offenseRecoveryChance += awarenessDiff * 0.15; // +/- 15% max based on awareness
+            offenseRecoveryChance += awarenessDiff * GameProbabilities.Turnovers.FUMBLE_RECOVERY_AWARENESS_FACTOR;
 
-            // Clamp
-            offenseRecoveryChance = Math.Max(0.3, Math.Min(0.8, offenseRecoveryChance));
+            // Clamp to reasonable bounds
+            offenseRecoveryChance = Math.Max(
+                GameProbabilities.Turnovers.FUMBLE_RECOVERY_MIN_CLAMP,
+                Math.Min(GameProbabilities.Turnovers.FUMBLE_RECOVERY_MAX_CLAMP, offenseRecoveryChance));
 
             // Determine who recovers
             var offenseRecovers = _rng.NextDouble() < offenseRecoveryChance;

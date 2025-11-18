@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System.Linq;
 
 namespace StateLibrary.SkillsChecks
@@ -43,12 +44,15 @@ namespace StateLibrary.SkillsChecks
                 ? defenders.Average(d => (d.Tackling + d.Strength) / 2.0)
                 : 50;
 
-            // Calculate success probability (50% base, adjusted by skill differential)
+            // Calculate success probability (base rate adjusted by skill differential)
             var skillDifferential = offensiveBlockingPower - defensivePower;
-            var successProbability = 0.50 + (skillDifferential / 200.0);
+            var successProbability = GameProbabilities.Rushing.BLOCKING_SUCCESS_BASE_PROBABILITY
+                + (skillDifferential / GameProbabilities.Rushing.BLOCKING_SUCCESS_SKILL_DENOMINATOR);
 
-            // Clamp between 20% and 80%
-            successProbability = Math.Max(0.20, Math.Min(0.80, successProbability));
+            // Clamp to reasonable bounds
+            successProbability = Math.Max(
+                GameProbabilities.Rushing.BLOCKING_SUCCESS_MIN_CLAMP,
+                Math.Min(GameProbabilities.Rushing.BLOCKING_SUCCESS_MAX_CLAMP, successProbability));
 
             Occurred = _rng.NextDouble() < successProbability;
         }

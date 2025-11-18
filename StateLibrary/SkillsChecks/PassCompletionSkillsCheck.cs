@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System.Linq;
 
 namespace StateLibrary.SkillsChecks
@@ -47,18 +48,21 @@ namespace StateLibrary.SkillsChecks
             // Calculate offensive power (QB + receiver)
             var offensivePower = (passingPower + receivingPower) / 2.0;
 
-            // Calculate completion probability (60% base, adjusted by skills)
+            // Calculate completion probability (base rate adjusted by skills)
             var skillDifferential = offensivePower - coveragePower;
-            var completionProbability = 0.60 + (skillDifferential / 250.0);
+            var completionProbability = GameProbabilities.Passing.COMPLETION_BASE_PROBABILITY
+                + (skillDifferential / GameProbabilities.Passing.COMPLETION_SKILL_DENOMINATOR);
 
             // Pressure reduces completion chance significantly
             if (_underPressure)
             {
-                completionProbability -= 0.20; // -20% when under pressure
+                completionProbability -= GameProbabilities.Passing.COMPLETION_PRESSURE_PENALTY;
             }
 
-            // Clamp between 25% and 85%
-            completionProbability = Math.Max(0.25, Math.Min(0.85, completionProbability));
+            // Clamp to reasonable bounds
+            completionProbability = Math.Max(
+                GameProbabilities.Passing.COMPLETION_MIN_CLAMP,
+                Math.Min(GameProbabilities.Passing.COMPLETION_MAX_CLAMP, completionProbability));
 
             Occurred = _rng.NextDouble() < completionProbability;
         }

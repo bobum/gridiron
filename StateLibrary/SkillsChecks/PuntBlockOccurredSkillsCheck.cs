@@ -1,6 +1,7 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,18 +33,16 @@ namespace StateLibrary.SkillsChecks
         public override void Execute(Game game)
         {
             // Base block probability
-            // Good snap: ~1% (0.01)
-            // Bad snap: ~20% (0.20) - defender has much more time
-            var blockProbability = _goodSnap ? 0.01 : 0.20;
+            var blockProbability = _goodSnap
+                ? GameProbabilities.Punts.PUNT_BLOCK_GOOD_SNAP
+                : GameProbabilities.Punts.PUNT_BLOCK_BAD_SNAP;
 
             // Factor 1: Punter skill (better punter = faster release)
-            // Kicking skill represents how quickly they get the ball away
-            var punterSkill = _punter.Kicking; // 0-100
-            var punterFactor = 1.0 - (punterSkill / 200.0); // 0.5 to 1.0 multiplier
+            var punterSkill = _punter.Kicking;
+            var punterFactor = 1.0 - (punterSkill / GameProbabilities.Punts.PUNT_BLOCK_PUNTER_SKILL_DENOMINATOR);
             blockProbability *= punterFactor;
 
             // Factor 2: Best rusher vs average blocker
-            // Find the best defensive rusher
             var bestRusher = _defensiveRushers
                 .OrderByDescending(p => p.Strength + p.Speed)
                 .FirstOrDefault();
@@ -54,15 +53,13 @@ namespace StateLibrary.SkillsChecks
                 var rusherSkill = (bestRusher.Strength + bestRusher.Speed) / 2.0;
                 var skillDifferential = rusherSkill - (avgBlocker / 2.0);
 
-                // +/- 0.005 per 10 point skill differential
-                // This means a +20 skill advantage adds ~1% block chance
-                blockProbability += (skillDifferential / 10.0) * 0.005;
+                blockProbability += (skillDifferential / 10.0) * GameProbabilities.Punts.PUNT_BLOCK_DEFENDER_SKILL_FACTOR;
             }
 
             // Clamp to reasonable range
-            // Minimum: 0.2% (elite punter, great protection)
-            // Maximum: 30% (bad snap + poor protection)
-            blockProbability = Math.Max(0.002, Math.Min(0.30, blockProbability));
+            blockProbability = Math.Max(
+                GameProbabilities.Punts.PUNT_BLOCK_MIN_CLAMP,
+                Math.Min(GameProbabilities.Punts.PUNT_BLOCK_MAX_CLAMP, blockProbability));
 
             Occurred = _rng.NextDouble() < blockProbability;
         }

@@ -1,6 +1,7 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,15 +37,15 @@ namespace StateLibrary.SkillsChecks
             // Base probability by play type
             if (_isQBSack)
             {
-                fumbleProbability = 0.12; // 12% for QB sacks
+                fumbleProbability = GameProbabilities.Turnovers.FUMBLE_QB_SACK_PROBABILITY;
             }
             else if (_playType == PlayType.Kickoff || _playType == PlayType.Punt)
             {
-                fumbleProbability = 0.025; // 2.5% for returns
+                fumbleProbability = GameProbabilities.Turnovers.FUMBLE_RETURN_PROBABILITY;
             }
             else
             {
-                fumbleProbability = 0.015; // 1.5% for normal runs/catches
+                fumbleProbability = GameProbabilities.Turnovers.FUMBLE_NORMAL_PROBABILITY;
             }
 
             // Ball carrier security factor
@@ -68,12 +69,14 @@ namespace StateLibrary.SkillsChecks
 
             // Number of defenders (gang tackles increase fumbles)
             if (_defenders.Count >= 3)
-                fumbleProbability *= 1.3; // +30% for gang tackle
+                fumbleProbability *= GameProbabilities.Turnovers.FUMBLE_GANG_TACKLE_MULTIPLIER;
             else if (_defenders.Count >= 2)
-                fumbleProbability *= 1.15; // +15% for 2 defenders
+                fumbleProbability *= GameProbabilities.Turnovers.FUMBLE_TWO_DEFENDERS_MULTIPLIER;
 
             // Clamp to reasonable range
-            fumbleProbability = Math.Max(0.003, Math.Min(0.25, fumbleProbability));
+            fumbleProbability = Math.Max(
+                GameProbabilities.Turnovers.FUMBLE_MIN_CLAMP,
+                Math.Min(GameProbabilities.Turnovers.FUMBLE_MAX_CLAMP, fumbleProbability));
 
             Occurred = _rng.NextDouble() < fumbleProbability;
         }
