@@ -15,7 +15,7 @@ namespace UnitTestProject1
     /// - Lower discipline = higher weight = more likely to commit penalties
     /// - Discipline 0 (undisciplined) = weight 120
     /// - Discipline 100 (highly disciplined) = weight 20
-    /// - Default discipline if unset = 70 (weight 50)
+    /// - Discipline values should be in the range 0-100
     ///
     /// These tests verify that over many penalty occurrences, players with lower
     /// discipline commit significantly more penalties than highly disciplined players.
@@ -261,18 +261,18 @@ namespace UnitTestProject1
 
         #endregion
 
-        #region Default Discipline Tests
+        #region Discipline Range Tests
 
         [TestMethod]
-        public void UnsetDiscipline_UsesDefault70()
+        public void ZeroDiscipline_CommitsMorePenalties_Than70Discipline()
         {
-            // Arrange - Players with unset (0) discipline should use default 70
-            var unsetDisciplinePlayer = new Player
+            // Arrange - Verify Discipline 0 behaves as "undisciplined", not as default
+            var zeroDisciplinePlayer = new Player
             {
-                FirstName = "Unset",
+                FirstName = "Zero",
                 LastName = "Discipline",
                 Position = Positions.CB,
-                Discipline = 0 // Not initialized, should default to 70
+                Discipline = 0 // Weight = 120
             };
 
             var normalDisciplinePlayer = new Player
@@ -280,21 +280,21 @@ namespace UnitTestProject1
                 FirstName = "Normal",
                 LastName = "Discipline",
                 Position = Positions.CB,
-                Discipline = 70 // Explicitly set to 70
+                Discipline = 70 // Weight = 50
             };
 
-            var players = new List<Player> { unsetDisciplinePlayer, normalDisciplinePlayer };
+            var players = new List<Player> { zeroDisciplinePlayer, normalDisciplinePlayer };
 
-            // Run trials to see if distribution is roughly equal (both weight 50)
-            int unsetCount = 0;
+            // Run trials to see distribution
+            int zeroCount = 0;
             int normalCount = 0;
             int trials = 1000;
             var random = new System.Random(789);
 
-            // Total weight = 50 + 50 = 100 (both have same weight if unset defaults to 70)
+            // Total weight = 120 + 50 = 170
             for (int i = 0; i < trials; i++)
             {
-                int roll = random.Next(100);
+                int roll = random.Next(170);
 
                 var rng = new TestFluentSeedableRandom()
                     .NextDouble(0.5)
@@ -312,19 +312,23 @@ namespace UnitTestProject1
                 result.Execute(null);
 
                 if (result.Result.CommittedBy.Discipline == 0)
-                    unsetCount++;
+                    zeroCount++;
                 else
                     normalCount++;
             }
 
-            // Assert - Should be roughly equal (within 30% variance)
-            // If unset defaults to 70, both weights are 50, so 50:50 distribution expected
+            // Assert - Zero discipline (weight 120) should commit more than discipline 70 (weight 50)
+            // Expected ratio: 120:50 = 2.4:1
+            Assert.IsTrue(zeroCount > normalCount,
+                $"Zero discipline should commit more penalties than discipline 70. " +
+                $"Actual: Zero={zeroCount}, Normal={normalCount}");
+
             if (normalCount > 0)
             {
-                double ratio = (double)unsetCount / normalCount;
-                Assert.IsTrue(ratio > 0.7 && ratio < 1.3,
-                    $"Unset discipline (defaults to 70) should have similar rate to discipline 70. " +
-                    $"Ratio: {ratio:F2}:1 (Unset={unsetCount}, Normal={normalCount})");
+                double ratio = (double)zeroCount / normalCount;
+                Assert.IsTrue(ratio > 1.8 && ratio < 3.0,
+                    $"Ratio should be ~2.4:1, actual: {ratio:F2}:1 " +
+                    $"(Zero={zeroCount}, Normal={normalCount})");
             }
         }
 
