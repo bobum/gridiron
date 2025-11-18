@@ -84,12 +84,9 @@ namespace StateLibrary.Actions
                 {
                     game.CurrentDown = Downs.First;
                     game.YardsToGo = 10;
-
-                    // CRITICAL: Flip field position when possession changes
-                    // Field position is always from offensive team's perspective (0=own goal, 100=opponent goal)
-                    // When possession changes, we must flip: newPosition = 100 - oldPosition
-                    // Example: Offense at their 30 (pos 30) → Defense gets ball → Now at opponent's 30 (pos 70)
-                    game.FieldPosition = 100 - game.FieldPosition;
+                    // Note: Field position is an absolute value (0-100 on field)
+                    // It does NOT flip on possession changes
+                    // Display helpers (FormatFieldPosition) interpret it based on possession
                 }
                 // Otherwise, down and yards were already set by PlayResult
 

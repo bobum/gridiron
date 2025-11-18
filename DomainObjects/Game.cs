@@ -25,7 +25,8 @@ namespace DomainObjects
         // Defaults to NullLogger so tests don't need to set it up
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        // Field position tracking (0 = offense's own goal line, 100 = opponent's goal line)
+        // Field position tracking (absolute position 0-100 on field, does not flip on possession changes)
+        // Use FormatFieldPosition(possession) to display in NFL notation (e.g., "Team 25 yard line")
         public int FieldPosition { get; set; } = 0; // Line of scrimmage
         public int YardsToGo { get; set; } = 10; // Yards needed for first down
         public Downs CurrentDown { get; set; } = Downs.First;
