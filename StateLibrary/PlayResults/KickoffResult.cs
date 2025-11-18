@@ -18,21 +18,6 @@ namespace StateLibrary.PlayResults
             // Set start field position (kickoffs start at 35-yard line for kicking team)
             play.StartFieldPosition = 35;
 
-            // Check for penalties first - they may negate or modify the result
-            var hasPenalties = play.Penalties != null && play.Penalties.Any();
-            if (hasPenalties)
-            {
-                // Handle penalties first to see if they affect the result
-                HandlePenalties(game, play);
-
-                // If penalties were accepted, they handle all game state, so we're done
-                var hasAcceptedPenalties = play.Penalties.Any(p => p.Accepted);
-                if (hasAcceptedPenalties)
-                {
-                    return;
-                }
-            }
-
             // Handle safety (returner tackled in own end zone)
             if (play.IsSafety)
             {
@@ -55,6 +40,9 @@ namespace StateLibrary.PlayResults
                 game.CurrentDown = Downs.First;
                 game.YardsToGo = 10;
                 play.Result.LogInformation($"Touchback. Receiving team starts at the 25-yard line.");
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
                 return;
             }
 
@@ -66,6 +54,9 @@ namespace StateLibrary.PlayResults
                 play.PossessionChange = true;
                 game.CurrentDown = Downs.First;
                 game.YardsToGo = 10;
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
                 return; // Fair catch ends the play
             }
 
@@ -77,6 +68,9 @@ namespace StateLibrary.PlayResults
                 play.PossessionChange = play.PossessionChange; // Already set in Kickoff.cs
                 game.CurrentDown = Downs.First;
                 game.YardsToGo = 10;
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
                 return; // Muff ends the play
             }
 
@@ -89,6 +83,9 @@ namespace StateLibrary.PlayResults
                 game.CurrentDown = Downs.First;
                 game.YardsToGo = 10;
                 play.Result.LogInformation($"Kickoff out of bounds. Ball placed at the 40-yard line.");
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
                 return;
             }
 
@@ -113,6 +110,9 @@ namespace StateLibrary.PlayResults
                     game.YardsToGo = 10;
                     play.Result.LogInformation($"Receiving team recovers at the {game.FieldPosition}-yard line.");
                 }
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
                 return;
             }
 
@@ -137,6 +137,9 @@ namespace StateLibrary.PlayResults
 
                 game.FieldPosition = 100;
                 play.PossessionChange = true; // Will kick off again after TD
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
                 return;
             }
 
@@ -147,6 +150,9 @@ namespace StateLibrary.PlayResults
             game.YardsToGo = 10;
 
             play.Result.LogInformation($"Kickoff return. Ball at the {game.FieldPosition}-yard line. 1st and 10.");
+
+            // Handle penalties if any occurred
+            HandlePenalties(game, play);
         }
 
         private void HandlePenalties(Game game, KickoffPlay play)

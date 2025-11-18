@@ -16,22 +16,6 @@ namespace StateLibrary.PlayResults
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
 
-            // Check for penalties first - they may negate or modify the result
-            var hasPenalties = play.Penalties != null && play.Penalties.Any();
-            if (hasPenalties)
-            {
-                // Handle penalties first to see if they affect the result
-                HandlePenalties(game, play);
-
-                // If penalties were accepted, they handle all game state, so we're done
-                var hasAcceptedPenalties = play.Penalties.Any(p => p.Accepted);
-                if (hasAcceptedPenalties)
-                {
-                    LogPuntSummary(play);
-                    return;
-                }
-            }
-
             // Handle safety (bad snap into end zone or tackled in end zone)
             if (play.IsSafety)
             {
@@ -49,6 +33,10 @@ namespace StateLibrary.PlayResults
                 game.AddSafety(scoringTeam);
 
                 play.PossessionChange = true;
+
+                // Handle penalties if any occurred
+                HandlePenalties(game, play);
+                LogPuntSummary(play);
                 return; // Safety ends the play immediately
             }
 
@@ -97,6 +85,9 @@ namespace StateLibrary.PlayResults
                 game.CurrentDown = Downs.First;
                 game.YardsToGo = 10;
             }
+
+            // Handle penalties if any occurred
+            HandlePenalties(game, play);
 
             // Log final punt summary
             LogPuntSummary(play);
