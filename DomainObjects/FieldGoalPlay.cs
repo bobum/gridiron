@@ -52,6 +52,11 @@ namespace DomainObjects
         public Player? Holder { get; set; }
 
         /// <summary>
+        /// The long snapper
+        /// </summary>
+        public Player? LongSnapper { get; set; }
+
+        /// <summary>
         /// Attempt distance (from line of scrimmage + 17 yards for end zone depth and snap distance)
         /// </summary>
         public int AttemptDistance { get; set; }
