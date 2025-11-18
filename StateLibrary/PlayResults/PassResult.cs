@@ -269,6 +269,9 @@ namespace StateLibrary.PlayResults
                     play.Result.LogInformation($"{passer.LastName}: {completions}/{attempts} passing.");
                 }
             }
+
+            // Visual marker for end of play
+            play.Result.LogInformation("---");
         }
 
         /// <summary>

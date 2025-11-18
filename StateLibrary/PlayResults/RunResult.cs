@@ -226,6 +226,9 @@ namespace StateLibrary.PlayResults
             {
                 play.Result.LogInformation($"{finalCarrier.LastName}: {play.RunSegments.Count} carry for {play.YardsGained} yards.");
             }
+
+            // Visual marker for end of play
+            play.Result.LogInformation("---");
         }
 
         /// <summary>
