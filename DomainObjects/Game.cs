@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using DomainObjects.Helpers;
 using Half = DomainObjects.Time.Half;
 
 namespace DomainObjects
@@ -53,6 +54,56 @@ namespace DomainObjects
         {
             CurrentQuarter = Halves[0].Quarters[0];
             CurrentHalf = Halves[0];
+        }
+
+        // ========================================
+        // FIELD POSITION HELPERS
+        // ========================================
+
+        /// <summary>
+        /// Gets the offensive team (team with current possession)
+        /// </summary>
+        public Team GetOffensiveTeam(Possession possession)
+        {
+            return possession == Possession.Home ? HomeTeam : AwayTeam;
+        }
+
+        /// <summary>
+        /// Gets the defensive team (team without possession)
+        /// </summary>
+        public Team GetDefensiveTeam(Possession possession)
+        {
+            return possession == Possession.Home ? AwayTeam : HomeTeam;
+        }
+
+        /// <summary>
+        /// Formats current field position in NFL notation
+        /// </summary>
+        public string FormatFieldPosition(Possession possession)
+        {
+            var offenseTeam = GetOffensiveTeam(possession);
+            var defenseTeam = GetDefensiveTeam(possession);
+            return FieldPositionHelper.FormatFieldPosition(FieldPosition, offenseTeam, defenseTeam);
+        }
+
+        /// <summary>
+        /// Formats a specific field position in NFL notation
+        /// </summary>
+        public string FormatFieldPosition(int fieldPosition, Possession possession)
+        {
+            var offenseTeam = GetOffensiveTeam(possession);
+            var defenseTeam = GetDefensiveTeam(possession);
+            return FieldPositionHelper.FormatFieldPosition(fieldPosition, offenseTeam, defenseTeam);
+        }
+
+        /// <summary>
+        /// Formats current field position with "yard line" suffix
+        /// </summary>
+        public string FormatFieldPositionWithYardLine(Possession possession)
+        {
+            var offenseTeam = GetOffensiveTeam(possession);
+            var defenseTeam = GetDefensiveTeam(possession);
+            return FieldPositionHelper.FormatFieldPositionWithYardLine(FieldPosition, offenseTeam, defenseTeam);
         }
 
         // ========================================
