@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System.Linq;
 
 namespace StateLibrary.SkillsChecks
@@ -41,12 +42,15 @@ namespace StateLibrary.SkillsChecks
                 ? blockers.Average(b => b.Blocking)
                 : 50;
 
-            // Calculate pressure probability (30% base, adjusted by rush vs protection)
+            // Calculate pressure probability (base rate adjusted by rush vs protection)
             var skillDifferential = passRushPower - protectionPower;
-            var pressureProbability = 0.30 + (skillDifferential / 250.0);
+            var pressureProbability = GameProbabilities.Passing.QB_PRESSURE_BASE_PROBABILITY
+                + (skillDifferential / GameProbabilities.Passing.QB_PRESSURE_SKILL_DENOMINATOR);
 
-            // Clamp between 10% and 60%
-            pressureProbability = Math.Max(0.10, Math.Min(0.60, pressureProbability));
+            // Clamp to reasonable bounds
+            pressureProbability = Math.Max(
+                GameProbabilities.Passing.QB_PRESSURE_MIN_CLAMP,
+                Math.Min(GameProbabilities.Passing.QB_PRESSURE_MAX_CLAMP, pressureProbability));
 
             Occurred = _rng.NextDouble() < pressureProbability;
         }

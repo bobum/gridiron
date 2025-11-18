@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System.Linq;
 
 namespace StateLibrary.SkillsChecks
@@ -45,12 +46,15 @@ namespace StateLibrary.SkillsChecks
                 ? rushers.Average(r => (r.Tackling + r.Speed + r.Strength) / 3.0)
                 : 50;
 
-            // Calculate protection success probability (75% base, adjusted by skill differential)
+            // Calculate protection success probability (base rate adjusted by skill differential)
             var skillDifferential = offensiveProtection - passRushPower;
-            var protectionProbability = 0.75 + (skillDifferential / 200.0);
+            var protectionProbability = GameProbabilities.Passing.PASS_PROTECTION_BASE_PROBABILITY
+                + (skillDifferential / GameProbabilities.Passing.PASS_PROTECTION_SKILL_DENOMINATOR);
 
-            // Clamp between 40% and 95% (sacks are relatively rare)
-            protectionProbability = Math.Max(0.40, Math.Min(0.95, protectionProbability));
+            // Clamp to reasonable bounds (sacks are relatively rare)
+            protectionProbability = Math.Max(
+                GameProbabilities.Passing.PASS_PROTECTION_MIN_CLAMP,
+                Math.Min(GameProbabilities.Passing.PASS_PROTECTION_MAX_CLAMP, protectionProbability));
 
             // Roll for success
             var roll = _rng.NextDouble();

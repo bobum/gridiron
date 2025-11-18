@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -26,8 +27,9 @@ namespace StateLibrary.SkillsChecks
             // Good LS (70+ skill): ~0.5% chance
             // Poor LS (30 skill): ~5% chance
 
-            var skillFactor = _longSnapper.Blocking / 100.0; // Using blocking as proxy for snapping skill
-            var badSnapChance = 0.05 - (skillFactor * 0.04); // 5% to 1%
+            var skillFactor = _longSnapper.Blocking / GameProbabilities.Punts.PUNT_BAD_SNAP_SKILL_DENOMINATOR;
+            var badSnapChance = GameProbabilities.Punts.PUNT_BAD_SNAP_BASE
+                - (skillFactor * GameProbabilities.Punts.PUNT_BAD_SNAP_SKILL_FACTOR);
 
             Occurred = _rng.NextDouble() < badSnapChance;
         }

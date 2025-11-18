@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using StateLibrary.Configuration;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions
@@ -175,10 +176,10 @@ namespace StateLibrary.Actions
                 {
                     var scoringTeam = lastPlay.Possession;
 
-                    // 10% chance of going for 2-pt conversion, 90% extra point
+                    // Chance of going for 2-pt conversion vs extra point
                     var conversionChoice = _rng.NextDouble();
 
-                    if (conversionChoice < 0.10)
+                    if (conversionChoice < GameProbabilities.GameDecisions.TWO_POINT_CONVERSION_ATTEMPT)
                     {
                         // 2-pt conversion attempt (Run or Pass from 2-yard line)
                         // From opponent's 2-yard line
@@ -190,7 +191,7 @@ namespace StateLibrary.Actions
 
                         // Randomly choose run or pass for 2-pt conversion
                         var playChoice = _rng.NextDouble();
-                        if (playChoice < 0.5)
+                        if (playChoice < GameProbabilities.GameDecisions.TWO_POINT_RUN_PROBABILITY)
                         {
                             currentPlay = new RunPlay
                             {

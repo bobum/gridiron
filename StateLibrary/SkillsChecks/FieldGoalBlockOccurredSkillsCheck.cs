@@ -1,6 +1,7 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,25 +35,24 @@ namespace StateLibrary.SkillsChecks
 
         public override void Execute(Game game)
         {
-            // Base probability by distance
-            // Longer kicks = higher trajectory = easier to block
+            // Base probability by distance (longer kicks = higher trajectory = easier to block)
             double blockProbability;
-            if (_kickDistance <= 30)
-                blockProbability = 0.015; // 1.5% for short kicks/extra points (18-30 yards)
-            else if (_kickDistance <= 45)
-                blockProbability = 0.025; // 2.5% for medium kicks (30-45 yards)
-            else if (_kickDistance <= 55)
-                blockProbability = 0.040; // 4% for long kicks (45-55 yards)
+            if (_kickDistance <= GameProbabilities.FieldGoals.FG_BLOCK_DISTANCE_SHORT)
+                blockProbability = GameProbabilities.FieldGoals.FG_BLOCK_VERY_SHORT;
+            else if (_kickDistance <= GameProbabilities.FieldGoals.FG_BLOCK_DISTANCE_MEDIUM)
+                blockProbability = GameProbabilities.FieldGoals.FG_BLOCK_SHORT;
+            else if (_kickDistance <= GameProbabilities.FieldGoals.FG_BLOCK_DISTANCE_LONG)
+                blockProbability = GameProbabilities.FieldGoals.FG_BLOCK_MEDIUM;
             else
-                blockProbability = 0.065; // 6.5% for 55+ yard kicks (very long)
+                blockProbability = GameProbabilities.FieldGoals.FG_BLOCK_LONG;
 
             // Bad snap multiplier - MUCH easier to block
             if (!_goodSnap)
-                blockProbability *= 10.0; // 10x multiplier for bad snap
+                blockProbability *= GameProbabilities.FieldGoals.FG_BLOCK_BAD_SNAP_MULTIPLIER;
 
             // Factor 1: Kicker skill (better kicker = faster operation)
             var kickerSkill = _kicker.Kicking;
-            var kickerFactor = 1.0 - (kickerSkill / 300.0); // 0.67 to 1.0 multiplier
+            var kickerFactor = 1.0 - (kickerSkill / GameProbabilities.FieldGoals.FG_BLOCK_KICKER_SKILL_DENOMINATOR);
             blockProbability *= kickerFactor;
 
             // Factor 2: Defensive pressure (best rusher vs avg blocker)
@@ -66,14 +66,13 @@ namespace StateLibrary.SkillsChecks
                 var rusherSkill = (bestRusher.Strength + bestRusher.Speed) / 2.0;
                 var skillDifferential = rusherSkill - (avgBlocker / 2.0);
 
-                // +/- 0.003 per 10 point skill differential
-                blockProbability += (skillDifferential / 10.0) * 0.003;
+                blockProbability += (skillDifferential / 10.0) * GameProbabilities.FieldGoals.FG_BLOCK_DEFENDER_SKILL_FACTOR;
             }
 
             // Clamp to reasonable range
-            // Minimum: 0.5% (short kick, elite kicker, great protection)
-            // Maximum: 25% (bad snap on long kick with poor protection)
-            blockProbability = Math.Max(0.005, Math.Min(0.25, blockProbability));
+            blockProbability = Math.Max(
+                GameProbabilities.FieldGoals.FG_BLOCK_MIN_CLAMP,
+                Math.Min(GameProbabilities.FieldGoals.FG_BLOCK_MAX_CLAMP, blockProbability));
 
             Occurred = _rng.NextDouble() < blockProbability;
         }

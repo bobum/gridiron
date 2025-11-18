@@ -1,6 +1,7 @@
 ﻿using DomainObjects;
 using DomainObjects.Helpers;
 using Microsoft.Extensions.Logging;
+using StateLibrary.Configuration;
 using StateLibrary.Interfaces;
 using StateLibrary.SkillsChecks;
 using StateLibrary.SkillsCheckResults;
@@ -164,8 +165,8 @@ namespace StateLibrary.Plays
             // Primary carrier is RB, but could be QB for scramble, or FB
             var rb = play.OffensePlayersOnField.FirstOrDefault(p => p.Position == Positions.RB);
 
-            // 10% chance QB keeps it (scramble or option)
-            if (_rng.NextDouble() < 0.10)
+            // Chance QB keeps it (scramble or option)
+            if (_rng.NextDouble() < GameProbabilities.Rushing.QB_SCRAMBLE_PROBABILITY)
             {
                 var qb = play.OffensePlayersOnField.FirstOrDefault(p => p.Position == Positions.QB);
                 if (qb != null)

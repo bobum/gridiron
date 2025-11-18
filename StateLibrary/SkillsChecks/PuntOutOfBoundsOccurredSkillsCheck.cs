@@ -1,6 +1,7 @@
 using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.BaseClasses;
+using StateLibrary.Configuration;
 
 namespace StateLibrary.SkillsChecks
 {
@@ -27,13 +28,13 @@ namespace StateLibrary.SkillsChecks
             // - Generally around 10-15%
             // - Slightly higher deep in opponent territory (directional punting)
 
-            var baseOutOfBoundsChance = 0.12; // 12% baseline
+            var baseOutOfBoundsChance = GameProbabilities.Punts.PUNT_OOB_BASE;
 
             // Field position factor (directional punting near goal line)
-            if (_puntLandingSpot > 90) // Inside opponent's 10
-                baseOutOfBoundsChance += 0.08;
-            else if (_puntLandingSpot > 85) // Inside opponent's 15
-                baseOutOfBoundsChance += 0.05;
+            if (_puntLandingSpot > GameProbabilities.Punts.PUNT_OOB_INSIDE_10_THRESHOLD)
+                baseOutOfBoundsChance += GameProbabilities.Punts.PUNT_OOB_INSIDE_10_BONUS;
+            else if (_puntLandingSpot > GameProbabilities.Punts.PUNT_OOB_INSIDE_15_THRESHOLD)
+                baseOutOfBoundsChance += GameProbabilities.Punts.PUNT_OOB_INSIDE_15_BONUS;
 
             Occurred = _rng.NextDouble() < baseOutOfBoundsChance;
         }
