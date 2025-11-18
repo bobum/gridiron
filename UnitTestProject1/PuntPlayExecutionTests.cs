@@ -24,11 +24,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 30;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.01)  // Bad snap occurs (< 2.2% with 70 blocking)
-                .NextDouble(0.3)   // Base loss calculation
-                .NextDouble(0.5)   // Random factor
-                .NextDouble(0.7);  // Elapsed time
+            var rng = PuntPlayScenarios.BadSnap(baseLoss: 0.3, randomFactor: 0.5);
 
             var punt = new Punt(rng);
 
@@ -53,11 +49,7 @@ namespace UnitTestProject1
             game.HomeScore = 0;
             game.AwayScore = 0;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.01)  // Bad snap occurs (< 2.2% with 70 blocking)
-                .NextDouble(0.9)   // Large loss (near max)
-                .NextDouble(0.8)   // Random factor pushes it over
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BadSnapSafety();
 
             var punt = new Punt(rng);
 
@@ -81,19 +73,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 30;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.96)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Punt distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.8)   // Not downed
-                .NextDouble(0.8)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.5, returnYards: 0.5);
 
             var punt = new Punt(rng);
 
@@ -118,13 +98,7 @@ namespace UnitTestProject1
             game.FieldPosition = 40;
             var play = (PuntPlay)game.CurrentPlay;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.01)  // BLOCKED!
-                .NextDouble(0.6)   // Defense recovers (>= 50%)
-                .NextDouble(0.5)   // Ball bounce (baseBounce: -10 + 12.5 = 2.5 yards)
-                .NextDouble(0.6)   // Random factor (6 - 5 = 1 yard)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BlockedPuntDefenseRecovers(baseBounce: 0.5, randomFactor: 0.6);
 
             var punt = new Punt(rng);
 
@@ -146,12 +120,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.01)  // BLOCKED!
-                .NextDouble(0.3)   // Offense recovers (< 50%)
-                .NextDouble(0.7)   // Loss calculation
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BlockedPuntOffenseRecovers(recoveryYards: 0.7);
 
             var punt = new Punt(rng);
 
@@ -177,13 +146,7 @@ namespace UnitTestProject1
             game.HomeScore = 7;
             game.AwayScore = 14;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.01)  // BLOCKED!
-                .NextDouble(0.6)   // Defense recovers (>= 50%)
-                .NextDouble(0.7)   // Ball bounce forward (baseBounce: -10 + 17.5 = 7.5 yards)
-                .NextDouble(0.5)   // Random factor (5 - 5 = 0 yards, total 7.5 yards to TD)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BlockedPuntTouchdown();
 
             var punt = new Punt(rng);
 
@@ -209,19 +172,7 @@ namespace UnitTestProject1
 
             // Use RNG value that would NOT block with good snap
             // Good snap: ~1% block rate, so 0.02 should NOT block
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.02)  // Would NOT block (> 1%)
-                .NextDouble(0.5)   // Punt distance
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.99)  // No out of bounds
-                .NextDouble(0.99)  // No downed
-                .NextDouble(0.99)  // No fair catch
-                .NextDouble(0.99)  // No muff
-                .NextDouble(0.5)   // Return yards
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.5, returnYards: 0.5);
 
             var punt = new Punt(rng);
 
@@ -248,11 +199,7 @@ namespace UnitTestProject1
                 snapper.Blocking = 10; // Terrible snapper
             }
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.01)  // Bad snap occurs
-                .NextDouble(0.5)   // Bad snap yards (baseLoss)
-                .NextDouble(0.5)   // Bad snap yards (randomFactor)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BadSnap(baseLoss: 0.5, randomFactor: 0.5);
 
             var punt = new Punt(rng);
 
@@ -296,13 +243,7 @@ namespace UnitTestProject1
 
             // Use RNG that would block with skill advantage
             // Base 1% + skill differential bonus
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.015) // Would block with skill advantage (~1-2%)
-                .NextDouble(0.6)   // Defense recovers
-                .NextDouble(0.5)   // Ball bounce
-                .NextDouble(0.5)   // Random factor
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BlockedPuntDefenseRecovers(baseBounce: 0.5, randomFactor: 0.5);
 
             var punt = new Punt(rng);
 
@@ -325,12 +266,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 45;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.95)  // Punt distance
-                .NextDouble(0.9)   // Hang time random
-                .NextDouble(0.99); // No kicker penalty
+            var rng = PuntPlayScenarios.Touchback(puntDistance: 0.95);
 
             var punt = new Punt(rng);
 
@@ -355,13 +291,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.1);  // OUT OF BOUNDS!
+            var rng = PuntPlayScenarios.OutOfBounds();
 
             var punt = new Punt(rng);
 
@@ -388,14 +318,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.85)  // Punt distance
-                .NextDouble(0.7)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.2);  // DOWNED!
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.85);
 
             var punt = new Punt(rng);
 
@@ -417,14 +340,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 50;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.35)  // 45-yard punt (lands at ~95 yard line)
-                .NextDouble(0.9)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.1);  // DOWNED! (high probability near goal line)
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.35);
 
             var punt = new Punt(rng);
 
@@ -448,15 +364,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 45;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.65)  // Punt distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.9)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.2);  // FAIR CATCH! (55% chance with hang time + field position)
+            var rng = PuntPlayScenarios.FairCatch(puntDistance: 0.65);
 
             var punt = new Punt(rng);
 
@@ -477,15 +385,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.63)  // 52-yard punt (lands at own 8, field position 92)
-                .NextDouble(0.9)   // Hang time random (good hang time ~4.8s)
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.6)   // Not downed (0.6 >= 50% threshold at spot 92)
-                .NextDouble(0.15); // FAIR CATCH! (60% chance: deep + good hang time)
+            var rng = PuntPlayScenarios.FairCatchDeep();
 
             var punt = new Punt(rng);
 
@@ -508,19 +408,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.02)  // MUFFED!
-                .NextDouble(0.4)   // Receiving team recovers (< 60%)
-                .NextDouble(0.3)   // Recovery yards
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.MuffReceivingTeamRecovers(recoveryYards: 0.3);
 
             var punt = new Punt(rng);
 
@@ -542,18 +430,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.03)  // MUFFED!
-                .NextDouble(0.7)   // Punting team recovers (>= 60%)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.MuffPuntingTeamRecovers();
 
             var punt = new Punt(rng);
 
@@ -579,19 +456,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.65)  // Punt distance
-                .NextDouble(0.6)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.65, returnYards: 0.5);
 
             var punt = new Punt(rng);
 
@@ -619,19 +484,7 @@ namespace UnitTestProject1
             game.HomeScore = 14;
             game.AwayScore = 10;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.05)  // Short punt ~38 yards (lands at ~98)
-                .NextDouble(0.3)   // Short hang time (poor coverage)
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.95)  // Great return ~20+ yards for TD
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.ReturnTouchdown();
 
             var punt = new Punt(rng);
 
@@ -658,15 +511,7 @@ namespace UnitTestProject1
             // Remove all potential returners from defense
             play.DefensePlayersOnField.Clear();
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed (but will be treated as downed due to no returner)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.6);
 
             var punt = new Punt(rng);
 
@@ -689,11 +534,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 2;  // Very close to own goal
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.01)  // Bad snap occurs (< 2.2% with 70 blocking)
-                .NextDouble(0.95)  // Large loss attempt
-                .NextDouble(0.9)   // Random factor
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BadSnap(baseLoss: 0.95, randomFactor: 0.9);
 
             var punt = new Punt(rng);
 
@@ -712,12 +553,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 45;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.99)  // Punt distance (very long)
-                .NextDouble(0.5)   // Hang time random
-                .NextDouble(0.99); // No kicker penalty
+            var rng = PuntPlayScenarios.Touchback(puntDistance: 0.99);
 
             var punt = new Punt(rng);
 
@@ -741,15 +577,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 1;  // Own 1-yard line
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Normal punt
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.05)  // DOWNED (low value ensures downed)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.5);
 
             var punt = new Punt(rng);
 
@@ -771,11 +599,7 @@ namespace UnitTestProject1
             var play = (PuntPlay)game.CurrentPlay;
             play.Possession = Possession.Home;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.01)  // Bad snap occurs
-                .NextDouble(0.8)   // Large loss
-                .NextDouble(0.95)  // Max random factor
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BadSnap(baseLoss: 0.8, randomFactor: 0.95);
 
             var punt = new Punt(rng);
 
@@ -810,19 +634,7 @@ namespace UnitTestProject1
                 Catching = 40
             });
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.0)   // Minimum punt distance (shanked)
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.ShankedPunt();
 
             var punt = new Punt(rng);
 
@@ -841,15 +653,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 20;  // Own 20-yard line
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.99)  // Maximum punt distance (~61 yards)
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.05)  // DOWNED (low value ensures downed at yard ~81)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.99);
 
             var punt = new Punt(rng);
 
@@ -869,12 +673,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 45;  // Position where punt can reach exactly 100
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.95)  // Long punt to reach 100
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99); // No kicker penalty
+            var rng = PuntPlayScenarios.Touchback(puntDistance: 0.95);
 
             var punt = new Punt(rng);
 
@@ -898,13 +697,7 @@ namespace UnitTestProject1
             game.HomeScore = 7;
             game.AwayScore = 3;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.01)  // Block occurs
-                .NextDouble(0.6)   // Defense recovers (>= 50%)
-                .NextDouble(0.05)  // Ball bounces backward (baseBounce near min: -10 + 1.25 = -8.75)
-                .NextDouble(0.1)   // Random factor backward (1 - 5 = -4)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BlockedPuntDefenseRecovers(baseBounce: 0.05, randomFactor: 0.1);
 
             var punt = new Punt(rng);
 
@@ -930,12 +723,7 @@ namespace UnitTestProject1
             game.HomeScore = 14;
             game.AwayScore = 10;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.01)  // Block occurs
-                .NextDouble(0.3)   // Offense recovers (< 50%)
-                .NextDouble(0.05)  // Large loss (-5 + -4.5 = -9.5 yards)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BlockedPuntSafety();
 
             var punt = new Punt(rng);
 
@@ -961,19 +749,7 @@ namespace UnitTestProject1
             game.FieldPosition = 50;  // Midfield
             var play = (PuntPlay)game.CurrentPlay;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.35)  // Punt ~45 yards (lands at ~95, near goal line)
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.02)  // MUFFED!
-                .NextDouble(0.4)   // Receiving team recovers
-                .NextDouble(0.0)   // Minimal recovery yards
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.MuffReceivingTeamRecovers(recoveryYards: 0.0);
 
             var punt = new Punt(rng);
 
@@ -993,13 +769,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 50;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Moderate punt ~46 yards (lands at ~96)
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.05); // OUT OF BOUNDS!
+            var rng = PuntPlayScenarios.OutOfBounds();
 
             var punt = new Punt(rng);
 
@@ -1020,18 +790,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Punt distance
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.0)   // Minimal return (could lose yards)
-                .NextDouble(0.5);  // Elapsed time (no returner penalty if return <= 0)
+            var rng = PuntPlayScenarios.NegativeReturn();
 
             var punt = new Punt(rng);
 
@@ -1055,15 +814,7 @@ namespace UnitTestProject1
             // Remove punter
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.P);
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Punt distance (will use default player)
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.05)  // DOWNED (low value ensures downed)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.5);
 
             var punt = new Punt(rng);
 
@@ -1082,15 +833,7 @@ namespace UnitTestProject1
             // Remove long snapper (should fall back to center or default logic)
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.LS);
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Punt distance
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.05)  // DOWNED (low value ensures downed)
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.Downed(puntDistance: 0.5);
 
             var punt = new Punt(rng);
 
@@ -1112,19 +855,7 @@ namespace UnitTestProject1
             superReturner.Agility = 99;
             superReturner.Catching = 99;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Punt distance
-                .NextDouble(0.9)   // Long hang time (good coverage)
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.9)   // Great return potential
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.5, returnYards: 0.9);
 
             var punt = new Punt(rng);
 
@@ -1150,19 +881,7 @@ namespace UnitTestProject1
             weakReturner.Agility = 20;
             weakReturner.Catching = 20;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.5)   // Punt distance
-                .NextDouble(0.2)   // Short hang time (poor coverage)
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return attempt
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.5, returnYards: 0.5);
 
             var punt = new Punt(rng);
 
@@ -1182,19 +901,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 50;  // Midfield
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.6)   // Normal punt
-                .NextDouble(0.5)   // Hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.9)   // Not downed
-                .NextDouble(0.9)   // Not fair catch
-                .NextDouble(0.95)  // No muff
-                .NextDouble(0.5)   // Return yards
-                .NextDouble(0.99)  // No returner penalty
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.6, returnYards: 0.5);
 
             var punt = new Punt(rng);
 
@@ -1216,19 +923,7 @@ namespace UnitTestProject1
                 var game = CreateGameWithPuntPlay();
                 game.FieldPosition = 30 + (i * 10);
 
-                var rng = new TestFluentSeedableRandom()
-                    .NextDouble(0.99)  // No bad snap
-                    .NextDouble(0.99)  // No block
-                    .NextDouble(0.5 + (i * 0.1))   // Varying punt distances
-                    .NextDouble(0.5)   // Hang time
-                    .NextDouble(0.99)  // No kicker penalty
-                    .NextDouble(0.8)   // Not out of bounds
-                    .NextDouble(0.9)   // Not downed
-                    .NextDouble(0.9)   // Not fair catch
-                    .NextDouble(0.95)  // No muff
-                    .NextDouble(0.5)   // Return yards
-                    .NextDouble(0.99)  // No returner penalty
-                    .NextDouble(0.5);  // Elapsed time
+                var rng = PuntPlayScenarios.NormalReturn(puntDistance: 0.5 + (i * 0.1), returnYards: 0.5);
 
                 var punt = new Punt(rng);
                 punt.Execute(game);
@@ -1247,11 +942,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.01)  // Bad snap occurs
-                .NextDouble(0.0)   // Minimal base loss
-                .NextDouble(0.0)   // Minimal random factor
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.BadSnap(baseLoss: 0.0, randomFactor: 0.0);
 
             var punt = new Punt(rng);
 
@@ -1272,15 +963,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 55;  // Opponent's 45
 
-            var rng = new TestFluentSeedableRandom()
-                .NextDouble(0.99)  // No bad snap
-                .NextDouble(0.99)  // No block
-                .NextDouble(0.31)  // Precise punt ~44 yards (lands at ~99, near goal line)
-                .NextDouble(0.7)   // Good hang time
-                .NextDouble(0.99)  // No kicker penalty
-                .NextDouble(0.8)   // Not out of bounds
-                .NextDouble(0.05)  // DOWNED near goal line
-                .NextDouble(0.5);  // Elapsed time
+            var rng = PuntPlayScenarios.CoffinCorner();
 
             var punt = new Punt(rng);
 
@@ -1304,27 +987,19 @@ namespace UnitTestProject1
             // This test ensures all punt paths execute without exceptions
 
             // Test 1: Bad snap (no block check needed - returns early)
-            ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.01).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
+            ExecutePuntScenario(CreateGameWithPuntPlay(), PuntPlayScenarios.BadSnap(baseLoss: 0.5, randomFactor: 0.5));
 
             // Test 2: Blocked punt (defense recovers)
-            ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.01).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5).NextDouble(0.5));
+            ExecutePuntScenario(CreateGameWithPuntPlay(), PuntPlayScenarios.BlockedPuntDefenseRecovers(baseBounce: 0.5, randomFactor: 0.5));
 
             // Test 3: Touchback
-            ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.95).NextDouble(0.5).NextDouble(0.99));
+            ExecutePuntScenario(CreateGameWithPuntPlay(), PuntPlayScenarios.Touchback(puntDistance: 0.95));
 
             // Test 4: Fair catch
-            ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.99)
-                .NextDouble(0.8).NextDouble(0.9).NextDouble(0.1));
+            ExecutePuntScenario(CreateGameWithPuntPlay(), PuntPlayScenarios.FairCatch(puntDistance: 0.6));
 
             // Test 5: Normal return
-            ExecutePuntScenario(CreateGameWithPuntPlay(), new TestFluentSeedableRandom()
-                .NextDouble(0.99).NextDouble(0.99).NextDouble(0.6).NextDouble(0.5).NextDouble(0.99)
-                .NextDouble(0.8).NextDouble(0.9).NextDouble(0.9).NextDouble(0.95).NextDouble(0.5)
-                .NextDouble(0.99).NextDouble(0.5));
+            ExecutePuntScenario(CreateGameWithPuntPlay(), PuntPlayScenarios.NormalReturn(puntDistance: 0.6, returnYards: 0.5));
         }
 
         private void ExecutePuntScenario(Game game, TestFluentSeedableRandom rng)

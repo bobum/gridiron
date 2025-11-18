@@ -22,7 +22,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(80, Possession.Home);
             SetPlayerSkills(game, 85, 68);
 
-            var rng = CreateRngForRunPlay(8, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 8);
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -39,7 +39,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZoneForPass(80, Possession.Home);
             SetPassPlayerSkills(game, 88, 70);
 
-            var rng = CreateRngForCompletedPass(15, 3, protectionSucceeds: true); // 18 yards
+            var rng = PassPlayScenarios.CompletedPassWithYAC(airYards: 15, yacFactor: 0.5); // ~18 yards total
 
             // Act
             ExecutePassPlayWithResult(game, rng);
@@ -61,7 +61,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(85, Possession.Home);
             SetPlayerSkills(game, 88, 70);
 
-            var rng = CreateRngForRunPlay(7, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 7);
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -78,7 +78,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZoneForPass(85, Possession.Home);
             SetPassPlayerSkills(game, 82, 72);
 
-            var rng = CreateRngForCompletedPass(10, 2, protectionSucceeds: true);
+            var rng = PassPlayScenarios.CompletedPassWithYAC(airYards: 10, yacFactor: 0.5);
 
             // Act
             ExecutePassPlayWithResult(game, rng);
@@ -100,7 +100,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(90, Possession.Home);
             SetPlayerSkills(game, 90, 68);
 
-            var rng = CreateRngForRunPlay(10, blockingSucceeds: true); // TD!
+            var rng = RunPlayScenarios.GoodBlocking(yards: 10); // TD!
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -119,7 +119,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(90, Possession.Home);
             SetPlayerSkills(game, 55, 85);
 
-            var rng = CreateRngForRunPlay(3, blockingSucceeds: false);
+            var rng = RunPlayScenarios.BadBlocking(yards: 3);
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -137,7 +137,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZoneForPass(90, Possession.Home);
             SetPassPlayerSkills(game, 88, 70);
 
-            var rng = CreateRngForCompletedPass(10, 0, protectionSucceeds: true); // TD pass
+            var rng = PassPlayScenarios.CompletedPassImmediateTackle(airYards: 10, immediateTackleYards: 0); // TD pass
 
             // Act
             ExecutePassPlayWithResult(game, rng);
@@ -160,7 +160,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(95, Possession.Home);
             SetPlayerSkills(game, 92, 70);
 
-            var rng = CreateRngForRunPlay(5, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 5);
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -178,7 +178,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(95, Possession.Home);
             SetPlayerSkills(game, 50, 88);
 
-            var rng = CreateRngForRunPlay(2, blockingSucceeds: false);
+            var rng = RunPlayScenarios.BadBlocking(yards: 2);
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -196,7 +196,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZoneForPass(95, Possession.Home);
             SetPassPlayerSkills(game, 85, 72);
 
-            var rng = CreateRngForCompletedPass(5, 0, protectionSucceeds: true);
+            var rng = PassPlayScenarios.CompletedPassImmediateTackle(airYards: 5, immediateTackleYards: 0);
 
             // Act
             ExecutePassPlayWithResult(game, rng);
@@ -216,7 +216,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZone(80, Possession.Home);
             SetPlayerSkills(game, 85, 68);
-            var rng = CreateRngForRunPlay(8, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 8);
 
             ExecuteRunPlayWithResult(game, rng);
 
@@ -228,7 +228,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZoneForPass(80, Possession.Home);
             SetPassPlayerSkills(game, 88, 70);
-            var rng = CreateRngForCompletedPass(15, 3, true);
+            var rng = PassPlayScenarios.CompletedPassWithYAC(airYards: 15, yacFactor: 0.5);
 
             ExecutePassPlayWithResult(game, rng);
 
@@ -240,7 +240,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZone(85, Possession.Home);
             SetPlayerSkills(game, 55, 85);
-            var rng = CreateRngForRunPlay(3, blockingSucceeds: false);
+            var rng = RunPlayScenarios.BadBlocking(yards: 3);
 
             ExecuteRunPlayWithResult(game, rng);
 
@@ -252,7 +252,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZone(90, Possession.Home);
             SetPlayerSkills(game, 90, 68);
-            var rng = CreateRngForRunPlay(10, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 10);
 
             ExecuteRunPlayWithResult(game, rng);
 
@@ -264,7 +264,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZoneForPass(90, Possession.Home);
             SetPassPlayerSkills(game, 88, 70);
-            var rng = CreateRngForCompletedPass(10, 0, true);
+            var rng = PassPlayScenarios.CompletedPassImmediateTackle(airYards: 10, immediateTackleYards: 0);
 
             ExecutePassPlayWithResult(game, rng);
 
@@ -276,7 +276,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZone(95, Possession.Home);
             SetPlayerSkills(game, 92, 70);
-            var rng = CreateRngForRunPlay(5, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 5);
 
             ExecuteRunPlayWithResult(game, rng);
 
@@ -288,7 +288,7 @@ namespace UnitTestProject1
         {
             var game = CreateGameInRedZone(95, Possession.Home);
             SetPlayerSkills(game, 50, 88);
-            var rng = CreateRngForRunPlay(2, blockingSucceeds: false);
+            var rng = RunPlayScenarios.BadBlocking(yards: 2);
 
             ExecuteRunPlayWithResult(game, rng);
 
@@ -306,7 +306,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZoneForPass(88, Possession.Home);
             SetPassPlayerSkills(game, 75, 80); // Even matchup favors defense
 
-            var rng = CreateRngForIncompletePass(protectionSucceeds: false);
+            var rng = PassPlayScenarios.IncompletePass(withPressure: true);
 
             // Act
             ExecutePassPlayWithResult(game, rng);
@@ -324,7 +324,7 @@ namespace UnitTestProject1
             var game = CreateGameInRedZone(87, Possession.Home);
             SetPlayerSkills(game, 80, 75);
 
-            var rng = CreateRngForRunPlay(6, blockingSucceeds: true);
+            var rng = RunPlayScenarios.GoodBlocking(yards: 6);
 
             // Act
             ExecuteRunPlayWithResult(game, rng);
@@ -437,61 +437,7 @@ namespace UnitTestProject1
             return game;
         }
 
-        private TestFluentSeedableRandom CreateRngForRunPlay(int desiredYards, bool blockingSucceeds)
-        {
-            double targetBase = blockingSucceeds
-                ? Math.Ceiling(desiredYards / 1.2)
-                : Math.Ceiling(desiredYards / 0.8);
-
-            double randomFactor = targetBase - 3.0;
-            double nextDouble = (randomFactor + 15.0) / 25.0;
-            nextDouble = Math.Max(0.0, Math.Min(1.0, nextDouble));
-
-            return new TestFluentSeedableRandom()
-                .NextDouble(0.15)                     // QB check (RB)
-                .NextInt(2)                           // Direction
-                .RunBlockingCheck(blockingSucceeds ? 0.3 : 0.7)
-                .NextDouble(0.99)                     // Blocking penalty check (no penalty)
-                .NextDouble(nextDouble)               // Base yards calculation
-                .TackleBreakCheck(0.9)                // No tackle break
-                .BreakawayCheck(0.9)                  // No breakaway
-                .NextDouble(0.99)                     // Tackle penalty check (no penalty)
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
-        }
-
-        private TestFluentSeedableRandom CreateRngForCompletedPass(int airYards, int yacYards, bool protectionSucceeds)
-        {
-            return new TestFluentSeedableRandom()
-                .PassProtectionCheck(protectionSucceeds ? 0.3 : 0.7)
-                .NextDouble(0.99)                     // Blocking penalty check (no penalty)
-                .QBPressureCheck(0.5)
-                .ReceiverSelection(0.5)
-                .PassTypeDetermination(0.6)
-                .AirYards(airYards)
-                .PassCompletionCheck(0.4)
-                .YACOpportunityCheck(0.3)             // YAC opportunity succeeds
-                .YACRandomFactor(0.5)                 // Random factor for YAC
-                .BigPlayCheck(0.9)                    // No big play (0.9 > 0.05)
-                .NextDouble(0.99)                     // Receiver tackle penalty check (no penalty)
-                .NextDouble(0.99)                     // No fumble
-                .ElapsedTimeRandomFactor(0.5);
-        }
-
-        private TestFluentSeedableRandom CreateRngForIncompletePass(bool protectionSucceeds)
-        {
-            return new TestFluentSeedableRandom()
-                .PassProtectionCheck(protectionSucceeds ? 0.3 : 0.7)
-                .NextDouble(0.99)                     // Blocking penalty check (no penalty)
-                .QBPressureCheck(0.8)
-                .ReceiverSelection(0.5)
-                .PassTypeDetermination(0.6)
-                .AirYards(10)
-                .PassCompletionCheck(0.9)
-                .NextDouble(0.99)                     // Coverage penalty check (no penalty)
-                .InterceptionOccurredCheck(0.99)      // No interception
-                .ElapsedTimeRandomFactor(0.5);
-        }
+        // Removed: Manual RNG creation methods replaced with RunPlayScenarios and PassPlayScenarios
 
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
