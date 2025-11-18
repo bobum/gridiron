@@ -195,34 +195,43 @@ namespace StateLibrary.Actions
 
         private void SubstituteKickoffDefense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
-            // Kickoff return team: Fast returners and blockers
-            AddUniquePlayers(chart, Positions.WR, 2, playersOnField, "kickoff defense");
-            AddUniquePlayers(chart, Positions.RB, 2, playersOnField, "kickoff defense");
-            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "kickoff defense");
-            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "kickoff defense");
-            AddUniquePlayers(chart, Positions.LB, 2, playersOnField, "kickoff defense");
-            AddUniquePlayers(chart, Positions.TE, 1, playersOnField, "kickoff defense");
+            // Kickoff return team: Fast returners and blockers (flexible)
+            TryAddUniquePlayers(chart, Positions.WR, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.RB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.CB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.S, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.LB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.TE, 1, playersOnField);
+
+            // Fill any remaining spots
+            FillRemainingPlayers(chart, playersOnField, 11);
         }
 
         private void SubstitutePuntDefense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
-            // Punt return team: Returner and block/coverage players
-            AddUniquePlayers(chart, Positions.WR, 3, playersOnField, "punt defense");
-            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "punt defense");
-            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "punt defense");
-            AddUniquePlayers(chart, Positions.LB, 2, playersOnField, "punt defense");
-            AddUniquePlayers(chart, Positions.RB, 1, playersOnField, "punt defense");
-            AddUniquePlayers(chart, Positions.DE, 1, playersOnField, "punt defense");
+            // Punt return team: Returner and block/coverage players (flexible)
+            TryAddUniquePlayers(chart, Positions.WR, 3, playersOnField);
+            TryAddUniquePlayers(chart, Positions.CB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.S, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.LB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.RB, 1, playersOnField);
+            TryAddUniquePlayers(chart, Positions.DE, 1, playersOnField);
+
+            // Fill any remaining spots
+            FillRemainingPlayers(chart, playersOnField, 11);
         }
 
         private void SubstituteFieldGoalDefense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
-            // Field goal block unit: DL for rush, DBs for fake coverage
-            AddUniquePlayers(chart, Positions.DE, 2, playersOnField, "field goal defense");
-            AddUniquePlayers(chart, Positions.DT, 2, playersOnField, "field goal defense");
-            AddUniquePlayers(chart, Positions.LB, 3, playersOnField, "field goal defense");
-            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "field goal defense");
-            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "field goal defense");
+            // Field goal block unit: DL for rush, DBs for fake coverage (flexible)
+            TryAddUniquePlayers(chart, Positions.DE, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.DT, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.LB, 3, playersOnField);
+            TryAddUniquePlayers(chart, Positions.CB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.S, 2, playersOnField);
+
+            // Fill any remaining spots
+            FillRemainingPlayers(chart, playersOnField, 11);
         }
 
         private void SubstituteOffensivePlayers(Game game)
@@ -279,38 +288,53 @@ namespace StateLibrary.Actions
         private void SubstituteKickoffOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
             // Kickoff team needs: K, mix of LB/CB/S for coverage
-            AddUniquePlayers(chart, Positions.K, 1, playersOnField, "kickoff offense");
+            // Must have a kicker - use P as fallback
+            if (!TryAddUniquePlayers(chart, Positions.K, 1, playersOnField))
+            {
+                TryAddUniquePlayers(chart, Positions.P, 1, playersOnField);
+            }
 
-            // Fill remaining 10 spots with fast coverage players
-            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "kickoff offense");
-            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "kickoff offense");
-            AddUniquePlayers(chart, Positions.LB, 3, playersOnField, "kickoff offense");
-            AddUniquePlayers(chart, Positions.WR, 3, playersOnField, "kickoff offense");
+            // Fill remaining 10 spots with fast coverage players (flexible)
+            TryAddUniquePlayers(chart, Positions.CB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.S, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.LB, 3, playersOnField);
+            TryAddUniquePlayers(chart, Positions.WR, 3, playersOnField);
+
+            // Fill any remaining spots with whatever is available
+            FillRemainingPlayers(chart, playersOnField, 11);
         }
 
         private void SubstitutePuntOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
             // Punt team needs: P, LS (long snapper), coverage players
-            AddUniquePlayers(chart, Positions.P, 1, playersOnField, "punt offense");
-            AddUniquePlayers(chart, Positions.C, 1, playersOnField, "punt offense"); // Long snapper
+            TryAddUniquePlayers(chart, Positions.P, 1, playersOnField);
+            TryAddUniquePlayers(chart, Positions.C, 1, playersOnField); // Long snapper
 
-            // Fill remaining spots with coverage team
-            AddUniquePlayers(chart, Positions.LB, 3, playersOnField, "punt offense");
-            AddUniquePlayers(chart, Positions.CB, 2, playersOnField, "punt offense");
-            AddUniquePlayers(chart, Positions.S, 2, playersOnField, "punt offense");
-            AddUniquePlayers(chart, Positions.WR, 2, playersOnField, "punt offense");
+            // Fill remaining spots with coverage team (flexible)
+            TryAddUniquePlayers(chart, Positions.LB, 3, playersOnField);
+            TryAddUniquePlayers(chart, Positions.CB, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.S, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.WR, 2, playersOnField);
+
+            // Fill any remaining spots
+            FillRemainingPlayers(chart, playersOnField, 11);
         }
 
         private void SubstituteFieldGoalOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
         {
             // Field goal unit needs: K, holder (usually P or QB), LS, linemen to protect
-            AddUniquePlayers(chart, Positions.K, 1, playersOnField, "field goal offense");
-            AddUniquePlayers(chart, Positions.P, 1, playersOnField, "field goal offense"); // Holder
-            AddUniquePlayers(chart, Positions.C, 1, playersOnField, "field goal offense"); // Long snapper
-            AddUniquePlayers(chart, Positions.G, 2, playersOnField, "field goal offense");
-            AddUniquePlayers(chart, Positions.T, 2, playersOnField, "field goal offense");
-            AddUniquePlayers(chart, Positions.TE, 2, playersOnField, "field goal offense");
-            AddUniquePlayers(chart, Positions.FB, 2, playersOnField, "field goal offense");
+            TryAddUniquePlayers(chart, Positions.K, 1, playersOnField);
+            TryAddUniquePlayers(chart, Positions.P, 1, playersOnField); // Holder
+            TryAddUniquePlayers(chart, Positions.C, 1, playersOnField); // Long snapper
+
+            // Protection (flexible)
+            TryAddUniquePlayers(chart, Positions.G, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.T, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.TE, 2, playersOnField);
+            TryAddUniquePlayers(chart, Positions.FB, 2, playersOnField);
+
+            // Fill any remaining spots
+            FillRemainingPlayers(chart, playersOnField, 11);
         }
 
         private void AddUniquePlayers(Dictionary<Positions, List<Player>> chart, Positions position, int needed, List<Player> playersOnField, string unitName)
@@ -334,6 +358,52 @@ namespace StateLibrary.Actions
             {
                 throw new InvalidOperationException($"No depth chart for position {position} on {unitName}.");
             }
-        }        
+        }
+
+        /// <summary>
+        /// Tries to add unique players from a position. Returns true if at least one was added.
+        /// Does not throw if fewer than needed are available.
+        /// </summary>
+        private bool TryAddUniquePlayers(Dictionary<Positions, List<Player>> chart, Positions position, int needed, List<Player> playersOnField)
+        {
+            if (!chart.TryGetValue(position, out var depthList))
+                return false;
+
+            int added = 0;
+            for (int i = 0; i < depthList.Count && added < needed; i++)
+            {
+                var candidate = depthList[i];
+                if (!playersOnField.Contains(candidate))
+                {
+                    playersOnField.Add(candidate);
+                    added++;
+                }
+            }
+
+            return added > 0;
+        }
+
+        /// <summary>
+        /// Fills remaining player slots with any available unique players from the depth chart
+        /// </summary>
+        private void FillRemainingPlayers(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField, int targetCount)
+        {
+            if (playersOnField.Count >= targetCount)
+                return;
+
+            // Iterate through all positions in the depth chart
+            foreach (var kvp in chart)
+            {
+                foreach (var player in kvp.Value)
+                {
+                    if (!playersOnField.Contains(player))
+                    {
+                        playersOnField.Add(player);
+                        if (playersOnField.Count >= targetCount)
+                            return;
+                    }
+                }
+            }
+        }
     }
 }
