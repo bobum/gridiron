@@ -165,6 +165,12 @@ namespace StateLibrary.PlayResults
                 return; // No penalties, nothing to do
             }
 
+            // If the play already resulted in a TD or safety, and penalties are declined, don't modify
+            if ((play.IsTouchdown || play.IsSafety) && play.Penalties.All(p => !p.Accepted))
+            {
+                return; // Scoring play stands, penalties declined
+            }
+
             // Apply smart acceptance/decline logic to penalties
             var penaltyEnforcement = new PenaltyEnforcement(play.Result);
             ApplyPenaltyAcceptanceLogic(game, play, penaltyEnforcement);
@@ -196,7 +202,8 @@ namespace StateLibrary.PlayResults
                 // Kicking team penalty - rekick from adjusted spot
                 // Penalty against kicking team moves them BACK (worse field position for them)
                 // e.g., offsides on kickoff: instead of kicking from 35, kick from 40
-                var kickoffSpot = 35 + enforcementResult.NetYards;
+                // NetYards is negative for penalties against the team, so we negate it to get positive adjustment
+                var kickoffSpot = 35 - enforcementResult.NetYards;
                 kickoffSpot = Math.Max(20, Math.Min(50, kickoffSpot)); // Keep within reasonable bounds
                 game.FieldPosition = kickoffSpot;
                 play.PossessionChange = false; // Kicking team rekicks
@@ -206,12 +213,13 @@ namespace StateLibrary.PlayResults
             {
                 // Receiving team penalty - enforce from the return spot
                 var returnSpot = play.EndFieldPosition > 0 ? play.EndFieldPosition : game.FieldPosition;
-                var finalFieldPosition = returnSpot + enforcementResult.NetYards;
+                // NetYards is positive for penalties against opponent, but we want to subtract to move ball back
+                var finalFieldPosition = returnSpot - enforcementResult.NetYards;
 
                 // Bounds check
                 if (finalFieldPosition >= 100)
                 {
-                    // Penalty pushed kicking team into end zone for TD (very rare)
+                    // Penalty pushed receiving team forward into end zone for TD
                     play.IsTouchdown = true;
                     game.FieldPosition = 100;
                     var receivingTeam = play.Possession == Possession.Home ? Possession.Away : Possession.Home;

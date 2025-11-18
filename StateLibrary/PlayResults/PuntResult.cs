@@ -103,6 +103,12 @@ namespace StateLibrary.PlayResults
                 return; // No penalties, nothing to do
             }
 
+            // If the play already resulted in a TD or safety, and penalties are declined, don't modify
+            if ((play.IsTouchdown || play.IsSafety) && play.Penalties.All(p => !p.Accepted))
+            {
+                return; // Scoring play stands, penalties declined
+            }
+
             // Apply smart acceptance/decline logic to penalties
             var penaltyEnforcement = new PenaltyEnforcement(play.Result);
             ApplyPenaltyAcceptanceLogic(game, play, penaltyEnforcement);
@@ -118,8 +124,10 @@ namespace StateLibrary.PlayResults
             // Enforce penalties and get the result
             var enforcementResult = penaltyEnforcement.EnforcePenalties(game, play, play.YardsGained);
 
-            // Update field position based on net yards (play result + penalties)
-            var finalFieldPosition = game.FieldPosition + enforcementResult.NetYards - play.YardsGained;
+            // Update field position based on penalty enforcement
+            // NetYards is positive for penalties against opponent (helps punting team)
+            // We subtract to move ball back towards receiving team's end zone
+            var finalFieldPosition = game.FieldPosition - enforcementResult.NetYards;
 
             // Bounds check
             if (finalFieldPosition >= 100)
