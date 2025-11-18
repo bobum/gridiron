@@ -241,17 +241,17 @@ namespace StateLibrary.Actions
             if (currentPlay.PlayType == PlayType.Kickoff)
             {
                 var chart = offenseTeam.KickoffOffenseDepthChart.Chart;
-                SubstituteKickoffOffense(chart, playersOnField);
+                SubstituteKickoffOffense(chart, playersOnField, currentPlay as KickoffPlay);
             }
             else if (currentPlay.PlayType == PlayType.Punt)
             {
                 var chart = offenseTeam.PuntOffenseDepthChart.Chart;
-                SubstitutePuntOffense(chart, playersOnField);
+                SubstitutePuntOffense(chart, playersOnField, currentPlay as PuntPlay);
             }
             else if (currentPlay.PlayType == PlayType.FieldGoal)
             {
                 var chart = offenseTeam.FieldGoalOffenseDepthChart.Chart;
-                SubstituteFieldGoalOffense(chart, playersOnField);
+                SubstituteFieldGoalOffense(chart, playersOnField, currentPlay as FieldGoalPlay);
             }
             else if (currentPlay.PlayType == PlayType.Run || currentPlay.PlayType == PlayType.Pass)
             {
@@ -282,13 +282,26 @@ namespace StateLibrary.Actions
             string json = JsonConvert.SerializeObject(currentPlay.OffensePlayersOnField);
         }
 
-        private void SubstituteKickoffOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        private void SubstituteKickoffOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField, KickoffPlay? play)
         {
             // Kickoff team needs: K, mix of LB/CB/S for coverage
             // Must have a kicker - use P as fallback
-            if (!TryAddUniquePlayers(chart, Positions.K, 1, playersOnField))
+            Player? kicker = null;
+            if (chart.TryGetValue(Positions.K, out var kickers) && kickers.Count > 0)
             {
-                TryAddUniquePlayers(chart, Positions.P, 1, playersOnField);
+                kicker = kickers[0];
+                playersOnField.Add(kicker);
+            }
+            else if (chart.TryGetValue(Positions.P, out var punters) && punters.Count > 0)
+            {
+                kicker = punters[0];
+                playersOnField.Add(kicker);
+            }
+
+            // Assign the kicker to the play object so execution knows who kicks
+            if (play != null && kicker != null)
+            {
+                play.Kicker = kicker;
             }
 
             // Fill remaining 10 spots with fast coverage players (flexible)
@@ -301,10 +314,22 @@ namespace StateLibrary.Actions
             FillRemainingPlayers(chart, playersOnField, 11);
         }
 
-        private void SubstitutePuntOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        private void SubstitutePuntOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField, PuntPlay? play)
         {
             // Punt team needs: P, LS (long snapper), coverage players
-            TryAddUniquePlayers(chart, Positions.P, 1, playersOnField);
+            Player? punter = null;
+            if (chart.TryGetValue(Positions.P, out var punters) && punters.Count > 0)
+            {
+                punter = punters[0];
+                playersOnField.Add(punter);
+            }
+
+            // Assign the punter to the play object so execution knows who punts
+            if (play != null && punter != null)
+            {
+                play.Punter = punter;
+            }
+
             TryAddUniquePlayers(chart, Positions.LS, 1, playersOnField); // Long snapper
 
             // Fill remaining spots with coverage team (flexible)
@@ -317,11 +342,33 @@ namespace StateLibrary.Actions
             FillRemainingPlayers(chart, playersOnField, 11);
         }
 
-        private void SubstituteFieldGoalOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField)
+        private void SubstituteFieldGoalOffense(Dictionary<Positions, List<Player>> chart, List<Player> playersOnField, FieldGoalPlay? play)
         {
             // Field goal unit needs: K, holder (H), LS (long snapper), linemen to protect
-            TryAddUniquePlayers(chart, Positions.K, 1, playersOnField);
-            TryAddUniquePlayers(chart, Positions.H, 1, playersOnField); // Holder
+            Player? kicker = null;
+            if (chart.TryGetValue(Positions.K, out var kickers) && kickers.Count > 0)
+            {
+                kicker = kickers[0];
+                playersOnField.Add(kicker);
+            }
+
+            Player? holder = null;
+            if (chart.TryGetValue(Positions.H, out var holders) && holders.Count > 0)
+            {
+                holder = holders[0];
+                if (!playersOnField.Contains(holder))
+                {
+                    playersOnField.Add(holder);
+                }
+            }
+
+            // Assign kicker and holder to the play object so execution knows who does what
+            if (play != null)
+            {
+                if (kicker != null) play.Kicker = kicker;
+                if (holder != null) play.Holder = holder;
+            }
+
             TryAddUniquePlayers(chart, Positions.LS, 1, playersOnField); // Long snapper
 
             // Protection (flexible)
