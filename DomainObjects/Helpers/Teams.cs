@@ -115,7 +115,7 @@ namespace DomainObjects.Helpers
             var chart = new DepthChart();
             chart.Chart[Positions.DE] = GetDepth(players, Positions.DE, 2);
             chart.Chart[Positions.DT] = GetDepth(players, Positions.DT, 2);
-            chart.Chart[Positions.LB] = GetDepth(players, Positions.LB, 2);
+            chart.Chart[Positions.LB] = GetDepth(players, Positions.LB, 3);
             chart.Chart[Positions.CB] = GetDepth(players, Positions.CB, 2);
             chart.Chart[Positions.S] = GetDepth(players, Positions.S, 2);
             string json = JsonConvert.SerializeObject(chart);
