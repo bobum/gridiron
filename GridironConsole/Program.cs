@@ -20,7 +20,6 @@ class Program
 
         // Display matchup
         Console.WriteLine($"MATCHUP: {game.AwayTeam.City} {game.AwayTeam.Name} @ {game.HomeTeam.City} {game.HomeTeam.Name}");
-        Console.WriteLine($"Location: {game.HomeTeam.Stadium}");
         Console.WriteLine();
         Console.WriteLine("Press ENTER to start the game...");
         Console.ReadLine();
@@ -83,7 +82,7 @@ class Program
             if (play is PassPlay passPlay)
             {
                 passPlays++;
-                if (passPlay.PassCompleted) completions++;
+                if (passPlay.IsComplete) completions++;
                 if (passPlay.Interception) interceptions++;
             }
             else if (play is RunPlay) runPlays++;
