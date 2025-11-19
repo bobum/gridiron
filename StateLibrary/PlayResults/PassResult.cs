@@ -16,6 +16,11 @@ namespace StateLibrary.PlayResults
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
 
+            // Accumulate stats first (before any early returns)
+            StatsAccumulator.AccumulatePassStats(play);
+            StatsAccumulator.AccumulateDefensiveStats(play);
+            StatsAccumulator.AccumulateFumbleStats(play);
+
             // Check for fumble with safety (handle early)
             if (play.IsSafety)
             {
@@ -269,11 +274,6 @@ namespace StateLibrary.PlayResults
                     play.Result.LogInformation($"{passer.LastName}: {completions}/{attempts} passing.");
                 }
             }
-
-            // Accumulate stats
-            StatsAccumulator.AccumulatePassStats(play);
-            StatsAccumulator.AccumulateDefensiveStats(play);
-            StatsAccumulator.AccumulateFumbleStats(play);
         }
 
         /// <summary>

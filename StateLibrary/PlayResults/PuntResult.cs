@@ -16,6 +16,9 @@ namespace StateLibrary.PlayResults
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
 
+            // Accumulate stats first (before any early returns)
+            StatsAccumulator.AccumulatePuntStats(play);
+
             // Handle safety (bad snap into end zone or tackled in end zone)
             if (play.IsSafety)
             {
@@ -91,9 +94,6 @@ namespace StateLibrary.PlayResults
 
             // Log final punt summary
             LogPuntSummary(play);
-
-            // Accumulate player stats
-            StatsAccumulator.AccumulatePuntStats(play);
         }
 
         private void HandlePenalties(Game game, PuntPlay play)

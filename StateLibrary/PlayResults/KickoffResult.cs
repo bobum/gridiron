@@ -18,6 +18,9 @@ namespace StateLibrary.PlayResults
             // Set start field position (kickoffs start at 35-yard line for kicking team)
             play.StartFieldPosition = 35;
 
+            // Accumulate stats first (before any early returns)
+            StatsAccumulator.AccumulateKickoffStats(play);
+
             // Handle safety (returner tackled in own end zone)
             if (play.IsSafety)
             {
@@ -153,9 +156,6 @@ namespace StateLibrary.PlayResults
 
             // Handle penalties if any occurred
             HandlePenalties(game, play);
-
-            // Accumulate player stats
-            StatsAccumulator.AccumulateKickoffStats(play);
         }
 
         private void HandlePenalties(Game game, KickoffPlay play)

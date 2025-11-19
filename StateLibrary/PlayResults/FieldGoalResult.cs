@@ -17,6 +17,9 @@ namespace StateLibrary.PlayResults
             var play = (FieldGoalPlay)game.CurrentPlay;
             play.StartFieldPosition = game.FieldPosition;
 
+            // Accumulate stats first (before any early returns)
+            StatsAccumulator.AccumulateFieldGoalStats(play);
+
             // Check for penalties first - they may negate or modify the result
             var hasPenalties = play.Penalties != null && play.Penalties.Any();
             if (hasPenalties)
@@ -126,9 +129,6 @@ namespace StateLibrary.PlayResults
 
             // Log result summary
             LogFieldGoalSummary(play);
-
-            // Accumulate player stats
-            StatsAccumulator.AccumulateFieldGoalStats(play);
         }
 
         private void HandlePenalties(Game game, FieldGoalPlay play)
