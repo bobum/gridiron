@@ -111,11 +111,27 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Checks if position is in goal-to-go situation (opponent's 10 or closer)
+        /// Checks if position is in goal-to-go situation (when the first down marker would be in the end zone)
+        /// </summary>
+        /// <param name="fieldPosition">Current field position (0-100)</param>
+        /// <param name="yardsToGo">Yards needed for first down</param>
+        /// <returns>True if first down marker would be at or beyond the goal line</returns>
+        public static bool IsGoalToGo(int fieldPosition, int yardsToGo)
+        {
+            // Calculate where the first down marker would be
+            int firstDownMarker = fieldPosition + yardsToGo;
+
+            // If the first down marker would be at or beyond the goal line (100), it's goal to go
+            return firstDownMarker >= 100;
+        }
+
+        /// <summary>
+        /// Checks if position is in goal-to-go situation based on position alone (opponent's 10 or closer)
+        /// This is a simpler check that assumes standard 10 yards to go
         /// </summary>
         public static bool IsGoalToGo(int fieldPosition)
         {
-            return fieldPosition >= 90; // 90-100 is opponent's 10-0
+            return IsGoalToGo(fieldPosition, 10);
         }
     }
 }

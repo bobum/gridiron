@@ -43,7 +43,17 @@ namespace StateLibrary.Actions
             }
             else
             {
-                game.Logger.LogInformation($"{downText} & {game.YardsToGo} at {fieldPos}");
+                // Check if this is a goal-to-go situation (first down marker would be in the end zone)
+                bool isGoalToGo = FieldPositionHelper.IsGoalToGo(game.FieldPosition, game.YardsToGo);
+        
+                if (isGoalToGo)
+                {
+                    game.Logger.LogInformation($"{downText} & goal at {fieldPos}");
+                }
+                else
+                {
+                    game.Logger.LogInformation($"{downText} & {game.YardsToGo} at {fieldPos}");
+                }
             }
 
             //now that we know the kind of play that is being called,
@@ -216,10 +226,11 @@ namespace StateLibrary.Actions
                     }
                     else
                     {
-                        // Extra point attempt (FieldGoal from 15-yard line)
-                        // From opponent's 15-yard line
-                        // If Home scored: position 85 (100 - 15), If Away scored: position 15
-                        int extraPointPosition = (scoringTeam == Possession.Home) ? 85 : 15;
+                        // Extra point attempt (field goal from 2-yard line, which is ~15 yards total with snap + end zone)
+                        // Team kicks toward the goal they just scored at
+                        // If Home scored at position 100 (Away's goal), they kick from position 98 (Away's 2-yard line)
+                        // If Away scored at position 0 (Home's goal), they kick from position 2 (Home's 2-yard line)
+                        int extraPointPosition = (scoringTeam == Possession.Home) ? 98 : 2;
 
                         game.FieldPosition = extraPointPosition;
                         game.CurrentDown = Downs.None; // Extra point is not a down
@@ -228,7 +239,8 @@ namespace StateLibrary.Actions
                         {
                             Possession = scoringTeam,
                             Down = Downs.None,
-                            StartTime = lastPlay.StopTime
+                            StartTime = lastPlay.StopTime,
+                            IsExtraPoint = true  // Mark this as an extra point
                         };
 
                         return currentPlay;

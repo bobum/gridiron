@@ -78,10 +78,10 @@ namespace UnitTestProject1
             Assert.AreEqual(Downs.None, game.CurrentPlay.Down,
                 "Extra point should have Down = None (not a regular down)");
 
-            // Extra point is from the 15-yard line (opponent's 15)
-            // For Home scoring, that's position 85 (100 - 15)
-            Assert.AreEqual(85, game.FieldPosition,
-                "Extra point should be from opponent's 15-yard line (position 85)");
+            // Extra point is from the 2-yard line (not the 15-yard line as previously thought)
+            // For Home scoring at position 100 (Away's goal), they kick from position 98 (2 yards from goal)
+            Assert.AreEqual(98, game.FieldPosition,
+                "Extra point should be from the 2-yard line (position 98 for Home team)");
 
             var fieldGoalPlay = (FieldGoalPlay)game.CurrentPlay;
             Assert.IsNotNull(fieldGoalPlay.Kicker, "Extra point should have kicker assigned");
@@ -143,8 +143,8 @@ namespace UnitTestProject1
                 // Extra point
                 Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
                 Assert.AreEqual(Downs.None, game.CurrentPlay.Down);
-                Assert.AreEqual(15, game.FieldPosition,
-                    "Away team extra point from opponent's 15 (position 15)");
+                Assert.AreEqual(2, game.FieldPosition,
+                    "Away team extra point from the 2-yard line (position 2)");
             }
             else
             {
@@ -350,7 +350,7 @@ namespace UnitTestProject1
 
             if (isExtraPoint)
             {
-                Assert.AreEqual(85, game.FieldPosition, "Extra point from 15-yard line");
+                Assert.AreEqual(98, game.FieldPosition, "Extra point from 2-yard line (position 98)");
                 var extraPoint = (FieldGoalPlay)game.CurrentPlay;
 
                 // Execute the extra point
@@ -474,8 +474,8 @@ namespace UnitTestProject1
             Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay.PlayType);
             Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession,
                 "Away team should attempt extra point");
-            Assert.AreEqual(15, game.FieldPosition,
-                "Away team extra point from position 15 (opponent's 15)");
+            Assert.AreEqual(2, game.FieldPosition,
+                "Away team extra point from the 2-yard line (position 2)");
 
             var extraPoint = (FieldGoalPlay)game.CurrentPlay;
             extraPoint.IsGood = true; // Simulate good kick

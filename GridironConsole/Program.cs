@@ -1,5 +1,6 @@
 using DomainObjects;
 using DomainObjects.Helpers;
+using DataAccessLayer;
 using Microsoft.Extensions.Logging;
 using StateLibrary;
 
@@ -7,19 +8,50 @@ namespace GridironConsole;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
+        // Option to test database loading first
+        if (args.Length > 0 && args[0] == "--test-db")
+        {
+            await DatabaseTest.TestDatabaseLoading();
+            return;
+        }
+
         Console.WriteLine("================================================================================");
         Console.WriteLine("                    GRIDIRON FOOTBALL SIMULATION");
         Console.WriteLine("================================================================================");
         Console.WriteLine();
 
+        // Prompt user for database vs JSON loading
+        Console.WriteLine("Load teams from:");
+        Console.WriteLine("  1. Database (default)");
+        Console.WriteLine("  2. JSON (legacy)");
+        Console.Write("\nEnter choice (1 or 2): ");
+        var choice = Console.ReadLine();
+
+        Game game;
+        if (choice == "2")
+        {
+            Console.WriteLine("Loading teams from JSON...");
+            game = GameHelper.GetNewGame();
+        }
+        else
+        {
+            Console.WriteLine("Loading teams from database...");
+            var teams = await TeamsLoader.LoadDefaultMatchupAsync();
+            game = new Game
+            {
+                HomeTeam = teams.HomeTeam,
+                AwayTeam = teams.VisitorTeam
+            };
+        }
+
         // Create a new randomized game
         var rng = new SeedableRandom();
-        var game = GameHelper.GetNewGame();
 
         // Display matchup
-        Console.WriteLine($"MATCHUP: {game.AwayTeam.City} {game.AwayTeam.Name} @ {game.HomeTeam.City} {game.HomeTeam.Name}");
+        Console.WriteLine($"\nMATCHUP: {game.AwayTeam.City} {game.AwayTeam.Name} @ {game.HomeTeam.City} {game.HomeTeam.Name}");
+        Console.WriteLine($"Home Players: {game.HomeTeam.Players.Count}, Away Players: {game.AwayTeam.Players.Count}");
         Console.WriteLine();
         Console.WriteLine("Press ENTER to start the game...");
         Console.ReadLine();
