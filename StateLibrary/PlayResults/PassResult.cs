@@ -269,6 +269,11 @@ namespace StateLibrary.PlayResults
                     play.Result.LogInformation($"{passer.LastName}: {completions}/{attempts} passing.");
                 }
             }
+
+            // Accumulate stats
+            StatsAccumulator.AccumulatePassStats(play);
+            StatsAccumulator.AccumulateDefensiveStats(play);
+            StatsAccumulator.AccumulateFumbleStats(play);
         }
 
         /// <summary>

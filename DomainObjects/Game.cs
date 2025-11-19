@@ -13,8 +13,12 @@ namespace DomainObjects
 {
     public class Game
     {
-        public Team HomeTeam { get; set; }
-        public Team AwayTeam { get; set; }
+        public int Id { get; set; }  // Primary key for EF Core
+        public int HomeTeamId { get; set; }  // Foreign key to Team
+        public int AwayTeamId { get; set; }  // Foreign key to Team
+        public Team HomeTeam { get; set; }  // EF Core navigation property
+        public Team AwayTeam { get; set; }  // EF Core navigation property
+        public int? RandomSeed { get; set; }  // Seed for reproducible game simulation
         public IPlay CurrentPlay { get; set; }
         public Possession WonCoinToss { get; set; }
         public bool DeferredPossession { get; set; }

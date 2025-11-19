@@ -62,6 +62,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks (ball carrier + 2 tacklers)
+                .InjuryOccurredCheck(0.99)      // Ball carrier no injury
+                .TacklerInjuryGateCheck(0.9)    // Tackler 1 gate (skip)
+                .TacklerInjuryGateCheck(0.9)    // Tackler 2 gate (skip)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -85,6 +89,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -109,6 +117,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -143,6 +155,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -172,6 +188,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -207,6 +227,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakYards(tackleBreakYards)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -235,6 +259,10 @@ namespace UnitTestProject1.Helpers
                 .BreakawayCheck(0.05)
                 .BreakawayYards(breakawayYards)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -265,6 +293,10 @@ namespace UnitTestProject1.Helpers
                 .BreakawayCheck(0.02)
                 .BreakawayYards(breakawayYards)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -290,6 +322,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.01)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -318,6 +354,10 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -342,6 +382,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                     // Penalty effect: team selection
                 .NextInt(5)                          // Penalty effect: player selection
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -368,6 +412,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                     // Penalty effect: team selection
                 .NextInt(5)                          // Penalty effect: player selection
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
@@ -402,8 +450,14 @@ namespace UnitTestProject1.Helpers
                 .QBCheck(qbScrambles ? 0.05 : 0.15)
                 .RunDirection(direction)
                 .RunBlockingCheck(blockingCheckValue)
-                .BlockingPenaltyCheck(blockingPenalty ? 0.01 : 0.99)
-                .RunBaseYardsRandom(baseYardsFactor)
+                .BlockingPenaltyCheck(blockingPenalty ? 0.01 : 0.99);
+
+            if (blockingPenalty)
+            {
+                rng.NextDouble(0.5).NextInt(5);  // Penalty effect randoms
+            }
+
+            rng.RunBaseYardsRandom(baseYardsFactor)
                 .TackleBreakCheck(tackleBreak ? 0.1 : 0.9);
 
             if (tackleBreak)
@@ -414,8 +468,19 @@ namespace UnitTestProject1.Helpers
             if (breakaway)
                 rng.BreakawayYards(breakawayYards);
 
-            rng.TacklePenaltyCheck(tacklePenalty ? 0.01 : 0.99)
-                .FumbleCheck(fumble ? 0.01 : 0.99)
+            rng.TacklePenaltyCheck(tacklePenalty ? 0.01 : 0.99);
+
+            if (tacklePenalty)
+            {
+                rng.NextDouble(0.5).NextInt(5);  // Penalty effect randoms
+            }
+
+            // Injury checks (always present now)
+            rng.InjuryOccurredCheck(0.99)        // Ball carrier no injury
+                .TacklerInjuryGateCheck(0.9)      // Tackler 1 skip
+                .TacklerInjuryGateCheck(0.9);     // Tackler 2 skip
+
+            rng.FumbleCheck(fumble ? 0.01 : 0.99)
                 .ElapsedTimeRandomFactor(elapsedTimeFactor);
 
             return rng;

@@ -20,6 +20,7 @@ namespace DomainObjects
         public PlayType PlayType { get; set; }
         public List<Penalty> Penalties { get; set; } = new List<Penalty>();
         public List<Fumble> Fumbles { get; set; } = new List<Fumble>();
+        public List<Injury> Injuries { get; set; } = new List<Injury>(); // Track injuries that occurred during this play
         public bool Interception { get; set; } = false;
         public Double ElapsedTime { get; set; } = 0.0;
         public bool QuarterExpired { get; set; } = false;
@@ -35,7 +36,5 @@ namespace DomainObjects
         public int YardsToGo { get; set; } = 10; // Yards needed for first down
         public bool IsFirstDown { get; set; } = false; // Did this play result in a first down?
         public bool IsTouchdown { get; set; } = false; // Did this play result in a touchdown?
-
-
     }
 }

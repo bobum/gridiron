@@ -501,7 +501,11 @@ namespace UnitTestProject1
                 .TackleBreakCheck(0.9)                // No tackle break
                 .BreakawayCheck(0.9)                  // No breakaway
                 .NextDouble(0.99)                     // Tackle penalty check (no penalty)
-                .NextDouble(0.99)                     // No fumble (fumble check added in enhanced system)
+                // Injury checks (ball carrier + 2 tacklers)
+                .InjuryOccurredCheck(0.99)  // Ball carrier no injury
+                .TacklerInjuryGateCheck(0.9)   // Tackler 1 skip
+                .TacklerInjuryGateCheck(0.9)   // Tackler 2 skip
+                .NextDouble(0.99)    // No fumble
                 .ElapsedTimeRandomFactor(0.5);
         }
 

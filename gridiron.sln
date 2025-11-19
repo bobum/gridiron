@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35828.75 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainObjects", "DomainObjects\DomainObjects.csproj", "{14763801-2E98-48EF-8BF7-E819DECCE4F6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6579C18-0875-4E83-A92C-9D914FAEA822}"
 	ProjectSection(SolutionItems) = preProject
 		states.png = states.png
@@ -28,6 +30,10 @@ Global
 		{14763801-2E98-48EF-8BF7-E819DECCE4F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14763801-2E98-48EF-8BF7-E819DECCE4F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14763801-2E98-48EF-8BF7-E819DECCE4F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
 		{006E1A60-6D18-4653-B1D2-A6CF9AA497E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{006E1A60-6D18-4653-B1D2-A6CF9AA497E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{006E1A60-6D18-4653-B1D2-A6CF9AA497E7}.Release|Any CPU.ActiveCfg = Release|Any CPU

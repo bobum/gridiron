@@ -25,6 +25,7 @@ namespace DomainObjects
         public List<Player> DefensePlayersOnField { get; set; } = new List<Player>();
         public List<Penalty> Penalties { get; set; } = new List<Penalty>();
         public List<Fumble> Fumbles { get; set; } = new List<Fumble>();
+        public List<Injury> Injuries { get; set; } = new List<Injury>();
         public bool PossessionChange { get; set; }
         public bool Interception { get; set; }
         public int StartFieldPosition { get; set; }

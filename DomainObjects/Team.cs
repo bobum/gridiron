@@ -3,9 +3,10 @@ using static DomainObjects.StatTypes;
 
 public class Team
 {
+    public int Id { get; set; }  // Primary key for EF Core
     public string Name { get; set; }
     public string City { get; set; }
-    public List<Player> Players { get; set; } = new();
+    public List<Player> Players { get; set; } = new();  // EF Core navigation property
     public int Budget { get; set; }
     public int Championships { get; set; }
     public int Wins { get; set; }

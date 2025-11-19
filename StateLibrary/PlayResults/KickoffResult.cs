@@ -153,6 +153,9 @@ namespace StateLibrary.PlayResults
 
             // Handle penalties if any occurred
             HandlePenalties(game, play);
+
+            // Accumulate player stats
+            StatsAccumulator.AccumulateKickoffStats(play);
         }
 
         private void HandlePenalties(Game game, KickoffPlay play)
