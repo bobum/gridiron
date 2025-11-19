@@ -52,7 +52,18 @@ namespace StateLibrary.Plays
             play.Holder = holder;
 
             // Calculate attempt distance (from line of scrimmage + 17 yards for end zone depth and snap distance)
-            play.AttemptDistance = (100 - game.FieldPosition) + 17;
+            // The formula depends on which goal the team is attacking
+    // Home team attacks position 100 (away's goal), Away team attacks position 0 (home's goal)
+          if (play.Possession == Possession.Home)
+  {
+      // Home team kicks toward position 100
+      play.AttemptDistance = (100 - game.FieldPosition) + 17;
+            }
+ else
+   {
+      // Away team kicks toward position 0
+                play.AttemptDistance = game.FieldPosition + 17;
+            }
 
             // Check for bad snap
             var longSnapper = play.OffensePlayersOnField.FirstOrDefault(p => p.Position == Positions.LS)
