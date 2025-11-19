@@ -21,7 +21,7 @@ namespace DomainObjects
         public int Strength { get; set; }        // 0-100
         public int Agility { get; set; }         // 0-100
         public int Awareness { get; set; }       // 0-100
-        public int Fragility { get; set; }      // 0-100 (higher = more injury-prone, renamed from InjuryRisk)
+        public int Fragility { get; set; } = 50; // 0-100 (higher = more injury-prone), defaults to 50
         public int Morale { get; set; }          // 0-100
         public int Discipline { get; set; }      // 0-100 (higher = fewer penalties)
 

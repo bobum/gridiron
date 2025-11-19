@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace DomainObjects
 {
@@ -21,6 +22,7 @@ public InjurySeverity Severity { get; set; }
      /// <summary>
 /// The player who was injured
         /// </summary>
+        [JsonIgnore] // Prevents circular reference: Player -> Injury -> Player
         public Player InjuredPlayer { get; set; }
 
      /// <summary>
@@ -36,7 +38,8 @@ public InjurySeverity Severity { get; set; }
  /// <summary>
         /// The player who replaced the injured player (null if none available)
         /// </summary>
-  public Player? ReplacementPlayer { get; set; }
+   [JsonIgnore] // Prevents potential circular reference issues
+        public Player? ReplacementPlayer { get; set; }
 
         /// <summary>
         /// How many plays until the player can potentially return (for Minor/Moderate injuries)

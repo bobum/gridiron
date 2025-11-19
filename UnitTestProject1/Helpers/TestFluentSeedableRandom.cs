@@ -917,8 +917,83 @@ namespace UnitTestProject1.Helpers
             return this;
         }
 
-        // Generic methods for edge cases
+        // Injury check methods
 
+        /// <summary>
+        /// Sets injury occurrence check. Lower values (&lt; injury probability) mean injury occurs.
+        /// Valid range: 0.0 to 1.0
+        /// Base rates: Run/Pass 3%, Kickoff 5%, Punt 4%
+        /// Modified by fragility, defenders involved, big plays, out of bounds, QB sacks
+      /// </summary>
+        public TestFluentSeedableRandom InjuryOccurredCheck(double value)
+        {
+    ValidateProbability(value, nameof(InjuryOccurredCheck),
+    "Determines if player sustains injury. " +
+             "Base rates: Run/Pass 3%, Kickoff 5%, Punt 4%. " +
+            "Modified by player fragility, gang tackles, big plays, etc.");
+            _doubleQueue.Enqueue(value);
+        return this;
+        }
+
+        /// <summary>
+        /// Sets injury severity check. &lt; 0.6 = Minor, 0.6-0.9 = Moderate, &gt;= 0.9 = GameEnding.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom InjurySeverityCheck(double value)
+        {
+            ValidateProbability(value, nameof(InjurySeverityCheck),
+    "Determines injury severity. " +
+      "< 0.6 = Minor (60%), 0.6-0.9 = Moderate (30%), >= 0.9 = GameEnding (10%)");
+     _doubleQueue.Enqueue(value);
+      return this;
+   }
+
+        /// <summary>
+        /// Sets injury type check. Determines type based on position-specific distributions.
+        /// Valid range: 0.0 to 1.0
+     /// RB/WR: 0-0.40 Ankle, 0.40-0.65 Knee, 0.65-0.75 Shoulder, 0.75-0.80 Concussion, 0.80-1.0 Hamstring
+        /// </summary>
+   public TestFluentSeedableRandom InjuryTypeCheck(double value)
+        {
+   ValidateRandomFactor(value, nameof(InjuryTypeCheck),
+   "Determines injury type based on position-specific distributions. " +
+      "Example for RB: 0-0.40 Ankle, 0.40-0.65 Knee, 0.65-0.75 Shoulder, etc.");
+            _doubleQueue.Enqueue(value);
+ return this;
+        }
+
+        /// <summary>
+/// Sets recovery time for minor injuries (1-2 plays).
+        /// Valid range: 1 to 2
+        /// </summary>
+        public TestFluentSeedableRandom InjuryRecoveryTime(int value)
+        {
+            if (value < 1 || value > 2)
+            {
+   throw new ArgumentOutOfRangeException(
+                    nameof(InjuryRecoveryTime),
+   value,
+   "Minor injury recovery time must be 1-2 plays. Got: " + value);
+ }
+            _intQueue.Enqueue(value);
+  return this;
+        }
+
+        /// <summary>
+    /// Sets tackler injury check (50% chance to check each tackler for injury).
+     /// Valid range: 0.0 to 1.0
+        /// Values &lt; 0.5 trigger injury check for that tackler
+ /// </summary>
+        public TestFluentSeedableRandom TacklerInjuryGateCheck(double value)
+        {
+ValidateProbability(value, nameof(TacklerInjuryGateCheck),
+    "50% gate check for whether to check tackler for injury. " +
+          "< 0.5 = check tackler, >= 0.5 = skip tackler");
+  _doubleQueue.Enqueue(value);
+     return this;
+        }
+
+        // Generic methods for edge cases
         /// <summary>
         /// Enqueues a generic double value for NextDouble() calls.
         /// Valid range: 0.0 to 1.0

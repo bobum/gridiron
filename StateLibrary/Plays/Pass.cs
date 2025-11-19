@@ -21,12 +21,10 @@ namespace StateLibrary.Plays
     public sealed class Pass : IGameAction
     {
         private ISeedableRandom _rng;
-        private bool _enableInjuryChecks;
 
-        public Pass(ISeedableRandom rng, bool enableInjuryChecks = false)
+        public Pass(ISeedableRandom rng)
         {
             _rng = rng;
-            _enableInjuryChecks = enableInjuryChecks;
         }
 
         public void Execute(Game game)
@@ -172,18 +170,15 @@ namespace StateLibrary.Plays
                 var currentFieldPosition = game.FieldPosition + totalYards;
                 var isOutOfBounds = currentFieldPosition <= 0 || currentFieldPosition >= 100;
 
-                if (_enableInjuryChecks)
-                {
-                    CheckForInjury(game, play, receiver, defendersInvolved, isOutOfBounds, isBigPlay, false);
+                CheckForInjury(game, play, receiver, defendersInvolved, isOutOfBounds, isBigPlay, false);
 
-                    // **INJURY CHECK: Tacklers (lower risk)**
-                    foreach (var tackler in tacklers)
+                // **INJURY CHECK: Tacklers (lower risk)**
+                foreach (var tackler in tacklers)
+                {
+                    // Defenders have 50% reduced injury rate
+                    if (_rng.NextDouble() < 0.5)
                     {
-                        // Defenders have 50% reduced injury rate
-                        if (_rng.NextDouble() < 0.5)
-                        {
-                            CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
-                        }
+                        CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
                     }
                 }
 
@@ -413,18 +408,15 @@ namespace StateLibrary.Plays
             var defendersInvolved = sackers.Count;
             var isBigPlay = Math.Abs(sackYards) >= 10; // Big sack loss
 
-            if (_enableInjuryChecks)
-            {
-                CheckForInjury(game, play, qb, defendersInvolved, false, isBigPlay, true); // isSack = true
+            CheckForInjury(game, play, qb, defendersInvolved, false, isBigPlay, true); // isSack = true
 
-                // **INJURY CHECK: Sackers (lower risk)**
-                foreach (var tackler in sackers)
+            // **INJURY CHECK: Sackers (lower risk)**
+            foreach (var tackler in sackers)
+            {
+                // Defenders have 50% reduced injury rate
+                if (_rng.NextDouble() < 0.5)
                 {
-                    // Defenders have 50% reduced injury rate
-                    if (_rng.NextDouble() < 0.5)
-                    {
-                        CheckForInjury(game, play, tackler, 1, false, isBigPlay, false);
-                    }
+                    CheckForInjury(game, play, tackler, 1, false, isBigPlay, false);
                 }
             }
 

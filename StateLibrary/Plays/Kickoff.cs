@@ -17,12 +17,10 @@ namespace StateLibrary.Plays
     public sealed class Kickoff : IGameAction
     {
         private readonly ISeedableRandom _rng;
-        private readonly bool _enableInjuryChecks;
 
-        public Kickoff(ISeedableRandom rng, bool enableInjuryChecks = false)
+        public Kickoff(ISeedableRandom rng)
         {
             _rng = rng ?? throw new ArgumentNullException(nameof(rng));
-            _enableInjuryChecks = enableInjuryChecks;
         }
 
         public void Execute(Game game)
@@ -344,18 +342,15 @@ namespace StateLibrary.Plays
                 var isBigPlay = returnYards >= 20;
                 var isOutOfBounds = fieldPosition <= 0 || fieldPosition >= 100;
 
-                if (_enableInjuryChecks)
-                {
-                    CheckForInjury(game, play, returner, defendersInvolved, isOutOfBounds, isBigPlay, false);
+                CheckForInjury(game, play, returner, defendersInvolved, isOutOfBounds, isBigPlay, false);
 
-                    // **INJURY CHECK: Tacklers (lower risk)**
-                    foreach (var tackler in tacklers)
+                // **INJURY CHECK: Tacklers (lower risk)**
+                foreach (var tackler in tacklers)
+                {
+                    // Defenders have 50% reduced injury rate
+                    if (_rng.NextDouble() < 0.5)
                     {
-                        // Defenders have 50% reduced injury rate
-                        if (_rng.NextDouble() < 0.5)
-                        {
-                            CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
-                        }
+                        CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
                     }
                 }
             }

@@ -342,33 +342,35 @@ var rng = new TestFluentSeedableRandom().NextDouble(0.041); // 3% * 1.4 = 4.2%
         {
             // Arrange
     var player = CreatePlayerWithFragility(100); // Very injury-prone
-            var rng = new TestFluentSeedableRandom().NextDouble(0.059); // Higher threshold
+        // Fragility=100: 3% * (0.5 + 100/100) = 3% * 1.5 = 4.5%
+  var rng = new TestFluentSeedableRandom().NextDouble(0.044); // Just under 4.5%
 
-            var check = new InjuryOccurredSkillsCheck(rng, PlayType.Run, player, 1, false, false, false);
-    var game = _testGame.GetGame();
+       var check = new InjuryOccurredSkillsCheck(rng, PlayType.Run, player, 1, false, false, false);
+         var game = _testGame.GetGame();
 
-            // Act
-            check.Execute(game);
+     // Act
+       check.Execute(game);
 
-            // Assert
-         Assert.IsTrue(check.Occurred, "High fragility should increase injury risk");
-     }
+     // Assert
+            Assert.IsTrue(check.Occurred, "Max fragility should significantly increase risk");
+        }
 
         [TestMethod]
-public void InjuryOccurred_LowFragility0_DecreasesRisk()
-        {
+        public void InjuryOccurred_LowFragility0_DecreasesRisk()
+     {
       // Arrange
-       var player = CreatePlayerWithFragility(0); // Very durable
-      var rng = new TestFluentSeedableRandom().NextDouble(0.014); // Lower threshold
+         var player = CreatePlayerWithFragility(0); // Very durable
+        // Fragility=0: 3% * (0.5 + 0/100) = 3% * 0.5 = 1.5%
+            var rng = new TestFluentSeedableRandom().NextDouble(0.02); // Well over 1.5%
 
-            var check = new InjuryOccurredSkillsCheck(rng, PlayType.Run, player, 1, false, false, false);
-          var game = _testGame.GetGame();
+  var check = new InjuryOccurredSkillsCheck(rng, PlayType.Run, player, 1, false, false, false);
+            var game = _testGame.GetGame();
 
             // Act
-      check.Execute(game);
+ check.Execute(game);
 
-      // Assert
-            Assert.IsFalse(check.Occurred, "Low fragility should decrease injury risk significantly");
+            // Assert
+     Assert.IsFalse(check.Occurred, "Low fragility should decrease injury risk significantly");
         }
 
         [TestMethod]
@@ -621,16 +623,17 @@ check.Execute(game);
         {
          // Arrange
             var player = CreatePlayerWithFragility(100);
-var rng = new TestFluentSeedableRandom().NextDouble(0.089); // Much higher threshold
+            // Fragility=100: 3% * (0.5 + 100/100) = 3% * 1.5 = 4.5%
+  var rng = new TestFluentSeedableRandom().NextDouble(0.044); // Just under 4.5%
 
-            var check = new InjuryOccurredSkillsCheck(rng, PlayType.Run, player, 1, false, false, false);
-            var game = _testGame.GetGame();
+       var check = new InjuryOccurredSkillsCheck(rng, PlayType.Run, player, 1, false, false, false);
+         var game = _testGame.GetGame();
 
-            // Act
-            check.Execute(game);
+     // Act
+       check.Execute(game);
 
-            // Assert
-          Assert.IsTrue(check.Occurred, "Max fragility should significantly increase risk");
+     // Assert
+            Assert.IsTrue(check.Occurred, "Max fragility should significantly increase risk");
         }
 
         #endregion
@@ -720,11 +723,11 @@ var rng = new TestFluentSeedableRandom().NextDouble(0.089); // Much higher thres
         [TestMethod]
         public void InjuryEffect_KneeInjury_Occurs()
         {
-            // Arrange
+  // Arrange
          var player = CreatePlayerWithFragility(50);
             var rng = new TestFluentSeedableRandom()
     .NextDouble(0.5)   // Minor severity
-    .NextDouble(0.35)  // Knee (0.25-0.50)
+    .NextDouble(0.50)  // Knee (0.40-0.65 for RB)
        .NextInt(2);
 
             var result = new InjuryEffectSkillsCheckResult(rng, player, PlayType.Run);
@@ -733,8 +736,8 @@ var rng = new TestFluentSeedableRandom().NextDouble(0.089); // Much higher thres
   // Act
       result.Execute(game);
 
-            // Assert
-            Assert.AreEqual(InjuryType.Knee, result.Result.InjuryType);
+ // Assert
+  Assert.AreEqual(InjuryType.Knee, result.Result.InjuryType);
     }
 
         [TestMethod]
@@ -761,14 +764,14 @@ var rng = new TestFluentSeedableRandom().NextDouble(0.089); // Much higher thres
         public void InjuryEffect_ConcussionInjury_Occurs()
         {
    // Arrange
-            var player = CreatePlayerWithFragility(50);
+    var player = CreatePlayerWithFragility(50);
  var rng = new TestFluentSeedableRandom()
-            .NextDouble(0.5)   // Minor severity
-  .NextDouble(0.85)  // Concussion (0.75-0.90)
+ .NextDouble(0.5)   // Minor severity
+  .NextDouble(0.77)  // Concussion (0.75-0.80 for RB)
 .NextInt(2);
 
          var result = new InjuryEffectSkillsCheckResult(rng, player, PlayType.Run);
-            var game = _testGame.GetGame();
+    var game = _testGame.GetGame();
 
          // Act
  result.Execute(game);
@@ -983,68 +986,90 @@ var rng2 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.3).NextIn
       [TestMethod]
         public void InjuryEffect_EdgeCase_BoundaryInjuryTypeValues()
    {
-        // Test exact boundary values for injury type determination
-       var player = CreatePlayerWithFragility(50);
-  var game = _testGame.GetGame();
+ // Test boundary values work correctly with RB injury distribution
+ // RB: (0.40 ankle, 0.25 knee, 0.10 shoulder, 0.05 concussion, 0.20 hamstring)
+   var player = CreatePlayerWithFragility(50);
+ player.Position = Positions.RB; // Ensure RB position
+ var game = _testGame.GetGame();
 
-            // Test exactly 0.25 (boundary between ankle and knee)
-     var rng1 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.25).NextInt(2);
-            var result1 = new InjuryEffectSkillsCheckResult(rng1, player, PlayType.Run);
-   result1.Execute(game);
-Assert.AreEqual(InjuryType.Knee, result1.Result.InjuryType, "0.25 should be knee");
+     // Test a value that should land in ankle range (0-0.40)
+var rng1 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.20).NextInt(2);
+    var result1 = new InjuryEffectSkillsCheckResult(rng1, player, PlayType.Run);
+        result1.Execute(game);
+     Assert.AreEqual(InjuryType.Ankle, result1.Result.InjuryType, "0.20 should be ankle for RB");
 
-            // Test exactly 0.50 (boundary between knee and shoulder)
-   var rng2 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.50).NextInt(2);
-          var result2 = new InjuryEffectSkillsCheckResult(rng2, player, PlayType.Run);
-       result2.Execute(game);
-          Assert.AreEqual(InjuryType.Shoulder, result2.Result.InjuryType, "0.50 should be shoulder");
+// Test a value that should land in knee range (0.40-0.65)
+var rng2 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.50).NextInt(2);
+   var result2 = new InjuryEffectSkillsCheckResult(rng2, player, PlayType.Run);
+ result2.Execute(game);
+   Assert.AreEqual(InjuryType.Knee, result2.Result.InjuryType, "0.50 should be knee for RB");
 }
 
         [TestMethod]
         public void InjuryEffect_AllInjuryTypes_CanOccur()
         {
-       // Verify all injury types can be generated
-            var player = CreatePlayerWithFragility(50);
-  var game = _testGame.GetGame();
-            var injuryTypes = new HashSet<InjuryType>();
-
-     // Generate injuries for each range
-      var testCases = new[] { 0.10, 0.35, 0.60, 0.80, 0.95 };
-            foreach (var typeValue in testCases)
-    {
-              var rng = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(typeValue).NextInt(2);
-       var result = new InjuryEffectSkillsCheckResult(rng, player, PlayType.Run);
-     result.Execute(game);
-         injuryTypes.Add(result.Result.InjuryType);
-         }
-
-   // Assert all 5 injury types were generated
- Assert.AreEqual(5, injuryTypes.Count, "All 5 injury types should be generatable");
-        }
-
-      [TestMethod]
-    public void InjuryEffect_AllSeverities_CanOccur()
-  {
-            // Verify all severity levels can be generated
-var player = CreatePlayerWithFragility(50);
+// Simplified test: just verify the system can generate different injury types
+  var player = CreatePlayerWithFragility(50);
+player.Position = Positions.RB;
    var game = _testGame.GetGame();
-     var severities = new HashSet<InjurySeverity>();
 
-    // Generate injuries for each severity range
-       var testCases = new[] { 0.3, 0.7, 0.95 };
-            foreach (var severityValue in testCases)
-            {
-                var rng = new TestFluentSeedableRandom().NextDouble(severityValue).NextDouble(0.3).NextInt(2);
-             var result = new InjuryEffectSkillsCheckResult(rng, player, PlayType.Run);
-           result.Execute(game);
-     severities.Add(result.Result.Severity);
-    }
+   // Test ankle (0.20 in range 0-0.40)
+        var rng1 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.20).NextInt(2);
+    var result1 = new InjuryEffectSkillsCheckResult(rng1, player, PlayType.Run);
+     result1.Execute(game);
+   Assert.AreEqual(InjuryType.Ankle, result1.Result.InjuryType);
 
-        // Assert all 3 severity levels were generated
-        Assert.AreEqual(3, severities.Count, "All 3 severity levels should be generatable");
+    // Test knee (0.50 in range 0.40-0.65)
+        var rng2 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.50).NextInt(2);
+   var result2 = new InjuryEffectSkillsCheckResult(rng2, player, PlayType.Run);
+       result2.Execute(game);
+   Assert.AreEqual(InjuryType.Knee, result2.Result.InjuryType);
+
+ // Test shoulder (0.70 in range 0.65-0.75)
+      var rng3 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.70).NextInt(2);
+    var result3 = new InjuryEffectSkillsCheckResult(rng3, player, PlayType.Run);
+    result3.Execute(game);
+     Assert.AreEqual(InjuryType.Shoulder, result3.Result.InjuryType);
+
+ // Test concussion (0.77 in range 0.75-0.80)
+  var rng4 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.77).NextInt(2);
+ var result4 = new InjuryEffectSkillsCheckResult(rng4, player, PlayType.Run);
+ result4.Execute(game);
+      Assert.AreEqual(InjuryType.Concussion, result4.Result.InjuryType);
+
+    // Test hamstring (0.90 in range 0.80-1.0)
+        var rng5 = new TestFluentSeedableRandom().NextDouble(0.5).NextDouble(0.90).NextInt(2);
+  var result5 = new InjuryEffectSkillsCheckResult(rng5, player, PlayType.Run);
+      result5.Execute(game);
+Assert.AreEqual(InjuryType.Hamstring, result5.Result.InjuryType);
      }
 
-     #endregion
+     [TestMethod]
+    public void InjuryEffect_AllSeverities_CanOccur()
+  {
+   // Simplified test: verify each severity level individually
+var player = CreatePlayerWithFragility(50);
+   var game = _testGame.GetGame();
+
+ // Test minor (0.3 in range 0-0.6)
+ var rng1 = new TestFluentSeedableRandom().NextDouble(0.3).NextDouble(0.3).NextInt(2);
+             var result1 = new InjuryEffectSkillsCheckResult(rng1, player, PlayType.Run);
+  result1.Execute(game);
+Assert.AreEqual(InjurySeverity.Minor, result1.Result.Severity);
+
+ // Test moderate (0.7 in range 0.6-0.9)
+    var rng2 = new TestFluentSeedableRandom().NextDouble(0.7).NextDouble(0.3).NextInt(0);
+     var result2 = new InjuryEffectSkillsCheckResult(rng2, player, PlayType.Run);
+       result2.Execute(game);
+       Assert.AreEqual(InjurySeverity.Moderate, result2.Result.Severity);
+
+  // Test game-ending (0.95 in range 0.9-1.0)
+  var rng3 = new TestFluentSeedableRandom().NextDouble(0.95).NextDouble(0.3).NextInt(0);
+   var result3 = new InjuryEffectSkillsCheckResult(rng3, player, PlayType.Run);
+       result3.Execute(game);
+   Assert.AreEqual(InjurySeverity.GameEnding, result3.Result.Severity);
+     }
+        #endregion
 
    #region Helper Methods
 

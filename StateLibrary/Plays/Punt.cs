@@ -19,12 +19,10 @@ namespace StateLibrary.Plays
     public sealed class Punt : IGameAction
     {
         private ISeedableRandom _rng;
-        private bool _enableInjuryChecks;
 
-        public Punt(ISeedableRandom rng, bool enableInjuryChecks = false)
+        public Punt(ISeedableRandom rng)
         {
             _rng = rng;
-            _enableInjuryChecks = enableInjuryChecks;
         }
 
         public void Execute(Game game)
@@ -459,18 +457,15 @@ namespace StateLibrary.Plays
                 var defendersInvolved = tacklers.Count;
                 var isBigPlay = returnYards >= 20;
                 var isOutOfBounds = false; // Punt returns rarely go OOB
-                if (_enableInjuryChecks)
-                {
-                    CheckForInjury(game, play, returner, defendersInvolved, isOutOfBounds, isBigPlay, false);
+                CheckForInjury(game, play, returner, defendersInvolved, isOutOfBounds, isBigPlay, false);
 
-                    // **INJURY CHECK: Tacklers (lower risk)**
-                    foreach (var tackler in tacklers)
+                // **INJURY CHECK: Tacklers (lower risk)**
+                foreach (var tackler in tacklers)
+                {
+                    // Defenders have 50% reduced injury rate
+                    if (_rng.NextDouble() < 0.5)
                     {
-                        // Defenders have 50% reduced injury rate
-                        if (_rng.NextDouble() < 0.5)
-                        {
-                            CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
-                        }
+                        CheckForInjury(game, play, tackler, 1, isOutOfBounds, isBigPlay, false);
                     }
                 }
             }

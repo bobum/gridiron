@@ -126,6 +126,10 @@ namespace UnitTestProject1.Helpers
                 .PuntMuffCheck(0.95)
                 .PuntReturnYards(returnYards)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks (returner + 2 tacklers)
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -165,6 +169,10 @@ namespace UnitTestProject1.Helpers
                 .PuntMuffCheck(0.95)
                 .PuntReturnYards(0.95)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -492,6 +500,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                   // Penalty effect: team selection
                 .NextInt(5)                        // Penalty effect: player selection
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -517,6 +529,10 @@ namespace UnitTestProject1.Helpers
                 .PuntMuffCheck(0.95)
                 .PuntReturnYards(0.5)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -536,6 +552,7 @@ namespace UnitTestProject1.Helpers
                 .PuntFairCatchCheck(0.9)
                 .PuntMuffCheck(0.95)
                 .PuntReturnYards(0.0)
+                // No injury checks - returnYards = 0 means no tackle happened
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -665,6 +682,11 @@ namespace UnitTestProject1.Helpers
                 {
                     rng.NextDouble(0.5).NextInt(5); // Penalty effect
                 }
+
+                // Injury checks (returner + tacklers) - only if there's a return/tackle
+                rng.InjuryOccurredCheck(0.99)
+                    .TacklerInjuryGateCheck(0.9)
+                    .TacklerInjuryGateCheck(0.9);
             }
 
             rng.ElapsedTimeRandomFactor(0.5);

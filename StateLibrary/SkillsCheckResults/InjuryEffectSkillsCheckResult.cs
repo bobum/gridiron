@@ -36,11 +36,11 @@ public InjurySeverity Severity { get; set; }
    {
     Result = new InjuryDetails();
     
-        // Determine injury type based on position and play type
-      Result.InjuryType = DetermineInjuryType();
-        
-       // Determine severity (minor, moderate, game-ending)
+        // Determine severity (minor, moderate, game-ending) - FIRST
    Result.Severity = DetermineSeverity();
+
+        // Determine injury type based on position and play type - SECOND
+      Result.InjuryType = DetermineInjuryType();
 
     // Determine if player must leave immediately
   // Game-ending and moderate injuries always require immediate removal

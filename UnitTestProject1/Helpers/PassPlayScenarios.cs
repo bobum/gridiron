@@ -91,6 +91,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.99)
                 .YACOpportunityCheck(0.8)              // YAC fails (tackled immediately)
                 .ImmediateTackleYards(immediateTackleYards) // 0-2 yards after catch
+                // Injury checks (receiver + 2 tacklers)
+                .InjuryOccurredCheck(0.99)             // Receiver no injury
+                .TacklerInjuryGateCheck(0.9)           // Tackler 1 skip
+                .TacklerInjuryGateCheck(0.9)          // Tackler 2 skip
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);        // ~7 seconds
         }
@@ -133,6 +137,10 @@ namespace UnitTestProject1.Helpers
                 rng.BigPlayBonusYards(bigPlayYards);   // EXTRA: Big play bonus
 
             rng.TacklePenaltyCheck(0.99)
+                // Injury checks (receiver + 2 tacklers)
+                .InjuryOccurredCheck(0.99)             // Receiver no injury
+                .TacklerInjuryGateCheck(0.9)       // Tackler 1 skip
+                .TacklerInjuryGateCheck(0.9)           // Tackler 2 skip
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);        // ~7 seconds
 
@@ -157,6 +165,10 @@ namespace UnitTestProject1.Helpers
                 .YACRandomFactor(yacFactor)
                 .BigPlayCheck(0.9)                     // No big play
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -234,6 +246,10 @@ namespace UnitTestProject1.Helpers
                 .BlockingPenaltyCheck(0.99)
                 .SackYards(sackYards)                  // Sack yardage loss
                 .RoughingPasserCheck(0.99)
+                // Injury checks (QB + 2 sackers)
+                .InjuryOccurredCheck(0.99)  // QB no injury
+                .TacklerInjuryGateCheck(0.9)           // Sacker 1 skip
+                .TacklerInjuryGateCheck(0.9)  // Sacker 2 skip
                 .FumbleCheck(withFumble ? 0.01 : 0.99)
                 .ElapsedTimeRandomFactor(0.99);        // ~3 seconds (shorter than pass)
         }
@@ -273,6 +289,10 @@ namespace UnitTestProject1.Helpers
                 .InterceptionReturnBase(returnBase)    // Base return yards
                 .InterceptionReturnVariance(returnVariance) // Return variance
                 .TacklePenaltyCheck(0.99)
+                // Injury checks (interceptor + 2 tacklers)
+                .InjuryOccurredCheck(0.99)      // Interceptor no injury
+                .TacklerInjuryGateCheck(0.9)    // Tackler 1 skip
+                .TacklerInjuryGateCheck(0.9)  // Tackler 2 skip
                 .FumbleCheck(withFumble ? 0.01 : 0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -295,6 +315,10 @@ namespace UnitTestProject1.Helpers
                 .InterceptionReturnBase(0.9)           // High base (14.3 yards)
                 .InterceptionReturnVariance(0.9)       // High variance (22 yards)
                 .TacklePenaltyCheck(0.99)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -323,6 +347,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.99)
                 .YACOpportunityCheck(0.8)
                 .ImmediateTackleYards(2)
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -347,6 +375,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                       // Penalty effect: team selection
                 .NextInt(5)                            // Penalty effect: player selection
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -363,6 +395,10 @@ namespace UnitTestProject1.Helpers
                 .BlockingPenaltyCheck(0.99)
                 .SackYards(sackYards)
                 .RoughingPasserCheck(0.01)
+                // Injury checks (QB + sackers)
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -416,6 +452,10 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.01)
                 .NextDouble(0.5)                       // Penalty effect: team selection
                 .NextInt(5)                            // Penalty effect: player selection
+                // Injury checks
+                .InjuryOccurredCheck(0.99)
+                .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
                 .ElapsedTimeRandomFactor(0.99);
         }
@@ -518,6 +558,10 @@ namespace UnitTestProject1.Helpers
                     .BlockingPenaltyCheck(blockingPenalty ? 0.01 : 0.99)
                     .SackYards(7)
                     .RoughingPasserCheck(0.99)
+                    // Injury checks (QB + sackers)
+                    .InjuryOccurredCheck(0.99)
+                    .TacklerInjuryGateCheck(0.9)           // Sacker 1 skip
+                    .TacklerInjuryGateCheck(0.9)  // Sacker 2 skip
                     .FumbleCheck(fumble ? 0.01 : 0.99)
                     .ElapsedTimeRandomFactor(0.99);
             }
@@ -553,7 +597,11 @@ namespace UnitTestProject1.Helpers
                             .ImmediateTackleYards(2);
                     }
 
-                    rng.FumbleCheck(fumble ? 0.01 : 0.99)
+                    // Injury checks (receiver + tacklers)
+                    rng.InjuryOccurredCheck(0.99)
+                        .TacklerInjuryGateCheck(0.9)
+                        .TacklerInjuryGateCheck(0.9)
+                        .FumbleCheck(fumble ? 0.01 : 0.99)
                         .ElapsedTimeRandomFactor(0.99);
                 }
                 else
@@ -567,6 +615,10 @@ namespace UnitTestProject1.Helpers
                         rng.InterceptionReturnBase(0.5)
                             .InterceptionReturnVariance(0.5)
                             .TacklePenaltyCheck(0.99)
+                            // Injury checks (interceptor + tacklers)
+                            .InjuryOccurredCheck(0.99)
+                            .TacklerInjuryGateCheck(0.9)
+                            .TacklerInjuryGateCheck(0.9)
                             .FumbleCheck(fumble ? 0.01 : 0.99);
                     }
 
