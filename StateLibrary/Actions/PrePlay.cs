@@ -492,7 +492,22 @@ namespace StateLibrary.Actions
                 play.Punter = punter;
             }
 
-            TryAddUniquePlayers(chart, Positions.LS, 1, playersOnField); // Long snapper
+            // Add long snapper and track who it is
+            Player? longSnapper = null;
+            if (chart.TryGetValue(Positions.LS, out var longSnappers) && longSnappers.Count > 0)
+            {
+                longSnapper = longSnappers[0];
+                if (!playersOnField.Contains(longSnapper))
+                {
+                    playersOnField.Add(longSnapper);
+                }
+            }
+
+            // Assign the long snapper to the play object
+            if (play != null && longSnapper != null)
+            {
+                play.LongSnapper = longSnapper;
+            }
 
             // Fill remaining spots with coverage team (flexible)
             TryAddUniquePlayers(chart, Positions.LB, 3, playersOnField);
@@ -524,14 +539,24 @@ namespace StateLibrary.Actions
                 }
             }
 
-            // Assign kicker and holder to the play object so execution knows who does what
+            // Add long snapper and track who it is
+            Player? longSnapper = null;
+            if (chart.TryGetValue(Positions.LS, out var longSnappers) && longSnappers.Count > 0)
+            {
+                longSnapper = longSnappers[0];
+                if (!playersOnField.Contains(longSnapper))
+                {
+                    playersOnField.Add(longSnapper);
+                }
+            }
+
+            // Assign kicker, holder, and long snapper to the play object so execution knows who does what
             if (play != null)
             {
                 if (kicker != null) play.Kicker = kicker;
                 if (holder != null) play.Holder = holder;
+                if (longSnapper != null) play.LongSnapper = longSnapper;
             }
-
-            TryAddUniquePlayers(chart, Positions.LS, 1, playersOnField); // Long snapper
 
             // Protection (flexible)
             TryAddUniquePlayers(chart, Positions.G, 2, playersOnField);
