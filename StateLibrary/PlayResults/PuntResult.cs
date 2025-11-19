@@ -91,6 +91,9 @@ namespace StateLibrary.PlayResults
 
             // Log final punt summary
             LogPuntSummary(play);
+
+            // Accumulate player stats
+            StatsAccumulator.AccumulatePuntStats(play);
         }
 
         private void HandlePenalties(Game game, PuntPlay play)

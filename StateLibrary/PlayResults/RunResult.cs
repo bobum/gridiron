@@ -226,6 +226,11 @@ namespace StateLibrary.PlayResults
             {
                 play.Result.LogInformation($"{finalCarrier.LastName}: {play.RunSegments.Count} carry for {play.YardsGained} yards.");
             }
+
+            // Accumulate stats
+            StatsAccumulator.AccumulateRunStats(play);
+            StatsAccumulator.AccumulateDefensiveStats(play);
+            StatsAccumulator.AccumulateFumbleStats(play);
         }
 
         /// <summary>
