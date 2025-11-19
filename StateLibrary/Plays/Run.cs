@@ -180,11 +180,52 @@ namespace StateLibrary.Plays
             }
             else
             {
-                // Update elapsed time (run plays take 5-8 seconds)
-                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+                // Determine if run went out of bounds (10% chance on runs to the outside)
+                if (direction == RunDirection.Left || direction == RunDirection.Right || 
+                    direction == RunDirection.Sweep || direction == RunDirection.OffLeftTackle || 
+                    direction == RunDirection.OffRightTackle)
+                {
+                    // Higher chance of OOB on outside runs
+                    segment.IsOutOfBounds = _rng.NextDouble() < 0.15;
+                }
+                else
+                {
+                    // Low chance on inside runs (maybe bouncing outside)
+                    segment.IsOutOfBounds = _rng.NextDouble() < 0.02;
+                }
+
+                if (segment.IsOutOfBounds)
+                {
+                    play.Result.LogInformation($"{ballCarrier.LastName} steps out of bounds.");
+                }
 
                 // Log the play-by-play narrative
                 LogRunPlayNarrative(play, ballCarrier, direction, blockingSuccess, finalYards, yardsToGoal);
+
+                // TIME MANAGEMENT
+                // 1. Execution time: 4-8 seconds
+                var executionTime = 4.0 + (_rng.NextDouble() * 4.0);
+                
+                // 2. Determine if clock stops
+                // Clock stops if:
+                // - Out of bounds
+                // - Touchdown
+                // - Safety
+                // - Turnover (Fumble lost - handled in HandleFumbleRecovery)
+                // - Penalty (simplified: we'll assume penalties stop clock for now, though some start on ready)
+                
+                var clockStops = segment.IsOutOfBounds || play.IsTouchdown || play.IsSafety || play.Penalties.Count > 0;
+                play.ClockStopped = clockStops;
+
+                // 3. Runoff time (time between plays)
+                // If clock doesn't stop, 25-35 seconds run off
+                var runoffTime = 0.0;
+                if (!clockStops)
+                {
+                    runoffTime = 25.0 + (_rng.NextDouble() * 10.0);
+                }
+
+                play.ElapsedTime += executionTime + runoffTime;
             }
         }
 
@@ -433,7 +474,10 @@ namespace StateLibrary.Plays
 
                 play.Result.LogInformation($"{fumbler.LastName} fumbles! Ball goes out of bounds. {play.Possession} retains possession.");
                 play.YardsGained = fumbleSpot - play.StartFieldPosition;
-                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+                
+                // Fumble out of bounds stops clock
+                play.ClockStopped = true;
+                play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0); // Only execution time
             }
             else if (recovery.RecoveredBy != null)
             {
@@ -471,7 +515,10 @@ namespace StateLibrary.Plays
                     }
 
                     play.PossessionChange = true;
-                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 4.0);
+                    
+                    // Turnover stops clock
+                    play.ClockStopped = true;
+                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 4.0); // Only execution time
                 }
                 else
                 {
@@ -488,10 +535,17 @@ namespace StateLibrary.Plays
                     else
                     {
                         play.YardsGained = finalPosition - play.StartFieldPosition;
-                        play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers for the offense.");
+                    play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers for the offense.");
                     }
 
-                    play.ElapsedTime += 5.0 + (_rng.NextDouble() * 3.0);
+                    // Offense recovered - clock keeps running unless OOB or Safety
+                    var clockStops = play.IsSafety; // OOB handled in if block above
+                    play.ClockStopped = clockStops;
+                    
+                    var executionTime = 5.0 + (_rng.NextDouble() * 3.0);
+                    var runoffTime = clockStops ? 0.0 : (25.0 + (_rng.NextDouble() * 10.0));
+                    
+                    play.ElapsedTime += executionTime + runoffTime;
                 }
             }
 

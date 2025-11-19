@@ -10,5 +10,6 @@ namespace DomainObjects
         public bool EndedInFumble { get; set; }
         public Player? FumbledBy { get; set; }
         public Player? RecoveredBy { get; set; }
+        public bool IsOutOfBounds { get; set; }
     }
 }

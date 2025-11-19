@@ -13,6 +13,7 @@ namespace DomainObjects
 
         // Run-specific properties
         public RunDirection Direction { get; set; }
+        public bool IsOutOfBounds { get; set; }
     }
 
     public enum RunDirection

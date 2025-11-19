@@ -162,5 +162,10 @@ namespace DomainObjects
         /// Whether this play resulted in a safety
         /// </summary>
         bool IsSafety { get; set; }
+
+        /// <summary>
+        /// Whether the clock stopped at the end of this play
+        /// </summary>
+        bool ClockStopped { get; set; }
     }
 }

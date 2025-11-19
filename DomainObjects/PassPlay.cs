@@ -38,6 +38,7 @@ namespace DomainObjects
         public bool IsTouchdown { get; set; }
         public bool IsSafety { get; set; }
         public bool IsTwoPointConversion { get; set; }
+        public bool ClockStopped { get; set; }
 
         // ========================================
         // PASS-SPECIFIC PROPERTIES

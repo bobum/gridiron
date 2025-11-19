@@ -121,6 +121,7 @@ namespace StateLibrary.Plays
 
             // Onside kicks take 4-6 seconds
             play.ElapsedTime += 4.0 + (_rng.NextDouble() * 2.0);
+            play.ClockStopped = true; // Clock stops after onside kick
         }
 
         private void ExecuteNormalKickoff(Game game, KickoffPlay play, Player kicker)
@@ -144,6 +145,7 @@ namespace StateLibrary.Plays
                 play.EndFieldPosition = 40;
                 play.Result.LogInformation($"{kicker.LastName} kicks it out of bounds! Ball placed at the 40-yard line.");
                 play.ElapsedTime += 3.0;
+                play.ClockStopped = true; // Clock stops after kickoff
                 return;
             }
 
@@ -155,11 +157,14 @@ namespace StateLibrary.Plays
                 play.EndFieldPosition = 25; // Touchback comes out to 25-yard line
                 play.Result.LogInformation($"{kicker.LastName} kicks it deep! Touchback. Ball at the 25-yard line.");
                 play.ElapsedTime += 3.0;
+                play.ClockStopped = true; // Clock stops after kickoff
                 return;
             }
 
             // Normal return
             ExecuteKickoffReturn(game, play, landingSpot);
+            
+            play.ClockStopped = true; // Clock stops after kickoff return
         }
 
         private bool CheckOutOfBounds(int landingSpot)
