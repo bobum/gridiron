@@ -507,7 +507,8 @@ namespace UnitTestProject1
                 .TacklerInjuryGateCheck(0.9)   // Tackler 2 skip
                 .FumbleCheck(0.99)             // No fumble
                 .OutOfBoundsCheck(0.99)        // Out of bounds check
-                .ElapsedTimeRandomFactor(0.5);
+                .ElapsedTimeRandomFactor(0.5)         // Play execution time (5-8 seconds)
+                .RunoffTimeRandomFactor(0.5);         // Time between plays (25-35 seconds)
         }
 
         private void ExecuteRunPlayWithResult(Game game, ISeedableRandom rng)

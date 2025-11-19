@@ -45,8 +45,11 @@ namespace UnitTestProject1.Helpers
         /// 6. Tackle break (0.9) - No tackle break
         /// 7. Breakaway (0.9) - No breakaway
         /// 8. Tackle penalty (0.99) - No penalty
-        /// 9. Fumble (0.99) - No fumble
-        /// 10. Elapsed time (0.5) - ~6.5 seconds
+        /// 9. Injury checks (3x)
+        /// 10. Fumble (0.99) - No fumble
+        /// 11. Out of bounds (0.99) - No OOB
+        /// 12. Elapsed time (0.5) - ~6.5 seconds
+        /// 13. Runoff time (0.5) - ~30 seconds
         /// </summary>
         /// <param name="yards">Target yards to gain (will calculate appropriate random factor)</param>
         /// <param name="direction">Run direction (0-4), default 2 (Middle)</param>
@@ -64,7 +67,8 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.99)
                 // Injury checks (ball carrier + 2 tacklers)
                 .InjuryOccurredCheck(0.99)      // Ball carrier no injury
-                .TacklerInjuryGateCheck(0.9)    // Tackler 2 gate (skip)
+                .TacklerInjuryGateCheck(0.9)    // Tackler 1 skip
+                .TacklerInjuryGateCheck(0.9)    // Tackler 2 skip
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -93,6 +97,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -122,6 +127,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -161,6 +167,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -195,6 +202,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -235,6 +243,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -268,6 +277,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -303,6 +313,7 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)  // Add missing 2nd tackler
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5)
@@ -317,6 +328,7 @@ namespace UnitTestProject1.Helpers
         /// Fumble scenario - ball carrier fumbles after gaining yards.
         ///
         /// Random sequence: Same as SimpleGain but fumble check = 0.01 (occurs).
+        /// NOTE: No runoff time when fumble occurs (clock handling is different)
         /// </summary>
         /// <param name="yardsBeforeFumble">Yards gained before fumble</param>
         public static TestFluentSeedableRandom Fumble(int yardsBeforeFumble)
@@ -333,8 +345,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
+                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.01)
                 .ElapsedTimeRandomFactor(0.5);
+            // NOTE: No RunoffTimeRandomFactor - fumble handling doesn't consume it
         }
 
         #endregion
@@ -346,6 +360,7 @@ namespace UnitTestProject1.Helpers
         ///
         /// Random sequence: Same as SimpleGain but blocking penalty = 0.01 (occurs) + penalty effect random values.
         /// This triggers BlockingPenaltyOccurredSkillsCheck to detect holding.
+        /// NOTE: No runoff time when penalty occurs
         /// </summary>
         /// <param name="yards">Yards that would have been gained</param>
         public static TestFluentSeedableRandom WithBlockingPenalty(int yards)
@@ -355,8 +370,8 @@ namespace UnitTestProject1.Helpers
                 .RunDirection(2)
                 .RunBlockingCheck(0.5)
                 .BlockingPenaltyCheck(0.01)
-                .NextDouble(0.5)                     // Penalty effect: team selection
-                .NextInt(5)                          // Penalty effect: player selection
+                .NextDouble(0.5)    // Penalty effect: team selection
+                .NextInt(5)     // Penalty effect: player selection
                 .RunBaseYardsRandom(0.6)
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
@@ -368,6 +383,7 @@ namespace UnitTestProject1.Helpers
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
+                // NOTE: No RunoffTimeRandomFactor - penalty stops clock
         }
 
         /// <summary>
@@ -375,6 +391,7 @@ namespace UnitTestProject1.Helpers
         ///
         /// Random sequence: Same as SimpleGain but tackle penalty = 0.01 (occurs) + penalty effect random values.
         /// This triggers TacklePenaltyOccurredSkillsCheck with BallCarrier context.
+        /// NOTE: No runoff time when penalty occurs
         /// </summary>
         /// <param name="yards">Yards gained before penalty</param>
         public static TestFluentSeedableRandom WithTacklePenalty(int yards)
@@ -388,8 +405,8 @@ namespace UnitTestProject1.Helpers
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.01)
-                .NextDouble(0.5)                     // Penalty effect: team selection
-                .NextInt(5)                          // Penalty effect: player selection
+                .NextDouble(0.5)              // Penalty effect: team selection
+                .NextInt(5)            // Penalty effect: player selection
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
@@ -397,6 +414,7 @@ namespace UnitTestProject1.Helpers
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
+                // NOTE: No RunoffTimeRandomFactor - penalty stops clock
         }
 
         /// <summary>
@@ -405,6 +423,7 @@ namespace UnitTestProject1.Helpers
         ///
         /// Random sequence: QB check → Direction → Blocking → BLOCKING PENALTY → Penalty effect →
         /// Base yards → Tackle break → Breakaway → TACKLE PENALTY → Penalty effect → Fumble → Time
+        /// NOTE: No runoff time when penalties occur
         /// </summary>
         public static TestFluentSeedableRandom WithBlockingAndTacklePenalty(int yards)
         {
@@ -413,14 +432,14 @@ namespace UnitTestProject1.Helpers
                 .RunDirection(2)
                 .RunBlockingCheck(0.5)
                 .BlockingPenaltyCheck(0.01)
-                .NextDouble(0.5)                     // Penalty effect: team selection
-                .NextInt(5)                          // Penalty effect: player selection
+                .NextDouble(0.5)         // Penalty effect: team selection
+                .NextInt(5)         // Penalty effect: player selection
                 .RunBaseYardsRandom(0.6)
                 .TackleBreakCheck(0.9)
                 .BreakawayCheck(0.9)
                 .TacklePenaltyCheck(0.01)
-                .NextDouble(0.5)                     // Penalty effect: team selection
-                .NextInt(5)                          // Penalty effect: player selection
+                .NextDouble(0.5)         // Penalty effect: team selection
+                .NextInt(5)        // Penalty effect: player selection
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
@@ -428,6 +447,7 @@ namespace UnitTestProject1.Helpers
                 .FumbleCheck(0.99)
                 .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
+                // NOTE: No RunoffTimeRandomFactor - penalties stop clock
         }
 
         #endregion
@@ -493,6 +513,12 @@ namespace UnitTestProject1.Helpers
             rng.FumbleCheck(fumble ? 0.01 : 0.99)
                 .OutOfBoundsCheck(0.99)                 // Out of bounds check
                 .ElapsedTimeRandomFactor(elapsedTimeFactor);
+
+            // Only add runoff time if clock keeps running (no penalty, no fumble)
+            if (!blockingPenalty && !tacklePenalty && !fumble)
+            {
+                rng.RunoffTimeRandomFactor(0.5);
+            }
 
             return rng;
         }

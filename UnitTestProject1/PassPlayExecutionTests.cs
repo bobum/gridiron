@@ -307,8 +307,9 @@ namespace UnitTestProject1
 
             // Assert
             var timeAdded = game.CurrentPlay.ElapsedTime - initialElapsedTime;
-            Assert.IsTrue(timeAdded >= 4.0 && timeAdded <= 7.0,
-                $"Elapsed time ({timeAdded}) should be between 4 and 7 seconds");
+            // Total time = execution time (4-7s) + runoff time (25-35s) = 29-42 seconds
+            Assert.IsTrue(timeAdded >= 29.0 && timeAdded <= 42.0,
+                $"Total elapsed time ({timeAdded}) should be execution (4-7s) + runoff (25-35s) = 29-42 seconds");
         }
 
         [TestMethod]
@@ -327,8 +328,9 @@ namespace UnitTestProject1
 
             // Assert
             var timeAdded = game.CurrentPlay.ElapsedTime - initialElapsedTime;
-            Assert.IsTrue(timeAdded >= 2.0 && timeAdded <= 4.0,
-                $"Sack elapsed time ({timeAdded}) should be between 2 and 4 seconds");
+            // Total time = execution time (2-4s) + runoff time (25-35s) = 27-39 seconds
+            Assert.IsTrue(timeAdded >= 27.0 && timeAdded <= 39.0,
+                $"Sack total elapsed time ({timeAdded}) should be execution (2-4s) + runoff (25-35s) = 27-39 seconds");
         }
 
         #endregion

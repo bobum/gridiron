@@ -989,6 +989,37 @@ namespace UnitTestProject1.Helpers
             return this;
         }
 
+        /// <summary>
+        /// Sets out of bounds check. Lower values mean ball carrier goes out of bounds.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom OutOfBoundsCheck(double value)
+        {
+            ValidateProbability(value, nameof(OutOfBoundsCheck),
+                "Determines if ball carrier goes out of bounds. " +
+                "Lower values (< ~10-20%) mean carrier goes OOB.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the elapsed time random factor (0.0-1.0).
+        /// Used to add variance to play execution time.
+        /// Run plays: 5.0 + (factor * 3.0) = 5.0 to 8.0 seconds
+        /// Pass plays: 4.0 + (factor * 3.0) = 4.0 to 7.0 seconds
+        /// Sacks: 2.0 + (factor * 2.0) = 2.0 to 4.0 seconds
+        /// </summary>
+        public TestFluentSeedableRandom ElapsedTimeRandomFactor(double value)
+        {
+            ValidateRandomFactor(value, nameof(ElapsedTimeRandomFactor),
+                "Random factor for play execution time. " +
+                "Run: 5.0 + (factor * 3.0) = 5-8 seconds. " +
+                "Pass: 4.0 + (factor * 3.0) = 4-7 seconds. " +
+                "Sack: 2.0 + (factor * 2.0) = 2-4 seconds.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
         // Generic methods for edge cases
         /// <summary>
         /// Enqueues a generic double value for NextDouble() calls.
