@@ -3,14 +3,13 @@ using DomainObjects.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Plays;
 using UnitTestProject1.Helpers;
-using System.Linq;
 
 namespace UnitTestProject1
 {
     [TestClass]
     public class PassPlayExecutionTests
     {
-        private readonly Teams _teams = new Teams();
+        private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
         private readonly TestGame _testGame = new TestGame();
 
         #region Basic Pass Play Execution Tests

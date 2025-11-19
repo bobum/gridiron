@@ -26,7 +26,8 @@ namespace UnitTestProject1
         public void GameTest()
         {
             var rng = new SeedableRandom();
-            var game = GameHelper.GetNewGame();
+            var teams = TestTeams.CreateTestTeams();
+            var game = GameHelper.GetNewGame(teams.HomeTeam, teams.VisitorTeam);
             var logger = CreateLogger();
             var gameFlow = new GameFlow(game, rng, logger);
             gameFlow.Execute();
@@ -37,7 +38,8 @@ namespace UnitTestProject1
         public void GetGraphTest()
         {
             var rng = new SeedableRandom();
-            var game = GameHelper.GetNewGame();
+            var teams = TestTeams.CreateTestTeams();
+            var game = GameHelper.GetNewGame(teams.HomeTeam, teams.VisitorTeam);
             var logger = CreateLogger();
             var gameFlow = new GameFlow(game, rng, logger);
             var graph = gameFlow.GetGraph();
@@ -48,7 +50,8 @@ namespace UnitTestProject1
         public void GameTestWithPlayByPlayCapture()
         {
             var rng = new SeedableRandom();
-            var game = GameHelper.GetNewGame();
+            var teams = TestTeams.CreateTestTeams();
+            var game = GameHelper.GetNewGame(teams.HomeTeam, teams.VisitorTeam);
 
             // Use InMemoryLogger to capture all logged messages
             var logger = new InMemoryLogger<GameFlow>();

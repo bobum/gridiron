@@ -10,7 +10,7 @@ namespace UnitTestProject1
     [TestClass]
     public class RedZoneTests
     {
-        private readonly Teams _teams = new Teams();
+        private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
         private readonly TestGame _testGame = new TestGame();
 
         #region Red Zone - 20 Yard Line Tests

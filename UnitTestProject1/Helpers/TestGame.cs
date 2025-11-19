@@ -13,7 +13,8 @@ namespace UnitTestProject1.Helpers
         public Game GetGame()
         {
             var rng = new SeedableRandom();
-            var game = GameHelper.GetNewGame();
+            var teams = TestTeams.CreateTestTeams();
+            var game = GameHelper.GetNewGame(teams.HomeTeam, teams.VisitorTeam);
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
             return game;

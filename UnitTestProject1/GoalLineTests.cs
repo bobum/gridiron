@@ -11,7 +11,7 @@ namespace UnitTestProject1
     [TestClass]
     public class GoalLineTests
     {
-        private readonly Teams _teams = new Teams();
+        private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
         private readonly TestGame _testGame = new TestGame();
 
         #region Own Goal Line - Safety Risk Tests

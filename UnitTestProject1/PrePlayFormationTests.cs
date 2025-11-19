@@ -1,4 +1,4 @@
-﻿using DomainObjects;
+using DomainObjects;
 using DomainObjects.Helpers;
 using StateLibrary.Actions;
 using UnitTestProject1.Helpers;
@@ -10,7 +10,7 @@ namespace UnitTestProject1
     {
         private Game SetupGame(Possession possession = Possession.Home)
         {
-            var teams = new Teams();
+            var teams = TestTeams.CreateTestTeams();
             var game = new Game
             {
                 HomeTeam = teams.HomeTeam,

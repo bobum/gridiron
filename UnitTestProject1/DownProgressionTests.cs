@@ -10,7 +10,7 @@ namespace UnitTestProject1
     [TestClass]
     public class DownProgressionTests
     {
-        private readonly Teams _teams = new Teams();
+        private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
         private readonly TestGame _testGame = new TestGame();
 
         #region Down Progression Tests

@@ -1,4 +1,4 @@
-﻿using DomainObjects;
+using DomainObjects;
 using DomainObjects.Helpers;
 using DomainObjects.Time;
 using StateLibrary.Actions;
@@ -31,7 +31,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void AwayTeamWinsCoinTossAndDefersTest()
         {
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var rng = new TestFluentSeedableRandom()
                 .NextInt(1)  // Coin toss result (1 = Away wins)
                 .NextInt(1); // Defer decision (1 = defer)
@@ -46,7 +46,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void AwayTeamWinsCoinTossAndReceivesTest()
         {
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var rng = new TestFluentSeedableRandom()
                 .NextInt(1)  // Coin toss result (1 = Away wins)
                 .NextInt(2); // Defer decision (2 = receive, any value != 1)
@@ -61,7 +61,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void HomeTeamWinsCoinTossAndReceivesTest()
         {
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var rng = new TestFluentSeedableRandom()
                 .NextInt(2)  // Coin toss result (2 or 0 = Home wins, any value != 1)
                 .NextInt(2); // Defer decision (2 = receive, any value != 1)
@@ -76,7 +76,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void HomeTeamWinsCoinTossAndDefersTest()
         {
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var rng = new TestFluentSeedableRandom()
                 .NextInt(2)  // Coin toss result (2 or 0 = Home wins, any value != 1)
                 .NextInt(1); // Defer decision (1 = defer)
@@ -94,7 +94,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.4); // Not used for first play (kickoff determination is based on play count)
 
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             game.WonCoinToss = Possession.Away;
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
@@ -109,7 +109,7 @@ namespace UnitTestProject1
             var rng = new TestFluentSeedableRandom()
                 .NextDouble(0.4); // Play type determination (0.4 <= 0.5 = run play)
 
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             game.WonCoinToss = Possession.Away;
             game.Plays.Add(new RunPlay() { Possession = Possession.Home });
 

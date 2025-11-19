@@ -11,7 +11,7 @@ namespace UnitTestProject1
     [TestClass]
     public class PlayArchitectureTests
     {
-        private readonly Teams _teams = new Teams();
+        private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
 
         #region Vanilla/Basic Play Tests
 
