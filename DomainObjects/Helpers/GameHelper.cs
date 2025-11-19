@@ -2,6 +2,9 @@
 {
     public static class GameHelper
     {
+        /// <summary>
+        /// Get a new game with teams loaded from JSON (legacy method for backward compatibility)
+        /// </summary>
         public static Game GetNewGame()
         {
             var teams = new Teams();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using DomainObjects;
 
@@ -9,6 +10,33 @@ namespace DomainObjects.Helpers
         public Team HomeTeam { get; set; }
         public Team VisitorTeam { get; set; }
 
+        // New constructor for database-loaded teams
+        public Teams(Team homeTeam, Team awayTeam)
+        {
+            HomeTeam = homeTeam;
+            VisitorTeam = awayTeam;
+
+            // Build depth charts for both teams
+            HomeTeam.OffenseDepthChart = BuildOffenseDepthChart(HomeTeam.Players);
+            HomeTeam.DefenseDepthChart = BuildDefenseDepthChart(HomeTeam.Players);
+            HomeTeam.FieldGoalOffenseDepthChart = BuildFieldGoalOffenseDepthChart(HomeTeam.Players);
+            HomeTeam.FieldGoalDefenseDepthChart = BuildFieldGoalDefenseDepthChart(HomeTeam.Players);
+            HomeTeam.KickoffOffenseDepthChart = BuildKickoffOffenseDepthChart(HomeTeam.Players);
+            HomeTeam.KickoffDefenseDepthChart = BuildKickoffDefenseDepthChart(HomeTeam.Players);
+            HomeTeam.PuntOffenseDepthChart = BuildPuntOffenseDepthChart(HomeTeam.Players);
+            HomeTeam.PuntDefenseDepthChart = BuildPuntDefenseDepthChart(HomeTeam.Players);
+
+            VisitorTeam.OffenseDepthChart = BuildOffenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.DefenseDepthChart = BuildDefenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.FieldGoalOffenseDepthChart = BuildFieldGoalOffenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.FieldGoalDefenseDepthChart = BuildFieldGoalDefenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.KickoffOffenseDepthChart = BuildKickoffOffenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.KickoffDefenseDepthChart = BuildKickoffDefenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.PuntOffenseDepthChart = BuildPuntOffenseDepthChart(VisitorTeam.Players);
+            VisitorTeam.PuntDefenseDepthChart = BuildPuntDefenseDepthChart(VisitorTeam.Players);
+        }
+
+        // Legacy constructor for JSON-based teams (kept for backward compatibility)
         public Teams()
         {
             string homeJson =

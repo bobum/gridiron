@@ -77,6 +77,10 @@ namespace DataAccessLayer
                 entity.Ignore(p => p.Stats);
                 entity.Ignore(p => p.SeasonStats);
                 entity.Ignore(p => p.CareerStats);
+                
+                // Ignore injury tracking (runtime only)
+                entity.Ignore(p => p.CurrentInjury);
+                entity.Ignore(p => p.IsInjured);
             });
 
             // ========================================
