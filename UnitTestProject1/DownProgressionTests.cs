@@ -505,7 +505,8 @@ namespace UnitTestProject1
                 .InjuryOccurredCheck(0.99)  // Ball carrier no injury
                 .TacklerInjuryGateCheck(0.9)   // Tackler 1 skip
                 .TacklerInjuryGateCheck(0.9)   // Tackler 2 skip
-                .NextDouble(0.99)    // No fumble
+                .FumbleCheck(0.99)             // No fumble
+                .OutOfBoundsCheck(0.99)        // Out of bounds check
                 .ElapsedTimeRandomFactor(0.5);
         }
 

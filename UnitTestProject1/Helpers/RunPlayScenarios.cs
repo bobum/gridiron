@@ -64,10 +64,11 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.99)
                 // Injury checks (ball carrier + 2 tacklers)
                 .InjuryOccurredCheck(0.99)      // Ball carrier no injury
-                .TacklerInjuryGateCheck(0.9)    // Tackler 1 gate (skip)
                 .TacklerInjuryGateCheck(0.9)    // Tackler 2 gate (skip)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -92,9 +93,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -120,9 +122,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -158,9 +161,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -191,9 +195,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -230,9 +235,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -262,9 +268,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -296,9 +303,10 @@ namespace UnitTestProject1.Helpers
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
                 .TacklerInjuryGateCheck(0.9)
-                .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.5);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.5)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         #endregion
@@ -324,7 +332,6 @@ namespace UnitTestProject1.Helpers
                 .TacklePenaltyCheck(0.99)
                 // Injury checks
                 .InjuryOccurredCheck(0.99)
-                .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.01)
                 .ElapsedTimeRandomFactor(0.5);
@@ -359,6 +366,7 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
+                .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -387,6 +395,7 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
+                .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -417,6 +426,7 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
+                .OutOfBoundsCheck(0.99)
                 .ElapsedTimeRandomFactor(0.5);
         }
 
@@ -481,6 +491,7 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9);     // Tackler 2 skip
 
             rng.FumbleCheck(fumble ? 0.01 : 0.99)
+                .OutOfBoundsCheck(0.99)                 // Out of bounds check
                 .ElapsedTimeRandomFactor(elapsedTimeFactor);
 
             return rng;
