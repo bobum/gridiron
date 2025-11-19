@@ -18,6 +18,7 @@
     <ProjectReference Include="..\DomainObjects\DomainObjects.csproj" />
     <ProjectReference Include="..\StateLibrary\StateLibrary.csproj" />
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+    <ProjectReference Include="..\UnitTestProject1\UnitTestProject1.csproj" />
   </ItemGroup>
 
   <ItemGroup>

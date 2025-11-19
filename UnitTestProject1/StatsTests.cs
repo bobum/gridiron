@@ -10,6 +10,7 @@ using StateLibrary.PlayResults;
 using StateLibrary.Services;
 using static DomainObjects.StatTypes;
 
+using UnitTestProject1.Helpers;
 namespace UnitTestProject1
 {
     [TestClass]
@@ -19,7 +20,7 @@ namespace UnitTestProject1
         public void TestPassStatsAccumulation()
         {
             // Arrange
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var offense = game.HomeTeam;
             var defense = game.AwayTeam;
 
@@ -66,7 +67,7 @@ namespace UnitTestProject1
         public void TestRunStatsAccumulation()
         {
             // Arrange
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var offense = game.HomeTeam;
 
             var rb = offense.Players.First(p => p.Position == Positions.RB);
@@ -99,7 +100,7 @@ namespace UnitTestProject1
         public void TestDefensiveStatsAccumulation()
         {
             // Arrange
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var offense = game.HomeTeam;
             var defense = game.AwayTeam;
 
@@ -156,7 +157,7 @@ namespace UnitTestProject1
         public void TestFumbleStatsAccumulation()
         {
             // Arrange
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var offense = game.HomeTeam;
             var defense = game.AwayTeam;
 
@@ -198,7 +199,7 @@ namespace UnitTestProject1
         public void TestSpecialTeamsStatsAccumulation()
         {
             // Arrange
-            var game = GameHelper.GetNewGame();
+            var game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             var offense = game.HomeTeam;
             var kicker = offense.Players.First(p => p.Position == Positions.K);
             var punter = offense.Players.First(p => p.Position == Positions.P);

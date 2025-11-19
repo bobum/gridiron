@@ -3,19 +3,15 @@
     public static class GameHelper
     {
         /// <summary>
-        /// Get a new game with teams loaded from JSON (legacy method for backward compatibility)
+        /// Creates a new game with the provided teams
         /// </summary>
-        public static Game GetNewGame()
+        public static Game GetNewGame(Team homeTeam, Team awayTeam)
         {
-            var teams = new Teams();
-
-            Game newGame = new Game()
+            return new Game()
             {
-                HomeTeam = teams.HomeTeam,
-                AwayTeam = teams.VisitorTeam
+                HomeTeam = homeTeam,
+                AwayTeam = awayTeam
             };
-
-            return newGame;
         }
     }
 }

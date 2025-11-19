@@ -215,8 +215,42 @@ namespace StateLibrary.Plays
                 else
                 {
                     play.Result.LogInformation($"{qb.LastName} complete to {receiver.LastName} for {totalYards} yards!");
-                    // Update elapsed time (pass plays take 4-7 seconds - slightly faster than runs)
-                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
+                    
+                    // Determine if receiver went out of bounds
+                    // Higher chance on sidelines (near 0 or 100 width, but we don't track width yet)
+                    // We'll use a flat probability for now, maybe slightly higher for deep passes
+                    var oobChance = passType == PassType.Deep ? 0.20 : 0.10;
+                    segment.IsOutOfBounds = _rng.NextDouble() < oobChance;
+
+                    if (segment.IsOutOfBounds)
+                    {
+                        play.Result.LogInformation($"{receiver.LastName} steps out of bounds.");
+                    }
+
+                    // TIME MANAGEMENT
+                    // 1. Execution time: 4-8 seconds
+                    var executionTime = 4.0 + (_rng.NextDouble() * 4.0);
+                    
+                    // 2. Determine if clock stops
+                    // Clock stops if:
+                    // - Out of bounds
+                    // - Touchdown
+                    // - Safety
+                    // - Turnover (Fumble lost - handled in HandleFumbleRecovery)
+                    // - Penalty
+                    
+                    var clockStops = segment.IsOutOfBounds || play.IsTouchdown || play.IsSafety || play.Penalties.Count > 0;
+                    play.ClockStopped = clockStops;
+
+                    // 3. Runoff time (time between plays)
+                    // If clock doesn't stop, 25-35 seconds run off
+                    var runoffTime = 0.0;
+                    if (!clockStops)
+                    {
+                        runoffTime = 25.0 + (_rng.NextDouble() * 10.0);
+                    }
+
+                    play.ElapsedTime += executionTime + runoffTime;
                 }
             }
             else
@@ -354,7 +388,9 @@ namespace StateLibrary.Plays
                     }
 
                     // Update elapsed time
-                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0);
+                    // Interception (Turnover) STOPS the clock
+                    play.ClockStopped = true;
+                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0); // Only execution time
                 }
                 else
                 {
@@ -377,7 +413,9 @@ namespace StateLibrary.Plays
                     play.YardsGained = totalYards;
 
                     // Update elapsed time (pass plays take 4-7 seconds - slightly faster than runs)
-                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
+                    // Incomplete pass STOPS the clock
+                    play.ClockStopped = true;
+                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0); // Only execution time
                 }
             }
         }
@@ -484,7 +522,15 @@ namespace StateLibrary.Plays
                 }
 
                 // Sacks take less time (2-4 seconds)
-                play.ElapsedTime += 2.0 + (_rng.NextDouble() * 2.0);
+                var executionTime = 2.0 + (_rng.NextDouble() * 2.0);
+                
+                // Sack keeps clock running (unless safety or penalty)
+                var clockStops = play.IsSafety || play.Penalties.Count > 0;
+                play.ClockStopped = clockStops;
+                
+                var runoffTime = clockStops ? 0.0 : (25.0 + (_rng.NextDouble() * 10.0));
+                
+                play.ElapsedTime += executionTime + runoffTime;
             }
         }
 
@@ -571,6 +617,9 @@ namespace StateLibrary.Plays
 
                 play.Result.LogInformation($"{fumbler.LastName} fumbles! Ball goes out of bounds. {play.Possession} retains possession.");
                 play.YardsGained = fumbleSpot - play.StartFieldPosition;
+                
+                // Fumble out of bounds stops clock
+                play.ClockStopped = true;
                 play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
             }
             else if (recovery.RecoveredBy != null)
@@ -609,6 +658,9 @@ namespace StateLibrary.Plays
                     }
 
                     play.PossessionChange = true;
+                    
+                    // Turnover stops clock
+                    play.ClockStopped = true;
                     play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0);
                 }
                 else
@@ -629,7 +681,14 @@ namespace StateLibrary.Plays
                         play.Result.LogInformation($"{fumbler.LastName} fumbles! {recovery.RecoveredBy.LastName} recovers for the offense.");
                     }
 
-                    play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
+                    // Offense recovered - clock keeps running unless OOB or Safety
+                    var clockStops = play.IsSafety; // OOB handled in if block above
+                    play.ClockStopped = clockStops;
+                    
+                    var executionTime = 4.0 + (_rng.NextDouble() * 3.0);
+                    var runoffTime = clockStops ? 0.0 : (25.0 + (_rng.NextDouble() * 10.0));
+                    
+                    play.ElapsedTime += executionTime + runoffTime;
                 }
             }
 

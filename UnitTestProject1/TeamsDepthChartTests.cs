@@ -1,8 +1,9 @@
-﻿using System.Linq;
+using System.Linq;
 using DomainObjects.Helpers;
 using DomainObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using UnitTestProject1.Helpers;
 namespace UnitTestProject1
 {
     [TestClass]
@@ -11,7 +12,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void OffenseDepthChart_QB_ShouldBeHighestPassing()
         {
-            var teams = new Teams();
+            var teams = TestTeams.CreateTestTeams();
             var qbList = teams.HomeTeam.OffenseDepthChart.Chart[Positions.QB];
             Assert.IsNotNull(qbList);
             Assert.IsTrue(qbList.Count > 0);
@@ -27,7 +28,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void DefenseDepthChart_LB_ShouldBeTopFourBySkill()
         {
-            var teams = new Teams();
+            var teams = TestTeams.CreateTestTeams();
             var lbList = teams.HomeTeam.DefenseDepthChart.Chart[Positions.LB];
             Assert.IsNotNull(lbList);
             Assert.AreEqual(4, lbList.Count);
@@ -46,7 +47,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FieldGoalOffenseDepthChart_K_ShouldBeTopKicker()
         {
-            var teams = new Teams();
+            var teams = TestTeams.CreateTestTeams();
             var kList = teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.K];
             Assert.IsNotNull(kList);
             Assert.AreEqual(1, kList.Count);
@@ -62,7 +63,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void PuntOffenseDepthChart_K_ShouldBeTopKicker()
         {
-            var teams = new Teams();
+            var teams = TestTeams.CreateTestTeams();
             var kList = teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P];
             Assert.IsNotNull(kList);
             Assert.AreEqual(1, kList.Count);
@@ -78,7 +79,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FieldGoalOffenseDepthChart_Holder_ShouldBeTopQB()
         {
-            var teams = new Teams();
+            var teams = TestTeams.CreateTestTeams();
             var holderList = teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.H];
             Assert.IsNotNull(holderList);
             Assert.AreEqual(1, holderList.Count);

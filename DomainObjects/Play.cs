@@ -26,6 +26,7 @@ namespace DomainObjects
         public bool QuarterExpired { get; set; } = false;
         public bool HalfExpired { get; set; } = false;
         public bool GameExpired { get; set; } = false;
+        public bool ClockStopped { get; set; } = false;
         public List<Player> OffensePlayersOnField { get; set; } = new List<Player>();
         public List<Player> DefensePlayersOnField { get; set; } = new List<Player>();
 

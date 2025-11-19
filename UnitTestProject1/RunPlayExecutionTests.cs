@@ -7,8 +7,8 @@ namespace UnitTestProject1
 {
     [TestClass]
     public class RunPlayExecutionTests
-    {
-        private readonly Teams _teams = new Teams();
+ {
+     private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
         private readonly TestGame _testGame = new TestGame();
 
         #region Basic Run Play Execution Tests
@@ -234,7 +234,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             var initialElapsedTime = game.CurrentPlay.ElapsedTime;
-            // Uses SimpleGain scenario which sets elapsed time to ~6.5 seconds
+            // Uses SimpleGain scenario which sets elapsed time to ~6.5 seconds execution + ~30 seconds runoff = ~36.5 total
             var rng = RunPlayScenarios.SimpleGain(yards: 5);
 
             // Act
@@ -243,8 +243,9 @@ namespace UnitTestProject1
 
             // Assert
             var timeAdded = game.CurrentPlay.ElapsedTime - initialElapsedTime;
-            Assert.IsTrue(timeAdded >= 5.0 && timeAdded <= 8.0,
-                $"Elapsed time ({timeAdded}) should be between 5 and 8 seconds");
+            // Total time = execution time (5-8s) + runoff time (25-35s) = 30-43 seconds
+            Assert.IsTrue(timeAdded >= 30.0 && timeAdded <= 43.0,
+                $"Total elapsed time ({timeAdded}) should be execution (5-8s) + runoff (25-35s) = 30-43 seconds");
         }
 
         #endregion

@@ -96,7 +96,9 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)           // Tackler 1 skip
                 .TacklerInjuryGateCheck(0.9)          // Tackler 2 skip
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);        // ~7 seconds
+                .OutOfBoundsCheck(0.99)        // In bounds
+                .ElapsedTimeRandomFactor(0.99) // ~7 seconds
+                .RunoffTimeRandomFactor(0.5);  // Clock runs
         }
 
         /// <summary>
@@ -142,7 +144,9 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)       // Tackler 1 skip
                 .TacklerInjuryGateCheck(0.9)           // Tackler 2 skip
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);        // ~7 seconds
+                .OutOfBoundsCheck(0.99)        // In bounds
+                .ElapsedTimeRandomFactor(0.99) // ~7 seconds
+                .RunoffTimeRandomFactor(0.5);  // Clock runs
 
             return rng;
         }
@@ -170,7 +174,9 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);
+                .OutOfBoundsCheck(0.99)
+                .ElapsedTimeRandomFactor(0.99)
+                .RunoffTimeRandomFactor(0.5);
         }
 
         /// <summary>
@@ -251,7 +257,8 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)           // Sacker 1 skip
                 .TacklerInjuryGateCheck(0.9)  // Sacker 2 skip
                 .FumbleCheck(withFumble ? 0.01 : 0.99)
-                .ElapsedTimeRandomFactor(0.99);        // ~3 seconds (shorter than pass)
+                .ElapsedTimeRandomFactor(0.99)         // ~3 seconds (shorter than pass)
+                .RunoffTimeRandomFactor(0.5);          // Clock runs on sack
         }
 
         #endregion
@@ -352,7 +359,8 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);
+                .OutOfBoundsCheck(0.99)        // In bounds
+                .ElapsedTimeRandomFactor(0.99);        // Clock stops due to penalty
         }
 
         /// <summary>
@@ -380,7 +388,8 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);
+                .OutOfBoundsCheck(0.99)        // In bounds
+                .ElapsedTimeRandomFactor(0.99);        // Clock stops due to penalty
         }
 
         /// <summary>
@@ -457,7 +466,8 @@ namespace UnitTestProject1.Helpers
                 .TacklerInjuryGateCheck(0.9)
                 .TacklerInjuryGateCheck(0.9)
                 .FumbleCheck(0.99)
-                .ElapsedTimeRandomFactor(0.99);
+                .OutOfBoundsCheck(0.99)        // In bounds
+                .ElapsedTimeRandomFactor(0.99);        // Clock stops due to penalty
         }
 
         /// <summary>

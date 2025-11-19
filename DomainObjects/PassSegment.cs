@@ -20,6 +20,7 @@ namespace DomainObjects
         public PassType Type { get; set; }
         public int AirYards { get; set; }  // Distance ball traveled in air
         public int YardsAfterCatch { get; set; }  // Yards gained after catch
+        public bool IsOutOfBounds { get; set; }
     }
 
     public enum PassType

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StateLibrary.Actions;
 using System.Linq;
 
+using UnitTestProject1.Helpers;
 namespace UnitTestProject1
 {
     [TestClass]
@@ -20,7 +21,7 @@ namespace UnitTestProject1
             _prePlay = new PrePlay(_rng);
 
             // Create a game with actual teams (from GameHelper)
-            _game = GameHelper.GetNewGame();
+            _game = GameHelper.GetNewGame(TestTeams.CreateTestTeams().HomeTeam, TestTeams.CreateTestTeams().VisitorTeam);
             _game.WonCoinToss = Possession.Home;
         }
 

@@ -3,6 +3,7 @@ using DomainObjects.Helpers;
 using DataAccessLayer;
 using Microsoft.Extensions.Logging;
 using StateLibrary;
+using UnitTestProject1.Helpers;
 
 namespace GridironConsole;
 
@@ -25,15 +26,16 @@ class Program
         // Prompt user for database vs JSON loading
         Console.WriteLine("Load teams from:");
         Console.WriteLine("  1. Database (default)");
-        Console.WriteLine("  2. JSON (legacy)");
+        Console.WriteLine("  2. JSON (test data - Atlanta Falcons vs Philadelphia Eagles)");
         Console.Write("\nEnter choice (1 or 2): ");
         var choice = Console.ReadLine();
 
         Game game;
         if (choice == "2")
         {
-            Console.WriteLine("Loading teams from JSON...");
-            game = GameHelper.GetNewGame();
+            Console.WriteLine("Loading teams from JSON test data...");
+            var teams = TestTeams.CreateTestTeams();
+            game = GameHelper.GetNewGame(teams.HomeTeam, teams.VisitorTeam);
         }
         else
         {

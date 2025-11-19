@@ -10,7 +10,7 @@ namespace UnitTestProject1
     [TestClass]
     public class DownProgressionTests
     {
-        private readonly Teams _teams = new Teams();
+        private readonly DomainObjects.Helpers.Teams _teams = TestTeams.CreateTestTeams();
         private readonly TestGame _testGame = new TestGame();
 
         #region Down Progression Tests
@@ -505,8 +505,10 @@ namespace UnitTestProject1
                 .InjuryOccurredCheck(0.99)  // Ball carrier no injury
                 .TacklerInjuryGateCheck(0.9)   // Tackler 1 skip
                 .TacklerInjuryGateCheck(0.9)   // Tackler 2 skip
-                .NextDouble(0.99)    // No fumble
-                .ElapsedTimeRandomFactor(0.5);
+                .FumbleCheck(0.99)             // No fumble
+                .OutOfBoundsCheck(0.99)        // Out of bounds check
+                .ElapsedTimeRandomFactor(0.5)         // Play execution time (5-8 seconds)
+                .RunoffTimeRandomFactor(0.5);         // Time between plays (25-35 seconds)
         }
 
         private void ExecuteRunPlayWithResult(Game game, ISeedableRandom rng)

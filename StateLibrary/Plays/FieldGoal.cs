@@ -145,6 +145,7 @@ namespace StateLibrary.Plays
             // Bad snap takes 4-7 seconds (chaos)
             play.ElapsedTime += 4.0 + (_rng.NextDouble() * 3.0);
             play.PossessionChange = true; // Turnover on downs
+            play.ClockStopped = true;
         }
 
         private void ExecuteBlockedFieldGoal(Game game, FieldGoalPlay play, Player? kicker)
@@ -292,6 +293,7 @@ namespace StateLibrary.Plays
 
             // Blocked kicks take 3-6 seconds
             play.ElapsedTime += 3.0 + (_rng.NextDouble() * 3.0);
+            play.ClockStopped = true;
         }
 
         private void ExecuteNormalFieldGoal(Game game, FieldGoalPlay play, Player? kicker)
@@ -374,6 +376,7 @@ namespace StateLibrary.Plays
 
             // Possession changes regardless of make/miss (scoring or turnover on downs)
             play.PossessionChange = true;
+            play.ClockStopped = true;
         }
 
         private void CheckAndAddPenalty(

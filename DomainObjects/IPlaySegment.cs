@@ -32,5 +32,10 @@ namespace DomainObjects
         /// Player who recovered the fumble (if EndedInFumble is true)
         /// </summary>
         Player? RecoveredBy { get; set; }
+
+        /// <summary>
+        /// Whether the play segment ended out of bounds
+        /// </summary>
+        bool IsOutOfBounds { get; set; }
     }
 }

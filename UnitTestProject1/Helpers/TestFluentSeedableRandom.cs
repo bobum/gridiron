@@ -15,7 +15,7 @@ namespace UnitTestProject1.Helpers
         // Pass Play - NextDouble methods
 
         /// <summary>
-        /// Sets the pass protection check value. Lower values (&lt; ~0.75) mean protection holds, higher values mean sack occurs.
+        /// Sets the pass protection check value. Lower values (< ~0.75) mean protection holds, higher values mean sack occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PassProtectionCheck(double value)
@@ -29,7 +29,7 @@ namespace UnitTestProject1.Helpers
 
 
         /// <summary>
-        /// Sets the tackle break check value. Lower values (&lt; tackle break probability) mean ball carrier breaks the tackle.
+        /// Sets the tackle break check value. Lower values (< tackle break probability) mean ball carrier breaks the tackle.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom TackleBreakCheck(double value)
@@ -68,7 +68,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets the pass type determination value. &lt; 0.15 = Screen, 0.15-0.50 = Short, 0.50-0.85 = Forward, &gt; 0.85 = Deep.
+        /// Sets the pass type determination value. < 0.15 = Screen, 0.15-0.50 = Short, 0.50-0.85 = Forward, > 0.85 = Deep.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PassTypeDetermination(double value)
@@ -81,7 +81,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets the pass completion check value. Lower values (&lt; completion probability) mean completion, higher values mean incompletion.
+        /// Sets the pass completion check value. Lower values (< completion probability) mean completion, higher values mean incompletion.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PassCompletionCheck(double value)
@@ -94,7 +94,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets the yards after catch opportunity check value. Lower values (&lt; ~0.35-0.55) mean receiver breaks tackles for extra YAC.
+        /// Sets the yards after catch opportunity check value. Lower values (< ~0.35-0.55) mean receiver breaks tackles for extra YAC.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom YACOpportunityCheck(double value)
@@ -119,7 +119,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets the big play check value. Lower values (&lt; 0.05) trigger a big play with bonus yards.
+        /// Sets the big play check value. Lower values (< 0.05) trigger a big play with bonus yards.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom BigPlayCheck(double value)
@@ -132,7 +132,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets the interception occurred check value. Lower values (&lt; interception probability) mean pass is intercepted.
+        /// Sets the interception occurred check value. Lower values (< interception probability) mean pass is intercepted.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom InterceptionOccurredCheck(double value)
@@ -168,24 +168,6 @@ namespace UnitTestProject1.Helpers
             _doubleQueue.Enqueue(value);
             return this;
         }
-
-        /// <summary>
-        /// Sets the elapsed time random factor (0.0-1.0, used in calculation: base + factor * range).
-        /// For normal passes: 4.0 + (factor * 3.0) = 4.0 to 7.0 seconds
-        /// For sacks: 2.0 + (factor * 2.0) = 2.0 to 4.0 seconds
-        /// Valid range: 0.0 to 1.0
-        /// </summary>
-        public TestFluentSeedableRandom ElapsedTimeRandomFactor(double value)
-        {
-            ValidateRandomFactor(value, nameof(ElapsedTimeRandomFactor),
-                "Random factor for elapsed time calculation. " +
-                "Pass plays: 4.0 + (factor * 3.0) = 4.0 to 7.0 seconds. " +
-                "Sacks: 2.0 + (factor * 2.0) = 2.0 to 4.0 seconds.");
-            _doubleQueue.Enqueue(value);
-            return this;
-        }
-
-        // Pass Play - NextInt methods
 
         /// <summary>
         /// Sets the air yards value for the pass (distance ball travels in the air).
@@ -276,7 +258,21 @@ namespace UnitTestProject1.Helpers
         {
             ValidateProbability(value, nameof(RunDefenseCheck),
                 "Determines if defense successfully stops the run. " +
-                "Lower values mean defense fails to stop the run.");
+                "Run plays: < 0.15 (outside) or < 0.02 (inside). Pass plays: < 0.10-0.20.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the runoff time random factor (0.0-1.0).
+        /// Used when clock keeps running (in-bounds, no penalty/TD).
+        /// Calculation: 25.0 + (factor * 10.0) = 25.0 to 35.0 seconds.
+        /// </summary>
+        public TestFluentSeedableRandom RunoffTimeRandomFactor(double value)
+        {
+            ValidateRandomFactor(value, nameof(RunoffTimeRandomFactor),
+                "Random factor for runoff time (between plays). " +
+                "Used when clock keeps running. 25.0 + (factor * 10.0) = 25-35 seconds.");
             _doubleQueue.Enqueue(value);
             return this;
         }
@@ -407,7 +403,7 @@ namespace UnitTestProject1.Helpers
         // Bad Snap methods
 
         /// <summary>
-        /// Sets bad snap occurrence check. Lower values (&lt; ~2.2% with 70 blocking) mean bad snap occurs.
+        /// Sets bad snap occurrence check. Lower values (< ~2.2% with 70 blocking) mean bad snap occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom BadSnapCheck(double value)
@@ -446,7 +442,7 @@ namespace UnitTestProject1.Helpers
         // Block methods
 
         /// <summary>
-        /// Sets punt block occurrence check. Lower values (&lt; ~1-30% based on skills) mean block occurs.
+        /// Sets punt block occurrence check. Lower values (< ~1-30% based on skills) mean block occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PuntBlockCheck(double value)
@@ -459,7 +455,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets field goal block occurrence check. Lower values (&lt; ~1.5-6.5% based on distance) mean block occurs.
+        /// Sets field goal block occurrence check. Lower values (< ~1.5-6.5% based on distance) mean block occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom FieldGoalBlockCheck(double value)
@@ -472,7 +468,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets blocked kick recovery check. For punts: &lt; 0.5 = offense recovers. For FGs: &lt; 0.5 = defense recovers.
+        /// Sets blocked kick recovery check. For punts: < 0.5 = offense recovers. For FGs: < 0.5 = defense recovers.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom BlockedKickRecoveryCheck(double value)
@@ -552,7 +548,7 @@ namespace UnitTestProject1.Helpers
         // Penalty methods
 
         /// <summary>
-        /// Sets blocking penalty occurrence check. Lower values (&lt; ~2-5%) mean penalty occurs.
+        /// Sets blocking penalty occurrence check. Lower values (< ~2-5%) mean penalty occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom BlockingPenaltyCheck(double value)
@@ -565,7 +561,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets kicker penalty occurrence check (roughing/running into kicker). Lower values (&lt; ~1-3%) mean penalty occurs.
+        /// Sets kicker penalty occurrence check (roughing/running into kicker). Lower values (< ~1-3%) mean penalty occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom KickerPenaltyCheck(double value)
@@ -578,7 +574,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets tackle penalty occurrence check. Lower values (&lt; ~2-5%) mean penalty occurs.
+        /// Sets tackle penalty occurrence check. Lower values (< ~2-5%) mean penalty occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom TacklePenaltyCheck(double value)
@@ -591,7 +587,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets roughing the passer penalty check. Lower values (&lt; ~1-3%) mean penalty occurs.
+        /// Sets roughing the passer penalty check. Lower values (< ~1-3%) mean penalty occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom RoughingPasserCheck(double value)
@@ -604,7 +600,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets coverage penalty occurrence check (pass interference, illegal contact). Lower values (&lt; ~3-5%) mean penalty occurs.
+        /// Sets coverage penalty occurrence check (pass interference, illegal contact). Lower values (< ~3-5%) mean penalty occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom CoveragePenaltyCheck(double value)
@@ -619,7 +615,7 @@ namespace UnitTestProject1.Helpers
         // Punt special outcome methods
 
         /// <summary>
-        /// Sets punt out of bounds check. Lower values (&lt; ~12-20%) mean punt goes out of bounds.
+        /// Sets punt out of bounds check. Lower values (< ~12-20%) mean punt goes out of bounds.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PuntOutOfBoundsCheck(double value)
@@ -632,7 +628,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets punt downed check. Lower values (&lt; ~15-55%) mean punt is downed by coverage team.
+        /// Sets punt downed check. Lower values (< ~15-55%) mean punt is downed by coverage team.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PuntDownedCheck(double value)
@@ -645,7 +641,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets punt fair catch check. Lower values (&lt; ~25-55%) mean returner calls fair catch.
+        /// Sets punt fair catch check. Lower values (< ~25-55%) mean returner calls fair catch.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PuntFairCatchCheck(double value)
@@ -658,7 +654,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets punt muff check. Lower values (&lt; ~1-7%) mean returner muffs the catch.
+        /// Sets punt muff check. Lower values (< ~1-7%) mean returner muffs the catch.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom PuntMuffCheck(double value)
@@ -671,7 +667,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets muff recovery check. For punts: &lt; 0.6 = receiving team. For kickoffs: &gt;= 0.5 = receiving team.
+        /// Sets muff recovery check. For punts: < 0.6 = receiving team. For kickoffs: >= 0.5 = receiving team.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom MuffRecoveryCheck(double value)
@@ -713,7 +709,7 @@ namespace UnitTestProject1.Helpers
         // Kickoff special outcome methods
 
         /// <summary>
-        /// Sets kickoff out of bounds check. Lower values (&lt; ~10%) mean kickoff goes out of bounds.
+        /// Sets kickoff out of bounds check. Lower values (< ~10%) mean kickoff goes out of bounds.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom KickoffOutOfBoundsCheck(double value)
@@ -726,7 +722,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets kickoff fair catch check. Lower values (&lt; ~70%) mean returner calls fair catch.
+        /// Sets kickoff fair catch check. Lower values (< ~70%) mean returner calls fair catch.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom KickoffFairCatchCheck(double value)
@@ -739,7 +735,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets kickoff muff check. Lower values (&lt; ~2-5%) mean returner muffs the kickoff.
+        /// Sets kickoff muff check. Lower values (< ~2-5%) mean returner muffs the kickoff.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom KickoffMuffCheck(double value)
@@ -765,7 +761,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets onside kick decision check (conditional - only consumed if team is trailing). Lower values (&lt; ~5%) trigger onside attempt.
+        /// Sets onside kick decision check (conditional - only consumed if team is trailing). Lower values (< ~5%) trigger onside attempt.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom OnsideKickDecisionCheck(double value)
@@ -791,7 +787,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets onside kick recovery check. Lower values (&lt; ~20-30%) mean kicking team recovers.
+        /// Sets onside kick recovery check. Lower values (< ~20-30%) mean kicking team recovers.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom OnsideKickRecoveryCheck(double value)
@@ -806,7 +802,7 @@ namespace UnitTestProject1.Helpers
         // Field Goal outcome methods
 
         /// <summary>
-        /// Sets field goal make/miss check. Lower values (&lt; make probability) mean kick is good.
+        /// Sets field goal make/miss check. Lower values (< make probability) mean kick is good.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom FieldGoalMakeCheck(double value)
@@ -820,7 +816,7 @@ namespace UnitTestProject1.Helpers
         }
 
         /// <summary>
-        /// Sets miss direction (only consumed if kick misses). &lt; 0.4 = wide right, 0.4-0.8 = wide left, &gt; 0.8 = short.
+        /// Sets miss direction (only consumed if kick misses). < 0.4 = wide right, 0.4-0.8 = wide left, > 0.8 = short.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom MissDirection(double value)
@@ -835,7 +831,7 @@ namespace UnitTestProject1.Helpers
         // Run play specific methods
 
         /// <summary>
-        /// Sets QB check for run plays. Lower values (&lt; 0.10) mean QB scrambles instead of handoff.
+        /// Sets QB check for run plays. Lower values (< 0.10) mean QB scrambles instead of handoff.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom QBCheck(double value)
@@ -905,7 +901,7 @@ namespace UnitTestProject1.Helpers
         // Fumble methods
 
         /// <summary>
-        /// Sets fumble occurrence check. Lower values (&lt; ~1-3%) mean fumble occurs.
+        /// Sets fumble occurrence check. Lower values (< ~1-3%) mean fumble occurs.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom FumbleCheck(double value)
@@ -920,77 +916,108 @@ namespace UnitTestProject1.Helpers
         // Injury check methods
 
         /// <summary>
-        /// Sets injury occurrence check. Lower values (&lt; injury probability) mean injury occurs.
+        /// Sets injury occurrence check. Lower values (< injury probability) mean injury occurs.
         /// Valid range: 0.0 to 1.0
         /// Base rates: Run/Pass 3%, Kickoff 5%, Punt 4%
         /// Modified by fragility, defenders involved, big plays, out of bounds, QB sacks
-      /// </summary>
+        /// </summary>
         public TestFluentSeedableRandom InjuryOccurredCheck(double value)
         {
-    ValidateProbability(value, nameof(InjuryOccurredCheck),
-    "Determines if player sustains injury. " +
-             "Base rates: Run/Pass 3%, Kickoff 5%, Punt 4%. " +
-            "Modified by player fragility, gang tackles, big plays, etc.");
+            ValidateProbability(value, nameof(InjuryOccurredCheck),
+                "Determines if player sustains injury. " +
+                "Base rates: Run/Pass 3%, Kickoff 5%, Punt 4%. " +
+                "Modified by player fragility, gang tackles, big plays, etc.");
             _doubleQueue.Enqueue(value);
-        return this;
+            return this;
         }
 
         /// <summary>
-        /// Sets injury severity check. &lt; 0.6 = Minor, 0.6-0.9 = Moderate, &gt;= 0.9 = GameEnding.
+        /// Sets injury severity check. < 0.6 = Minor, 0.6-0.9 = Moderate, >= 0.9 = GameEnding.
         /// Valid range: 0.0 to 1.0
         /// </summary>
         public TestFluentSeedableRandom InjurySeverityCheck(double value)
         {
             ValidateProbability(value, nameof(InjurySeverityCheck),
-    "Determines injury severity. " +
-      "< 0.6 = Minor (60%), 0.6-0.9 = Moderate (30%), >= 0.9 = GameEnding (10%)");
-     _doubleQueue.Enqueue(value);
-      return this;
-   }
+                "Determines injury severity. " +
+                "< 0.6 = Minor (60%), 0.6-0.9 = Moderate (30%), >= 0.9 = GameEnding (10%)");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
 
         /// <summary>
         /// Sets injury type check. Determines type based on position-specific distributions.
         /// Valid range: 0.0 to 1.0
-     /// RB/WR: 0-0.40 Ankle, 0.40-0.65 Knee, 0.65-0.75 Shoulder, 0.75-0.80 Concussion, 0.80-1.0 Hamstring
+        /// RB/WR: 0-0.40 Ankle, 0.40-0.65 Knee, 0.65-0.75 Shoulder, 0.75-0.80 Concussion, 0.80-1.0 Hamstring
         /// </summary>
-   public TestFluentSeedableRandom InjuryTypeCheck(double value)
+        public TestFluentSeedableRandom InjuryTypeCheck(double value)
         {
-   ValidateRandomFactor(value, nameof(InjuryTypeCheck),
-   "Determines injury type based on position-specific distributions. " +
-      "Example for RB: 0-0.40 Ankle, 0.40-0.65 Knee, 0.65-0.75 Shoulder, etc.");
+            ValidateRandomFactor(value, nameof(InjuryTypeCheck),
+                "Determines injury type based on position-specific distributions. " +
+                "Example for RB: 0-0.40 Ankle, 0.40-0.65 Knee, 0.65-0.75 Shoulder, etc.");
             _doubleQueue.Enqueue(value);
- return this;
+            return this;
         }
 
         /// <summary>
-/// Sets recovery time for minor injuries (1-2 plays).
+        /// Sets recovery time for minor injuries (1-2 plays).
         /// Valid range: 1 to 2
         /// </summary>
         public TestFluentSeedableRandom InjuryRecoveryTime(int value)
         {
             if (value < 1 || value > 2)
             {
-   throw new ArgumentOutOfRangeException(
+                throw new ArgumentOutOfRangeException(
                     nameof(InjuryRecoveryTime),
-   value,
-   "Minor injury recovery time must be 1-2 plays. Got: " + value);
- }
+                    value,
+                    "Minor injury recovery time must be 1-2 plays. Got: " + value);
+            }
             _intQueue.Enqueue(value);
-  return this;
+            return this;
         }
 
         /// <summary>
-    /// Sets tackler injury check (50% chance to check each tackler for injury).
-     /// Valid range: 0.0 to 1.0
-        /// Values &lt; 0.5 trigger injury check for that tackler
- /// </summary>
+        /// Sets tackler injury check (50% chance to check each tackler for injury).
+        /// Valid range: 0.0 to 1.0
+        /// Values < 0.5 trigger injury check for that tackler
+        /// </summary>
         public TestFluentSeedableRandom TacklerInjuryGateCheck(double value)
         {
-ValidateProbability(value, nameof(TacklerInjuryGateCheck),
-    "50% gate check for whether to check tackler for injury. " +
-          "< 0.5 = check tackler, >= 0.5 = skip tackler");
-  _doubleQueue.Enqueue(value);
-     return this;
+            ValidateProbability(value, nameof(TacklerInjuryGateCheck),
+                "50% gate check for whether to check tackler for injury. " +
+                "< 0.5 = check tackler, >= 0.5 = skip tackler");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets out of bounds check. Lower values mean ball carrier goes out of bounds.
+        /// Valid range: 0.0 to 1.0
+        /// </summary>
+        public TestFluentSeedableRandom OutOfBoundsCheck(double value)
+        {
+            ValidateProbability(value, nameof(OutOfBoundsCheck),
+                "Determines if ball carrier goes out of bounds. " +
+                "Lower values (< ~10-20%) mean carrier goes OOB.");
+            _doubleQueue.Enqueue(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the elapsed time random factor (0.0-1.0).
+        /// Used to add variance to play execution time.
+        /// Run plays: 5.0 + (factor * 3.0) = 5.0 to 8.0 seconds
+        /// Pass plays: 4.0 + (factor * 3.0) = 4.0 to 7.0 seconds
+        /// Sacks: 2.0 + (factor * 2.0) = 2.0 to 4.0 seconds
+        /// </summary>
+        public TestFluentSeedableRandom ElapsedTimeRandomFactor(double value)
+        {
+            ValidateRandomFactor(value, nameof(ElapsedTimeRandomFactor),
+                "Random factor for play execution time. " +
+                "Run: 5.0 + (factor * 3.0) = 5-8 seconds. " +
+                "Pass: 4.0 + (factor * 3.0) = 4-7 seconds. " +
+                "Sack: 2.0 + (factor * 2.0) = 2-4 seconds.");
+            _doubleQueue.Enqueue(value);
+            return this;
         }
 
         // Generic methods for edge cases

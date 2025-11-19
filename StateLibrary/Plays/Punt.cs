@@ -127,6 +127,7 @@ namespace StateLibrary.Plays
 
             // Bad snap plays take 4-8 seconds (chaos)
             play.ElapsedTime += 4.0 + (_rng.NextDouble() * 4.0);
+            play.ClockStopped = true; // Turnover on downs or safety
         }
 
         private void ExecuteBlockedPunt(Game game, PuntPlay play, Player punter)
@@ -230,6 +231,7 @@ namespace StateLibrary.Plays
 
             // Blocked punts take 3-6 seconds
             play.ElapsedTime += 3.0 + (_rng.NextDouble() * 3.0);
+            play.ClockStopped = true; // Change of possession or score
         }
 
         private void ExecuteNormalPunt(Game game, PuntPlay play, Player punter)
@@ -328,6 +330,8 @@ namespace StateLibrary.Plays
 
             // Punt will be returned
             ExecutePuntReturn(game, play, punter, puntDistance, puntLandingSpot, hangTime);
+            
+            play.ClockStopped = true; // Change of possession
         }
 
         private void ExecutePuntReturn(Game game, PuntPlay play, Player punter, int puntDistance, int puntLandingSpot, double hangTime)

@@ -26,4 +26,11 @@
     <ProjectReference Include="..\StateLibrary\StateLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Copy test data JSON files to output directory -->
+    <None Update="TestData\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
