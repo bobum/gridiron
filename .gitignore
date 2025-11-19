@@ -267,3 +267,10 @@ __pycache__/
 # Cake - Uncomment if you are using it
 # tools/
 /.claude/settings.local.json
+
+# User Secrets and local configuration (don't commit connection strings with passwords!)
+appsettings.local.json
+appsettings.*.local.json
+
+# Keep EF Core migrations (these should be committed)
+!**/Migrations/

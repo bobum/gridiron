@@ -6,6 +6,8 @@ namespace DomainObjects
 {
     public class Player : Person
     {
+        public int Id { get; set; }  // Primary key for EF Core
+        public int? TeamId { get; set; }  // Foreign key to Team (nullable - player might not be on a team)
         public Positions Position { get; set; }
         public int Number { get; set; }
         public string Height { get; set; }
