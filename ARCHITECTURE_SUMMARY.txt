@@ -5,42 +5,46 @@ GRIDIRON FOOTBALL SIMULATION - QUICK REFERENCE
 PROJECT METADATA
 ================================================================================
 Language:       C# 12 (.NET 8.0)
-Status:         Actively Maintained (Last update: Nov 2024)
-Project Size:   5.6MB, 150 C# files, 17,800+ lines of test code
-Main Branch:    master (current: claude/review-football-sim-01FdMLckQd2MGD24VUzapo5z)
+Status:         Actively Maintained (Last update: Nov 2025)
+Project Size:   140MB, 229 C# files, 22,200+ lines of test code  
+Test Status:    100% PASSING (839/839 tests)
+Main Branch:    master (current: cleanup/remove-stale-documentation)
 
 CORE ARCHITECTURE
 ================================================================================
 
-                        STATE MACHINE (Stateless Library)
-                                   |
-                    ┌──────────────┴──────────────┐
-                    |                             |
-            Domain Objects              Game Flow / Simulation
-            ┌─────────┐                      ┌─────────────┐
-            │ Players │                      │ GameFlow    │
-            │ Teams   │─────────────────────>│ 17 States   │
-            │ Games   │   IPlay Interface    │ Transitions │
-            │ Plays   │                      │ Events      │
-            │ Penalties                      └─────────────┘
-            │ Fumbles │                            |
-            │ Stats   │                    ┌───────┴────────┐
-            └─────────┘                    |                |
-                                    Play Execution   Skills Checks
-                                    ┌────────────┐   ┌────────────┐
-                                    │ Pass       │   │ 20+ Checks │
-                                    │ Run        │   │ Statistical│
-                                    │ Kickoff    │   │ Models     │
-                                    │ Punt       │   └────────────┘
-                                    │ FieldGoal  │
-                                    └────────────┘
+       STATE MACHINE (Stateless Library)
+     |
+         ┌──────────────┴──────────────┐
+    |         |
+        Domain Objects          Game Flow / Simulation
+          ┌─────────┐          ┌─────────────┐
+            │ Players │       │ GameFlow    │
+    │ Teams   │──────────────────────>│ 19 States│
+       │ Games   │   IPlay Interface    │ Transitions │
+            │ Plays   │         │ Events│
+            │ Penalties  └─────────────┘
+     │ Fumbles │         |
+ │ Injuries│      ┌───────┴────────┐
+  │ Stats   │                |       |
+    └─────────┘       Play Execution   Skills Checks
+     │      ┌────────────┐   ┌────────────┐
+       │         │ Pass       │   │ 25+ Checks │
+             │    │ Run        │   │ Statistical│
+       │      │ Kickoff    │   │ Models     │
+            │        │ Punt       │ │ Injury Risk│
+    │                  │ FieldGoal  │   └────────────┘
+         │            └────────────┘
+              │
+          └──> DataAccessLayer (EF Core 8.0)
+           └──> Azure SQL Database
 
 
 KEY FEATURES IMPLEMENTED (WORKING)
 ================================================================================
 
 GAME FLOW
-  ✅ State Machine: 17 states with proper transitions
+  ✅ State Machine: 19 states with proper transitions
   ✅ 4 Quarters + Halftime + Overtime support
   ✅ Coin toss with possession deferral
   ✅ Complete game clock management
@@ -51,6 +55,7 @@ PLAY TYPES (5 Fully Implemented)
      - RB carries with direction (9 directions)
      - QB scrambles
      - Multiple segments for fumbles
+     - Injury checks for ball carrier + tacklers
   
   ✅ PASS PLAYS  
      - QB passing to receivers
@@ -58,23 +63,27 @@ PLAY TYPES (5 Fully Implemented)
      - Air yards + yards after catch (YAC)
      - Lateral passes supported
      - Interceptions with pick-six detection
+     - Injury checks for QB (on sack), receiver, interceptor + tacklers
   
   ✅ KICKOFFS
      - Touchbacks, out-of-bounds, onside kicks
      - Returner selection, fumbles on return
      - Fair catch mechanics
+     - Injury checks for returner + tacklers
   
   ✅ PUNTS
      - Hang time calculations
      - Downed punts, out-of-bounds
-     - Fair catch & punt returns
-     - Blocking mechanics
+   - Fair catch & punt returns
+   - Blocking mechanics
+     - Injury checks for returner + tacklers
   
   ✅ FIELD GOALS
      - FG attempts with distance/weather modifiers
      - Extra point attempts
      - Blocked field goal returns
      - Two-point conversions
+     - Injury checks on returns
 
 SCORING SYSTEM
   ✅ Touchdowns (6 pts)
@@ -83,96 +92,85 @@ SCORING SYSTEM
   ✅ Two-Point Conversions (2 pts)
   ✅ Safeties (2 pts)
   ✅ Auto-detection & logging
+  ✅ Centralized scoring methods (AddTouchdown, AddSafety, etc.)
 
 TURNOVER HANDLING
   ✅ Fumbles (with recovery mechanics)
   ✅ Interceptions (with return yards)
   ✅ Pick-sixes
   ✅ Gang tackle effects
-  ✅ Out-of-bounds tracking
+✅ Out-of-bounds tracking
 
-PENALTY SYSTEM (RECENTLY ENHANCED)
-  ✅ 50+ NFL penalties
-  ✅ Real statistical odds (hardcoded from NFL data)
+PENALTY SYSTEM (PRODUCTION READY)
+  ✅ 50+ NFL penalties with real odds
+  ✅ Pre-snap, during, and post-play penalties
   ✅ Player discipline impact (0-100 scale)
-  ✅ Penalty acceptance/decline logic
+  ✅ Smart acceptance/decline logic
   ✅ Offsetting penalties (2024 NFL rules)
   ✅ Half-distance rule enforcement
-  ✅ Automatic first down detection
-  ✅ Loss of down tracking
-  ✅ Dead ball fouls (prevent play execution)
-  ✅ Spot fouls (DPI enforcement)
-  ✅ Timing: pre-snap, during, post-play
+  ✅ Automatic first down rules
+  ✅ Loss of down penalties
+  ✅ Dead ball fouls
+  ✅ Spot fouls (pass interference)
 
-DOWN MANAGEMENT
-  ✅ First down tracking
-  ✅ Yard-to-gain calculations
-  ✅ Third down conversions
-  ✅ Red zone special rules
-  ✅ Turnover on downs
-  ✅ Automatic first down detection
-
-PLAYER MANAGEMENT
-  ✅ 20 attributes per player:
-     - Physical: Speed, Strength, Agility, Awareness, Height, Weight
-     - Skills: Passing, Catching, Rushing, Blocking, Tackling, Coverage, Kicking
-     - Health: Health, InjuryRisk, Morale, Discipline
-     - Career: Age, Exp, Salary, Contract, Potential, Progression
-  ✅ 20 positions (QB, RB, WR, TE, OL, DL, LB, CB, S, K, P, LS, H, etc.)
-  ✅ Depth charts (Offense, Defense, FieldGoal, Kickoff, Punt)
-  ✅ Stats tracking (Game, Season, Career)
-  ✅ 25+ stat types tracked
-
-TEAM STRUCTURE
-  ✅ Coaching staff (Head, OC, DC, ST, Assistants)
-  ✅ Training staff (Head Trainer, Doctor)
-  ✅ Scouting staff (Director, College/Pro Scouts)
-  ✅ Multiple depth charts
-  ✅ Team statistics
-  ✅ Chemistry/morale attributes
-
-STATISTICAL MODELS
-  ✅ Pass Completion: 60% base + (skill differential / 250) + pressure
-  ✅ Run Yards: Rushing attribute ± blocking ± tackle breaks ± breakaway
-  ✅ Fumble Probability: Multi-factor (awareness, pressure, contact, play type)
-  ✅ Field Goal Make: 60% + (kicker ability - 50) / 100 - distance penalty
-  ✅ Penalty Occurrence: Real NFL odds + discipline weight
-  ✅ Skill-based outcomes: Not purely random
-  ✅ Home field advantage: 48-56% split per penalty
+INJURY SYSTEM (PRODUCTION READY - 100% Tests Passing)
+  ✅ Position-specific injury types (Ankle, Knee, Shoulder, Concussion, Hamstring)
+  ✅ 3 severity levels: Minor (1-2 plays), Moderate (rest of drive), Game-Ending
+  ✅ Fragility system (0-100, default 50)
+  ✅ Play-type multipliers (QB sack 2x, Kickoff 1.67x, etc.)
+  ✅ Gang tackle multiplier (1.4x)
+  ✅ Big play multiplier (1.2x for 20+ yard plays)
+  ✅ Out-of-bounds safety reduction (0.5x)
+✅ Position-specific risk factors (RB/LB high, QB/K low)
+  ✅ Ball carrier + up to 2 tacklers checked per play
+  ✅ Player substitution from depth chart
+  ✅ Recovery tracking over multiple plays
 
 
 FEATURES PARTIALLY IMPLEMENTED (INCOMPLETE)
 ================================================================================
-⚠️  Injury System
-    - Attributes exist (InjuryRisk, Health)
-    - No event generation during plays
-    - No recovery mechanics
-    
 ⚠️  Coaching AI
     - Coach objects exist
     - No play-calling strategy
     - Currently: 50/50 run vs pass (random)
     
-⚠️  Team Morale/Chemistry
+⚠️Team Morale/Chemistry
     - Attributes defined
     - Not used in calculations
     
 ⚠️  Scouting System
     - Staff defined
     - No evaluation mechanics
+
+
+DATABASE/PERSISTENCE (PRODUCTION READY)
+================================================================================
+✅ Entity Framework Core 8.0
+    - GridironDbContext with full entity configuration
+    - Azure SQL Server support
+    - Migrations infrastructure
+    - TeamsLoader for database-backed teams  
     
-⚠️  Statistics Aggregation
-    - Individual stats tracked
-    - Some calculations incomplete
+✅ Entities Mapped
+    - Teams (with players one-to-many)
+    - Players (with all 25+ attributes)
+    - Games (with home/away team relationships)
+    - PlayByPlay (JSON storage for game logs)
+    
+✅ Features
+    - Clean architecture (Domain separated from Data Access)
+    - User Secrets for connection strings
+    - Design-time DbContext factory for migrations
+    - Seed data system for initial teams (Falcons, Eagles)
+ 
+✅ Backward Compatibility
+    - Original JSON-based Teams() constructor still works
+    - Database loading is opt-in
+    - No breaking changes to existing code
 
 
 MAJOR FEATURES MISSING (NOT IMPLEMENTED)
 ================================================================================
-❌ DATABASE/PERSISTENCE
-   - No SQL database
-   - No file-based saves
-   - Games lost after execution (except logging)
-
 ❌ API LAYER
    - No REST endpoints
    - No ASP.NET Core project
@@ -209,129 +207,96 @@ MAJOR FEATURES MISSING (NOT IMPLEMENTED)
 
 TESTING COVERAGE
 ================================================================================
-Test Framework:    MSTest
-Test Files:        42 classes
-Test Lines:        17,800+
+Test Framework: MSTest
+Test Files:        44 test classes
+Test Lines:        22,200+ lines
+Total Tests:       839 tests
+Pass Rate:  100% (839/839 passing)
 Code Coverage:     Measured with coverlet
 
 Test Categories:
-  - Play Execution Tests (Pass, Run, Kickoff, Punt, FieldGoal, etc.)
-  - Penalty System Tests (Enforcement, Acceptance, Discipline)
-  - Scoring Tests (Touchdowns, Field Goals, 2PT, Integration)
-  - Down Management Tests (3rd Down, Red Zone, Goal Line)
-  - Infrastructure Tests (Randomization, Skill Checks, Calculators)
-  - Integration Tests (Full game scenarios, flow validation)
-
-Notable Features:
-  - Deterministic seeding (SeedableRandom, ReplaySeedableRandom)
-  - Scenario builders (PassPlayScenarios, RunPlayScenarios, etc.)
-  - Statistical validation (1000+ iterations for distributions)
-  - Fluent test builders (TestFluentSeedableRandom)
-
-
-RECENT DEVELOPMENT (NOVEMBER 2024)
-================================================================================
-Focus: Penalty System Enhancement
-  - Comprehensive enforcement rules
-  - Player discipline integration
-  - Acceptance/decline logic
-  - Dead ball foul prevention
-  - Offsetting penalty handling
+  ✅ Play Execution Tests (Pass, Run, Kickoff, Punt, FieldGoal)
+  ✅ Skills Checks Tests (20+ statistical checks)
+  ✅ Penalty System Tests (50+ penalties)
+  ✅ Injury System Tests (Position-specific, severity levels)
+  ✅ Down Progression Tests
+  ✅ Scoring Integration Tests
+  ✅ Red Zone Tests
+  ✅ Third Down Conversion Tests
+  ✅ Goal Line Tests
+  ✅ Safety Tests
+  ✅ Two-Point Conversion Tests
+  ✅ Multiple Penalty Tests
+  ✅ Fumble Recovery Tests
+  ✅ Interception Tests
+  ✅ Field Position Tests
+  ✅ Game Flow Tests
   
-Recent Commits:
-  f478580 - Merge penalty system complete
-  1107907 - Fix discipline weight calculation
-  7a10005 - Fix discipline statistical tests
-  7442211 - Add discipline penalty tests
+Deterministic Testing:
+  ✅ SeedableRandom for reproducible tests
+  ✅ TestFluentSeedableRandom for precise scenario control
+  ✅ Scenario builders for all play types
+  ✅ Test helpers (TestGame, TestTeams)
 
-
-DEPENDENCIES
+RECENT DEVELOPMENT (NOVEMBER 2025)
 ================================================================================
-NuGet Packages:
-  - Stateless 5.20.0 (State Machine)
-  - Newtonsoft.Json 13.0.4 (JSON serialization)
-  - Microsoft.Extensions.Logging 8.0.0 (Logging)
-  - MSTest 4.0.1 (Testing)
-  - Coverlet 6.0.4 (Code Coverage)
-  - Structurizr 1.1.1 (Architecture Diagrams)
+Latest Achievements:
+  ✅ Injury System Integration (100% tests passing)
+     - Position-specific injury profiles
+     - Severity levels with recovery tracking
+     - Player substitution system
+     - Integrated into all 5 play types
+     
+  ✅ Database Persistence Layer
+     - Entity Framework Core 8.0 implementation
+     - Azure SQL Server support
+     - Seed data system for teams
+     - Clean architecture separation
+     
+  ✅ Penalty System Enhancement
+     - Smart acceptance/decline logic
+     - Dead ball foul prevention
+     - Offsetting penalty handling
+     - 50+ NFL penalties fully implemented
+     
+  ✅ Test Suite Completion
+     - Achieved 100% test pass rate (839/839)
+     - Comprehensive scenario coverage
+     - Deterministic testing infrastructure
+     
+  ✅ Documentation Cleanup
+     - Removed stale task-specific documents
+     - Retained valuable architecture references
+     - Updated README with current features
 
-Project Dependencies:
-  DomainObjects → Core Models
-  StateLibrary → Depends on DomainObjects + Stateless
-  UnitTestProject1 → Depends on both + MSTest
 
-
-KEY FILES TO UNDERSTAND
+PROJECT STATISTICS (NOVEMBER 2025)
 ================================================================================
-Architecture Core:
-  /StateLibrary/GameFlow.cs                    - State machine (23KB)
-  /DomainObjects/Game.cs                       - Game model (7KB)
-  /DomainObjects/Player.cs                     - Player attributes (2KB)
-
-Play Execution:
-  /StateLibrary/Plays/Pass.cs                  - Pass play (22KB)
-  /StateLibrary/Plays/Run.cs                   - Run play (14KB)
-  /StateLibrary/Plays/Kickoff.cs               - Kickoff play
-  /StateLibrary/Plays/Punt.cs                  - Punt play
-
-Penalties:
-  /DomainObjects/Penalty.cs                    - 50 penalties + odds
-  /StateLibrary/Services/PenaltyEnforcement.cs - Enforcement rules (17KB)
-
-Testing:
-  /UnitTestProject1/PassPlayExecutionTests.cs  - Pass tests (40KB)
-  /UnitTestProject1/PlayerDisciplinePenaltyTests.cs - Discipline (16KB)
-
-
-COMPLETION STATUS BY COMPONENT
-================================================================================
-Core Simulation:        ████████████████████░░░░░░░░░░░ 90% (PRODUCTION-READY)
-Penalty System:         ████████████████████████████████ 100% (COMPLETE)
-Statistics Modeling:    ██████████████████░░░░░░░░░░░░░░ 80% (MOSTLY WORKING)
-Testing Coverage:       ██████████████████████░░░░░░░░░░ 85% (COMPREHENSIVE)
-Database/Persistence:   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0% (NOT STARTED)
-API Layer:              ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0% (NOT STARTED)
-Frontend:               ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 0% (NOT STARTED)
-
-OVERALL SYSTEM:         ███████████░░░░░░░░░░░░░░░░░░░░░ 35% (SINGLE-GAME READY)
-
-
-PRODUCTION READINESS ASSESSMENT
-================================================================================
-For Single-Game Simulation:     ✅ READY (Core engine complete)
-For Multi-Game Simulation:      ⚠️  PARTIAL (Need batch processing)
-For Web Service:                ❌ NOT READY (Need API + database)
-For League Management:          ❌ NOT READY (Need persistence + season logic)
-
-
-RECOMMENDED NEXT STEPS
-================================================================================
-High Priority (1-2 weeks):
-  1. Add Entity Framework Core + database schema
-  2. Create ASP.NET Core Web API project
-  3. Implement coaching AI for play selection
-
-Medium Priority (2-4 weeks):
-  4. Complete injury system
-  5. Build statistics aggregation
-  6. Create web UI dashboard
-
-Low Priority:
-  7. Season/league management
-  8. Weather system integration
-  9. Advanced analytics (EPA/WPA)
-  10. Playoff simulation
-
-
-ESTIMATED EFFORT TO COMPLETION
-================================================================================
-Current State:          Simulation Engine = 90%
-Production Simulation:  +0% (ready now)
-Production Web Service: +60% (4-6 weeks)
-Production Full System: +65% (8-10 weeks)
-
-Total Estimated Effort: 200-300 development hours
-
+Code Metrics:
+  - Total Lines of Code:  40,800+
+  - C# Files:  229
+  - Projects:         6
+  - Total Size:            140MB  
+  
+Test Metrics:
+  - Test Lines:            22,200+
+  - Test Files:44
+  - Total Tests:      839
+  - Pass Rate:             100%
+  - Execution Time:        ~1-4 seconds
+  
+Architecture:
+- States:   19
+  - Play Types:    5
+  - Skills Checks:25+
+  - Penalties:   50+
+  - Injury Types:   5
+  - Positions:     20+
+  
+Data:
+- Teams in Database:     2 (Falcons, Eagles)
+  - Players per Team:      ~53
+  - Total Attributes:   25+ per player
 
 ================================================================================
 For detailed analysis, see CODEBASE_ANALYSIS.md
