@@ -63,50 +63,102 @@ class Program
             Console.WriteLine("RESULT: TIE GAME");
         }
 
-        Console.WriteLine();
-        Console.WriteLine("================================================================================");
-        Console.WriteLine("                         GAME STATISTICS");
-        Console.WriteLine("================================================================================");
-        Console.WriteLine();
-        Console.WriteLine($"Total Plays: {game.Plays.Count}");
-        Console.WriteLine($"Game Duration: {FormatTime(3600 - game.TimeRemaining)}");
+        DisplayGameStats(game);
 
-        // Count play types
-        int passPlays = 0, runPlays = 0, kickoffs = 0, punts = 0, fieldGoals = 0;
-        int completions = 0, interceptions = 0, fumbles = 0;
-
-        foreach (var play in game.Plays)
-        {
-            if (play is PassPlay passPlay)
-            {
-                passPlays++;
-                if (passPlay.IsComplete) completions++;
-                if (passPlay.Interception) interceptions++;
-            }
-            else if (play is RunPlay) runPlays++;
-            else if (play is KickoffPlay) kickoffs++;
-            else if (play is PuntPlay) punts++;
-            else if (play is FieldGoalPlay) fieldGoals++;
-
-            if (play.Fumbles.Count > 0) fumbles++;
-        }
-
-        Console.WriteLine();
-        Console.WriteLine("Play Breakdown:");
-        Console.WriteLine($"  Pass Plays: {passPlays} ({completions} completions, {(passPlays > 0 ? (completions * 100.0 / passPlays).ToString("F1") : "0")}% completion rate)");
-        Console.WriteLine($"  Run Plays: {runPlays}");
-        Console.WriteLine($"  Kickoffs: {kickoffs}");
-        Console.WriteLine($"  Punts: {punts}");
-        Console.WriteLine($"  Field Goals: {fieldGoals}");
-        Console.WriteLine();
-        Console.WriteLine($"Turnovers:");
-        Console.WriteLine($"  Interceptions: {interceptions}");
-        Console.WriteLine($"  Fumbles: {fumbles}");
         Console.WriteLine();
         Console.WriteLine("================================================================================");
         Console.WriteLine();
         Console.WriteLine("Press ENTER to exit...");
         Console.ReadLine();
+    }
+
+    static void DisplayGameStats(Game game)
+    {
+        Console.WriteLine();
+        Console.WriteLine("================================================================================");
+        Console.WriteLine("                         GAME STATISTICS");
+        Console.WriteLine("================================================================================");
+        Console.WriteLine();
+
+        var allPlayers = game.HomeTeam.Players.Concat(game.AwayTeam.Players).ToList();
+
+        // Passing Leaders
+        Console.WriteLine("PASSING LEADERS");
+        Console.WriteLine("--------------------------------------------------------------------------------");
+        var passers = allPlayers.Where(p => p.Stats.ContainsKey(StatTypes.PlayerStatType.PassingYards) && p.Stats[StatTypes.PlayerStatType.PassingYards] > 0)
+            .OrderByDescending(p => p.Stats[StatTypes.PlayerStatType.PassingYards])
+            .Take(5);
+        
+        foreach (var p in passers)
+        {
+            var yards = p.Stats.ContainsKey(StatTypes.PlayerStatType.PassingYards) ? p.Stats[StatTypes.PlayerStatType.PassingYards] : 0;
+            var tds = p.Stats.ContainsKey(StatTypes.PlayerStatType.PassingTouchdowns) ? p.Stats[StatTypes.PlayerStatType.PassingTouchdowns] : 0;
+            var ints = p.Stats.ContainsKey(StatTypes.PlayerStatType.InterceptionsThrown) ? p.Stats[StatTypes.PlayerStatType.InterceptionsThrown] : 0;
+            var att = p.Stats.ContainsKey(StatTypes.PlayerStatType.PassingAttempts) ? p.Stats[StatTypes.PlayerStatType.PassingAttempts] : 0;
+            var comp = p.Stats.ContainsKey(StatTypes.PlayerStatType.PassingCompletions) ? p.Stats[StatTypes.PlayerStatType.PassingCompletions] : 0;
+            var team = game.HomeTeam.Players.Contains(p) ? game.HomeTeam.Name : game.AwayTeam.Name;
+            
+            Console.WriteLine($"  [{team}] {p.Position} #{p.Number} {p.LastName}: {comp}/{att}, {yards} yds, {tds} TD, {ints} INT");
+        }
+        Console.WriteLine();
+
+        // Rushing Leaders
+        Console.WriteLine("RUSHING LEADERS");
+        Console.WriteLine("--------------------------------------------------------------------------------");
+        var rushers = allPlayers.Where(p => p.Stats.ContainsKey(StatTypes.PlayerStatType.RushingYards) && p.Stats[StatTypes.PlayerStatType.RushingYards] != 0)
+            .OrderByDescending(p => p.Stats[StatTypes.PlayerStatType.RushingYards])
+            .Take(5);
+
+        foreach (var p in rushers)
+        {
+            var yards = p.Stats.ContainsKey(StatTypes.PlayerStatType.RushingYards) ? p.Stats[StatTypes.PlayerStatType.RushingYards] : 0;
+            var tds = p.Stats.ContainsKey(StatTypes.PlayerStatType.RushingTouchdowns) ? p.Stats[StatTypes.PlayerStatType.RushingTouchdowns] : 0;
+            var att = p.Stats.ContainsKey(StatTypes.PlayerStatType.RushingAttempts) ? p.Stats[StatTypes.PlayerStatType.RushingAttempts] : 0;
+            var team = game.HomeTeam.Players.Contains(p) ? game.HomeTeam.Name : game.AwayTeam.Name;
+
+            Console.WriteLine($"  [{team}] {p.Position} #{p.Number} {p.LastName}: {att} att, {yards} yds, {tds} TD");
+        }
+        Console.WriteLine();
+
+        // Receiving Leaders
+        Console.WriteLine("RECEIVING LEADERS");
+        Console.WriteLine("--------------------------------------------------------------------------------");
+        var receivers = allPlayers.Where(p => p.Stats.ContainsKey(StatTypes.PlayerStatType.ReceivingYards) && p.Stats[StatTypes.PlayerStatType.ReceivingYards] > 0)
+            .OrderByDescending(p => p.Stats[StatTypes.PlayerStatType.ReceivingYards])
+            .Take(5);
+
+        foreach (var p in receivers)
+        {
+            var yards = p.Stats.ContainsKey(StatTypes.PlayerStatType.ReceivingYards) ? p.Stats[StatTypes.PlayerStatType.ReceivingYards] : 0;
+            var tds = p.Stats.ContainsKey(StatTypes.PlayerStatType.ReceivingTouchdowns) ? p.Stats[StatTypes.PlayerStatType.ReceivingTouchdowns] : 0;
+            var rec = p.Stats.ContainsKey(StatTypes.PlayerStatType.Receptions) ? p.Stats[StatTypes.PlayerStatType.Receptions] : 0;
+            var team = game.HomeTeam.Players.Contains(p) ? game.HomeTeam.Name : game.AwayTeam.Name;
+
+            Console.WriteLine($"  [{team}] {p.Position} #{p.Number} {p.LastName}: {rec} rec, {yards} yds, {tds} TD");
+        }
+        Console.WriteLine();
+
+        // Defensive Leaders
+        Console.WriteLine("DEFENSIVE LEADERS");
+        Console.WriteLine("--------------------------------------------------------------------------------");
+        var defenders = allPlayers.Where(p => 
+            (p.Stats.ContainsKey(StatTypes.PlayerStatType.Tackles) && p.Stats[StatTypes.PlayerStatType.Tackles] > 0) ||
+            (p.Stats.ContainsKey(StatTypes.PlayerStatType.Sacks) && p.Stats[StatTypes.PlayerStatType.Sacks] > 0) ||
+            (p.Stats.ContainsKey(StatTypes.PlayerStatType.InterceptionsCaught) && p.Stats[StatTypes.PlayerStatType.InterceptionsCaught] > 0))
+            .OrderByDescending(p => (p.Stats.ContainsKey(StatTypes.PlayerStatType.Tackles) ? p.Stats[StatTypes.PlayerStatType.Tackles] : 0) + 
+                                    (p.Stats.ContainsKey(StatTypes.PlayerStatType.Sacks) ? p.Stats[StatTypes.PlayerStatType.Sacks] * 2 : 0))
+            .Take(5);
+
+        foreach (var p in defenders)
+        {
+            var tackles = p.Stats.ContainsKey(StatTypes.PlayerStatType.Tackles) ? p.Stats[StatTypes.PlayerStatType.Tackles] : 0;
+            var sacks = p.Stats.ContainsKey(StatTypes.PlayerStatType.Sacks) ? p.Stats[StatTypes.PlayerStatType.Sacks] : 0;
+            var ints = p.Stats.ContainsKey(StatTypes.PlayerStatType.InterceptionsCaught) ? p.Stats[StatTypes.PlayerStatType.InterceptionsCaught] : 0;
+            var team = game.HomeTeam.Players.Contains(p) ? game.HomeTeam.Name : game.AwayTeam.Name;
+
+            Console.WriteLine($"  [{team}] {p.Position} #{p.Number} {p.LastName}: {tackles} tackles, {sacks} sacks, {ints} INT");
+        }
+        Console.WriteLine();
     }
 
     static string FormatTime(int seconds)

@@ -11,12 +11,16 @@ namespace DomainObjects
         public enum PlayerStatType
         {
             PassingYards,
+            PassingAttempts,
+            PassingCompletions,
             PassingTouchdowns,
             InterceptionsThrown,
             RushingYards,
+            RushingAttempts,
             RushingTouchdowns,
             Fumbles,
             Receptions,
+            ReceivingTargets,
             ReceivingYards,
             ReceivingTouchdowns,
             Tackles,
@@ -35,7 +39,10 @@ namespace DomainObjects
             PuntReturns,
             PuntReturnYards,
             GamesPlayed,
-            GamesStarted
+            GamesStarted,
+            InterceptionReturnYards,
+            FumblesLost,
+            PuntsInside20
         }
 
         public enum TeamStatType

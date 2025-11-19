@@ -126,6 +126,9 @@ namespace StateLibrary.PlayResults
 
             // Log result summary
             LogFieldGoalSummary(play);
+
+            // Accumulate player stats
+            StatsAccumulator.AccumulateFieldGoalStats(play);
         }
 
         private void HandlePenalties(Game game, FieldGoalPlay play)
