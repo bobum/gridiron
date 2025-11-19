@@ -110,9 +110,9 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
-            game.FieldPosition = 70; // 30-yard line (47-yard attempt)
+            game.FieldPosition = 70; // 30-yard line (47-yard attempt for Home team)
             var play = (FieldGoalPlay)game.CurrentPlay;
-            play.Possession = Possession.Away;
+            play.Possession = Possession.Home;  // Changed from Away to Home
             game.HomeScore = 7;
             game.AwayScore = 7;
 
@@ -127,7 +127,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.IsGood, "Medium FG should be good");
-            Assert.AreEqual(10, game.AwayScore, "Away score should be 10 (7 + 3)");
+            Assert.AreEqual(10, game.HomeScore, "Home score should be 10 (7 + 3)");
             Assert.AreEqual(47, play.AttemptDistance, "Should be 47-yard attempt");
         }
 
