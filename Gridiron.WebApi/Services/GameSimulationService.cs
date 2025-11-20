@@ -44,11 +44,15 @@ public class GameSimulationService : IGameSimulationService
         if (awayTeam == null)
             throw new ArgumentException($"Away team with ID {awayTeamId} not found", nameof(awayTeamId));
 
+        // Build depth charts for both teams using the Teams helper
+        // This is REQUIRED for the simulation to work - depth charts are used to select players
+        var teamsWithDepthCharts = new Teams(homeTeam, awayTeam);
+
         // Create game
         var game = new Game
         {
-            HomeTeam = homeTeam,
-            AwayTeam = awayTeam,
+            HomeTeam = teamsWithDepthCharts.HomeTeam,
+            AwayTeam = teamsWithDepthCharts.VisitorTeam,
             HomeTeamId = homeTeamId,
             AwayTeamId = awayTeamId,
             RandomSeed = randomSeed
