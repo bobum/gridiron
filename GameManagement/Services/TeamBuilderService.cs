@@ -54,18 +54,18 @@ public class TeamBuilderService : ITeamBuilderService
             PuntDefenseDepthChart = new DepthChart(),
 
             // Initialize coaching staff with default coaches
-            HeadCoach = new Coach { Name = "Head Coach", Role = "Head Coach" },
-            OffensiveCoordinator = new Coach { Name = "OC", Role = "Offensive Coordinator" },
-            DefensiveCoordinator = new Coach { Name = "DC", Role = "Defensive Coordinator" },
-            SpecialTeamsCoordinator = new Coach { Name = "STC", Role = "Special Teams Coordinator" },
+            HeadCoach = new Coach { FirstName = "Head", LastName = "Coach", Role = "Head Coach" },
+            OffensiveCoordinator = new Coach { FirstName = "Offensive", LastName = "Coordinator", Role = "Offensive Coordinator" },
+            DefensiveCoordinator = new Coach { FirstName = "Defensive", LastName = "Coordinator", Role = "Defensive Coordinator" },
+            SpecialTeamsCoordinator = new Coach { FirstName = "Special Teams", LastName = "Coordinator", Role = "Special Teams Coordinator" },
             AssistantCoaches = new List<Coach>(),
 
             // Initialize training staff
-            HeadAthleticTrainer = new Trainer { Name = "Head Trainer", Role = "Head Athletic Trainer" },
-            TeamDoctor = new Trainer { Name = "Team Doctor", Role = "Team Doctor" },
+            HeadAthleticTrainer = new Trainer { FirstName = "Head", LastName = "Trainer", Role = "Head Athletic Trainer" },
+            TeamDoctor = new Trainer { FirstName = "Team", LastName = "Doctor", Role = "Team Doctor" },
 
             // Initialize scouting staff
-            DirectorOfScouting = new Scout { Name = "Director of Scouting", Role = "Director of Scouting" },
+            DirectorOfScouting = new Scout { FirstName = "Director", LastName = "Scouting", Role = "Director of Scouting" },
             CollegeScouts = new List<Scout>(),
             ProScouts = new List<Scout>(),
 
