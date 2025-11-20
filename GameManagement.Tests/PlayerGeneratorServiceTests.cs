@@ -1,6 +1,8 @@
+using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
 using GameManagement.Services;
+using GameManagement.Tests.TestHelpers;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -13,12 +15,18 @@ namespace GameManagement.Tests;
 public class PlayerGeneratorServiceTests
 {
     private readonly Mock<ILogger<PlayerGeneratorService>> _loggerMock;
+    private readonly IPlayerDataRepository _playerDataRepository;
     private readonly PlayerGeneratorService _service;
 
     public PlayerGeneratorServiceTests()
     {
         _loggerMock = new Mock<ILogger<PlayerGeneratorService>>();
-        _service = new PlayerGeneratorService(_loggerMock.Object);
+
+        // Use JSON repository for tests
+        var testDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "TestData");
+        _playerDataRepository = new JsonPlayerDataRepository(testDataPath);
+
+        _service = new PlayerGeneratorService(_loggerMock.Object, _playerDataRepository);
     }
 
     #region GenerateRandomPlayer Tests

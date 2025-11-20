@@ -1,7 +1,7 @@
+using DataAccessLayer.Repositories;
 using DomainObjects;
 using GameManagement.Helpers;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace GameManagement.Services;
 
@@ -11,47 +11,32 @@ namespace GameManagement.Services;
 public class PlayerGeneratorService : IPlayerGeneratorService
 {
     private readonly ILogger<PlayerGeneratorService> _logger;
-    private static List<string>? _firstNames;
-    private static List<string>? _lastNames;
-    private static List<string>? _colleges;
-    private static readonly object _lock = new object();
+    private readonly List<string> _firstNames;
+    private readonly List<string> _lastNames;
+    private readonly List<string> _colleges;
 
-    public PlayerGeneratorService(ILogger<PlayerGeneratorService> logger)
+    public PlayerGeneratorService(
+        ILogger<PlayerGeneratorService> logger,
+        IPlayerDataRepository playerDataRepository)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        LoadNameData();
-    }
+        if (playerDataRepository == null)
+            throw new ArgumentNullException(nameof(playerDataRepository));
 
-    private void LoadNameData()
-    {
-        lock (_lock)
+        try
         {
-            if (_firstNames == null)
-            {
-                try
-                {
-                    var basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestData");
-                    
-                    var firstNamesPath = Path.Combine(basePath, "FirstNames.json");
-                    var lastNamesPath = Path.Combine(basePath, "LastNames.json");
-                    var collegesPath = Path.Combine(basePath, "Colleges.json");
+            // Load data from repository (database or JSON depending on implementation)
+            _firstNames = playerDataRepository.GetFirstNamesAsync().GetAwaiter().GetResult();
+            _lastNames = playerDataRepository.GetLastNamesAsync().GetAwaiter().GetResult();
+            _colleges = playerDataRepository.GetCollegesAsync().GetAwaiter().GetResult();
 
-                    _firstNames = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(firstNamesPath)) ?? new List<string>();
-                    _lastNames = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(lastNamesPath)) ?? new List<string>();
-                    _colleges = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(collegesPath)) ?? new List<string>();
-
-                    _logger.LogInformation("Loaded name data: {FirstNameCount} first names, {LastNameCount} last names, {CollegeCount} colleges",
-                        _firstNames.Count, _lastNames.Count, _colleges.Count);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to load name data from JSON files");
-                    // Fallback to basic names
-                    _firstNames = new List<string> { "John", "Mike", "Tom", "James", "Robert" };
-                    _lastNames = new List<string> { "Smith", "Johnson", "Williams", "Brown", "Jones" };
-                    _colleges = new List<string> { "Alabama", "Ohio State", "Clemson", "Georgia", "Michigan" };
-                }
-            }
+            _logger.LogInformation("Loaded player generation data: {FirstNameCount} first names, {LastNameCount} last names, {CollegeCount} colleges",
+                _firstNames.Count, _lastNames.Count, _colleges.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load player generation data from repository");
+            throw;  // Fail fast as requested by user
         }
     }
 
@@ -61,10 +46,10 @@ public class PlayerGeneratorService : IPlayerGeneratorService
 
         var player = new Player
         {
-            FirstName = _firstNames![random.Next(_firstNames.Count)],
-            LastName = _lastNames![random.Next(_lastNames.Count)],
+            FirstName = _firstNames[random.Next(_firstNames.Count)],
+            LastName = _lastNames[random.Next(_lastNames.Count)],
             Position = position,
-            College = _colleges![random.Next(_colleges.Count)],
+            College = _colleges[random.Next(_colleges.Count)],
             Number = GenerateJerseyNumber(position, random),
             Height = GenerateHeight(position, random),
             Weight = GenerateWeight(position, random),
@@ -165,10 +150,10 @@ public class PlayerGeneratorService : IPlayerGeneratorService
     {
         var player = new Player
         {
-            FirstName = _firstNames![random.Next(_firstNames.Count)],
-            LastName = _lastNames![random.Next(_lastNames.Count)],
+            FirstName = _firstNames[random.Next(_firstNames.Count)],
+            LastName = _lastNames[random.Next(_lastNames.Count)],
             Position = position,
-            College = _colleges![random.Next(_colleges.Count)],
+            College = _colleges[random.Next(_colleges.Count)],
             Number = GenerateJerseyNumber(position, random),
             Height = GenerateHeight(position, random),
             Weight = GenerateWeight(position, random),

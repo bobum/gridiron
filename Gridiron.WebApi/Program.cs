@@ -40,6 +40,7 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
 
 // ========================================
 // APPLICATION SERVICES
