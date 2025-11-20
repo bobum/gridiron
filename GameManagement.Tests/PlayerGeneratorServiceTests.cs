@@ -459,7 +459,7 @@ public class PlayerGeneratorServiceTests
         player.FirstName.Should().NotBeNullOrEmpty();
         player.LastName.Should().NotBeNullOrEmpty();
         player.College.Should().NotBeNullOrEmpty();
-        player.Position.Should().NotBe(default(Positions));
+        player.Position.Should().Be(Positions.QB); // Should be the requested position
         player.Number.Should().BeGreaterThan(0);
         player.Height.Should().NotBeNullOrEmpty();
         player.Weight.Should().BeGreaterThan(0);
