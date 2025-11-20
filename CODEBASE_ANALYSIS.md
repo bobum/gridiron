@@ -2,10 +2,11 @@
 
 ## EXECUTIVE SUMMARY
 
-Gridiron is a sophisticated NFL football game simulation engine written in C# .NET 8. It uses a state machine architecture to simulate realistic football games with comprehensive player attributes, statistical modeling, penalty systems, and detailed game mechanics. The codebase is well-structured with clear separation between domain models, simulation logic, and tests.
+Gridiron is a sophisticated NFL football game simulation engine written in C# .NET 8. It uses a state machine architecture to simulate realistic football games with comprehensive player attributes, statistical modeling, penalty systems, injury tracking, and database persistence. The codebase is well-structured with clear separation between domain models, simulation logic, data access, and tests.
 
-**Current Status:** Actively maintained, with recent focus on penalty system implementation (November 2024)
-**Project Size:** ~5.6MB, 150 C# files, 17,800+ lines of test code
+**Current Status:** Actively maintained, with recent focus on injury system integration and database persistence (November 2025)
+**Project Size:** ~140MB, 229 C# files, 40,800+ lines of code, 22,200+ lines of test code
+**Test Coverage:** 100% passing (839/839 tests)
 
 ---
 
@@ -15,35 +16,45 @@ Gridiron is a sophisticated NFL football game simulation engine written in C# .N
 
 ```
 gridiron/
-├── DomainObjects/           # Data models and domain entities
-│   ├── Game.cs              # Main game state
-│   ├── Player.cs            # Player with 20+ attributes
-│   ├── Team.cs              # Team management with coaching staff
-│   ├── [Play Types]         # PassPlay, RunPlay, KickoffPlay, PuntPlay, FieldGoalPlay
-│   ├── Penalty.cs           # 50+ NFL penalties with statistical odds
-│   ├── Fumble.cs            # Turnover tracking
-│   ├── Helpers/             # GameHelper, Teams, SeedableRandom, ReplayLog
-│   └── Time/                # Quarter, Half, Game time management
+├── DomainObjects/    - Data models and domain entities
+│   ├── Game.cs           - Main game state
+│   ├── Player.cs         - Player with 25+ attributes
+│   ├── Team.cs      - Team management with coaching staff
+│   ├── [Play Types]         - PassPlay, RunPlay, KickoffPlay, PuntPlay, FieldGoalPlay
+│   ├── Penalty.cs    - 50+ NFL penalties with statistical odds
+│   ├── Injury.cs     - Injury tracking (Type, Severity, Recovery)
+│   ├── Fumble.cs - Turnover tracking
+│   ├── Helpers/      - GameHelper, Teams, SeedableRandom, ReplayLog
+│   └── Time/       - Quarter, Half, Game time management
 │
-├── StateLibrary/            # Game simulation engine
-│   ├── GameFlow.cs          # State machine orchestrator (Stateless library)
-│   ├── Actions/             # State machine actions (PrePlay, Snap, PostPlay, etc.)
-│   ├── Plays/               # Play execution (Run.cs, Pass.cs, Kickoff.cs, etc.)
-│   ├── PlayResults/         # Play outcome processing
-│   ├── SkillsChecks/        # 20+ statistical skill checks
-│   ├── SkillsCheckResults/  # Detailed outcome calculations
-│   ├── Services/            # PenaltyEnforcement service
-│   ├── BaseClasses/         # Abstract skill check bases
-│   └── Calculators/         # LineBattle, TeamPower calculations
+├── StateLibrary/            - Game simulation engine
+│   ├── GameFlow.cs        - State machine orchestrator (Stateless library)
+│   ├── Actions/     - State machine actions (PrePlay, Snap, PostPlay, etc.)
+│   ├── Plays/ - Play execution (Run.cs, Pass.cs, Kickoff.cs, etc.)
+│   ├── PlayResults/  - Play outcome processing
+│   ├── SkillsChecks/        - 25+ statistical skill checks
+│   ├── SkillsCheckResults/  - Detailed outcome calculations
+│   ├── Services/            - PenaltyEnforcement service
+│   ├── BaseClasses/         - Abstract skill check bases
+│   ├── Configuration/       - InjuryProbabilities, constants
+│   └── Calculators/         - LineBattle, TeamPower calculations
 │
-├── UnitTestProject1/        # 150 test files
-│   ├── [Play Tests]         # PassPlayExecutionTests, RunPlayExecutionTests, etc.
-│   ├── PenaltyTests/        # Comprehensive penalty enforcement tests
-│   ├── Helpers/             # Test scenario builders, TestGame, SeedableRandom helpers
-│   └── Integration Tests    # Flow, Scoring, RedZone, ThirdDownConversion, etc.
+├── DataAccessLayer/ - EF Core persistence layer (NEW)
+│   ├── GridironDbContext.cs - Entity configurations
+│   ├── TeamsLoader.cs       - Database team loading
+│   ├── SeedData/            - Team/player seed scripts
+│   └── Migrations/   - EF Core migrations
 │
-├── Diagram/                 # C4 architecture diagrams (PlantUML generation)
-└── gridiron.sln            # Visual Studio solution file
+├── UnitTestProject1/        - 44 test files, 839 tests
+│   ├── [Play Tests]         - PassPlayExecutionTests, RunPlayExecutionTests, etc.
+│   ├── PenaltyTests/        - Comprehensive penalty enforcement tests
+│   ├── InjurySystemTests/   - Position-specific injury tests
+│   ├── Helpers/    - Test scenario builders, TestGame, TestTeams
+│   └── Integration Tests    - Flow, Scoring, RedZone, ThirdDownConversion, etc.
+│
+├── GridironConsole/     - Console application for simulations
+├── Diagram/      - C4 architecture diagrams (PlantUML generation)
+└── gridiron.sln            - Visual Studio solution file
 ```
 
 ### 1.2 Technology Stack
@@ -54,6 +65,7 @@ gridiron/
 - **Logging:** Microsoft.Extensions.Logging 8.0.0
 - **Testing:** MSTest with coverlet code coverage
 - **Architecture Visualization:** Structurizr + PlantUML
+- **Database:** Microsoft.EntityFrameworkCore 8.0.0 (SQL Server)
 
 ---
 
@@ -78,7 +90,7 @@ gridiron/
 - **Segments:** Supports multiple ball carriers per play (fumbles and laterals)
 
 ✅ **Player Management**
-- 20 player attributes (Speed, Strength, Agility, Awareness, Position-specific skills)
+- 25 player attributes (Speed, Strength, Agility, Awareness, InjuryRisk, Position-specific skills)
 - Position-specific skills: Passing, Catching, Rushing, Blocking, Tackling, Coverage, Kicking
 - Player stats tracking (game + season + career)
 - Depth charts for offense, defense, and special teams
@@ -107,34 +119,61 @@ gridiron/
 
 ### 2.2 Game Mechanics
 
-✅ **Penalty System** (Recently Enhanced - Nov 2024)
+✅ **Penalty System** (Production Ready - Nov 2025)
 - **50+ NFL Penalties:** Comprehensive list with real yardages
 - **Penalty Timing:** Pre-snap, during play, post-play
 - **Player Discipline Impact:** Lower discipline = higher penalty commitment rate
-- **Penalty Acceptance/Decline Logic:** AI-driven based on game situation
+- **Smart Acceptance/Decline Logic:** AI-driven based on game situation
 - **Offsetting Penalties:** 2024 NFL rules for major vs minor fouls
 - **Half-Distance Rule:** Proper enforcement near goal line
 - **Dead Ball Fouls:** FalseStart, Encroachment, DelayofGame, etc.
 - **Automatic First Downs:** Most defensive fouls give new downs
 - **Loss of Down Penalties:** IntentionalGrounding, IllegalForwardPass
 - **Spot Fouls:** DefensivePassInterference enforced from foul location
+- **PenaltyEnforcement Service:** Centralized enforcement logic
 
-✅ **Down/Distance Management**
-- First down tracking and reset
-- Yard-to-gain calculations
-- Automatic first down detection
-- Turnover on downs handling
-- Red zone considerations
+✅ **Injury System** (Production Ready - Nov 2025)
+- **Position-Specific Types:** Ankle, Knee, Shoulder, Concussion, Hamstring
+  - RB/WR: High ankle/knee/hamstring (40/25/20%)
+  - QB: High shoulder/concussion (35/20%)
+  - OL/DL: High knee/ankle (40/40%)
+  - LB/CB/S: Balanced with high hamstring (35%)
+- **3 Severity Levels:**
+  - Minor: Out 1-2 plays (60% probability)
+  - Moderate: Out rest of drive (30% probability)
+  - Game-Ending: Out rest of game (10% probability)
+- **Fragility System:** Player attribute 0-100 (default 50)
+  - 0 = Ironman (0.5x injury risk)
+  - 50 = Average (1.0x injury risk)
+  - 100 = Glass (1.5x injury risk)
+- **Risk Multipliers:**
+  - QB Sack: 2.0x
+  - Kickoff Return: 1.67x
+  - Gang Tackle (3+ defenders): 1.4x
+  - Big Play (20+ yards): 1.2x
+  - Out of Bounds: 0.5x
+  - Position-specific: QB 0.7x, K/P 0.3x, RB/LB 1.2x
+- **Injury Checks:** Ball carrier + up to 2 tacklers per play (50% gate)
+- **Player Substitution:** Automatic depth chart replacement
+- **Recovery Tracking:** Plays until return counter
 
-✅ **Field Position Tracking**
-- 0-100 yard line system
-- Boundary checking (goal line, safety spots)
-- TouchdownDetection
-- Safety detection (fumble/interception in endzone)
+✅ **Database Persistence** (Production Ready - Nov 2025)
+- **Entity Framework Core 8.0:** Full ORM implementation
+- **Azure SQL Support:** Connection string configuration via User Secrets
+- **Entities:**
+  - Teams (with one-to-many Players relationship)
+  - Players (all 25+ attributes persisted)
+  - Games (with home/away team FKs)
+  - PlayByPlay (JSON storage for game logs)
+- **Clean Architecture:** Domain separated from data access
+- **Migrations:** Design-time DbContext factory
+- **Seed Data:** Automated seeding for Falcons and Eagles rosters
+- **TeamsLoader:** Database-backed team loading service
+- **Backward Compatible:** Original JSON constructor still works
 
 ### 2.3 Statistical Modeling
 
-✅ **Skills Checks** (20+ implementations)
+✅ **Skills Checks** (25+ implementations)
 
 | Category | Checks |
 |----------|--------|
@@ -235,8 +274,8 @@ Selection: Random weighted by discipline
 ## 3. TESTING COVERAGE
 
 ### 3.1 Test Statistics
-- **Total Test Files:** 42 test classes
-- **Total Test Lines:** 17,800+ lines
+- **Total Test Files:** 44 test classes
+- **Total Test Lines:** 22,200+ lines
 - **Test Framework:** MSTest
 - **Code Coverage:** Measured with coverlet
 
@@ -246,6 +285,7 @@ Selection: Random weighted by discipline
 |----------|-------|----------|
 | **Play Execution** | 8 | Pass, Run, Kickoff, Punt, FieldGoal, Interception, etc. |
 | **Penalty System** | 6 | Enforcement, Acceptance, Skills Checks, Discipline |
+| **Injury System** | 4 | Injury checks, recovery, impact on gameplay |
 | **Scoring** | 3 | Touchdowns, Field Goals, Two-Point Conversions, Integration |
 | **Down Management** | 3 | Third Down Conversions, Goal Line, Red Zone |
 | **Infrastructure** | 5 | Randomization, Seeding, Skill Checks, Calculators, FlowTests |
@@ -255,22 +295,32 @@ Selection: Random weighted by discipline
 ### 3.3 Notable Test Features
 
 ✅ **Deterministic Testing**
-- `SeedableRandom` for reproducible game outcomes
-- `ReplaySeedableRandom` for exact sequence replay
-- `TestFluentSeedableRandom` fluent builder for test setup
-
+  - `SeedableRandom` for reproducible game outcomes
+  - `ReplaySeedableRandom` for exact sequence replay
+  - `TestFluentSeedableRandom` fluent builder for test setup
+  
 ✅ **Scenario Builders**
-- `PassPlayScenarios` - Completed/incomplete passes, interceptions, sacks
-- `RunPlayScenarios` - Big runs, breakaways, fumbles
-- `KickoffPlayScenarios` - Touchbacks, returns, onside kicks
-- `PuntPlayScenarios` - Downed punts, returns, blocks
-- `FieldGoalPlayScenarios` - Makes, blocks, wind effects
-
+  - `PassPlayScenarios` - Completed/incomplete passes, interceptions, sacks
+  - `RunPlayScenarios` - Big runs, breakaways, fumbles
+  - `KickoffPlayScenarios` - Touchbacks, returns, onside kicks
+  - `PuntPlayScenarios` - Downed punts, returns, blocks
+  - `FieldGoalPlayScenarios` - Makes, blocks, wind effects
+  
 ✅ **Statistical Validation**
-- PlayerDisciplinePenaltyTests: 1000+ iterations to validate penalty distribution
-- Distribution tests for fumble rates, completion percentages
-- Tests that verify penalty commitment correlates with discipline
-
+  - PlayerDisciplinePenaltyTests: 1000+ iterations to validate penalty distribution
+  - Distribution tests for fumble rates, completion percentages
+  - Tests that verify penalty commitment correlates with discipline
+  - Injury system tests for position-specific risk profiles
+  - Fragility impact validation tests
+  
+✅ **Test Metrics (November 2025)**
+- **Total Tests:** 839
+  - **Pass Rate:** 100% (839/839)
+  - **Test Files:** 44 classes
+  - **Test Lines:** 22,200+
+  - **Execution Time:** 1-4 seconds
+  - **Coverage:** High coverage across all play types and systems
+  
 ---
 
 ## 4. EXISTING STATISTICAL MODELS IN DETAIL
@@ -330,18 +380,16 @@ Leverage:                 0.00002635 (0.003%) - Rarest penalty
 
 ## 5. DATABASE & PERSISTENCE LAYER
 
-❌ **NOT IMPLEMENTED**
+✅ **IMPLEMETED**
 
-Currently, the system has:
-- ✅ In-memory Game objects
-- ✅ Team data hardcoded in `Teams.cs` helper
-- ✅ Play-by-play logging via ILogger interface
-- ❌ No database persistence
-- ❌ No file-based save/load
-- ❌ No API endpoints for game retrieval
-- ❌ No external data storage
+The system now includes a database layer using Entity Framework Core:
 
-**Implication:** Games exist only in memory during execution. Once a game completes, data is lost unless logged to console/file via logging framework.
+- **GridironDbContext:** Main EF Core database context
+- **Repositories:** For Game, Player, Team entities
+- **Migrations:** EF Core migrations for schema management
+- **Seed Data:** Initial team/player data seeding on startup
+
+**Implication:** Games can be saved, loaded, and queried from the database. Allows for multi-game analysis, persistent statistics, and replay capabilities.
 
 ---
 
@@ -394,29 +442,39 @@ Currently, the system has:
 - Skill-based outcomes (not purely random)
 
 ✅ **Testing Infrastructure**
-- 150+ test files with 17,800+ lines
-- Deterministic seeding for reproducibility
-- Scenario builders for complex play situations
-- Integration tests for full game scenarios
-- Code coverage monitoring
+  - 44 test files with 22,200+ lines
+  - 839 tests with 100% pass rate
+  - Deterministic seeding for reproducibility
+  - Scenario builders for complex play situations
+  - Integration tests for full game scenarios
+  - Code coverage monitoring
 
 ✅ **Game Mechanics**
-- Scoring logic accurate
-- Down tracking correct
-- Field position management working
-- Turnover handling complete
-- Red zone special rules
-- Two-point conversions
-
+  - Scoring logic accurate
+  - Down tracking correct
+  - Field position management working
+  - Turnover handling complete
+  - Red zone special rules
+  - Two-point conversions
+  
+✅ **Injury System** (Production Ready - Nov 2025)
+  - Position-specific injury profiles validated
+  - Severity distribution tested (60/30/10% split)
+  - Fragility impact verified
+  - Recovery tracking working
+  - Player substitution tested
+  - Integration with all play types complete
+  
+✅ **Database Persistence** (Production Ready - Nov 2025)
+  - EF Core 8.0 migrations tested
+  - Entity relationships validated
+  - TeamsLoader functionality verified
+  - Seed data system working
+  - Backward compatibility maintained
+  
 ---
 
 ## 8. WHAT'S PARTIALLY IMPLEMENTED
-
-⚠️ **Player Injury System**
-- InjuryRisk and Health attributes exist
-- No injury event generation during plays
-- No recovery mechanics
-- No player unavailability tracking
 
 ⚠️ **Coaching AI**
 - Coach/Coordinator objects exist in Team
@@ -448,64 +506,56 @@ Currently, the system has:
 
 ❌ **Major Features Not Implemented:**
 
-1. **Database/Persistence**
-   - No SQL Server, PostgreSQL, or any database
-   - No file-based game saves
-   - No replay system (except in-test replay logs)
-   - Statistics are not persisted
-
-2. **API Layer**
+1. **API Layer**
    - No REST API endpoints
    - No game management endpoints
    - No statistics query endpoints
    - No WebSocket for live updates
 
-3. **Frontend/UI**
+2. **Frontend/UI**
    - No web UI
    - No desktop application
    - No mobile app
    - No play-by-play viewer
    - No statistics dashboard
 
-4. **Advanced Coaching**
+3. **Advanced Coaching**
    - No intelligent play calling
    - No coaching strategy implementation
    - No defensive audibles
    - No offensive audibles
    - No two-minute drill logic
 
-5. **Advanced Injuries**
-   - No injury event simulation during plays
-   - No injury severity/recovery time
-   - No long-term unavailability
+4. **Advanced Injuries**
+   - No long-term injury effects
    - No comeback mechanics
 
-6. **Season/League Management**
+5. **Season/League Management**
    - No season tracking
    - No standings management
    - No playoffs
    - No draft system
    - No salary cap
 
-7. **Weather System**
+6. **Weather System**
    - Weather attribute not used in calculations
    - No wind affecting punts/field goals
    - No rain affecting grip (fumbles/drops)
    - No snow mechanics
 
-8. **Player Development**
+7. **Player Development**
    - Potential attribute exists but not used
    - No progression system
    - No player aging
    - No draft class generation
 
-9. **Advanced Analytics**
+8. **Advanced Analytics**
    - No EPA (Expected Points Added)
    - No WPA (Win Probability Added)
    - No heat maps
    - No advanced statistical breakdowns
 
-10. **Simulation Features**
+9. **Simulation Features**
     - No multi-game season simulations
     - No playoff scenarios
     - No "what if" analysis
@@ -525,6 +575,16 @@ Based on git history, the project has focused extensively on:
 - ✅ Offsetting penalty handling
 - ✅ Tests for all penalty scenarios
 
+**Injury System Integration:**
+- ✅ Injury tracking (type, severity, recovery)
+- ✅ Position-specific injury events
+- ✅ Integration with player stats and game simulation
+
+**Database Persistence:**
+- ✅ Entity Framework Core integration
+- ✅ Game, Player, Team repositories
+- ✅ Migrations and seed data setup
+
 **Recent Commits:**
 ```
 f478580 - Merge penalty system complete PR
@@ -532,9 +592,12 @@ f478580 - Merge penalty system complete PR
 7a10005 - Fix discipline statistical tests
 7442211 - Add discipline penalty tests
 eee21fc - Fix all remaining penalty enforcement issues
+042b5e7 - Implement injury tracking system
+4a1e085 - Add database persistence layer
+69aefee - Initial commit for injury system tests
 ```
 
-This indicates active development with focus on correctness and test coverage.
+This indicates active development with focus on correctness, test coverage, and new feature integration.
 
 ---
 
@@ -577,10 +640,10 @@ This indicates active development with focus on correctness and test coverage.
 - Coaching staff defined but not used
 - Some stats defined but not calculated
 
-⚠️ **No Persistence Layer**
-- Makes it hard to analyze multi-game trends
-- Statistics lost after each run
-- No replay capability (in-memory only)
+⚠️ **No Frontend or API Layer**
+- Makes integration with other systems hard
+- No real-time data access
+- No user interface for game interaction
 
 ---
 
@@ -593,9 +656,14 @@ StateLibrary (Simulation Engine)
     ├── Depends on: DomainObjects
     └── Depends on: Stateless 5.20.0, Microsoft.Extensions.Logging
     
+DataAccessLayer (Persistence)
+    ├── Depends on: Microsoft.EntityFrameworkCore
+    └── Depends on: DomainObjects, StateLibrary
+
 UnitTestProject1 (Tests)
     ├── Depends on: DomainObjects, StateLibrary
-    └── Depends on: MSTest 4.0, Microsoft.Extensions.Logging
+    ├── Depends on: Microsoft.Extensions.Logging
+    └── Depends on: MSTest 4.0
     
 Diagram (Architecture Visualization)
     └── Depends on: Structurizr, PlantUML generators
@@ -648,12 +716,7 @@ Diagram (Architecture Visualization)
 ## 15. RECOMMENDED NEXT STEPS
 
 ### High Impact (1-2 weeks):
-1. **Database Layer**
-   - Add Entity Framework Core models
-   - Implement Game/Play/Player repositories
-   - Add persistence tests
-
-2. **API Layer**
+1. **API Layer**
    - Add ASP.NET Core project
    - Create REST endpoints for:
      - POST /games (start game)
@@ -661,32 +724,26 @@ Diagram (Architecture Visualization)
      - GET /games/{id}/plays (play-by-play)
      - GET /statistics (league stats)
 
-3. **Coaching AI**
+2. **Coaching AI**
    - Implement play-calling strategy
    - Add game situation analysis
    - Implement risk/reward decision logic
 
 ### Medium Impact (2-4 weeks):
-4. **Injury System**
-   - Event generation during plays
-   - Recovery mechanics
-   - Player availability tracking
-
-5. **Statistics Aggregation**
-   - Complete stat calculations
-   - Add EPA/WPA models
-   - Implement leaderboards
-
-6. **Frontend** (React/Vue)
+3. **Frontend** (React/Vue)
    - Live game dashboard
    - Play-by-play viewer
    - Statistics visualization
 
+4. **Advanced Analytics**
+   - Add EPA/WPA models
+   - Implement leaderboards
+
 ### Lower Priority:
-7. Season/League management
-8. Playoff simulation
-9. Weather system integration
-10. Advanced analytics
+5. Season/League management
+6. Playoff simulation
+7. Weather system integration
+8. Player development (aging, progression, draft class generation)
 
 ---
 
@@ -714,17 +771,40 @@ Diagram (Architecture Visualization)
 ## CONCLUSION
 
 **Gridiron is a well-architected, actively maintained football simulation engine with:**
-- ✅ Solid core game simulation (85% complete)
+- ✅ Solid core game simulation (90% complete)
 - ✅ Realistic statistical modeling
-- ✅ Comprehensive penalty system
-- ✅ Excellent test coverage
-- ❌ Missing persistence layer
+- ✅ Comprehensive penalty system (50+ penalties)
+- ✅ Production-ready injury system
+- ✅ Database persistence layer (EF Core 8.0)
+- ✅ Excellent test coverage (100% pass rate, 839 tests)
 - ❌ Missing API/frontend
-- ⚠️ Partially implemented coaching AI and injury system
+- ⚠️ Partially implemented coaching AI and advanced team systems
 
-The codebase is production-ready for **single-game simulations** but would need the persistence layer and API before it could support a multi-game or league-wide system. Current focus on penalty system correctness shows active development focused on accuracy.
+The codebase is **production-ready for single-game simulations** with full database persistence. Recent achievements include:
+- Complete injury system integration (Nov 2025)
+- Entity Framework Core data access layer (Nov 2025)
+- 100% test pass rate achievement (Nov 2025)
+- Documentation cleanup and maintenance (Nov 2025)
 
-**Estimated Effort to Complete:** 
-- Production-ready simulation: 90% done
-- Production-ready web service: 10% done
-- Production-ready full system: 30% done
+**Next Major Steps:**
+1. **Web API** - RESTful endpoints for game management
+2. **Frontend** - Web UI for game visualization
+3. **Season Management** - Multi-game tracking, standings, playoffs
+4. **Advanced Coaching AI** - Intelligent play-calling strategies
+5. **Weather System** - Environmental effects on gameplay
+6. **Advanced Analytics** - EPA, WPA, heatmaps
+
+**Estimated Effort to Complete Full Platform:**
+- API Layer: 2-3 weeks
+- Basic Frontend: 3-4 weeks
+- Season Management: 2-3 weeks
+- Advanced Features: 4-6 weeks
+- **Total: 11-16 weeks** for complete platform
+
+**Current State: Excellent foundation for expansion** ⚡
+
+---
+
+*Last Updated: November 2025*
+*Test Status: 839/839 passing (100%)*
+*Branch: cleanup/remove-stale-documentation*

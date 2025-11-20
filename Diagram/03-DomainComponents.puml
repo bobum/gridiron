@@ -1,0 +1,52 @@
+@startuml
+title Gridiron Simulation System - DomainObjects - Components
+caption Domain objects: entities, value objects, and helpers
+component "DataAccessLayer" <<Container>> as 12
+component "StateLibrary" <<Container>> as 11
+package DomainObjects {
+  component "FieldGoalPlay" <<C# Class>> as 37
+  component "FieldPositionHelper" <<C# Class>> as 48
+  component "Fumble" <<C# Class>> as 44
+  component "Game" <<C# Class>> as 29
+  component "Half" <<C# Class>> as 50
+  component "Injury" <<C# Class>> as 43
+  component "IPlay" <<Interface>> as 32
+  component "IPlaySegment" <<Interface>> as 38
+  component "KickoffPlay" <<C# Class>> as 35
+  component "PassPlay" <<C# Class>> as 33
+  component "PassSegment" <<C# Class>> as 39
+  component "Penalty" <<C# Class>> as 42
+  component "PlayByPlay" <<C# Class>> as 51
+  component "Player" <<C# Class>> as 30
+  component "PuntPlay" <<C# Class>> as 36
+  component "Quarter" <<C# Class>> as 49
+  component "ReplayLog" <<C# Class>> as 47
+  component "ReturnSegment" <<C# Class>> as 41
+  component "RunPlay" <<C# Class>> as 34
+  component "RunSegment" <<C# Class>> as 40
+  component "SeedableRandom" <<C# Class>> as 46
+  component "Team" <<C# Class>> as 31
+  component "Teams" <<C# Class>> as 45
+}
+37 ..> 41 : Contains return segments if blocked
+44 ..> 30 : Fumbled by, recovered by players
+29 ..> 50 : Tracks current half
+29 ..> 32 : Contains list of plays
+29 ..> 49 : Tracks current quarter
+29 ..> 47 : Logs play-by-play events
+29 ..> 31 : Has home and away teams
+43 ..> 30 : Tracks injured player
+32 ..> 44 : Can have fumbles
+32 ..> 43 : Can have injuries
+32 ..> 38 : Contains segments
+32 ..> 42 : Can have penalties
+35 ..> 41 : Contains return segments
+33 ..> 39 : Contains pass segments
+33 ..> 30 : Has passer and receivers
+42 ..> 30 : Committed by player
+36 ..> 41 : Contains return segments
+34 ..> 40 : Contains run segments
+31 ..> 30 : Has roster of players
+31 ..> 45 : Created by Teams helper
+@enduml
+

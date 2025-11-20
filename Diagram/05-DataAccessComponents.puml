@@ -1,0 +1,19 @@
+@startuml
+title Gridiron Simulation System - DataAccessLayer - Components
+caption Entity Framework Core persistence layer
+component "Azure SQL Database" <<Software System>> as 4
+component "DomainObjects" <<Container>> as 10
+package DataAccessLayer {
+  component "GridironDbContext" <<C# Class>> as 172
+  component "GridironDbContextFactory" <<C# Class>> as 173
+  component "Migrations" <<C# Classes>> as 176
+  component "TeamSeeder" <<C# Class>> as 175
+  component "TeamsLoader" <<C# Class>> as 174
+}
+172 ..> 4 : Executes SQL queries
+173 ..> 172 : Creates instances
+176 ..> 172 : Updates schema
+175 ..> 172 : Inserts seed data
+174 ..> 172 : Queries teams and players
+@enduml
+
