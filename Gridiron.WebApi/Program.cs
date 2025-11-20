@@ -46,6 +46,13 @@ builder.Services.AddScoped<IGameRepository, GameRepository>();
 // ========================================
 builder.Services.AddScoped<IGameSimulationService, GameSimulationService>();
 
+// ========================================
+// GAME MANAGEMENT SERVICES
+// ========================================
+builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
+builder.Services.AddScoped<GameManagement.Services.ITeamBuilderService, GameManagement.Services.TeamBuilderService>();
+builder.Services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
+
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
