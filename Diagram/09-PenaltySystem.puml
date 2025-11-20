@@ -1,0 +1,33 @@
+@startuml
+title Gridiron Simulation System - StateLibrary - Components
+caption 50+ NFL penalties with enforcement logic
+package StateLibrary {
+  component "BlockingPenaltyOccurredSkillsCheck" <<C# Class>> as 107
+  component "CoveragePenaltyOccurredSkillsCheck" <<C# Class>> as 108
+  component "Game" <<C# Class>> as 29
+  component "Pass (Play)" <<C# Class>> as 82
+  component "PassResult" <<C# Class>> as 87
+  component "Penalty" <<C# Class>> as 42
+  component "PenaltyEffectSkillsCheckResult" <<C# Class>> as 111
+  component "PenaltyEnforcement (Service)" <<C# Class>> as 112
+  component "Player" <<C# Class>> as 30
+  component "PostPlay (Action)" <<C# Class>> as 80
+  component "PostPlayPenaltyOccurredSkillsCheck" <<C# Class>> as 110
+  component "PrePlay (Action)" <<C# Class>> as 78
+  component "PreSnapPenaltyOccurredSkillsCheck" <<C# Class>> as 106
+  component "Run (Play)" <<C# Class>> as 81
+  component "RunResult" <<C# Class>> as 86
+  component "TacklePenaltyOccurredSkillsCheck" <<C# Class>> as 109
+}
+82 ..> 108 : Checks PI
+82 ..> 109 : Checks facemask
+87 ..> 112 : Enforces penalties
+42 ..> 30 : Committed by player
+80 ..> 112 : Enforces penalties
+80 ..> 110 : Checks post-play penalties
+78 ..> 106 : Checks pre-snap penalties
+81 ..> 107 : Checks holding
+81 ..> 109 : Checks facemask
+86 ..> 112 : Enforces penalties
+@enduml
+
