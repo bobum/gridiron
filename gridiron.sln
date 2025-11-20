@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAcce
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6579C18-0875-4E83-A92C-9D914FAEA822}"
 	ProjectSection(SolutionItems) = preProject
+		API_TESTING_GUIDE.md = API_TESTING_GUIDE.md
+		ARCHITECTURE_PRINCIPLES.md = ARCHITECTURE_PRINCIPLES.md
 		ARCHITECTURE_SUMMARY.txt = ARCHITECTURE_SUMMARY.txt
 		CODEBASE_ANALYSIS.md = CODEBASE_ANALYSIS.md
 		DATABASE_SETUP.md = DATABASE_SETUP.md
@@ -24,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diagram", "Diagram\Diagram.csproj", "{3258BCA3-7F00-4AEF-9CCB-C7B54B4557C6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GridironConsole", "GridironConsole\GridironConsole.csproj", "{D8F9A4C1-1234-4567-89AB-CDEF01234567}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gridiron.WebApi", "Gridiron.WebApi\Gridiron.WebApi.csproj", "{A1B2C3D4-AAAA-BBBB-CCCC-123456789ABC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,10 @@ Global
 		{D8F9A4C1-1234-4567-89AB-CDEF01234567}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8F9A4C1-1234-4567-89AB-CDEF01234567}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8F9A4C1-1234-4567-89AB-CDEF01234567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-AAAA-BBBB-CCCC-123456789ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-AAAA-BBBB-CCCC-123456789ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-AAAA-BBBB-CCCC-123456789ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-AAAA-BBBB-CCCC-123456789ABC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
