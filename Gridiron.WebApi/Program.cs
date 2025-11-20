@@ -20,10 +20,10 @@ builder.Services.AddSwaggerGen(options =>
 // Configure database
 builder.Services.AddDbContext<GridironDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var connectionString = builder.Configuration.GetConnectionString("GridironDb");
     if (string.IsNullOrEmpty(connectionString))
     {
-        throw new InvalidOperationException("Database connection string 'DefaultConnection' not found");
+        throw new InvalidOperationException("Database connection string 'GridironDb' not found");
     }
     options.UseSqlServer(connectionString);
 });

@@ -34,19 +34,36 @@ A REST API built on ASP.NET Core 8.0 for running football game simulations and a
 ### Prerequisites
 
 - .NET 8.0 SDK
-- SQL Server (LocalDB or full instance)
+- Azure SQL Database (or SQL Server instance)
 
 ### Configuration
 
-Update the connection string in `appsettings.json`:
+The API uses the same Azure SQL Database configuration as the rest of the project.
+
+**Option 1: User Secrets (Recommended)**
+
+```bash
+cd Gridiron.WebApi
+dotnet user-secrets set "ConnectionStrings:GridironDb" "Server=tcp:YOUR_SERVER.database.windows.net,1433;Initial Catalog=YOUR_DATABASE;User ID=YOUR_USERNAME;Password=YOUR_PASSWORD;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+```
+
+**Option 2: Update `appsettings.json`**
+
+Replace the placeholder values in `appsettings.json`:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=GridironDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "GridironDb": "Server=tcp:YOUR_SERVER.database.windows.net,1433;Initial Catalog=YOUR_DATABASE;User ID=YOUR_USERNAME;Password=YOUR_PASSWORD;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
   }
 }
 ```
+
+Replace:
+- `YOUR_SERVER` - Azure SQL server name
+- `YOUR_DATABASE` - Database name
+- `YOUR_USERNAME` - SQL admin username
+- `YOUR_PASSWORD` - SQL admin password
 
 ### Running the API
 
