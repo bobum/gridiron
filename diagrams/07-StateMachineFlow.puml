@@ -1,0 +1,37 @@
+@startuml
+title Gridiron Simulation System - StateLibrary - Components
+caption Detailed state machine flow showing 19 states and transitions
+package StateLibrary {
+  component "CoinToss (Action)" <<C# Class>> as 77
+  component "FieldGoal (Play)" <<C# Class>> as 85
+  component "FieldGoalResult" <<C# Class>> as 90
+  component "GameFlow" <<C# Class>> as 72
+  component "Kickoff (Play)" <<C# Class>> as 83
+  component "KickoffResult" <<C# Class>> as 88
+  component "Pass (Play)" <<C# Class>> as 82
+  component "PassResult" <<C# Class>> as 87
+  component "PostPlay (Action)" <<C# Class>> as 80
+  component "PreGame (Action)" <<C# Class>> as 76
+  component "PrePlay (Action)" <<C# Class>> as 78
+  component "Punt (Play)" <<C# Class>> as 84
+  component "PuntResult" <<C# Class>> as 89
+  component "Run (Play)" <<C# Class>> as 81
+  component "RunResult" <<C# Class>> as 86
+  component "Snap (Action)" <<C# Class>> as 79
+  component "State (enum)" <<Enum>> as 74
+  component "StateMachine<State, Trigger>" <<Stateless Library>> as 73
+  component "Trigger (enum)" <<Enum>> as 75
+}
+77 ..> 78 : Transitions to
+72 ..> 73 : Configures and fires triggers
+76 ..> 77 : Transitions to
+78 ..> 79 : Checks for bad snap
+79 ..> 85 : Snap ? Field Goal (conditional)
+79 ..> 83 : Snap ? Kickoff (conditional)
+79 ..> 82 : Snap ? Pass (conditional)
+79 ..> 84 : Snap ? Punt (conditional)
+79 ..> 81 : Snap ? Run (conditional)
+73 ..> 74 : Uses states
+73 ..> 75 : Uses triggers
+@enduml
+

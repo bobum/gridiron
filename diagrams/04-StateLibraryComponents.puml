@@ -1,0 +1,104 @@
+@startuml
+title Gridiron Simulation System - StateLibrary - Components
+caption State machine, play execution, skills checks, penalties, and injury system
+component "DomainObjects" <<Container>> as 10
+component "Logging System" <<Software System>> as 5
+package StateLibrary {
+  component "BigRunSkillsCheck" <<C# Class>> as 96
+  component "BlockingPenaltyOccurredSkillsCheck" <<C# Class>> as 107
+  component "BlockingSuccessSkillsCheck" <<C# Class>> as 94
+  component "CoinToss (Action)" <<C# Class>> as 77
+  component "CoveragePenaltyOccurredSkillsCheck" <<C# Class>> as 108
+  component "FairCatchOccurredSkillsCheck" <<C# Class>> as 104
+  component "FieldGoal (Play)" <<C# Class>> as 85
+  component "FieldGoalBlockOccurredSkillsCheck" <<C# Class>> as 101
+  component "FieldGoalMakeOccurredSkillsCheck" <<C# Class>> as 100
+  component "FieldGoalResult" <<C# Class>> as 90
+  component "FumbleOccurredSkillsCheck" <<C# Class>> as 97
+  component "FumbleRecoverySkillsCheckResult" <<C# Class>> as 98
+  component "GameFlow" <<C# Class>> as 72
+  component "GameProbabilities" <<C# Class>> as 115
+  component "InjuryEffectSkillsCheckResult" <<C# Class>> as 114
+  component "InjuryOccurredSkillsCheck" <<C# Class>> as 113
+  component "InjuryProbabilities" <<C# Class>> as 116
+  component "InterceptionOccurredSkillsCheck" <<C# Class>> as 93
+  component "Kickoff (Play)" <<C# Class>> as 83
+  component "KickoffResult" <<C# Class>> as 88
+  component "LineBattleCalculator" <<C# Class>> as 118
+  component "MuffedCatchOccurredSkillsCheck" <<C# Class>> as 105
+  component "Pass (Play)" <<C# Class>> as 82
+  component "PassCompletionSkillsCheck" <<C# Class>> as 91
+  component "PassProtectionSkillsCheck" <<C# Class>> as 92
+  component "PassResult" <<C# Class>> as 87
+  component "PenaltyEffectSkillsCheckResult" <<C# Class>> as 111
+  component "PenaltyEnforcement (Service)" <<C# Class>> as 112
+  component "PostPlay (Action)" <<C# Class>> as 80
+  component "PostPlayPenaltyOccurredSkillsCheck" <<C# Class>> as 110
+  component "PreGame (Action)" <<C# Class>> as 76
+  component "PrePlay (Action)" <<C# Class>> as 78
+  component "PreSnapPenaltyOccurredSkillsCheck" <<C# Class>> as 106
+  component "Punt (Play)" <<C# Class>> as 84
+  component "PuntBlockOccurredSkillsCheck" <<C# Class>> as 103
+  component "PuntDistanceSkillsCheckResult" <<C# Class>> as 102
+  component "PuntResult" <<C# Class>> as 89
+  component "Run (Play)" <<C# Class>> as 81
+  component "RunResult" <<C# Class>> as 86
+  component "Snap (Action)" <<C# Class>> as 79
+  component "State (enum)" <<Enum>> as 74
+  component "StateMachine<State, Trigger>" <<Stateless Library>> as 73
+  component "StatsAccumulator (Service)" <<C# Class>> as 117
+  component "TackleBreakSkillsCheck" <<C# Class>> as 95
+  component "TacklePenaltyOccurredSkillsCheck" <<C# Class>> as 109
+  component "TeamPowerCalculator" <<C# Class>> as 119
+  component "Trigger (enum)" <<Enum>> as 75
+  component "YardsAfterCatchSkillsCheck" <<C# Class>> as 99
+}
+77 ..> 78 : Transitions to
+85 ..> 101 : Checks blocks
+85 ..> 100 : Checks make/miss
+72 ..> 73 : Configures and fires triggers
+113 ..> 116 : Uses probability tables
+83 ..> 104 : Checks fair catch
+83 ..> 97 : Checks fumbles
+83 ..> 113 : Checks injuries
+82 ..> 108 : Checks PI
+82 ..> 97 : Checks fumbles
+82 ..> 113 : Checks injuries
+82 ..> 93 : Checks interceptions
+82 ..> 91 : Checks completion
+82 ..> 92 : Checks sacks
+82 ..> 109 : Checks facemask
+82 ..> 99 : Calculates YAC
+87 ..> 112 : Enforces penalties
+87 ..> 117 : Accumulates stats
+80 ..> 112 : Enforces penalties
+80 ..> 110 : Checks post-play penalties
+76 ..> 77 : Transitions to
+78 ..> 106 : Checks pre-snap penalties
+78 ..> 79 : Checks for bad snap
+84 ..> 104 : Checks fair catch
+84 ..> 97 : Checks fumbles
+84 ..> 113 : Checks injuries
+84 ..> 105 : Checks muffs
+84 ..> 103 : Checks blocks
+84 ..> 102 : Calculates distance
+89 ..> 112 : Enforces penalties
+81 ..> 96 : Checks breakaway
+81 ..> 107 : Checks holding
+81 ..> 94 : Checks blocking
+81 ..> 97 : Checks fumbles
+81 ..> 114 : Determines injury details
+81 ..> 113 : Checks injuries
+81 ..> 95 : Checks tackle breaks
+81 ..> 109 : Checks facemask
+86 ..> 112 : Enforces penalties
+86 ..> 117 : Accumulates stats
+79 ..> 85 : Snap ? Field Goal (conditional)
+79 ..> 83 : Snap ? Kickoff (conditional)
+79 ..> 82 : Snap ? Pass (conditional)
+79 ..> 84 : Snap ? Punt (conditional)
+79 ..> 81 : Snap ? Run (conditional)
+73 ..> 74 : Uses states
+73 ..> 75 : Uses triggers
+@enduml
+

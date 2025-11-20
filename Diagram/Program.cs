@@ -423,6 +423,7 @@ puntExecution.Uses(injuryOccurredCheck, "Checks injuries");
 fieldGoalExecution.Uses(fieldGoalMakeCheck, "Checks make/miss");
 fieldGoalExecution.Uses(fieldGoalBlockCheck, "Checks blocks");
 
+
 // Results use penalty enforcement
 runResult.Uses(penaltyEnforcement, "Enforces penalties");
 runResult.Uses(statsAccumulator, "Accumulates stats");
@@ -668,18 +669,45 @@ injurySystemView.PaperSize = PaperSize.A3_Landscape;
 
 var plantUmlWriter = new PlantUMLWriter();
 
+// Get the solution root directory by finding the .sln file
+var currentDir = Directory.GetCurrentDirectory();
+var solutionDir = currentDir;
+
+// Navigate up to find the solution directory
+while (solutionDir != null && !Directory.GetFiles(solutionDir, "*.sln").Any())
+{
+    var parent = Directory.GetParent(solutionDir);
+    if (parent == null) break;
+    solutionDir = parent.FullName;
+}
+
+// If we couldn't find .sln, assume we're in a subdirectory and go up one level
+if (!Directory.GetFiles(solutionDir, "*.sln").Any())
+{
+ solutionDir = Directory.GetParent(currentDir)?.FullName ?? currentDir;
+}
+
+var outputPath = Path.Combine(solutionDir, "diagrams");
+
+// Create diagrams directory if it doesn't exist
+if (!Directory.Exists(outputPath))
+{
+    Directory.CreateDirectory(outputPath);
+}
+
 void WriteView(View view, string filename)
 {
-using (var writer = new StreamWriter(filename))
+ var fullPath = Path.Combine(outputPath, filename);
+using (var writer = new StreamWriter(fullPath))
     {
         switch (view)
-        {
-          case SystemLandscapeView v: plantUmlWriter.Write(v, writer); break;
-case SystemContextView v: plantUmlWriter.Write(v, writer); break;
-            case ContainerView v: plantUmlWriter.Write(v, writer); break;
-            case ComponentView v: plantUmlWriter.Write(v, writer); break;
-     }
-    }
+ {
+ case SystemLandscapeView v: plantUmlWriter.Write(v, writer); break;
+   case SystemContextView v: plantUmlWriter.Write(v, writer); break;
+     case ContainerView v: plantUmlWriter.Write(v, writer); break;
+     case ComponentView v: plantUmlWriter.Write(v, writer); break;
+        }
+  }
     Console.WriteLine($"  ? Generated {filename}");
 }
 
@@ -687,7 +715,7 @@ Console.WriteLine("=============================================================
 Console.WriteLine("GRIDIRON FOOTBALL SIMULATION - C4 DIAGRAM GENERATION");
 Console.WriteLine("================================================================================");
 Console.WriteLine($"System: {workspace.Name}");
-Console.WriteLine($"Generated: 10 architecture views");
+Console.WriteLine($"Output: {outputPath}");
 Console.WriteLine();
 Console.WriteLine("Generating PlantUML diagrams...");
 Console.WriteLine();
@@ -710,7 +738,8 @@ Console.WriteLine("=============================================================
 Console.WriteLine();
 Console.WriteLine("To generate PNG images:");
 Console.WriteLine("  1. Install PlantUML: https://plantuml.com/download");
-Console.WriteLine("  2. Run: plantuml *.puml");
+Console.WriteLine("  2. Navigate to diagrams directory: cd diagrams");
+Console.WriteLine("  3. Run: plantuml *.puml");
 Console.WriteLine();
 Console.WriteLine("Diagrams:");
 Console.WriteLine("  01 - System Context (users and external systems)");
