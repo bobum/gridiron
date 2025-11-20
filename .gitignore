@@ -274,3 +274,4 @@ appsettings.*.local.json
 
 # Keep EF Core migrations (these should be committed)
 !**/Migrations/
+/coveragereport
