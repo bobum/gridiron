@@ -73,7 +73,8 @@ public class TeamBuilderServiceTests
 
         // Assert
         team.HeadCoach.Should().NotBeNull();
-        team.HeadCoach.Name.Should().Be("Head Coach");
+        team.HeadCoach.FirstName.Should().Be("Head");
+        team.HeadCoach.LastName.Should().Be("Coach");
         team.OffensiveCoordinator.Should().NotBeNull();
         team.DefensiveCoordinator.Should().NotBeNull();
         team.SpecialTeamsCoordinator.Should().NotBeNull();
