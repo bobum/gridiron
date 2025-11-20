@@ -1,0 +1,34 @@
+Running Code Coverage
+
+  Run your tests with code coverage collection:
+
+  dotnet test --collect:"XPlat Code Coverage"
+
+  This will generate coverage files in the TestResults folder.
+
+  Generating HTML Reports
+
+  To see which lines are covered/uncovered, you'll want to install
+  ReportGenerator as a global tool:
+
+  dotnet tool install --global dotnet-reportgenerator-globaltool
+
+  Then generate an HTML report from the coverage data:
+
+  reportgenerator -reports:"**/coverage.cobertura.xml"
+  -targetdir:"coveragereport" -reporttypes:Html
+
+  After running this, open coveragereport/index.html in your browser
+  to see:
+  - Overall coverage percentage
+  - Coverage by project/file
+  - Line-by-line highlighting showing which lines are covered (green)
+  and not covered (red)
+
+  Quick Command to Run Both
+
+  You can chain these commands together:
+
+  dotnet test --collect:"XPlat Code Coverage" && reportgenerator
+  -reports:"**/coverage.cobertura.xml" -targetdir:"coveragereport"
+  -reporttypes:Html
