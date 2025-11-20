@@ -325,8 +325,8 @@ public class GameSimulationServiceTests
                 Passing = position == Positions.QB ? 80 : 0,
                 Catching = (position == Positions.WR || position == Positions.TE) ? 75 : 0,
                 Rushing = position == Positions.RB ? 75 : 0,
-                Blocking = position == Positions.OL ? 80 : 0,
-                Tackling = (position == Positions.DL || position == Positions.LB) ? 75 : 0,
+                Blocking = (position == Positions.C || position == Positions.G || position == Positions.T) ? 80 : 0,
+                Tackling = (position == Positions.DT || position == Positions.DE || position == Positions.LB) ? 75 : 0,
                 Coverage = (position == Positions.CB || position == Positions.S) ? 75 : 0,
                 Kicking = (position == Positions.K || position == Positions.P) ? 80 : 0,
                 Health = 100
