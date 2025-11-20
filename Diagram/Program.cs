@@ -1,4 +1,4 @@
-using Structurizr;
+﻿using Structurizr;
 using Structurizr.IO.PlantUML;
 using System.IO;
 
@@ -384,11 +384,11 @@ preGameAction.Uses(coinTossAction, "Transitions to");
 coinTossAction.Uses(prePlayAction, "Transitions to");
 prePlayAction.Uses(snapAction, "Checks for bad snap");
 prePlayAction.Uses(preSnapPenaltyCheck, "Checks pre-snap penalties");
-snapAction.Uses(runExecution, "Snap ? Run (conditional)");
-snapAction.Uses(passExecution, "Snap ? Pass (conditional)");
-snapAction.Uses(kickoffExecution, "Snap ? Kickoff (conditional)");
-snapAction.Uses(puntExecution, "Snap ? Punt (conditional)");
-snapAction.Uses(fieldGoalExecution, "Snap ? Field Goal (conditional)");
+snapAction.Uses(runExecution, "Snap → Run (conditional)");
+snapAction.Uses(passExecution, "Snap → Pass (conditional)");
+snapAction.Uses(kickoffExecution, "Snap → Kickoff (conditional)");
+snapAction.Uses(puntExecution, "Snap → Punt (conditional)");
+snapAction.Uses(fieldGoalExecution, "Snap → Field Goal (conditional)");
 
 // Play execution uses skills checks
 runExecution.Uses(blockingSuccessCheck, "Checks blocking");
@@ -687,7 +687,7 @@ if (!Directory.GetFiles(solutionDir, "*.sln").Any())
  solutionDir = Directory.GetParent(currentDir)?.FullName ?? currentDir;
 }
 
-var outputPath = Path.Combine(solutionDir, "diagrams");
+var outputPath = Path.Combine(solutionDir, "diagram");
 
 // Create diagrams directory if it doesn't exist
 if (!Directory.Exists(outputPath))
@@ -708,7 +708,7 @@ using (var writer = new StreamWriter(fullPath))
      case ComponentView v: plantUmlWriter.Write(v, writer); break;
         }
   }
-    Console.WriteLine($"  ? Generated {filename}");
+    Console.WriteLine($"  ✓ Generated {filename}");
 }
 
 Console.WriteLine("================================================================================");
@@ -733,7 +733,7 @@ WriteView(injurySystemView, "10-InjurySystem.puml");
 
 Console.WriteLine();
 Console.WriteLine("================================================================================");
-Console.WriteLine("? COMPLETE - 10 diagrams generated");
+Console.WriteLine("✓ COMPLETE - 10 diagrams generated");
 Console.WriteLine("================================================================================");
 Console.WriteLine();
 Console.WriteLine("To generate PNG images:");

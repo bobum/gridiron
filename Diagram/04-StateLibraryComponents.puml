@@ -93,11 +93,11 @@ package StateLibrary {
 81 ..> 109 : Checks facemask
 86 ..> 112 : Enforces penalties
 86 ..> 117 : Accumulates stats
-79 ..> 85 : Snap ? Field Goal (conditional)
-79 ..> 83 : Snap ? Kickoff (conditional)
-79 ..> 82 : Snap ? Pass (conditional)
-79 ..> 84 : Snap ? Punt (conditional)
-79 ..> 81 : Snap ? Run (conditional)
+79 ..> 85 : Snap → Field Goal (conditional)
+79 ..> 83 : Snap → Kickoff (conditional)
+79 ..> 82 : Snap → Pass (conditional)
+79 ..> 84 : Snap → Punt (conditional)
+79 ..> 81 : Snap → Run (conditional)
 73 ..> 74 : Uses states
 73 ..> 75 : Uses triggers
 @enduml

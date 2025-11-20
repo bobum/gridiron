@@ -26,11 +26,11 @@ package StateLibrary {
 72 ..> 73 : Configures and fires triggers
 76 ..> 77 : Transitions to
 78 ..> 79 : Checks for bad snap
-79 ..> 85 : Snap ? Field Goal (conditional)
-79 ..> 83 : Snap ? Kickoff (conditional)
-79 ..> 82 : Snap ? Pass (conditional)
-79 ..> 84 : Snap ? Punt (conditional)
-79 ..> 81 : Snap ? Run (conditional)
+79 ..> 85 : Snap → Field Goal (conditional)
+79 ..> 83 : Snap → Kickoff (conditional)
+79 ..> 82 : Snap → Pass (conditional)
+79 ..> 84 : Snap → Punt (conditional)
+79 ..> 81 : Snap → Run (conditional)
 73 ..> 74 : Uses states
 73 ..> 75 : Uses triggers
 @enduml
