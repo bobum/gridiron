@@ -1,6 +1,7 @@
 ﻿using Structurizr;
 using Structurizr.IO.PlantUML;
 using System.IO;
+using PlantUml.Net;
 
 // ================================================================================
 // GRIDIRON FOOTBALL SIMULATION - C4 ARCHITECTURE DIAGRAMS
@@ -736,11 +737,52 @@ Console.WriteLine("=============================================================
 Console.WriteLine("✓ COMPLETE - 10 diagrams generated");
 Console.WriteLine("================================================================================");
 Console.WriteLine();
-Console.WriteLine("To generate PNG images:");
-Console.WriteLine("  1. Install PlantUML: https://plantuml.com/download");
-Console.WriteLine("  2. Navigate to diagrams directory: cd diagrams");
-Console.WriteLine("  3. Run: plantuml *.puml");
+Console.WriteLine("Generating PNG images from PlantUML files...");
 Console.WriteLine();
+
+// Generate PNGs from PlantUML files
+try
+{
+    var factory = new RendererFactory();
+    var renderer = factory.CreateRenderer(new PlantUmlSettings
+    {
+        RemoteUrl = "http://www.plantuml.com/plantuml"  // Use public PlantUML server
+ });
+
+    var pumlFiles = Directory.GetFiles(outputPath, "*.puml");
+    int pngCount = 0;
+
+    foreach (var pumlFile in pumlFiles)
+  {
+        try
+        {
+            var pumlContent = File.ReadAllText(pumlFile);
+        var pngBytes = renderer.Render(pumlContent, OutputFormat.Png);
+            
+            var pngPath = Path.ChangeExtension(pumlFile, ".png");
+      File.WriteAllBytes(pngPath, pngBytes);
+        
+     var fileName = Path.GetFileName(pngPath);
+Console.WriteLine($"  ✓ Generated {fileName}");
+            pngCount++;
+        }
+        catch (Exception ex)
+ {
+            Console.WriteLine($"  ✗ Failed to generate PNG for {Path.GetFileName(pumlFile)}: {ex.Message}");
+        }
+    }
+
+    Console.WriteLine();
+    Console.WriteLine($"✓ Generated {pngCount} PNG images");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"✗ PNG generation failed: {ex.Message}");
+ Console.WriteLine("Note: PNG generation requires internet connection to PlantUML server");
+}
+
+Console.WriteLine();
+Console.WriteLine("================================================================================");
 Console.WriteLine("Diagrams:");
 Console.WriteLine("  01 - System Context (users and external systems)");
 Console.WriteLine("  02 - Containers (6 major components)");
@@ -752,6 +794,10 @@ Console.WriteLine("  07 - State Machine Flow (19 states)");
 Console.WriteLine("  08 - Skills Checks (25+ checks)");
 Console.WriteLine("  09 - Penalty System (50+ penalties)");
 Console.WriteLine("  10 - Injury System (position-specific)");
+Console.WriteLine();
+Console.WriteLine("Output Formats:");
+Console.WriteLine("  ✓ PlantUML (.puml) - Source files for editing");
+Console.WriteLine("  ✓ PNG (.png) - Image files for viewing/documentation");
 Console.WriteLine();
 Console.WriteLine("Last Updated: November 2025");
 Console.WriteLine("Test Status: 839/839 passing (100%)");
