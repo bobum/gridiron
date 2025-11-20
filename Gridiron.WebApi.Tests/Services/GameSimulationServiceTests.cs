@@ -5,6 +5,7 @@ using Gridiron.WebApi.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 using StateLibrary;
+using UnitTestProject1.Helpers;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Services;
@@ -43,8 +44,10 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_WhenBothTeamsExist_LoadsTeamsWithPlayers()
     {
         // Arrange
-        var homeTeam = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
-        var awayTeam = CreateTestTeamWithPlayers(2, "Eagles", "Philadelphia", 53);
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
 
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
@@ -77,7 +80,8 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_WhenAwayTeamNotFound_ThrowsArgumentException()
     {
         // Arrange
-        var homeTeam = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        homeTeam.Id = 1;
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(999)).ReturnsAsync((Team?)null);
 
@@ -94,8 +98,10 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_WhenTeamsLoaded_RunsSimulation()
     {
         // Arrange
-        var homeTeam = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
-        var awayTeam = CreateTestTeamWithPlayers(2, "Eagles", "Philadelphia", 53);
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
 
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
@@ -115,8 +121,10 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_AfterSimulation_SavesGameToRepository()
     {
         // Arrange
-        var homeTeam = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
-        var awayTeam = CreateTestTeamWithPlayers(2, "Eagles", "Philadelphia", 53);
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
 
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
@@ -133,8 +141,10 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_WithSeed_UsesSeedForSimulation()
     {
         // Arrange
-        var homeTeam = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
-        var awayTeam = CreateTestTeamWithPlayers(2, "Eagles", "Philadelphia", 53);
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
 
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
@@ -151,10 +161,14 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_WithSameSeed_ProducesDeterministicResults()
     {
         // Arrange
-        var homeTeam1 = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
-        var awayTeam1 = CreateTestTeamWithPlayers(2, "Eagles", "Philadelphia", 53);
-        var homeTeam2 = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 53);
-        var awayTeam2 = CreateTestTeamWithPlayers(2, "Eagles", "Philadelphia", 53);
+        var homeTeam1 = TestTeams.LoadAtlantaFalcons();
+        var awayTeam1 = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam1.Id = 1;
+        awayTeam1.Id = 2;
+        var homeTeam2 = TestTeams.LoadAtlantaFalcons();
+        var awayTeam2 = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam2.Id = 1;
+        awayTeam2.Id = 2;
 
         // First simulation
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam1);
@@ -178,8 +192,10 @@ public class GameSimulationServiceTests
     public async Task SimulateGame_ReturnsGameWithCorrectTeamIds()
     {
         // Arrange
-        var homeTeam = CreateTestTeamWithPlayers(10, "Falcons", "Atlanta", 53);
-        var awayTeam = CreateTestTeamWithPlayers(20, "Eagles", "Philadelphia", 53);
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 10;
+        awayTeam.Id = 20;
 
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(10)).ReturnsAsync(homeTeam);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(20)).ReturnsAsync(awayTeam);
@@ -280,61 +296,6 @@ public class GameSimulationServiceTests
     #endregion
 
     #region Helper Methods
-
-    private Team CreateTestTeamWithPlayers(int id, string name, string city, int playerCount)
-    {
-        var team = new Team
-        {
-            Id = id,
-            Name = name,
-            City = city,
-            Players = new List<Player>()
-        };
-
-        // Create a full roster with proper positions
-        var positions = new[]
-        {
-            Positions.QB, Positions.RB, Positions.RB, Positions.WR, Positions.WR, Positions.WR,
-            Positions.TE, Positions.C, Positions.G, Positions.G, Positions.T, Positions.T,
-            Positions.DT, Positions.DT, Positions.DE, Positions.DE, Positions.LB, Positions.LB,
-            Positions.LB, Positions.CB, Positions.CB, Positions.S, Positions.S, Positions.K, Positions.P
-        };
-
-        for (int i = 0; i < playerCount; i++)
-        {
-            var position = positions[i % positions.Length];
-            team.Players.Add(new Player
-            {
-                Id = (id * 1000) + i,
-                FirstName = $"Player{i}",
-                LastName = $"Test{i}",
-                Position = position,
-                Number = i + 1,
-                TeamId = id,
-                Height = "6-2",
-                Weight = 200,
-                Age = 25,
-                Exp = 3,
-                College = "Test University",
-                Speed = 70,
-                Strength = 70,
-                Agility = 70,
-                Awareness = 70,
-                Morale = 80,
-                Discipline = 85,
-                Passing = position == Positions.QB ? 80 : 0,
-                Catching = (position == Positions.WR || position == Positions.TE) ? 75 : 0,
-                Rushing = position == Positions.RB ? 75 : 0,
-                Blocking = (position == Positions.C || position == Positions.G || position == Positions.T) ? 80 : 0,
-                Tackling = (position == Positions.DT || position == Positions.DE || position == Positions.LB) ? 75 : 0,
-                Coverage = (position == Positions.CB || position == Positions.S) ? 75 : 0,
-                Kicking = (position == Positions.K || position == Positions.P) ? 80 : 0,
-                Health = 100
-            });
-        }
-
-        return team;
-    }
 
     private Game CreateTestGame(int id, int homeTeamId, int awayTeamId)
     {
