@@ -1,25 +1,25 @@
-using DataAccessLayer;
+using DataAccessLayer.Repositories;
 using Gridiron.WebApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gridiron.WebApi.Controllers;
 
 /// <summary>
 /// Controller for player information
+/// DOES NOT access the database directly - uses repositories from DataAccessLayer
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class PlayersController : ControllerBase
 {
-    private readonly GridironDbContext _dbContext;
+    private readonly IPlayerRepository _playerRepository;
     private readonly ILogger<PlayersController> _logger;
 
     public PlayersController(
-        GridironDbContext dbContext,
+        IPlayerRepository playerRepository,
         ILogger<PlayersController> logger)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _playerRepository = playerRepository ?? throw new ArgumentNullException(nameof(playerRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -31,14 +31,9 @@ public class PlayersController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<PlayerDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PlayerDto>>> GetPlayers([FromQuery] int? teamId = null)
     {
-        var query = _dbContext.Players.AsQueryable();
-
-        if (teamId.HasValue)
-        {
-            query = query.Where(p => p.TeamId == teamId.Value);
-        }
-
-        var players = await query.ToListAsync();
+        var players = teamId.HasValue
+            ? await _playerRepository.GetByTeamIdAsync(teamId.Value)
+            : await _playerRepository.GetAllAsync();
 
         var playerDtos = players.Select(p => new PlayerDto
         {
@@ -83,7 +78,7 @@ public class PlayersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PlayerDetailDto>> GetPlayer(int id)
     {
-        var player = await _dbContext.Players.FindAsync(id);
+        var player = await _playerRepository.GetByIdAsync(id);
 
         if (player == null)
         {

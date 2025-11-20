@@ -1,4 +1,5 @@
 using DataAccessLayer;
+using DataAccessLayer.Repositories;
 using Gridiron.WebApi.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,10 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Configure database
+// ========================================
+// DATABASE CONFIGURATION
+// ========================================
+// Configure database - ONLY accessed through repositories in DataAccessLayer
 builder.Services.AddDbContext<GridironDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("GridironDb");
@@ -28,7 +32,18 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-// Register services
+// ========================================
+// DATA ACCESS LAYER - Repository Pattern
+// ========================================
+// Register repositories - these are the ONLY way to access the database
+// Controllers and services MUST use these repositories, NOT DbContext directly
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+
+// ========================================
+// APPLICATION SERVICES
+// ========================================
 builder.Services.AddScoped<IGameSimulationService, GameSimulationService>();
 
 // Configure logging

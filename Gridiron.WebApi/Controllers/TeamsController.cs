@@ -1,25 +1,25 @@
-using DataAccessLayer;
+using DataAccessLayer.Repositories;
 using Gridiron.WebApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gridiron.WebApi.Controllers;
 
 /// <summary>
 /// Controller for team and roster management
+/// DOES NOT access the database directly - uses repositories from DataAccessLayer
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class TeamsController : ControllerBase
 {
-    private readonly GridironDbContext _dbContext;
+    private readonly ITeamRepository _teamRepository;
     private readonly ILogger<TeamsController> _logger;
 
     public TeamsController(
-        GridironDbContext dbContext,
+        ITeamRepository teamRepository,
         ILogger<TeamsController> logger)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -31,7 +31,7 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<TeamDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TeamDto>>> GetTeams()
     {
-        var teams = await _dbContext.Teams.ToListAsync();
+        var teams = await _teamRepository.GetAllAsync();
 
         var teamDtos = teams.Select(t => new TeamDto
         {
@@ -60,7 +60,7 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TeamDto>> GetTeam(int id)
     {
-        var team = await _dbContext.Teams.FindAsync(id);
+        var team = await _teamRepository.GetByIdAsync(id);
 
         if (team == null)
         {
@@ -94,9 +94,7 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TeamDetailDto>> GetTeamRoster(int id)
     {
-        var team = await _dbContext.Teams
-            .Include(t => t.Players)
-            .FirstOrDefaultAsync(t => t.Id == id);
+        var team = await _teamRepository.GetByIdWithPlayersAsync(id);
 
         if (team == null)
         {
