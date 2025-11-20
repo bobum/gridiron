@@ -295,8 +295,8 @@ public class GameSimulationServiceTests
         var positions = new[]
         {
             Positions.QB, Positions.RB, Positions.RB, Positions.WR, Positions.WR, Positions.WR,
-            Positions.TE, Positions.OL, Positions.OL, Positions.OL, Positions.OL, Positions.OL,
-            Positions.DL, Positions.DL, Positions.DL, Positions.DL, Positions.LB, Positions.LB,
+            Positions.TE, Positions.C, Positions.G, Positions.G, Positions.T, Positions.T,
+            Positions.DT, Positions.DT, Positions.DE, Positions.DE, Positions.LB, Positions.LB,
             Positions.LB, Positions.CB, Positions.CB, Positions.S, Positions.S, Positions.K, Positions.P
         };
 
