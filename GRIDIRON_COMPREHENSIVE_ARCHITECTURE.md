@@ -87,8 +87,9 @@ Gridiron is a sophisticated NFL football game simulation engine built with C# .N
 
 **Repositories Available:**
 - `ITeamRepository` - Team CRUD and queries
-- `IPlayerRepository` - Player CRUD and queries  
+- `IPlayerRepository` - Player CRUD and queries
 - `IGameRepository` - Game CRUD and queries
+- `IPlayerDataRepository` - Player generation data (FirstNames, LastNames, Colleges)
 
 ---
 
@@ -237,6 +238,37 @@ SCORING METHODS:
 ├─ AddTwoPointConversion(Possession)
 └─ FormatFieldPosition(...) // NFL notation formatting
 ```
+
+#### **Player Generation Data Models**
+
+These entities support the player generation system by providing realistic name and college data:
+
+**FirstName Model** (`FirstName.cs`)
+```
+FirstName
+├─ Id (EF Key)
+└─ Name (string, max 50 chars)
+```
+
+**LastName Model** (`LastName.cs`)
+```
+LastName
+├─ Id (EF Key)
+└─ Name (string, max 50 chars)
+```
+
+**College Model** (`College.cs`)
+```
+College
+├─ Id (EF Key)
+└─ Name (string, max 100 chars)
+```
+
+**Purpose:**
+- Seeded from JSON files during database initialization
+- Used by PlayerGeneratorService to create realistic players
+- Accessed via IPlayerDataRepository (repository pattern)
+- ~147 first names, ~100 last names, ~107 colleges
 
 ### 2.2 Play Type Models
 
@@ -461,7 +493,12 @@ GridironDbContext : DbContext
 ├─ DbSet<Team> Teams
 ├─ DbSet<Player> Players
 ├─ DbSet<Game> Games
-└─ DbSet<PlayByPlay> PlayByPlays
+├─ DbSet<PlayByPlay> PlayByPlays
+│
+├─ Player Generation Data
+├─ DbSet<FirstName> FirstNames
+├─ DbSet<LastName> LastNames
+└─ DbSet<College> Colleges
 ```
 
 **Entity Configuration (OnModelCreating):**
@@ -489,6 +526,12 @@ GridironDbContext : DbContext
 - One-to-One with Game
 - Large text columns for JSON storage
 - CreatedAt timestamp (auto-set to GETUTCDATE())
+
+**FirstName, LastName, College:**
+- Primary Keys: Id (auto-generated)
+- Required Name field (max length varies: 50/50/100)
+- Simple lookup tables for player generation
+- Seeded during database initialization
 
 ### 3.2 Repository Pattern Implementation
 
@@ -533,6 +576,25 @@ interface IGameRepository
 }
 ```
 
+**IPlayerDataRepository Interface:**
+```csharp
+interface IPlayerDataRepository
+{
+    Task<List<string>> GetFirstNamesAsync()
+    Task<List<string>> GetLastNamesAsync()
+    Task<List<string>> GetCollegesAsync()
+}
+```
+
+**Implementations:**
+- `DatabasePlayerDataRepository` - Production (queries Azure SQL tables)
+- `JsonPlayerDataRepository` - Testing (loads from JSON files in test project)
+
+**Usage:**
+- Injected into `PlayerGeneratorService` for random player generation
+- Allows switching between database and JSON sources
+- Follows repository pattern for clean separation of concerns
+
 ### 3.3 Dependency Injection Setup (Program.cs)
 
 ```csharp
@@ -547,6 +609,12 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
+
+// Register GameManagement services
+builder.Services.AddScoped<IPlayerGeneratorService, PlayerGeneratorService>();
+builder.Services.AddScoped<ITeamBuilderService, TeamBuilderService>();
+builder.Services.AddScoped<IPlayerProgressionService, PlayerProgressionService>();
 ```
 
 ### 3.4 Seed Data System
@@ -561,10 +629,24 @@ public static async Task<Teams> LoadDefaultMatchupAsync()
 ```
 
 **Seed Data Files:**
-- `SeedData/TeamSeeder.cs` - Main orchestrator
+- `SeedData/SeedDataRunner.cs` - Main orchestrator (run via `dotnet run` in DataAccessLayer)
+- `SeedData/PlayerDataSeeder.cs` - Seeds FirstNames, LastNames, Colleges tables from JSON
+- `SeedData/TeamSeeder.cs` - Creates Falcons and Eagles teams
 - `SeedData/Falcons/` - 9 position-specific seeders
 - `SeedData/Eagles/` - 9 position-specific seeders
 - Each seeder creates realistic players for that team/position
+
+**Seeding Process:**
+1. Run `dotnet run` in DataAccessLayer project
+2. Prompts to clear existing data if tables contain data
+3. Seeds player generation data (FirstNames, LastNames, Colleges)
+4. Seeds teams (Falcons, Eagles)
+5. Seeds players for each team by position
+6. Displays summary with counts
+
+**Seed Data Sources:**
+- Player generation JSON files: `Gridiron.WebApi/SeedData/*.json`
+- Contains ~147 first names, ~100 last names, ~107 colleges
 
 ---
 
@@ -1008,7 +1090,35 @@ mockTeamRepository
 
 ### 6.5 GameManagement.Tests
 
-**Tests for Player/Team generation and management services** (to be expanded)
+**Comprehensive tests for player/team generation and management services:**
+
+**PlayerGeneratorServiceTests (35+ tests):**
+- Random player generation across all positions
+- Draft class generation with rookies
+- Position-specific attribute ranges (QB passing, RB rushing, etc.)
+- Jersey number assignment by position
+- Height/weight generation by position
+- Reproducible generation with seeds
+
+**TeamBuilderServiceTests (31 tests):**
+- Team creation with 53-player rosters
+- Depth chart assignment (8 depth charts per team)
+- Roster validation (min/max players, position requirements)
+- Player assignment and removal
+- Coaching staff and support staff setup
+
+**PlayerProgressionServiceTests (40 tests):**
+- Age curve progression (22-26 development, 27-30 peak, 31-34 decline, 35+ rapid decline)
+- Retirement logic based on age and overall rating
+- Overall rating calculation from player attributes
+- Salary calculation based on position and overall rating
+- Attribute adjustments based on age and potential
+
+**Test Infrastructure:**
+- Uses `JsonPlayerDataRepository` to load test data from JSON files
+- Test data located in `GameManagement.Tests/TestData/`
+- xUnit framework with Moq and FluentAssertions
+- All tests passing with comprehensive coverage
 
 ---
 
@@ -1213,15 +1323,36 @@ public class MyClass
 7. ✅ REST API skeleton
 8. ✅ 839 passing tests
 
-### What GameManagement Needs to Add:
-1. ⚠️ Player generation service (partial - has basic version)
-2. ⚠️ Team building service (interface only)
-3. ⚠️ Player progression system (interface only)
-4. ⚠️ Coaching AI (coaches exist, no logic)
-5. ⚠️ Scouting system (scouts exist, no evaluation)
-6. ⚠️ Draft mechanics
-7. ⚠️ Season management
-8. ⚠️ Team morale/chemistry integration
+### What GameManagement Has Implemented:
+1. ✅ Player generation service (fully implemented with repository pattern)
+   - Random player generation across all positions
+   - Draft class generation with configurable rounds
+   - Position-specific attribute ranges and physical characteristics
+   - Uses IPlayerDataRepository for database/JSON flexibility
+2. ✅ Team building service (fully implemented)
+   - Team creation with 53-player roster management
+   - 8 depth chart assignments (offense, defense, special teams)
+   - Roster validation with position requirements
+   - Coaching and support staff setup
+3. ✅ Player progression system (fully implemented)
+   - Age curve progression (development, peak, decline phases)
+   - Retirement logic based on age and performance
+   - Overall rating calculation
+   - Salary calculation by position and rating
+4. ✅ Comprehensive test coverage (100+ tests passing)
+   - PlayerGeneratorServiceTests (35+ tests)
+   - TeamBuilderServiceTests (31 tests)
+   - PlayerProgressionServiceTests (40 tests)
+
+### What GameManagement Still Needs:
+1. ⚠️ Coaching AI (coaches exist, no decision-making logic)
+2. ⚠️ Scouting system (scouts exist, no evaluation/grading)
+3. ⚠️ Draft mechanics (player generation exists, need draft UI/logic)
+4. ⚠️ Season management (games work, need season structure)
+5. ⚠️ Team morale/chemistry integration with game outcomes
+6. ⚠️ Contract negotiation and salary cap management
+7. ⚠️ Free agency system
+8. ⚠️ Trade logic and validation
 
 ### Architecture Constraints to Remember:
 - **Only DataAccessLayer talks to database**
@@ -1239,5 +1370,11 @@ public class MyClass
 - `GameFlow` - State machine orchestrator
 - `IPlay` - Interface all plays implement
 - `ITeamRepository` - How you access teams from DB
+- `IPlayerRepository` - How you access players from DB
+- `IGameRepository` - How you access games from DB
+- `IPlayerDataRepository` - How you access player generation data (names, colleges)
 - `GameSimulationService` - Orchestrates simulation flow
+- `PlayerGeneratorService` - Generates random players and draft classes
+- `TeamBuilderService` - Creates and manages team rosters
+- `PlayerProgressionService` - Handles aging and retirement
 
