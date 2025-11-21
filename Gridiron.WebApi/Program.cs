@@ -40,11 +40,19 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
 
 // ========================================
 // APPLICATION SERVICES
 // ========================================
 builder.Services.AddScoped<IGameSimulationService, GameSimulationService>();
+
+// ========================================
+// GAME MANAGEMENT SERVICES
+// ========================================
+builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
+builder.Services.AddScoped<GameManagement.Services.ITeamBuilderService, GameManagement.Services.TeamBuilderService>();
+builder.Services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
 
 // Configure logging
 builder.Logging.ClearProviders();

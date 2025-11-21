@@ -16,8 +16,8 @@ This is a non-negotiable architectural principle. No exceptions.
 
 **DataAccessLayer Project:**
 - Contains `GridironDbContext` (Entity Framework DbContext)
-- Contains Repository interfaces (`ITeamRepository`, `IPlayerRepository`, `IGameRepository`)
-- Contains Repository implementations (`TeamRepository`, `PlayerRepository`, `GameRepository`)
+- Contains Repository interfaces (`ITeamRepository`, `IPlayerRepository`, `IGameRepository`, `IPlayerDataRepository`)
+- Contains Repository implementations (`TeamRepository`, `PlayerRepository`, `GameRepository`, `DatabasePlayerDataRepository`)
 - Uses `DbContext`, `DbSet<T>`, LINQ queries, Entity Framework Core
 - ALL database queries, inserts, updates, and deletes happen here
 
@@ -99,15 +99,17 @@ A repository is an abstraction layer between your application and the database. 
 ```
 /gridiron
 └── DataAccessLayer/
-    ├── GridironDbContext.cs           # EF Core DbContext
+    ├── GridironDbContext.cs                  # EF Core DbContext
     ├── Repositories/
-    │   ├── ITeamRepository.cs         # Team data interface
-    │   ├── TeamRepository.cs          # Team data implementation
-    │   ├── IPlayerRepository.cs       # Player data interface
-    │   ├── PlayerRepository.cs        # Player data implementation
-    │   ├── IGameRepository.cs         # Game data interface
-    │   └── GameRepository.cs          # Game data implementation
-    └── TeamsLoader.cs                 # Legacy loader (uses repositories internally)
+    │   ├── ITeamRepository.cs                # Team data interface
+    │   ├── TeamRepository.cs                 # Team data implementation
+    │   ├── IPlayerRepository.cs              # Player data interface
+    │   ├── PlayerRepository.cs               # Player data implementation
+    │   ├── IGameRepository.cs                # Game data interface
+    │   ├── GameRepository.cs                 # Game data implementation
+    │   ├── IPlayerDataRepository.cs          # Player generation data interface
+    │   └── DatabasePlayerDataRepository.cs   # Player generation data implementation
+    └── TeamsLoader.cs                        # Legacy loader (uses repositories internally)
 ```
 
 ### Available Repositories
@@ -143,6 +145,19 @@ Task UpdateAsync(Game game)
 Task DeleteAsync(int gameId)
 ```
 
+#### IPlayerDataRepository
+```csharp
+Task<List<string>> GetFirstNamesAsync()
+Task<List<string>> GetLastNamesAsync()
+Task<List<string>> GetCollegesAsync()
+```
+
+**Purpose:** Provides player generation data (names and colleges) for random player creation.
+
+**Implementations:**
+- `DatabasePlayerDataRepository` - Production (queries database tables)
+- `JsonPlayerDataRepository` - Testing (loads from JSON files)
+
 ---
 
 ## Dependency Injection
@@ -160,6 +175,7 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
 ```
 
 ### Usage in Controllers/Services

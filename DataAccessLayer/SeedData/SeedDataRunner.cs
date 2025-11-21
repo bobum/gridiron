@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DataAccessLayer.SeedData
 {
@@ -18,7 +19,7 @@ namespace DataAccessLayer.SeedData
                 .Build();
 
             var connectionString = configuration.GetConnectionString("GridironDb");
-            
+
             if (string.IsNullOrEmpty(connectionString))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -33,6 +34,9 @@ namespace DataAccessLayer.SeedData
 
             using var db = new GridironDbContext(optionsBuilder.Options);
 
+            // Create logger factory for seeding
+            using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("==============================================");
             Console.WriteLine("  Gridiron Database Seed Data Runner");
@@ -42,14 +46,20 @@ namespace DataAccessLayer.SeedData
             // Check if data already exists
             var existingTeams = await db.Teams.CountAsync();
             var existingPlayers = await db.Players.CountAsync();
+            var existingFirstNames = await db.FirstNames.CountAsync();
+            var existingLastNames = await db.LastNames.CountAsync();
+            var existingColleges = await db.Colleges.CountAsync();
 
-            if (existingTeams > 0 || existingPlayers > 0)
+            if (existingTeams > 0 || existingPlayers > 0 || existingFirstNames > 0 || existingLastNames > 0 || existingColleges > 0)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"Warning: Database already contains {existingTeams} teams and {existingPlayers} players.");
+                Console.WriteLine($"Warning: Database already contains:");
+                Console.WriteLine($"  - {existingTeams} teams");
+                Console.WriteLine($"  - {existingPlayers} players");
+                Console.WriteLine($"  - {existingFirstNames} first names, {existingLastNames} last names, {existingColleges} colleges");
                 Console.Write("Do you want to clear existing data and reseed? (y/n): ");
                 Console.ResetColor();
-                
+
                 var response = Console.ReadLine()?.ToLower();
                 if (response != "y")
                 {
@@ -61,8 +71,23 @@ namespace DataAccessLayer.SeedData
                 db.Players.RemoveRange(db.Players);
                 db.Teams.RemoveRange(db.Teams);
                 await db.SaveChangesAsync();
-                Console.WriteLine("✓ Existing data cleared.\n");
+                Console.WriteLine("✓ Teams and players cleared.");
+
+                // Clear player generation data
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM FirstNames");
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM LastNames");
+                await db.Database.ExecuteSqlRawAsync("DELETE FROM Colleges");
+                Console.WriteLine("✓ Player generation data cleared.\n");
             }
+
+            // Seed player generation data (FirstNames, LastNames, Colleges)
+            Console.WriteLine("Seeding player generation data...");
+            var playerDataSeeder = new PlayerDataSeeder(db, loggerFactory.CreateLogger<PlayerDataSeeder>());
+
+            // Get path to seed data JSON files (in same directory as executable)
+            var seedDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "Gridiron.WebApi", "SeedData");
+            await playerDataSeeder.SeedAllAsync(seedDataPath, clearExisting: false);
+            Console.WriteLine("✓ Player generation data seeded.\n");
 
             // Seed teams (without players initially)
             Console.WriteLine("Creating teams...");
@@ -104,6 +129,9 @@ namespace DataAccessLayer.SeedData
             var totalPlayers = await db.Players.CountAsync();
             var falconsCount = await db.Players.CountAsync(p => p.TeamId == falcons.Id);
             var eaglesCount = await db.Players.CountAsync(p => p.TeamId == eagles.Id);
+            var totalFirstNames = await db.FirstNames.CountAsync();
+            var totalLastNames = await db.LastNames.CountAsync();
+            var totalColleges = await db.Colleges.CountAsync();
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("==============================================");
@@ -113,6 +141,10 @@ namespace DataAccessLayer.SeedData
             Console.WriteLine($"  Total Players: {totalPlayers}");
             Console.WriteLine($"    - Falcons: {falconsCount}");
             Console.WriteLine($"    - Eagles: {eaglesCount}");
+            Console.WriteLine($"  Player Generation Data:");
+            Console.WriteLine($"    - First Names: {totalFirstNames}");
+            Console.WriteLine($"    - Last Names: {totalLastNames}");
+            Console.WriteLine($"    - Colleges: {totalColleges}");
             Console.WriteLine("==============================================\n");
             Console.ResetColor();
         }

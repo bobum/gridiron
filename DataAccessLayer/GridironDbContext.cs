@@ -20,6 +20,11 @@ namespace DataAccessLayer
         public DbSet<Game> Games { get; set; }
         public DbSet<PlayByPlay> PlayByPlays { get; set; }
 
+        // Player generation data
+        public DbSet<FirstName> FirstNames { get; set; }
+        public DbSet<LastName> LastNames { get; set; }
+        public DbSet<College> Colleges { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -128,6 +133,27 @@ namespace DataAccessLayer
                 entity.Property(p => p.PlaysJson).HasColumnType("nvarchar(max)");
                 entity.Property(p => p.PlayByPlayLog).HasColumnType("nvarchar(max)");
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            // ========================================
+            // PLAYER GENERATION DATA CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<FirstName>(entity =>
+            {
+                entity.HasKey(f => f.Id);
+                entity.Property(f => f.Name).IsRequired().HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<LastName>(entity =>
+            {
+                entity.HasKey(l => l.Id);
+                entity.Property(l => l.Name).IsRequired().HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<College>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
             });
         }
     }

@@ -1,4 +1,6 @@
 using DataAccessLayer.Repositories;
+using DomainObjects;
+using GameManagement.Services;
 using Gridiron.WebApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,13 +15,16 @@ namespace Gridiron.WebApi.Controllers;
 public class PlayersController : ControllerBase
 {
     private readonly IPlayerRepository _playerRepository;
+    private readonly IPlayerGeneratorService _playerGeneratorService;
     private readonly ILogger<PlayersController> _logger;
 
     public PlayersController(
         IPlayerRepository playerRepository,
+        IPlayerGeneratorService playerGeneratorService,
         ILogger<PlayersController> logger)
     {
         _playerRepository = playerRepository ?? throw new ArgumentNullException(nameof(playerRepository));
+        _playerGeneratorService = playerGeneratorService ?? throw new ArgumentNullException(nameof(playerGeneratorService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -126,4 +131,154 @@ public class PlayersController : ControllerBase
 
         return Ok(playerDetailDto);
     }
+
+    /// <summary>
+    /// Generates a random player with position-specific attributes
+    /// </summary>
+    /// <param name="request">Generation request with position and optional seed</param>
+    /// <returns>Generated player</returns>
+    [HttpPost("generate")]
+    [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public ActionResult<PlayerDto> GenerateRandomPlayer([FromBody] GeneratePlayerRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        if (!Enum.TryParse<Positions>(request.Position, true, out var position))
+        {
+            return BadRequest(new { error = $"Invalid position: {request.Position}" });
+        }
+
+        try
+        {
+            var player = _playerGeneratorService.GenerateRandomPlayer(position, request.Seed);
+
+            var playerDto = new PlayerDto
+            {
+                Id = player.Id,
+                FirstName = player.FirstName,
+                LastName = player.LastName,
+                Position = player.Position.ToString(),
+                Number = player.Number,
+                Height = player.Height,
+                Weight = player.Weight,
+                Age = player.Age,
+                Exp = player.Exp,
+                College = player.College,
+                TeamId = player.TeamId,
+                Speed = player.Speed,
+                Strength = player.Strength,
+                Agility = player.Agility,
+                Awareness = player.Awareness,
+                Morale = player.Morale,
+                Discipline = player.Discipline,
+                Passing = player.Passing,
+                Catching = player.Catching,
+                Rushing = player.Rushing,
+                Blocking = player.Blocking,
+                Tackling = player.Tackling,
+                Coverage = player.Coverage,
+                Kicking = player.Kicking,
+                Health = player.Health,
+                IsInjured = player.IsInjured
+            };
+
+            _logger.LogInformation("Generated player: {FirstName} {LastName} ({Position})",
+                player.FirstName, player.LastName, player.Position);
+
+            return Ok(playerDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating player");
+            return StatusCode(500, new { error = "Failed to generate player" });
+        }
+    }
+
+    /// <summary>
+    /// Generates a complete draft class with multiple rounds
+    /// </summary>
+    /// <param name="request">Draft class request with year and rounds</param>
+    /// <returns>List of generated draft prospects</returns>
+    [HttpPost("draft-class")]
+    [ProducesResponseType(typeof(IEnumerable<PlayerDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public ActionResult<IEnumerable<PlayerDto>> GenerateDraftClass([FromBody] GenerateDraftClassRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        if (request.Year < 2000 || request.Year > 2100)
+        {
+            return BadRequest(new { error = "Year must be between 2000 and 2100" });
+        }
+
+        if (request.Rounds < 1 || request.Rounds > 10)
+        {
+            return BadRequest(new { error = "Rounds must be between 1 and 10" });
+        }
+
+        try
+        {
+            var draftClass = _playerGeneratorService.GenerateDraftClass(request.Year, request.Rounds);
+
+            var playerDtos = draftClass.Select(player => new PlayerDto
+            {
+                Id = player.Id,
+                FirstName = player.FirstName,
+                LastName = player.LastName,
+                Position = player.Position.ToString(),
+                Number = player.Number,
+                Height = player.Height,
+                Weight = player.Weight,
+                Age = player.Age,
+                Exp = player.Exp,
+                College = player.College,
+                TeamId = player.TeamId,
+                Speed = player.Speed,
+                Strength = player.Strength,
+                Agility = player.Agility,
+                Awareness = player.Awareness,
+                Morale = player.Morale,
+                Discipline = player.Discipline,
+                Passing = player.Passing,
+                Catching = player.Catching,
+                Rushing = player.Rushing,
+                Blocking = player.Blocking,
+                Tackling = player.Tackling,
+                Coverage = player.Coverage,
+                Kicking = player.Kicking,
+                Health = player.Health,
+                IsInjured = player.IsInjured
+            }).ToList();
+
+            _logger.LogInformation("Generated draft class: {Year} with {Count} prospects ({Rounds} rounds)",
+                request.Year, playerDtos.Count, request.Rounds);
+
+            return Ok(playerDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating draft class");
+            return StatusCode(500, new { error = "Failed to generate draft class" });
+        }
+    }
+}
+
+// DTOs for player generation endpoints
+public class GeneratePlayerRequest
+{
+    public string Position { get; set; } = string.Empty;
+    public int? Seed { get; set; }
+}
+
+public class GenerateDraftClassRequest
+{
+    public int Year { get; set; }
+    public int Rounds { get; set; } = 7;
 }

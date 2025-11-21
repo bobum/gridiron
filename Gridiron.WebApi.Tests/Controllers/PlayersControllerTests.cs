@@ -1,6 +1,7 @@
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
+using GameManagement.Services;
 using Gridiron.WebApi.Controllers;
 using Gridiron.WebApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,19 @@ namespace Gridiron.WebApi.Tests.Controllers;
 public class PlayersControllerTests
 {
     private readonly Mock<IPlayerRepository> _mockPlayerRepository;
+    private readonly Mock<IPlayerGeneratorService> _mockPlayerGeneratorService;
     private readonly Mock<ILogger<PlayersController>> _mockLogger;
     private readonly PlayersController _controller;
 
     public PlayersControllerTests()
     {
         _mockPlayerRepository = new Mock<IPlayerRepository>();
+        _mockPlayerGeneratorService = new Mock<IPlayerGeneratorService>();
         _mockLogger = new Mock<ILogger<PlayersController>>();
-        _controller = new PlayersController(_mockPlayerRepository.Object, _mockLogger.Object);
+        _controller = new PlayersController(
+            _mockPlayerRepository.Object,
+            _mockPlayerGeneratorService.Object,
+            _mockLogger.Object);
     }
 
     #region GetPlayers Tests
