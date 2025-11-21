@@ -6,6 +6,7 @@ public class Team
     public int Id { get; set; }  // Primary key for EF Core
     public string Name { get; set; }
     public string City { get; set; }
+    public int? DivisionId { get; set; }  // Foreign key (nullable for backwards compatibility)
     public List<Player> Players { get; set; } = new();  // EF Core navigation property
     public int Budget { get; set; }
     public int Championships { get; set; }

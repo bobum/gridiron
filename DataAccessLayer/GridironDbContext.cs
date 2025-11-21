@@ -15,6 +15,9 @@ namespace DataAccessLayer
         }
 
         // Entity sets
+        public DbSet<League> Leagues { get; set; }
+        public DbSet<Conference> Conferences { get; set; }
+        public DbSet<Division> Divisions { get; set; }
         public DbSet<Team> Teams { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<Game> Games { get; set; }
@@ -28,6 +31,51 @@ namespace DataAccessLayer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ========================================
+            // LEAGUE CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<League>(entity =>
+            {
+                entity.HasKey(l => l.Id);
+                entity.Property(l => l.Name).IsRequired().HasMaxLength(100);
+
+                // League has many Conferences (one-to-many)
+                entity.HasMany(l => l.Conferences)
+                      .WithOne()
+                      .HasForeignKey(c => c.LeagueId)
+                      .OnDelete(DeleteBehavior.Cascade);  // Delete conferences if league deleted
+            });
+
+            // ========================================
+            // CONFERENCE CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<Conference>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+
+                // Conference has many Divisions (one-to-many)
+                entity.HasMany(c => c.Divisions)
+                      .WithOne()
+                      .HasForeignKey(d => d.ConferenceId)
+                      .OnDelete(DeleteBehavior.Cascade);  // Delete divisions if conference deleted
+            });
+
+            // ========================================
+            // DIVISION CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<Division>(entity =>
+            {
+                entity.HasKey(d => d.Id);
+                entity.Property(d => d.Name).IsRequired().HasMaxLength(100);
+
+                // Division has many Teams (one-to-many)
+                entity.HasMany(d => d.Teams)
+                      .WithOne()
+                      .HasForeignKey(t => t.DivisionId)
+                      .OnDelete(DeleteBehavior.SetNull);  // If division deleted, teams remain but without division
+            });
 
             // ========================================
             // TEAM CONFIGURATION
