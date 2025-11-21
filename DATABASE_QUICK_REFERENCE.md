@@ -51,11 +51,12 @@ SELECT 'Games', COUNT(*) FROM Games;
 
 ### Added/Changed Domain Models?
 ```bash
-cd DataAccessLayer
-dotnet ef migrations add YourChangeDescription
-dotnet ef database update
-cd ..
+# From solution root (C:\projects\gridiron)
+dotnet ef migrations add YourChangeDescription --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
+dotnet ef database update --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 ```
+
+**Important:** Use forward slashes (`/`) not backslashes (`\`)
 
 ### Want to Reset Database?
 ```bash

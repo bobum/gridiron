@@ -297,7 +297,107 @@ curl http://localhost:5000/api/players/1
 
 ---
 
-### Test 5: Simulate a Game (Advanced)
+### Test 5: Create a League
+
+**Purpose:** Verify league creation through GameManagement service
+
+**Using Swagger UI:**
+1. Expand `POST /api/leagues-management`
+2. Click "Try it out"
+3. Enter request body:
+```json
+{
+  "name": "National Football League",
+  "numberOfConferences": 2,
+  "divisionsPerConference": 4,
+  "teamsPerDivision": 4
+}
+```
+4. Click "Execute"
+
+**Using curl:**
+```bash
+curl -X POST http://localhost:5000/api/leagues-management \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "National Football League",
+    "numberOfConferences": 2,
+    "divisionsPerConference": 4,
+    "teamsPerDivision": 4
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "id": 1,
+  "name": "National Football League",
+  "season": 2025,
+  "isActive": true,
+  "totalTeams": 32,
+  "totalConferences": 2,
+  "conferences": [
+    {
+      "id": 1,
+      "name": "Conference 1",
+      "divisions": [
+        {
+          "id": 1,
+          "name": "Division 1",
+          "teams": [
+            {
+              "id": 1,
+              "name": "Team 1",
+              "city": "City 1-1-1",
+              "budget": 0,
+              "chemistry": 50,
+              "fanSupport": 50
+            }
+            // ... 3 more teams in this division
+          ]
+        }
+        // ... 3 more divisions in this conference
+      ]
+    }
+    // ... conference 2
+  ]
+}
+```
+
+**What This Tests:**
+- ✅ `LeaguesManagementController` uses `ILeagueBuilderService`
+- ✅ `LeagueBuilderService` creates hierarchical league structure
+- ✅ `LeagueRepository` persists leagues, conferences, divisions, teams
+- ✅ Full end-to-end GameManagement service integration
+
+---
+
+### Test 6: Get League with Full Structure
+
+**Purpose:** Verify league retrieval with nested relationships
+
+**Using Swagger UI:**
+1. Expand `GET /api/leagues-management/{id}`
+2. Click "Try it out"
+3. Enter league ID: `1` (from previous test)
+4. Click "Execute"
+
+**Using curl:**
+```bash
+curl http://localhost:5000/api/leagues-management/1
+```
+
+**Expected Response:**
+Same structure as the create response, confirming the league was persisted correctly.
+
+**What This Tests:**
+- ✅ `LeagueRepository.GetByIdWithFullStructureAsync()` with nested Include()
+- ✅ Multi-level relationship loading (League → Conferences → Divisions → Teams)
+- ✅ Repository pattern handles complex entity graphs
+
+---
+
+### Test 7: Simulate a Game (Advanced)
 
 **Purpose:** Verify the game simulation service works through repositories
 
@@ -368,6 +468,7 @@ Open these files and verify there's NO direct DbContext access:
 - `Gridiron.WebApi/Controllers/TeamsController.cs` → Should have `ITeamRepository`, NOT `GridironDbContext`
 - `Gridiron.WebApi/Controllers/PlayersController.cs` → Should have `IPlayerRepository`, NOT `GridironDbContext`
 - `Gridiron.WebApi/Controllers/GamesController.cs` → Should have `IGameSimulationService`, NOT `GridironDbContext`
+- `Gridiron.WebApi/Controllers/LeaguesManagementController.cs` → Should have `ILeagueRepository` and `ILeagueBuilderService`, NOT `GridironDbContext`
 - `Gridiron.WebApi/Services/GameSimulationService.cs` → Should have `ITeamRepository` and `IGameRepository`, NOT `GridironDbContext`
 
 **✅ Only this should access DbContext:**
@@ -422,9 +523,11 @@ If tables are empty, you'll need a database seeder.
 **Fix:**
 Verify `Program.cs` has:
 ```csharp
+builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<GameManagement.Services.ILeagueBuilderService, GameManagement.Services.LeagueBuilderService>();
 ```
 
 ### Issue: Roster returns empty array but team exists
@@ -442,11 +545,13 @@ You'll know the API and repository pattern are working correctly if:
 2. ✅ `GET /api/teams/1/roster` returns team WITH players in roster array (proves Include() works)
 3. ✅ `GET /api/players?teamId=1` returns players for that team (proves filtering works)
 4. ✅ `GET /api/players/1` returns single player (proves single entity retrieval works)
-5. ✅ `POST /api/games/simulate` runs and returns game result (proves full simulation works)
-6. ✅ No errors in console logs
-7. ✅ No `GridironDbContext` references in `Gridiron.WebApi/**` files
-8. ✅ All controllers use `I*Repository` interfaces
-9. ✅ Swagger UI loads and all endpoints are documented
+5. ✅ `POST /api/leagues-management` creates league with structure (proves GameManagement service integration)
+6. ✅ `GET /api/leagues-management/1` returns league with full structure (proves nested relationships)
+7. ✅ `POST /api/games/simulate` runs and returns game result (proves full simulation works)
+8. ✅ No errors in console logs
+9. ✅ No `GridironDbContext` references in `Gridiron.WebApi/**` files
+10. ✅ All controllers use `I*Repository` interfaces
+11. ✅ Swagger UI loads and all endpoints are documented
 
 ---
 

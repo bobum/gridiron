@@ -346,20 +346,24 @@ dotnet run
 
 ### Option 3: Drop and Recreate All Tables (Code)
 ```bash
-cd DataAccessLayer
+# From solution root (C:\projects\gridiron)
 
 # Remove existing migrations
-rm -rf Migrations/
+rm -rf DataAccessLayer/Migrations/
 
 # Recreate migration
-dotnet ef migrations add InitialCreate
+dotnet ef migrations add InitialCreate --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 
 # Apply migration (will fail if tables exist)
-dotnet ef database update
+dotnet ef database update --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 
 # Run seeding
+cd DataAccessLayer
 dotnet run
+cd ..
 ```
+
+**Important:** Use forward slashes (`/`) not backslashes (`\`)
 
 ---
 
@@ -367,17 +371,19 @@ dotnet run
 
 ### Adding New Migrations
 
-When you modify domain models (`Team`, `Player`, `Game`, etc.):
+When you modify domain models (`Team`, `Player`, `Game`, `League`, etc.):
 
 ```bash
-cd DataAccessLayer
+# From solution root (C:\projects\gridiron)
 
 # Create new migration
-dotnet ef migrations add DescriptiveNameForChange
+dotnet ef migrations add DescriptiveNameForChange --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 
 # Apply to database
-dotnet ef database update
+dotnet ef database update --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 ```
+
+**Important:** Use forward slashes (`/`) not backslashes (`\`)
 
 ### Adding More Seed Data
 

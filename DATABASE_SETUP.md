@@ -96,14 +96,19 @@ dotnet user-secrets set "ConnectionStrings:GridironDb" "Server=tcp:YOUR_SERVER.d
 
 ### Step 2: Create the Initial Migration
 
-From the **DataAccessLayer** directory:
+From the **solution root directory** (`C:\projects\gridiron`):
 
 ```bash
-cd /path/to/gridiron/DataAccessLayer
+cd C:\projects\gridiron
 
 # Create the initial migration
-dotnet ef migrations add InitialCreate
+dotnet ef migrations add InitialCreate --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 ```
+
+**Important:**
+- Use **forward slashes** (`/`) not backslashes (`\`)
+- Include the `.csproj` file name
+- Run from the solution root, not the DataAccessLayer directory
 
 This will:
 - Analyze your `GridironDbContext` and entity models
@@ -122,8 +127,8 @@ Done. To undo this action, use 'dotnet ef migrations remove'
 ### Step 3: Apply Migration to Azure SQL Database
 
 ```bash
-# Still in DataAccessLayer directory
-dotnet ef database update
+# From solution root
+dotnet ef database update --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
 ```
 
 This will:
@@ -317,9 +322,18 @@ gameFlow.Execute();  // Exact same plays!
 - Check server name format: `yourserver.database.windows.net`
 
 ### "Build failed" during migration
-- Run `dotnet restore` in DataAccessLayer directory
+- Run `dotnet restore` in solution root directory
 - Verify .NET 8 SDK is installed: `dotnet --version`
 - Check for compilation errors: `dotnet build`
+
+### "Unable to retrieve project metadata" or "Project file does not exist"
+- Ensure you're running from the **solution root directory** (`C:\projects\gridiron`)
+- Use **forward slashes** (`/`) in paths, not backslashes (`\`)
+- Include the full `.csproj` file name in the path
+- Correct format:
+  ```bash
+  dotnet ef migrations add MigrationName --project DataAccessLayer/DataAccessLayer.csproj --startup-project Gridiron.WebApi/Gridiron.WebApi.csproj
+  ```
 
 ### "No executable found matching command 'dotnet-ef'"
 ```bash

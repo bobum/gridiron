@@ -165,7 +165,10 @@ DATABASE/PERSISTENCE (PRODUCTION READY)
     - Repository pattern (ITeamRepository, IPlayerRepository, IGameRepository, IPlayerDataRepository)
 
 ✅ Entities Mapped
-    - Teams (with players one-to-many)
+    - Leagues (with conferences one-to-many)
+    - Conferences (with divisions one-to-many)
+    - Divisions (with teams one-to-many)
+    - Teams (with players one-to-many, optional division assignment)
     - Players (with all 25+ attributes)
     - Games (with home/away team relationships)
     - PlayByPlay (JSON storage for game logs)
@@ -189,6 +192,14 @@ DATABASE/PERSISTENCE (PRODUCTION READY)
 
 GAMEMANAGEMENT SERVICES (PRODUCTION READY)
 ================================================================================
+✅ League Builder Service
+    - League creation with NFL-style hierarchical structure
+    - Configurable: conferences, divisions per conference, teams per division
+    - Auto-generation of placeholder names (Conference #, Division #, Team #)
+    - Creates teams with empty rosters and initialized staff
+    - Full validation of input parameters
+    - 27 comprehensive tests
+
 ✅ Player Generation Service
     - Random player generation across all 20+ positions
     - Position-specific attribute ranges (QB passing, RB rushing, etc.)
@@ -222,7 +233,7 @@ API LAYER (PRODUCTION READY)
     - Dependency injection configured
     - Repository pattern enforced
     - Controllers: TeamsController, PlayersController, GamesController,
-                  TeamsManagementController
+                  TeamsManagementController, LeaguesManagementController
     - GameSimulationService for orchestrating simulations
 
 
@@ -266,9 +277,9 @@ MAJOR FEATURES MISSING (NOT IMPLEMENTED)
 TESTING COVERAGE
 ================================================================================
 Test Framework: xUnit (GameManagement), MSTest (StateLibrary)
-Test Files:        47+ test classes
-Test Lines:        22,200+ lines
-Total Tests:       939+ tests
+Test Files:        49+ test classes
+Test Lines:        23,500+ lines
+Total Tests:       1,042+ tests
 Pass Rate:         100% (all tests passing)
 Code Coverage:     Measured with coverlet
 
@@ -289,10 +300,15 @@ Test Categories:
   ✅ Interception Tests
   ✅ Field Position Tests
   ✅ Game Flow Tests
-  ✅ GameManagement Tests (100+ tests)
+  ✅ GameManagement Tests (154+ tests)
+     - LeagueBuilderServiceTests (27 tests)
      - PlayerGeneratorServiceTests (35+ tests)
      - TeamBuilderServiceTests (31 tests)
      - PlayerProgressionServiceTests (40 tests)
+  ✅ API Tests (62+ tests)
+     - LeaguesManagementControllerTests (27 tests)
+     - TeamsControllerTests
+     - PlayersControllerTests
 
 Deterministic Testing:
   ✅ SeedableRandom for reproducible tests
@@ -361,11 +377,11 @@ Code Metrics:
   - Total Size:               140MB
 
 Test Metrics:
-  - Test Lines:               22,200+
-  - Test Files:               47+
-  - Total Tests:              939+
+  - Test Lines:               23,500+
+  - Test Files:               49+
+  - Total Tests:              1,042+
   - Pass Rate:                100%
-  - Execution Time:           ~1-4 seconds
+  - Execution Time:           ~1-5 seconds
 
 Architecture:
   - States:                   19
@@ -374,8 +390,8 @@ Architecture:
   - Penalties:                50+
   - Injury Types:             5
   - Positions:                20+
-  - Repositories:             4 (Team, Player, Game, PlayerData)
-  - Services:                 4 (GameSimulation, PlayerGenerator, TeamBuilder, PlayerProgression)
+  - Repositories:             5 (League, Team, Player, Game, PlayerData)
+  - Services:                 5 (LeagueBuilder, GameSimulation, PlayerGenerator, TeamBuilder, PlayerProgression)
 
 Data:
   - Teams in Database:        2 (Falcons, Eagles)
