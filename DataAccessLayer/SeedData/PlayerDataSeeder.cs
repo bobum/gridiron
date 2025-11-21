@@ -3,7 +3,7 @@ using DomainObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace DataAccessLayer.Seeding;
+namespace DataAccessLayer.SeedData;
 
 /// <summary>
 /// Seeds FirstNames, LastNames, and Colleges tables from JSON files
