@@ -13,12 +13,14 @@ namespace GameManagement.Tests;
 public class TeamBuilderServiceTests
 {
     private readonly Mock<ILogger<TeamBuilderService>> _loggerMock;
+    private readonly Mock<IPlayerGeneratorService> _playerGeneratorMock;
     private readonly TeamBuilderService _service;
 
     public TeamBuilderServiceTests()
     {
         _loggerMock = new Mock<ILogger<TeamBuilderService>>();
-        _service = new TeamBuilderService(_loggerMock.Object);
+        _playerGeneratorMock = new Mock<IPlayerGeneratorService>();
+        _service = new TeamBuilderService(_loggerMock.Object, _playerGeneratorMock.Object);
     }
 
     #region CreateTeam Tests
@@ -449,6 +451,218 @@ public class TeamBuilderServiceTests
         {
             var player = CreateTestPlayer(position, $"{position}{i}", "Test");
             _service.AddPlayerToTeam(team, player);
+        }
+    }
+
+    #endregion
+
+    #region PopulateTeamRoster Tests
+
+    [Fact]
+    public void PopulateTeamRoster_WithValidTeam_ShouldPopulate53Players()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) => new Player { Position = pos, FirstName = "Test", LastName = "Player" });
+
+        // Act
+        var result = _service.PopulateTeamRoster(team);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Players.Should().HaveCount(53);
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_ShouldClearExistingPlayers()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+        team.Players.Add(new Player { FirstName = "Existing", LastName = "Player" });
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) => new Player { Position = pos, FirstName = "New", LastName = "Player" });
+
+        // Act
+        var result = _service.PopulateTeamRoster(team);
+
+        // Assert
+        result.Players.Should().HaveCount(53);
+        result.Players.Should().NotContain(p => p.FirstName == "Existing");
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_WithNullTeam_ShouldThrowArgumentNullException()
+    {
+        // Act & Assert
+        var act = () => _service.PopulateTeamRoster(null!);
+        act.Should().Throw<ArgumentNullException>()
+            .And.ParamName.Should().Be("team");
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_ShouldGenerateCorrectNumberOfPlayersPerPosition()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+        var generatedPlayers = new List<Player>();
+
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) =>
+            {
+                var player = new Player { Position = pos, FirstName = "Test", LastName = "Player" };
+                generatedPlayers.Add(player);
+                return player;
+            });
+
+        // Act
+        _service.PopulateTeamRoster(team);
+
+        // Assert - Verify correct counts per position (NFL roster composition)
+        generatedPlayers.Count(p => p.Position == Positions.QB).Should().Be(2);
+        generatedPlayers.Count(p => p.Position == Positions.RB).Should().Be(4);
+        generatedPlayers.Count(p => p.Position == Positions.FB).Should().Be(1);
+        generatedPlayers.Count(p => p.Position == Positions.WR).Should().Be(6);
+        generatedPlayers.Count(p => p.Position == Positions.TE).Should().Be(3);
+        generatedPlayers.Count(p => p.Position == Positions.C).Should().Be(2);
+        generatedPlayers.Count(p => p.Position == Positions.G).Should().Be(4);
+        generatedPlayers.Count(p => p.Position == Positions.T).Should().Be(4);
+        generatedPlayers.Count(p => p.Position == Positions.DE).Should().Be(4);
+        generatedPlayers.Count(p => p.Position == Positions.DT).Should().Be(3);
+        generatedPlayers.Count(p => p.Position == Positions.LB).Should().Be(4);
+        generatedPlayers.Count(p => p.Position == Positions.OLB).Should().Be(2);
+        generatedPlayers.Count(p => p.Position == Positions.CB).Should().Be(5);
+        generatedPlayers.Count(p => p.Position == Positions.S).Should().Be(3);
+        generatedPlayers.Count(p => p.Position == Positions.FS).Should().Be(2);
+        generatedPlayers.Count(p => p.Position == Positions.K).Should().Be(1);
+        generatedPlayers.Count(p => p.Position == Positions.P).Should().Be(1);
+        generatedPlayers.Count(p => p.Position == Positions.LS).Should().Be(1);
+        generatedPlayers.Count(p => p.Position == Positions.H).Should().Be(1);
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_ShouldSetTeamIdOnAllPlayers()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+        team.Id = 42;
+
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) => new Player { Position = pos, FirstName = "Test", LastName = "Player" });
+
+        // Act
+        _service.PopulateTeamRoster(team);
+
+        // Assert
+        team.Players.Should().HaveCount(53);
+        team.Players.Should().OnlyContain(p => p.TeamId == 42);
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_ShouldCallAssignDepthCharts()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) => new Player { Position = pos, FirstName = "Test", LastName = "Player" });
+
+        // Act
+        _service.PopulateTeamRoster(team);
+
+        // Assert - Depth charts should not be empty after population
+        team.OffenseDepthChart.Should().NotBeNull();
+        team.DefenseDepthChart.Should().NotBeNull();
+        team.FieldGoalOffenseDepthChart.Should().NotBeNull();
+        team.FieldGoalDefenseDepthChart.Should().NotBeNull();
+        team.KickoffOffenseDepthChart.Should().NotBeNull();
+        team.KickoffDefenseDepthChart.Should().NotBeNull();
+        team.PuntOffenseDepthChart.Should().NotBeNull();
+        team.PuntDefenseDepthChart.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_WithSameSeed_ShouldProduceConsistentResults()
+    {
+        // Arrange
+        var team1 = _service.CreateTeam("Team1", "Test", 100000000);
+        var team2 = _service.CreateTeam("Team2", "Test", 100000000);
+        var seed = 12345;
+
+        var callCount = 0;
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? s) =>
+            {
+                callCount++;
+                return new Player { Position = pos, FirstName = $"Player{callCount}", LastName = "Test" };
+            });
+
+        // Act
+        _service.PopulateTeamRoster(team1, seed);
+
+        callCount = 0; // Reset counter
+        _service.PopulateTeamRoster(team2, seed);
+
+        // Assert - Both teams should have same structure
+        team1.Players.Should().HaveCount(53);
+        team2.Players.Should().HaveCount(53);
+
+        // Verify position order is the same
+        for (int i = 0; i < 53; i++)
+        {
+            team1.Players[i].Position.Should().Be(team2.Players[i].Position);
+        }
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_WithNullSeed_ShouldStillPopulate53Players()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) => new Player { Position = pos, FirstName = "Test", LastName = "Player" });
+
+        // Act
+        var result = _service.PopulateTeamRoster(team, null);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Players.Should().HaveCount(53);
+    }
+
+    [Fact]
+    public void PopulateTeamRoster_ShouldPassIncrementingSeedsToPlayerGenerator()
+    {
+        // Arrange
+        var team = _service.CreateTeam("Test", "Team", 100000000);
+        var baseSeed = 1000;
+        var seedsReceived = new List<int?>();
+
+        _playerGeneratorMock
+            .Setup(p => p.GenerateRandomPlayer(It.IsAny<Positions>(), It.IsAny<int?>()))
+            .Returns((Positions pos, int? seed) =>
+            {
+                seedsReceived.Add(seed);
+                return new Player { Position = pos, FirstName = "Test", LastName = "Player" };
+            });
+
+        // Act
+        _service.PopulateTeamRoster(team, baseSeed);
+
+        // Assert
+        seedsReceived.Should().HaveCount(53);
+        // Seeds should increment from baseSeed + 0 to baseSeed + 52
+        for (int i = 0; i < 53; i++)
+        {
+            seedsReceived[i].Should().Be(baseSeed + i);
         }
     }
 

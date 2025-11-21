@@ -10,11 +10,15 @@ namespace GameManagement.Services;
 public class TeamBuilderService : ITeamBuilderService
 {
     private readonly ILogger<TeamBuilderService> _logger;
+    private readonly IPlayerGeneratorService _playerGenerator;
     private const int MaxRosterSize = 53;  // NFL roster limit
 
-    public TeamBuilderService(ILogger<TeamBuilderService> logger)
+    public TeamBuilderService(
+        ILogger<TeamBuilderService> logger,
+        IPlayerGeneratorService playerGenerator)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _playerGenerator = playerGenerator ?? throw new ArgumentNullException(nameof(playerGenerator));
     }
 
     public Team CreateTeam(string city, string name, decimal budget)
@@ -182,5 +186,67 @@ public class TeamBuilderService : ITeamBuilderService
         _logger.LogInformation("Roster validation passed for {City} {Name} with {PlayerCount} players",
             team.City, team.Name, team.Players.Count);
         return true;
+    }
+
+    public Team PopulateTeamRoster(Team team, int? seed = null)
+    {
+        if (team == null)
+            throw new ArgumentNullException(nameof(team));
+
+        _logger.LogInformation("Populating roster for {City} {Name} (seed: {Seed})",
+            team.City, team.Name, seed?.ToString() ?? "random");
+
+        // Clear existing players
+        team.Players.Clear();
+
+        // Define NFL standard 53-man roster composition
+        var rosterComposition = new Dictionary<Positions, int>
+        {
+            { Positions.QB, 2 },
+            { Positions.RB, 4 },
+            { Positions.FB, 1 },
+            { Positions.WR, 6 },
+            { Positions.TE, 3 },
+            { Positions.C, 2 },
+            { Positions.G, 4 },
+            { Positions.T, 4 },
+            { Positions.DE, 4 },
+            { Positions.DT, 3 },
+            { Positions.LB, 4 },
+            { Positions.OLB, 2 },
+            { Positions.CB, 5 },
+            { Positions.S, 3 },
+            { Positions.FS, 2 },
+            { Positions.K, 1 },
+            { Positions.P, 1 },
+            { Positions.LS, 1 },
+            { Positions.H, 1 }
+        };
+
+        // Generate players for each position
+        int playerIndex = 0;
+        foreach (var (position, count) in rosterComposition)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                // Use seed + index for reproducible but varied generation
+                var playerSeed = seed.HasValue ? seed.Value + playerIndex : (int?)null;
+                var player = _playerGenerator.GenerateRandomPlayer(position, playerSeed);
+
+                // Assign to team
+                player.TeamId = team.Id;
+                team.Players.Add(player);
+
+                playerIndex++;
+            }
+        }
+
+        _logger.LogInformation("Successfully populated roster for {City} {Name} with {Count} players",
+            team.City, team.Name, team.Players.Count);
+
+        // Assign depth charts after roster is populated
+        AssignDepthCharts(team);
+
+        return team;
     }
 }

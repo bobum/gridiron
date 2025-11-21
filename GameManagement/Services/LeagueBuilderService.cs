@@ -9,10 +9,14 @@ namespace GameManagement.Services;
 public class LeagueBuilderService : ILeagueBuilderService
 {
     private readonly ILogger<LeagueBuilderService> _logger;
+    private readonly ITeamBuilderService _teamBuilder;
 
-    public LeagueBuilderService(ILogger<LeagueBuilderService> logger)
+    public LeagueBuilderService(
+        ILogger<LeagueBuilderService> logger,
+        ITeamBuilderService teamBuilder)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _teamBuilder = teamBuilder ?? throw new ArgumentNullException(nameof(teamBuilder));
     }
 
     public League CreateLeague(string leagueName, int numberOfConferences, int divisionsPerConference, int teamsPerDivision)
@@ -120,5 +124,41 @@ public class LeagueBuilderService : ILeagueBuilderService
             CollegeScouts = new List<Scout>(),
             ProScouts = new List<Scout>()
         };
+    }
+
+    public League PopulateLeagueRosters(League league, int? seed = null)
+    {
+        if (league == null)
+            throw new ArgumentNullException(nameof(league));
+
+        _logger.LogInformation(
+            "Populating rosters for all teams in league '{LeagueName}' (seed: {Seed})",
+            league.Name, seed?.ToString() ?? "random");
+
+        int teamCount = 0;
+        int teamIndex = 0;
+
+        // Iterate through all teams in the league hierarchy
+        foreach (var conference in league.Conferences)
+        {
+            foreach (var division in conference.Divisions)
+            {
+                foreach (var team in division.Teams)
+                {
+                    // Use seed + team index for varied but reproducible generation
+                    var teamSeed = seed.HasValue ? seed.Value + (teamIndex * 1000) : (int?)null;
+
+                    _teamBuilder.PopulateTeamRoster(team, teamSeed);
+                    teamCount++;
+                    teamIndex++;
+                }
+            }
+        }
+
+        _logger.LogInformation(
+            "Successfully populated rosters for {TeamCount} teams in league '{LeagueName}'",
+            teamCount, league.Name);
+
+        return league;
     }
 }

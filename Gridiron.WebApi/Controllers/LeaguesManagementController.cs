@@ -223,4 +223,56 @@ public class LeaguesManagementController : ControllerBase
             return StatusCode(500, new { error = "Failed to retrieve leagues" });
         }
     }
+
+    /// <summary>
+    /// Populates rosters for all teams in a league with 53 randomly generated players each
+    /// </summary>
+    /// <param name="id">League ID</param>
+    /// <param name="seed">Optional seed for reproducible generation</param>
+    /// <returns>Updated league with all teams populated</returns>
+    [HttpPost("{id}/populate-rosters")]
+    [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<LeagueDto>> PopulateLeagueRosters(int id, [FromQuery] int? seed = null)
+    {
+        try
+        {
+            // Get league with full structure
+            var league = await _leagueRepository.GetByIdWithFullStructureAsync(id);
+            if (league == null)
+            {
+                return NotFound(new { error = $"League with ID {id} not found" });
+            }
+
+            // Populate all team rosters using LeagueBuilderService
+            _leagueBuilderService.PopulateLeagueRosters(league, seed);
+
+            // Update league in database (cascades to all teams and players)
+            await _leagueRepository.UpdateAsync(league);
+
+            var leagueDto = new LeagueDto
+            {
+                Id = league.Id,
+                Name = league.Name,
+                Season = league.Season,
+                IsActive = league.IsActive,
+                TotalConferences = league.Conferences.Count,
+                TotalTeams = league.Conferences
+                    .SelectMany(c => c.Divisions)
+                    .SelectMany(d => d.Teams)
+                    .Count()
+            };
+
+            _logger.LogInformation(
+                "Populated rosters for all {TeamCount} teams in league {LeagueId} (seed: {Seed})",
+                leagueDto.TotalTeams, id, seed?.ToString() ?? "random");
+
+            return Ok(leagueDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error populating rosters for league {LeagueId}", id);
+            return StatusCode(500, new { error = "Failed to populate league rosters" });
+        }
+    }
 }

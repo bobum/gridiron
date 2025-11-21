@@ -13,12 +13,14 @@ namespace GameManagement.Tests;
 public class LeagueBuilderServiceTests
 {
     private readonly Mock<ILogger<LeagueBuilderService>> _loggerMock;
+    private readonly Mock<ITeamBuilderService> _teamBuilderMock;
     private readonly LeagueBuilderService _service;
 
     public LeagueBuilderServiceTests()
     {
         _loggerMock = new Mock<ILogger<LeagueBuilderService>>();
-        _service = new LeagueBuilderService(_loggerMock.Object);
+        _teamBuilderMock = new Mock<ITeamBuilderService>();
+        _service = new LeagueBuilderService(_loggerMock.Object, _teamBuilderMock.Object);
     }
 
     #region CreateLeague Tests - Valid Parameters
@@ -338,15 +340,217 @@ public class LeagueBuilderServiceTests
 
     #endregion
 
+    #region PopulateLeagueRosters Tests
+
+    [Fact]
+    public void PopulateLeagueRosters_WithValidLeague_ShouldPopulateAllTeams()
+    {
+        // Arrange
+        var league = _service.CreateLeague("NFL", 2, 2, 2); // 8 teams total
+        var populateCallCount = 0;
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) =>
+            {
+                populateCallCount++;
+                return team;
+            });
+
+        // Act
+        var result = _service.PopulateLeagueRosters(league);
+
+        // Assert
+        result.Should().NotBeNull();
+        populateCallCount.Should().Be(8); // Should call PopulateTeamRoster 8 times
+        _teamBuilderMock.Verify(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()), Times.Exactly(8));
+    }
+
+    [Fact]
+    public void PopulateLeagueRosters_WithNullLeague_ShouldThrowArgumentNullException()
+    {
+        // Act & Assert
+        var act = () => _service.PopulateLeagueRosters(null!);
+        act.Should().Throw<ArgumentNullException>()
+            .And.ParamName.Should().Be("league");
+    }
+
+    [Fact]
+    public void PopulateLeagueRosters_ShouldReturnSameLeagueInstance()
+    {
+        // Arrange
+        var league = _service.CreateLeague("Test League", 1, 1, 1);
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) => team);
+
+        // Act
+        var result = _service.PopulateLeagueRosters(league);
+
+        // Assert
+        result.Should().BeSameAs(league);
+    }
+
+    [Fact]
+    public void PopulateLeagueRosters_WithSeed_ShouldPassIncrementingSeedsToTeams()
+    {
+        // Arrange
+        var league = _service.CreateLeague("NFL", 1, 1, 3); // 3 teams
+        var baseSeed = 5000;
+        var seedsReceived = new List<int?>();
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) =>
+            {
+                seedsReceived.Add(seed);
+                return team;
+            });
+
+        // Act
+        _service.PopulateLeagueRosters(league, baseSeed);
+
+        // Assert
+        seedsReceived.Should().HaveCount(3);
+        seedsReceived[0].Should().Be(baseSeed);         // Team 0 gets seed
+        seedsReceived[1].Should().Be(baseSeed + 1000);  // Team 1 gets seed + 1000
+        seedsReceived[2].Should().Be(baseSeed + 2000);  // Team 2 gets seed + 2000
+    }
+
+    [Fact]
+    public void PopulateLeagueRosters_WithNullSeed_ShouldPassNullSeedsToTeams()
+    {
+        // Arrange
+        var league = _service.CreateLeague("NFL", 1, 1, 2);
+        var seedsReceived = new List<int?>();
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) =>
+            {
+                seedsReceived.Add(seed);
+                return team;
+            });
+
+        // Act
+        _service.PopulateLeagueRosters(league, null);
+
+        // Assert
+        seedsReceived.Should().HaveCount(2);
+        seedsReceived.Should().OnlyContain(s => s == null);
+    }
+
+    [Theory]
+    [InlineData(2, 4, 4, 32)]  // NFL structure - 32 teams
+    [InlineData(1, 1, 1, 1)]   // Minimal league - 1 team
+    [InlineData(2, 2, 3, 12)]  // Custom structure - 12 teams
+    public void PopulateLeagueRosters_ShouldPopulateCorrectNumberOfTeams(
+        int conferences, int divisions, int teams, int expectedTeams)
+    {
+        // Arrange
+        var league = _service.CreateLeague("Test League", conferences, divisions, teams);
+        var populateCallCount = 0;
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) =>
+            {
+                populateCallCount++;
+                return team;
+            });
+
+        // Act
+        _service.PopulateLeagueRosters(league);
+
+        // Assert
+        populateCallCount.Should().Be(expectedTeams);
+    }
+
+    [Fact]
+    public void PopulateLeagueRosters_ShouldPopulateTeamsInAllConferences()
+    {
+        // Arrange
+        var league = _service.CreateLeague("NFL", 3, 2, 2); // 3 conferences, 2 divisions each, 2 teams each = 12 teams
+        var populatedTeams = new List<Team>();
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) =>
+            {
+                populatedTeams.Add(team);
+                return team;
+            });
+
+        // Act
+        _service.PopulateLeagueRosters(league);
+
+        // Assert
+        populatedTeams.Should().HaveCount(12);
+
+        // Verify teams from all conferences were populated
+        var allTeamsInLeague = league.Conferences
+            .SelectMany(c => c.Divisions)
+            .SelectMany(d => d.Teams)
+            .ToList();
+
+        populatedTeams.Should().BeEquivalentTo(allTeamsInLeague);
+    }
+
+    [Fact]
+    public void PopulateLeagueRosters_WithDifferentSeeds_ShouldProduceDifferentTeamSeeds()
+    {
+        // Arrange
+        var league1 = _service.CreateLeague("League1", 1, 1, 2);
+        var league2 = _service.CreateLeague("League2", 1, 1, 2);
+        var seeds1 = new List<int?>();
+        var seeds2 = new List<int?>();
+
+        _teamBuilderMock
+            .Setup(t => t.PopulateTeamRoster(It.IsAny<Team>(), It.IsAny<int?>()))
+            .Returns((Team team, int? seed) =>
+            {
+                if (team.Name == "Team 1" || team.Name == "Team 2")
+                {
+                    if (seeds1.Count < 2)
+                        seeds1.Add(seed);
+                    else
+                        seeds2.Add(seed);
+                }
+                return team;
+            });
+
+        // Act
+        _service.PopulateLeagueRosters(league1, 1000);
+        _service.PopulateLeagueRosters(league2, 2000);
+
+        // Assert
+        seeds1[0].Should().Be(1000);
+        seeds1[1].Should().Be(2000);
+        seeds2[0].Should().Be(2000);
+        seeds2[1].Should().Be(3000);
+    }
+
+    #endregion
+
     #region Constructor Tests
 
     [Fact]
     public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        var act = () => new LeagueBuilderService(null!);
+        var act = () => new LeagueBuilderService(null!, _teamBuilderMock.Object);
         act.Should().Throw<ArgumentNullException>()
             .And.ParamName.Should().Be("logger");
+    }
+
+    [Fact]
+    public void Constructor_WithNullTeamBuilder_ShouldThrowArgumentNullException()
+    {
+        // Act & Assert
+        var act = () => new LeagueBuilderService(_loggerMock.Object, null!);
+        act.Should().Throw<ArgumentNullException>()
+            .And.ParamName.Should().Be("teamBuilder");
     }
 
     #endregion

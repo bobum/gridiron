@@ -537,6 +537,129 @@ public class LeaguesManagementControllerTests
 
     #endregion
 
+    #region PopulateLeagueRosters Tests
+
+    [Fact]
+    public async Task PopulateLeagueRosters_WhenLeagueExists_ReturnsOkWithLeague()
+    {
+        // Arrange
+        var league = CreateTestLeague(1, "NFL", 2, 2, 2);
+        _mockLeagueRepository
+            .Setup(r => r.GetByIdWithFullStructureAsync(1))
+            .ReturnsAsync(league);
+
+        _mockLeagueBuilderService
+            .Setup(s => s.PopulateLeagueRosters(league, It.IsAny<int?>()))
+            .Returns(league);
+
+        _mockLeagueRepository
+            .Setup(r => r.UpdateAsync(league))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.PopulateLeagueRosters(1, null);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+        var okResult = result.Result as OkObjectResult;
+        var leagueDto = okResult!.Value as LeagueDto;
+        leagueDto!.Id.Should().Be(1);
+        leagueDto.Name.Should().Be("NFL");
+    }
+
+    [Fact]
+    public async Task PopulateLeagueRosters_WhenLeagueNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        _mockLeagueRepository
+            .Setup(r => r.GetByIdWithFullStructureAsync(999))
+            .ReturnsAsync((League?)null);
+
+        // Act
+        var result = await _controller.PopulateLeagueRosters(999, null);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task PopulateLeagueRosters_WithSeed_PassesSeedToService()
+    {
+        // Arrange
+        var league = CreateTestLeague(1, "NFL", 1, 1, 1);
+        var seed = 12345;
+
+        _mockLeagueRepository
+            .Setup(r => r.GetByIdWithFullStructureAsync(1))
+            .ReturnsAsync(league);
+
+        _mockLeagueBuilderService
+            .Setup(s => s.PopulateLeagueRosters(league, seed))
+            .Returns(league);
+
+        _mockLeagueRepository
+            .Setup(r => r.UpdateAsync(league))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.PopulateLeagueRosters(1, seed);
+
+        // Assert
+        _mockLeagueBuilderService.Verify(
+            s => s.PopulateLeagueRosters(league, seed),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PopulateLeagueRosters_CallsRepositoryUpdate()
+    {
+        // Arrange
+        var league = CreateTestLeague(1, "NFL", 1, 1, 1);
+
+        _mockLeagueRepository
+            .Setup(r => r.GetByIdWithFullStructureAsync(1))
+            .ReturnsAsync(league);
+
+        _mockLeagueBuilderService
+            .Setup(s => s.PopulateLeagueRosters(league, It.IsAny<int?>()))
+            .Returns(league);
+
+        _mockLeagueRepository
+            .Setup(r => r.UpdateAsync(league))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.PopulateLeagueRosters(1, null);
+
+        // Assert
+        _mockLeagueRepository.Verify(r => r.UpdateAsync(league), Times.Once);
+    }
+
+    [Fact]
+    public async Task PopulateLeagueRosters_WhenServiceThrowsException_ReturnsInternalServerError()
+    {
+        // Arrange
+        var league = CreateTestLeague(1, "NFL", 1, 1, 1);
+
+        _mockLeagueRepository
+            .Setup(r => r.GetByIdWithFullStructureAsync(1))
+            .ReturnsAsync(league);
+
+        _mockLeagueBuilderService
+            .Setup(s => s.PopulateLeagueRosters(It.IsAny<League>(), It.IsAny<int?>()))
+            .Throws(new Exception("Population error"));
+
+        // Act
+        var result = await _controller.PopulateLeagueRosters(1, null);
+
+        // Assert
+        result.Result.Should().BeOfType<ObjectResult>();
+        var objectResult = result.Result as ObjectResult;
+        objectResult!.StatusCode.Should().Be(500);
+    }
+
+    #endregion
+
     #region Helper Methods
 
     private League CreateTestLeague(int id, string name, int conferences, int divisionsPerConf, int teamsPerDiv)

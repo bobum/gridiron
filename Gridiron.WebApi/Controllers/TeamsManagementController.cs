@@ -16,17 +16,20 @@ public class TeamsManagementController : ControllerBase
     private readonly ITeamRepository _teamRepository;
     private readonly IPlayerRepository _playerRepository;
     private readonly ITeamBuilderService _teamBuilderService;
+    private readonly IPlayerGeneratorService _playerGeneratorService;
     private readonly ILogger<TeamsManagementController> _logger;
 
     public TeamsManagementController(
         ITeamRepository teamRepository,
         IPlayerRepository playerRepository,
         ITeamBuilderService teamBuilderService,
+        IPlayerGeneratorService playerGeneratorService,
         ILogger<TeamsManagementController> logger)
     {
         _teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         _playerRepository = playerRepository ?? throw new ArgumentNullException(nameof(playerRepository));
         _teamBuilderService = teamBuilderService ?? throw new ArgumentNullException(nameof(teamBuilderService));
+        _playerGeneratorService = playerGeneratorService ?? throw new ArgumentNullException(nameof(playerGeneratorService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -283,6 +286,58 @@ public class TeamsManagementController : ControllerBase
         {
             _logger.LogError(ex, "Error validating roster for team {TeamId}", id);
             return StatusCode(500, new { error = "Failed to validate roster" });
+        }
+    }
+
+    /// <summary>
+    /// Populates a team's roster with 53 randomly generated players following NFL roster composition
+    /// </summary>
+    /// <param name="id">Team ID</param>
+    /// <param name="seed">Optional seed for reproducible generation</param>
+    /// <returns>Updated team with populated roster</returns>
+    [HttpPost("{id}/populate-roster")]
+    [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TeamDto>> PopulateTeamRoster(int id, [FromQuery] int? seed = null)
+    {
+        // Get team
+        var team = await _teamRepository.GetByIdAsync(id);
+        if (team == null)
+        {
+            return NotFound(new { error = $"Team with ID {id} not found" });
+        }
+
+        try
+        {
+            // Populate roster using TeamBuilderService
+            _teamBuilderService.PopulateTeamRoster(team, seed);
+
+            // Update team in database
+            await _teamRepository.UpdateAsync(team);
+
+            var teamDto = new TeamDto
+            {
+                Id = team.Id,
+                Name = team.Name,
+                City = team.City,
+                Budget = team.Budget,
+                Championships = team.Championships,
+                Wins = team.Wins,
+                Losses = team.Losses,
+                Ties = team.Ties,
+                FanSupport = team.FanSupport,
+                Chemistry = team.Chemistry
+            };
+
+            _logger.LogInformation("Populated roster for team {TeamId} with 53 players (seed: {Seed})",
+                id, seed?.ToString() ?? "random");
+
+            return Ok(teamDto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error populating roster for team {TeamId}", id);
+            return StatusCode(500, new { error = "Failed to populate roster" });
         }
     }
 }

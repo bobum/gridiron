@@ -36,4 +36,12 @@ public interface ITeamBuilderService
     /// <param name="team">The team to validate</param>
     /// <returns>True if roster is valid, false otherwise</returns>
     bool ValidateRoster(Team team);
+
+    /// <summary>
+    /// Populates a team with a full 53-player NFL roster
+    /// </summary>
+    /// <param name="team">The team to populate</param>
+    /// <param name="seed">Optional seed for reproducible generation</param>
+    /// <returns>The team with populated roster</returns>
+    Team PopulateTeamRoster(Team team, int? seed = null);
 }
