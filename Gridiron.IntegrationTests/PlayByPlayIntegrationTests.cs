@@ -5,6 +5,7 @@ using GameManagement.Services;
 using Gridiron.WebApi.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Gridiron.IntegrationTests;
 
@@ -16,10 +17,12 @@ namespace Gridiron.IntegrationTests;
 public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
 {
     private readonly DatabaseTestFixture _fixture;
+    private readonly ITestOutputHelper _output;
 
-    public PlayByPlayIntegrationTests(DatabaseTestFixture fixture)
+    public PlayByPlayIntegrationTests(DatabaseTestFixture fixture, ITestOutputHelper output)
     {
         _fixture = fixture;
+        _output = output;
     }
 
     [Fact]
@@ -204,7 +207,7 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         }
 
         // ==========================================
-        // STEP 10: Verify Player Stats Accumulated During Game
+        // STEP 10: Verify Player Stats Accumulated During Game (Deterministic with seed 99999)
         // ==========================================
         var homeTeamWithPlayers = await teamRepository.GetByIdWithPlayersAsync(homeTeamId);
         var awayTeamWithPlayers = await teamRepository.GetByIdWithPlayersAsync(awayTeamId);
@@ -212,36 +215,46 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         homeTeamWithPlayers.Should().NotBeNull();
         awayTeamWithPlayers.Should().NotBeNull();
 
-        // Verify that at least some stats were accumulated during the game
-        var allPlayers = homeTeamWithPlayers!.Players.Concat(awayTeamWithPlayers!.Players).ToList();
+        // With deterministic seeding, we should get EXACT same stats every time
+        // This verifies both stat accumulation AND deterministic simulation
 
-        // At least one QB should have passing stats
-        var qbsWithPassingYards = allPlayers
-            .Where(p => p.Position == DomainObjects.Positions.QB)
-            .Where(p => p.Stats.ContainsKey(DomainObjects.StatTypes.PlayerStatType.PassingYards))
-            .Where(p => p.Stats[DomainObjects.StatTypes.PlayerStatType.PassingYards] > 0)
-            .ToList();
+        // Home Team QB - Kenneth Henderson
+        var homeQB = homeTeamWithPlayers!.Players.First(p => p.FirstName == "Kenneth" && p.LastName == "Henderson");
+        homeQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingYards].Should().Be(192);
+        homeQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingAttempts].Should().Be(19);
+        homeQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingCompletions].Should().Be(11);
+        homeQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingTouchdowns].Should().Be(3);
 
-        qbsWithPassingYards.Should().NotBeEmpty(
-            "because quarterbacks should accumulate passing yards during game simulation");
+        // Home Team RB - Brian Powell
+        var homeRB = homeTeamWithPlayers.Players.First(p => p.FirstName == "Brian" && p.LastName == "Powell");
+        homeRB.Stats[DomainObjects.StatTypes.PlayerStatType.RushingYards].Should().Be(137);
+        homeRB.Stats[DomainObjects.StatTypes.PlayerStatType.RushingAttempts].Should().Be(17);
+        homeRB.Stats[DomainObjects.StatTypes.PlayerStatType.RushingTouchdowns].Should().Be(2);
 
-        // At least one player should have rushing stats (RB, QB, or other)
-        var playersWithRushingYards = allPlayers
-            .Where(p => p.Stats.ContainsKey(DomainObjects.StatTypes.PlayerStatType.RushingYards))
-            .Where(p => p.Stats[DomainObjects.StatTypes.PlayerStatType.RushingYards] > 0)
-            .ToList();
+        // Home Team WR - Deandre James
+        var homeWR = homeTeamWithPlayers.Players.First(p => p.FirstName == "Deandre" && p.LastName == "James");
+        homeWR.Stats[DomainObjects.StatTypes.PlayerStatType.Receptions].Should().Be(5);
+        homeWR.Stats[DomainObjects.StatTypes.PlayerStatType.ReceivingYards].Should().Be(56);
+        homeWR.Stats[DomainObjects.StatTypes.PlayerStatType.ReceivingTouchdowns].Should().Be(2);
 
-        playersWithRushingYards.Should().NotBeEmpty(
-            "because players should accumulate rushing yards during game simulation");
+        // Away Team QB - Henry Graham
+        var awayQB = awayTeamWithPlayers!.Players.First(p => p.FirstName == "Henry" && p.LastName == "Graham");
+        awayQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingYards].Should().Be(319);
+        awayQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingAttempts].Should().Be(30);
+        awayQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingCompletions].Should().Be(17);
+        awayQB.Stats[DomainObjects.StatTypes.PlayerStatType.PassingTouchdowns].Should().Be(2);
 
-        // At least one receiver should have receiving stats
-        var playersWithReceptions = allPlayers
-            .Where(p => p.Stats.ContainsKey(DomainObjects.StatTypes.PlayerStatType.Receptions))
-            .Where(p => p.Stats[DomainObjects.StatTypes.PlayerStatType.Receptions] > 0)
-            .ToList();
+        // Away Team RB - Jimmy Kelly
+        var awayRB = awayTeamWithPlayers.Players.First(p => p.FirstName == "Jimmy" && p.LastName == "Kelly");
+        awayRB.Stats[DomainObjects.StatTypes.PlayerStatType.RushingYards].Should().Be(235);
+        awayRB.Stats[DomainObjects.StatTypes.PlayerStatType.RushingAttempts].Should().Be(40);
+        awayRB.Stats[DomainObjects.StatTypes.PlayerStatType.RushingTouchdowns].Should().Be(4);
 
-        playersWithReceptions.Should().NotBeEmpty(
-            "because receivers should accumulate receptions during game simulation");
+        // Away Team WR - Bryan Ward
+        var awayWR = awayTeamWithPlayers.Players.First(p => p.FirstName == "Bryan" && p.LastName == "Ward");
+        awayWR.Stats[DomainObjects.StatTypes.PlayerStatType.Receptions].Should().Be(6);
+        awayWR.Stats[DomainObjects.StatTypes.PlayerStatType.ReceivingYards].Should().Be(78);
+        awayWR.Stats[DomainObjects.StatTypes.PlayerStatType.ReceivingTouchdowns].Should().Be(1);
 
         // ==========================================
         // STEP 11: Verify State Transitions Filtered Out
