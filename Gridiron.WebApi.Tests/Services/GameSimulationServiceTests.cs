@@ -399,12 +399,13 @@ public class GameSimulationServiceTests
         // Assert
         capturedPlayByPlay.Should().NotBeNull();
         capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
-        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Game:");
-        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Final Score:");
+        // Verify it contains actual game engine output (state transitions, plays, etc.)
+        capturedPlayByPlay.PlayByPlayLog.Should().Contain("State transition:");
+        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Good snap");
     }
 
     [Fact]
-    public async Task SimulateGame_PlayByPlayLog_ContainsTeamNames()
+    public async Task SimulateGame_PlayByPlayLog_ContainsTeamCities()
     {
         // Arrange
         var homeTeam = TestTeams.LoadAtlantaFalcons();
@@ -424,10 +425,10 @@ public class GameSimulationServiceTests
         // Act
         await _service.SimulateGameAsync(1, 2, 12345);
 
-        // Assert
+        // Assert - Game engine logs city names in field position descriptions (e.g., "1st & 10 at Atlanta 25")
         capturedPlayByPlay.Should().NotBeNull();
-        capturedPlayByPlay!.PlayByPlayLog.Should().Contain("Falcons");
-        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Eagles");
+        capturedPlayByPlay!.PlayByPlayLog.Should().Contain("Atlanta");
+        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Philadelphia");
     }
 
     [Fact]
@@ -462,7 +463,7 @@ public class GameSimulationServiceTests
     }
 
     [Fact]
-    public async Task SimulateGame_PlayByPlayLog_ContainsRandomSeedWhenProvided()
+    public async Task SimulateGame_PlayByPlayLog_ContainsDetailedGameEvents()
     {
         // Arrange
         var homeTeam = TestTeams.LoadAtlantaFalcons();
@@ -482,13 +483,15 @@ public class GameSimulationServiceTests
         // Act
         await _service.SimulateGameAsync(1, 2, 99999);
 
-        // Assert
+        // Assert - Verify the log contains detailed game events from the simulation engine
         capturedPlayByPlay.Should().NotBeNull();
-        capturedPlayByPlay!.PlayByPlayLog.Should().Contain("Random Seed: 99999");
+        capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
+        // Should contain down and distance info
+        capturedPlayByPlay.PlayByPlayLog.Should().MatchRegex(@"\d+(st|nd|rd|th) & \d+");
     }
 
     [Fact]
-    public async Task SimulateGame_PlayByPlayLog_ContainsPlayCount()
+    public async Task SimulateGame_PlayByPlayLog_ContainsMultiplePlays()
     {
         // Arrange
         var homeTeam = TestTeams.LoadAtlantaFalcons();
@@ -508,9 +511,11 @@ public class GameSimulationServiceTests
         // Act
         await _service.SimulateGameAsync(1, 2, 12345);
 
-        // Assert
+        // Assert - Verify the log is comprehensive with multiple plays
         capturedPlayByPlay.Should().NotBeNull();
-        capturedPlayByPlay!.PlayByPlayLog.Should().Contain("Total Plays:");
+        capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
+        // A full game should have a substantial log (at least 1000 characters of play-by-play)
+        capturedPlayByPlay.PlayByPlayLog.Length.Should().BeGreaterThan(1000);
     }
 
     [Fact]

@@ -68,10 +68,14 @@ public class GameSimulationService : IGameSimulationService
             ? new SeedableRandom(randomSeed.Value)
             : new SeedableRandom();
 
+        // Create a capture logger to collect play-by-play output during simulation
+        // This captures the SAME output that would normally go to console in GridironConsole
+        var captureLogger = new StringCaptureLogger<GameFlow>();
+
         // Run simulation on background thread to avoid blocking
         await Task.Run(() =>
         {
-            var gameFlow = new GameFlow(game, rng, _gameLogger);
+            var gameFlow = new GameFlow(game, rng, captureLogger);
             gameFlow.Execute();
         });
 
@@ -81,24 +85,26 @@ public class GameSimulationService : IGameSimulationService
         // Save game through repository
         await _gameRepository.AddAsync(game);
 
-        // Create and save play-by-play data
-        await SavePlayByPlayDataAsync(game);
+        // Create and save play-by-play data using the captured logger output
+        await SavePlayByPlayDataAsync(game, captureLogger);
 
         return game;
     }
 
     /// <summary>
     /// Serializes and saves play-by-play data for a completed game
+    /// Uses the captured logger output as the play-by-play log (DRY - reuses what the game engine logged)
     /// </summary>
-    private async Task SavePlayByPlayDataAsync(Game game)
+    private async Task SavePlayByPlayDataAsync(Game game, StringCaptureLogger<GameFlow> captureLogger)
     {
         try
         {
             // Serialize plays to JSON
             var playsJson = SerializePlays(game.Plays);
 
-            // Generate play-by-play log
-            var playByPlayLog = GeneratePlayByPlayLog(game);
+            // Get the play-by-play log from the captured logger output
+            // This is the SAME text that GridironConsole sees - single source of truth!
+            var playByPlayLog = captureLogger.GetCapturedLog();
 
             // Create PlayByPlay entity
             var playByPlay = new PlayByPlay
@@ -158,75 +164,6 @@ public class GameSimulationService : IGameSimulationService
 
             return JsonSerializer.Serialize(playsSummary);
         }
-    }
-
-    /// <summary>
-    /// Generates a human-readable play-by-play log from the game
-    /// </summary>
-    private string GeneratePlayByPlayLog(Game game)
-    {
-        var log = new StringBuilder();
-
-        log.AppendLine($"========================================");
-        log.AppendLine($"Game: {game.HomeTeam.Name} vs {game.AwayTeam.Name}");
-        log.AppendLine($"Final Score: {game.HomeTeam.Name} {game.HomeScore} - {game.AwayScore} {game.AwayTeam.Name}");
-        if (game.RandomSeed.HasValue)
-        {
-            log.AppendLine($"Random Seed: {game.RandomSeed.Value}");
-        }
-        log.AppendLine($"========================================");
-        log.AppendLine();
-
-        // Add play summaries
-        for (int i = 0; i < game.Plays.Count; i++)
-        {
-            var play = game.Plays[i];
-            log.AppendLine($"Play {i + 1}: {play.PlayType} - Down: {play.Down}, Possession: {play.Possession}");
-
-            // Add basic play information
-            if (play.StartFieldPosition > 0)
-            {
-                log.AppendLine($"  Field Position: {play.StartFieldPosition} -> {play.EndFieldPosition}");
-            }
-
-            if (play.YardsGained != 0)
-            {
-                log.AppendLine($"  Yards Gained: {play.YardsGained}");
-            }
-
-            if (play.IsTouchdown)
-            {
-                log.AppendLine($"  TOUCHDOWN!");
-            }
-
-            if (play.Interception)
-            {
-                log.AppendLine($"  INTERCEPTION!");
-            }
-
-            if (play.Fumbles.Any())
-            {
-                log.AppendLine($"  FUMBLE! ({play.Fumbles.Count})");
-            }
-
-            if (play.Penalties.Any())
-            {
-                log.AppendLine($"  Penalties: {play.Penalties.Count}");
-            }
-
-            if (play.Injuries.Any())
-            {
-                log.AppendLine($"  Injuries: {play.Injuries.Count}");
-            }
-
-            log.AppendLine();
-        }
-
-        log.AppendLine($"========================================");
-        log.AppendLine($"Total Plays: {game.Plays.Count}");
-        log.AppendLine($"========================================");
-
-        return log.ToString();
     }
 
     public async Task<Game?> GetGameAsync(int gameId)
