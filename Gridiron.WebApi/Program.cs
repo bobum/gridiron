@@ -41,6 +41,7 @@ builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IPlayByPlayRepository, PlayByPlayRepository>();
 builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
 
 // ========================================
