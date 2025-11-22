@@ -13,13 +13,23 @@ public class StringCaptureLogger<T> : ILogger<T>
     private readonly object _lock = new();
 
     /// <summary>
-    /// Gets the captured log text
+    /// Gets the captured log text with diagnostic messages filtered out
+    /// Removes state transition messages and other debugging content
     /// </summary>
     public string GetCapturedLog()
     {
         lock (_lock)
         {
-            return _logBuffer.ToString();
+            var fullLog = _logBuffer.ToString();
+
+            // Filter out diagnostic messages that aren't play-by-play content
+            var lines = fullLog.Split('\n');
+            var playByPlayLines = lines.Where(line =>
+                !line.TrimStart().StartsWith("State transition:", StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(line)
+            );
+
+            return string.Join(Environment.NewLine, playByPlayLines);
         }
     }
 

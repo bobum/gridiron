@@ -399,9 +399,10 @@ public class GameSimulationServiceTests
         // Assert
         capturedPlayByPlay.Should().NotBeNull();
         capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
-        // Verify it contains actual game engine output (state transitions, plays, etc.)
-        capturedPlayByPlay.PlayByPlayLog.Should().Contain("State transition:");
+        // Verify it contains actual play-by-play commentary (not diagnostic state transitions)
         capturedPlayByPlay.PlayByPlayLog.Should().Contain("Good snap");
+        // Ensure state transition diagnostic messages are filtered out
+        capturedPlayByPlay.PlayByPlayLog.Should().NotContain("State transition:");
     }
 
     [Fact]
