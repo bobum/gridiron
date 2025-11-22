@@ -20,6 +20,42 @@ public class LeagueBuilderServiceTests
     {
         _loggerMock = new Mock<ILogger<LeagueBuilderService>>();
         _teamBuilderMock = new Mock<ITeamBuilderService>();
+
+        // Setup CreateTeam mock to return a properly initialized team
+        _teamBuilderMock
+            .Setup(t => t.CreateTeam(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>()))
+            .Returns((string city, string name, decimal budget) => new Team
+            {
+                City = city,
+                Name = name,
+                Budget = (int)budget,
+                Players = new List<Player>(),
+                Championships = 0,
+                Wins = 0,
+                Losses = 0,
+                Ties = 0,
+                FanSupport = 50,
+                Chemistry = 50,
+                OffenseDepthChart = new DepthChart(),
+                DefenseDepthChart = new DepthChart(),
+                FieldGoalOffenseDepthChart = new DepthChart(),
+                FieldGoalDefenseDepthChart = new DepthChart(),
+                KickoffOffenseDepthChart = new DepthChart(),
+                KickoffDefenseDepthChart = new DepthChart(),
+                PuntOffenseDepthChart = new DepthChart(),
+                PuntDefenseDepthChart = new DepthChart(),
+                HeadCoach = new Coach(),
+                OffensiveCoordinator = new Coach(),
+                DefensiveCoordinator = new Coach(),
+                SpecialTeamsCoordinator = new Coach(),
+                AssistantCoaches = new List<Coach>(),
+                HeadAthleticTrainer = new Trainer(),
+                TeamDoctor = new Trainer(),
+                DirectorOfScouting = new Scout(),
+                CollegeScouts = new List<Scout>(),
+                ProScouts = new List<Scout>()
+            });
+
         _service = new LeagueBuilderService(_loggerMock.Object, _teamBuilderMock.Object);
     }
 

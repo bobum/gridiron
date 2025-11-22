@@ -67,7 +67,9 @@ public class LeagueBuilderService : ILeagueBuilderService
                 // Create teams for this division
                 for (int teamNum = 1; teamNum <= teamsPerDivision; teamNum++)
                 {
-                    var team = CreateTeamWithDefaults(confNum, divNum, teamNum);
+                    var city = $"City {confNum}-{divNum}-{teamNum}";
+                    var name = $"Team {teamNum}";
+                    var team = _teamBuilder.CreateTeam(city, name, 0);
                     division.Teams.Add(team);
                 }
 
@@ -83,47 +85,6 @@ public class LeagueBuilderService : ILeagueBuilderService
             leagueName, totalTeams);
 
         return league;
-    }
-
-    private Team CreateTeamWithDefaults(int conferenceNum, int divisionNum, int teamNum)
-    {
-        return new Team
-        {
-            Name = $"Team {teamNum}",
-            City = $"City {conferenceNum}-{divisionNum}-{teamNum}",
-            Players = new List<Player>(),  // Empty roster
-            Budget = 0,
-            Championships = 0,
-            Wins = 0,
-            Losses = 0,
-            Ties = 0,
-            FanSupport = 50,
-            Chemistry = 50,
-
-            // Initialize empty depth charts
-            OffenseDepthChart = new DepthChart(),
-            DefenseDepthChart = new DepthChart(),
-            FieldGoalOffenseDepthChart = new DepthChart(),
-            FieldGoalDefenseDepthChart = new DepthChart(),
-            KickoffOffenseDepthChart = new DepthChart(),
-            KickoffDefenseDepthChart = new DepthChart(),
-            PuntOffenseDepthChart = new DepthChart(),
-            PuntDefenseDepthChart = new DepthChart(),
-
-            // Initialize empty staff
-            HeadCoach = new Coach(),
-            OffensiveCoordinator = new Coach(),
-            DefensiveCoordinator = new Coach(),
-            SpecialTeamsCoordinator = new Coach(),
-            AssistantCoaches = new List<Coach>(),
-
-            HeadAthleticTrainer = new Trainer(),
-            TeamDoctor = new Trainer(),
-
-            DirectorOfScouting = new Scout(),
-            CollegeScouts = new List<Scout>(),
-            ProScouts = new List<Scout>()
-        };
     }
 
     public League PopulateLeagueRosters(League league, int? seed = null)
