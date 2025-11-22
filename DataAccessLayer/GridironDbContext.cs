@@ -171,9 +171,9 @@ namespace DataAccessLayer
             {
                 entity.HasKey(p => p.Id);
 
-                // PlayByPlay belongs to one Game (one-to-one)
+                // PlayByPlay belongs to one Game (one-to-one bidirectional)
                 entity.HasOne(p => p.Game)
-                      .WithOne()
+                      .WithOne(g => g.PlayByPlay)
                       .HasForeignKey<PlayByPlay>(p => p.GameId)
                       .OnDelete(DeleteBehavior.Cascade);  // Delete playbyplay if game is deleted
 

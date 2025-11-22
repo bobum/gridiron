@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameManagement", "GameManag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameManagement.Tests", "GameManagement.Tests\GameManagement.Tests.csproj", "{02B2AE2A-4CF3-47E8-968E-E8F9B7ECA9DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gridiron.IntegrationTests", "Gridiron.IntegrationTests\Gridiron.IntegrationTests.csproj", "{088B8244-C183-4ED8-B49C-C952CD75EADF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -170,6 +172,18 @@ Global
 		{02B2AE2A-4CF3-47E8-968E-E8F9B7ECA9DD}.Release|x64.Build.0 = Release|Any CPU
 		{02B2AE2A-4CF3-47E8-968E-E8F9B7ECA9DD}.Release|x86.ActiveCfg = Release|Any CPU
 		{02B2AE2A-4CF3-47E8-968E-E8F9B7ECA9DD}.Release|x86.Build.0 = Release|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Debug|x64.Build.0 = Debug|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Debug|x86.Build.0 = Debug|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Release|x64.ActiveCfg = Release|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Release|x64.Build.0 = Release|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Release|x86.ActiveCfg = Release|Any CPU
+		{088B8244-C183-4ED8-B49C-C952CD75EADF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

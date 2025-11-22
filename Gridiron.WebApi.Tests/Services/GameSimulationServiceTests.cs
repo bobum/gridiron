@@ -19,6 +19,7 @@ public class GameSimulationServiceTests
 {
     private readonly Mock<ITeamRepository> _mockTeamRepository;
     private readonly Mock<IGameRepository> _mockGameRepository;
+    private readonly Mock<IPlayByPlayRepository> _mockPlayByPlayRepository;
     private readonly Mock<ILogger<GameFlow>> _mockGameLogger;
     private readonly Mock<ILogger<GameSimulationService>> _mockLogger;
     private readonly GameSimulationService _service;
@@ -27,12 +28,14 @@ public class GameSimulationServiceTests
     {
         _mockTeamRepository = new Mock<ITeamRepository>();
         _mockGameRepository = new Mock<IGameRepository>();
+        _mockPlayByPlayRepository = new Mock<IPlayByPlayRepository>();
         _mockGameLogger = new Mock<ILogger<GameFlow>>();
         _mockLogger = new Mock<ILogger<GameSimulationService>>();
 
         _service = new GameSimulationService(
             _mockTeamRepository.Object,
             _mockGameRepository.Object,
+            _mockPlayByPlayRepository.Object,
             _mockGameLogger.Object,
             _mockLogger.Object
         );
@@ -291,6 +294,252 @@ public class GameSimulationServiceTests
 
         // Assert
         result.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region PlayByPlay Persistence Tests
+
+    [Fact]
+    public async Task SimulateGame_AfterSimulation_CreatesPlayByPlayRecord()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>())).ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert - PlayByPlay should be created and saved
+        _mockPlayByPlayRepository.Verify(repo => repo.AddAsync(It.IsAny<PlayByPlay>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayRecord_HasCorrectGameId()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedPlayByPlay!.GameId.Should().Be(100);
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayRecord_ContainsSerializedPlaysJson()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedPlayByPlay!.PlaysJson.Should().NotBeNullOrEmpty();
+        capturedPlayByPlay.PlaysJson.Should().Contain("{"); // Should be JSON
+        capturedPlayByPlay.PlaysJson.Should().Contain("}");
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayRecord_ContainsPlayByPlayLog()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
+        // Verify it contains actual play-by-play commentary (not diagnostic state transitions)
+        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Good snap");
+        // Ensure state transition diagnostic messages are filtered out
+        capturedPlayByPlay.PlayByPlayLog.Should().NotContain("State transition:");
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayLog_ContainsTeamCities()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert - Game engine logs city names in field position descriptions (e.g., "1st & 10 at Atlanta 25")
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedPlayByPlay!.PlayByPlayLog.Should().Contain("Atlanta");
+        capturedPlayByPlay.PlayByPlayLog.Should().Contain("Philadelphia");
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayLog_ContainsFinalScores()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+        Game? capturedGame = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>()))
+            .Callback<Game>(g => capturedGame = g)
+            .ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedGame.Should().NotBeNull();
+        capturedPlayByPlay!.PlayByPlayLog.Should().Contain(capturedGame!.HomeScore.ToString());
+        capturedPlayByPlay.PlayByPlayLog.Should().Contain(capturedGame.AwayScore.ToString());
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayLog_ContainsDetailedGameEvents()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 99999);
+
+        // Assert - Verify the log contains detailed game events from the simulation engine
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
+        // Should contain down and distance info
+        capturedPlayByPlay.PlayByPlayLog.Should().MatchRegex(@"\d+(st|nd|rd|th) & \d+");
+    }
+
+    [Fact]
+    public async Task SimulateGame_PlayByPlayLog_ContainsMultiplePlays()
+    {
+        // Arrange
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        PlayByPlay? capturedPlayByPlay = null;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .Callback<PlayByPlay>(p => capturedPlayByPlay = p)
+            .ReturnsAsync((PlayByPlay p) => p);
+
+        // Act
+        await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert - Verify the log is comprehensive with multiple plays
+        capturedPlayByPlay.Should().NotBeNull();
+        capturedPlayByPlay!.PlayByPlayLog.Should().NotBeNullOrEmpty();
+        // A full game should have a substantial log (at least 1000 characters of play-by-play)
+        capturedPlayByPlay.PlayByPlayLog.Length.Should().BeGreaterThan(1000);
+    }
+
+    [Fact]
+    public async Task SimulateGame_WhenPlayByPlaySaveFails_StillReturnsGame()
+    {
+        // Arrange - Simulate PlayByPlay save failure
+        var homeTeam = TestTeams.LoadAtlantaFalcons();
+        var awayTeam = TestTeams.LoadPhiladelphiaEagles();
+        homeTeam.Id = 1;
+        awayTeam.Id = 2;
+
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(homeTeam);
+        _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(2)).ReturnsAsync(awayTeam);
+        _mockGameRepository.Setup(repo => repo.AddAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => { g.Id = 100; return g; });
+        _mockPlayByPlayRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayByPlay>()))
+            .ThrowsAsync(new Exception("Database error"));
+
+        // Act - Should NOT throw, game is more important than PlayByPlay
+        var result = await _service.SimulateGameAsync(1, 2, 12345);
+
+        // Assert - Game should still be returned even if PlayByPlay save fails
+        result.Should().NotBeNull();
+        result.Id.Should().Be(100);
     }
 
     #endregion

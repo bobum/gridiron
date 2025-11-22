@@ -19,6 +19,7 @@ namespace DomainObjects
         public Team HomeTeam { get; set; }  // EF Core navigation property
         public Team AwayTeam { get; set; }  // EF Core navigation property
         public int? RandomSeed { get; set; }  // Seed for reproducible game simulation
+        public PlayByPlay? PlayByPlay { get; set; }  // EF Core navigation property to play-by-play data
         public IPlay CurrentPlay { get; set; }
         public Possession WonCoinToss { get; set; }
         public bool DeferredPossession { get; set; }

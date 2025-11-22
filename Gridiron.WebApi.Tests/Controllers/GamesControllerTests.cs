@@ -1,0 +1,442 @@
+using DomainObjects;
+using FluentAssertions;
+using Gridiron.WebApi.Controllers;
+using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Xunit;
+
+namespace Gridiron.WebApi.Tests.Controllers;
+
+/// <summary>
+/// Unit tests for GamesController
+/// Tests the controller logic WITHOUT touching the database (mocked services)
+/// Focus on verifying PlayByPlay persistence through the API
+/// </summary>
+public class GamesControllerTests
+{
+    private readonly Mock<IGameSimulationService> _mockSimulationService;
+    private readonly Mock<ILogger<GamesController>> _mockLogger;
+    private readonly GamesController _controller;
+
+    public GamesControllerTests()
+    {
+        _mockSimulationService = new Mock<IGameSimulationService>();
+        _mockLogger = new Mock<ILogger<GamesController>>();
+        _controller = new GamesController(_mockSimulationService.Object, _mockLogger.Object);
+    }
+
+    #region SimulateGame Tests - PlayByPlay Persistence
+
+    [Fact]
+    public async Task SimulateGame_WhenSuccessful_ReturnsOkWithGameDto()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 1,
+            AwayTeamId = 2,
+            RandomSeed = 12345
+        };
+
+        var simulatedGame = CreateTestGame(1, 2, 21, 14, seed: 12345, playCount: 150);
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(1, 2, 12345))
+            .ReturnsAsync(simulatedGame);
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+        var okResult = result.Result as OkObjectResult;
+        var gameDto = okResult!.Value as GameDto;
+
+        gameDto.Should().NotBeNull();
+        gameDto!.Id.Should().BeGreaterThan(0);
+        gameDto.HomeTeamId.Should().Be(1);
+        gameDto.AwayTeamId.Should().Be(2);
+        gameDto.HomeScore.Should().Be(21);
+        gameDto.AwayScore.Should().Be(14);
+        gameDto.RandomSeed.Should().Be(12345);
+        gameDto.IsComplete.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SimulateGame_WhenSuccessful_GameDtoContainsTotalPlays()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 1,
+            AwayTeamId = 2
+        };
+
+        var simulatedGame = CreateTestGame(1, 2, 28, 21, playCount: 175);
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(1, 2, null))
+            .ReturnsAsync(simulatedGame);
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        var gameDto = okResult!.Value as GameDto;
+
+        gameDto!.TotalPlays.Should().Be(175);
+    }
+
+    [Fact]
+    public async Task SimulateGame_WhenSuccessful_CallsSimulationServiceWithCorrectParameters()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 5,
+            AwayTeamId = 10,
+            RandomSeed = 99999
+        };
+
+        var simulatedGame = CreateTestGame(5, 10, 17, 24, seed: 99999);
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(5, 10, 99999))
+            .ReturnsAsync(simulatedGame);
+
+        // Act
+        await _controller.SimulateGame(request);
+
+        // Assert
+        _mockSimulationService.Verify(
+            s => s.SimulateGameAsync(5, 10, 99999),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task SimulateGame_WithoutSeed_CallsSimulationServiceWithNullSeed()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 1,
+            AwayTeamId = 2
+            // No seed specified
+        };
+
+        var simulatedGame = CreateTestGame(1, 2, 14, 7);
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(1, 2, null))
+            .ReturnsAsync(simulatedGame);
+
+        // Act
+        await _controller.SimulateGame(request);
+
+        // Assert
+        _mockSimulationService.Verify(
+            s => s.SimulateGameAsync(1, 2, null),
+            Times.Once
+        );
+    }
+
+    [Fact]
+    public async Task SimulateGame_WhenTeamNotFound_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 999,
+            AwayTeamId = 2
+        };
+
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(999, 2, null))
+            .ThrowsAsync(new ArgumentException("Home team with ID 999 not found", nameof(request.HomeTeamId)));
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        result.Result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Fact]
+    public async Task SimulateGame_WhenServiceThrowsException_Returns500()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 1,
+            AwayTeamId = 2
+        };
+
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(1, 2, null))
+            .ThrowsAsync(new Exception("Database connection failed"));
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        result.Result.Should().BeOfType<ObjectResult>();
+        var objectResult = result.Result as ObjectResult;
+        objectResult!.StatusCode.Should().Be(500);
+    }
+
+    [Fact]
+    public async Task SimulateGame_WhenPlayByPlayPersisted_GameDtoReflectsCorrectPlayCount()
+    {
+        // Arrange - simulate a game that would have generated PlayByPlay data
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 1,
+            AwayTeamId = 2,
+            RandomSeed = 42
+        };
+
+        // Create a game with PlayByPlay data (as would be created by GameSimulationService)
+        var simulatedGame = CreateTestGame(1, 2, 35, 28, seed: 42, playCount: 200);
+
+        // The game should have PlayByPlay associated with it
+        simulatedGame.PlayByPlay = new PlayByPlay
+        {
+            Id = 1,
+            GameId = simulatedGame.Id,
+            PlaysJson = "{\"plays\":[]}",
+            PlayByPlayLog = "Game log",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(1, 2, 42))
+            .ReturnsAsync(simulatedGame);
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        var gameDto = okResult!.Value as GameDto;
+
+        // Verify the DTO contains the correct play count (from game.Plays)
+        gameDto!.TotalPlays.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task SimulateGame_WithLongGame_ReturnsHighPlayCount()
+    {
+        // Arrange - simulate a long game with many plays
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 3,
+            AwayTeamId = 4,
+            RandomSeed = 11111
+        };
+
+        var simulatedGame = CreateTestGame(3, 4, 42, 38, seed: 11111, playCount: 250);
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(3, 4, 11111))
+            .ReturnsAsync(simulatedGame);
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        var gameDto = okResult!.Value as GameDto;
+
+        gameDto!.TotalPlays.Should().Be(250);
+    }
+
+    [Fact]
+    public async Task SimulateGame_MapsDtoFieldsCorrectly()
+    {
+        // Arrange
+        var request = new SimulateGameRequest
+        {
+            HomeTeamId = 1,
+            AwayTeamId = 2
+        };
+
+        var game = CreateTestGame(1, 2, 31, 27, playCount: 180);
+        game.Id = 42;
+
+        _mockSimulationService
+            .Setup(s => s.SimulateGameAsync(1, 2, null))
+            .ReturnsAsync(game);
+
+        // Act
+        var result = await _controller.SimulateGame(request);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        var gameDto = okResult!.Value as GameDto;
+
+        gameDto!.Id.Should().Be(42);
+        gameDto.HomeTeamId.Should().Be(1);
+        gameDto.AwayTeamId.Should().Be(2);
+        gameDto.HomeTeamName.Should().Be("Atlanta Falcons");
+        gameDto.AwayTeamName.Should().Be("Philadelphia Eagles");
+        gameDto.HomeScore.Should().Be(31);
+        gameDto.AwayScore.Should().Be(27);
+        gameDto.IsComplete.Should().BeTrue();
+        gameDto.TotalPlays.Should().Be(180);
+    }
+
+    #endregion
+
+    #region GetGames Tests
+
+    [Fact]
+    public async Task GetGames_WhenGamesExist_ReturnsOkWithGames()
+    {
+        // Arrange
+        var games = new List<Game>
+        {
+            CreateTestGame(1, 2, 21, 14, playCount: 150),
+            CreateTestGame(3, 4, 28, 24, playCount: 175)
+        };
+
+        _mockSimulationService.Setup(s => s.GetGamesAsync()).ReturnsAsync(games);
+
+        // Act
+        var result = await _controller.GetGames();
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+        var okResult = result.Result as OkObjectResult;
+        var gameDtos = okResult!.Value as IEnumerable<GameDto>;
+
+        gameDtos.Should().HaveCount(2);
+        gameDtos!.First().TotalPlays.Should().Be(150);
+        gameDtos.Last().TotalPlays.Should().Be(175);
+    }
+
+    [Fact]
+    public async Task GetGames_WhenNoGames_ReturnsEmptyList()
+    {
+        // Arrange
+        _mockSimulationService.Setup(s => s.GetGamesAsync()).ReturnsAsync(new List<Game>());
+
+        // Act
+        var result = await _controller.GetGames();
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+        var okResult = result.Result as OkObjectResult;
+        var gameDtos = okResult!.Value as IEnumerable<GameDto>;
+
+        gameDtos.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region GetGame Tests
+
+    [Fact]
+    public async Task GetGame_WhenGameExists_ReturnsOkWithGame()
+    {
+        // Arrange
+        var game = CreateTestGame(1, 2, 17, 10, playCount: 160);
+        game.Id = 5;
+
+        _mockSimulationService.Setup(s => s.GetGameAsync(5)).ReturnsAsync(game);
+
+        // Act
+        var result = await _controller.GetGame(5);
+
+        // Assert
+        result.Result.Should().BeOfType<OkObjectResult>();
+        var okResult = result.Result as OkObjectResult;
+        var gameDto = okResult!.Value as GameDto;
+
+        gameDto!.Id.Should().Be(5);
+        gameDto.TotalPlays.Should().Be(160);
+    }
+
+    [Fact]
+    public async Task GetGame_WhenGameNotFound_Returns404()
+    {
+        // Arrange
+        _mockSimulationService.Setup(s => s.GetGameAsync(999)).ReturnsAsync((Game?)null);
+
+        // Act
+        var result = await _controller.GetGame(999);
+
+        // Assert
+        result.Result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Creates a test game with basic data for testing
+    /// </summary>
+    private Game CreateTestGame(int homeTeamId, int awayTeamId, int homeScore, int awayScore, int? seed = null, int playCount = 150)
+    {
+        var homeTeam = new Team
+        {
+            Id = homeTeamId,
+            Name = "Falcons",
+            City = "Atlanta",
+            Players = new List<Player>()
+        };
+
+        var awayTeam = new Team
+        {
+            Id = awayTeamId,
+            Name = "Eagles",
+            City = "Philadelphia",
+            Players = new List<Player>()
+        };
+
+        var game = new Game
+        {
+            Id = 1,
+            HomeTeamId = homeTeamId,
+            AwayTeamId = awayTeamId,
+            HomeTeam = homeTeam,
+            AwayTeam = awayTeam,
+            HomeScore = homeScore,
+            AwayScore = awayScore,
+            RandomSeed = seed
+        };
+
+        // Simulate the game having plays (as would be created during simulation)
+        for (int i = 0; i < playCount; i++)
+        {
+            game.Plays.Add(CreateTestPlay());
+        }
+
+        return game;
+    }
+
+    /// <summary>
+    /// Creates a basic test play for populating game.Plays
+    /// </summary>
+    private IPlay CreateTestPlay()
+    {
+        return new RunPlay
+        {
+            Possession = Possession.Home,
+            Down = Downs.First,
+            YardsGained = 5,
+            StartFieldPosition = 25,
+            EndFieldPosition = 30,
+            StartTime = 900,
+            StopTime = 895,
+            ElapsedTime = 5,
+            Penalties = new List<Penalty>(),
+            Fumbles = new List<Fumble>(),
+            Injuries = new List<Injury>(),
+            OffensePlayersOnField = new List<Player>(),
+            DefensePlayersOnField = new List<Player>()
+        };
+    }
+
+    #endregion
+}
