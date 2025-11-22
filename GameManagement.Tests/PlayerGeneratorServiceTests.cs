@@ -90,6 +90,135 @@ public class PlayerGeneratorServiceTests
         player.Discipline.Should().BeInRange(60, 95);
     }
 
+    [Theory]
+    [InlineData(Positions.QB)]
+    [InlineData(Positions.RB)]
+    [InlineData(Positions.WR)]
+    [InlineData(Positions.TE)]
+    [InlineData(Positions.T)]
+    [InlineData(Positions.G)]
+    [InlineData(Positions.C)]
+    [InlineData(Positions.DE)]
+    [InlineData(Positions.DT)]
+    [InlineData(Positions.LB)]
+    [InlineData(Positions.OLB)]
+    [InlineData(Positions.CB)]
+    [InlineData(Positions.S)]
+    [InlineData(Positions.FS)]
+    [InlineData(Positions.K)]
+    [InlineData(Positions.P)]
+    public void GenerateRandomPlayer_AllAttributes_ShouldBeWithinValidRanges(Positions position)
+    {
+        // Act
+        var player = _service.GenerateRandomPlayer(position);
+
+        // Assert - Core Physical Attributes (60-95 for veterans)
+        player.Speed.Should().BeInRange(60, 95, "Speed should be within veteran range");
+        player.Strength.Should().BeInRange(60, 95, "Strength should be within veteran range");
+        player.Agility.Should().BeInRange(60, 95, "Agility should be within veteran range");
+        player.Awareness.Should().BeInRange(60, 95, "Awareness should be within veteran range");
+
+        // Assert - Position-Specific Skill Attributes (60-95 for veterans)
+        player.Passing.Should().BeInRange(60, 95, "Passing should be within veteran range");
+        player.Catching.Should().BeInRange(60, 95, "Catching should be within veteran range");
+        player.Rushing.Should().BeInRange(60, 95, "Rushing should be within veteran range");
+        player.Blocking.Should().BeInRange(60, 95, "Blocking should be within veteran range");
+        player.Tackling.Should().BeInRange(60, 95, "Tackling should be within veteran range");
+        player.Coverage.Should().BeInRange(60, 95, "Coverage should be within veteran range");
+        player.Kicking.Should().BeInRange(60, 95, "Kicking should be within veteran range");
+
+        // Assert - Development & Mental Attributes
+        player.Potential.Should().BeInRange(60, 90, "Potential should be within veteran range");
+        player.Progression.Should().BeInRange(50, 85, "Progression should be within veteran range");
+        player.Discipline.Should().BeInRange(60, 95, "Discipline should be within veteran range");
+
+        // Assert - Status Attributes
+        player.Health.Should().Be(100, "New players should start at full health");
+        player.Morale.Should().BeInRange(70, 100, "Morale should be within valid range");
+        player.Fragility.Should().BeInRange(20, 60, "Fragility should be within valid range");
+
+        // Assert - All attributes should be positive numbers
+        player.Speed.Should().BeGreaterThan(0, "Speed must be positive");
+        player.Strength.Should().BeGreaterThan(0, "Strength must be positive");
+        player.Agility.Should().BeGreaterThan(0, "Agility must be positive");
+        player.Awareness.Should().BeGreaterThan(0, "Awareness must be positive");
+        player.Passing.Should().BeGreaterThan(0, "Passing must be positive");
+        player.Catching.Should().BeGreaterThan(0, "Catching must be positive");
+        player.Rushing.Should().BeGreaterThan(0, "Rushing must be positive");
+        player.Blocking.Should().BeGreaterThan(0, "Blocking must be positive");
+        player.Tackling.Should().BeGreaterThan(0, "Tackling must be positive");
+        player.Coverage.Should().BeGreaterThan(0, "Coverage must be positive");
+        player.Kicking.Should().BeGreaterThan(0, "Kicking must be positive");
+        player.Potential.Should().BeGreaterThan(0, "Potential must be positive");
+        player.Progression.Should().BeGreaterThan(0, "Progression must be positive");
+        player.Discipline.Should().BeGreaterThan(0, "Discipline must be positive");
+        player.Morale.Should().BeGreaterThan(0, "Morale must be positive");
+        player.Fragility.Should().BeGreaterThan(0, "Fragility must be positive");
+    }
+
+    [Fact]
+    public void GenerateRandomPlayer_NoAttribute_ShouldExceedMaximumValue()
+    {
+        // Act - Generate multiple players to test for edge cases
+        var players = new List<Player>();
+        for (int i = 0; i < 100; i++)
+        {
+            players.Add(_service.GenerateRandomPlayer(Positions.QB));
+            players.Add(_service.GenerateRandomPlayer(Positions.WR));
+            players.Add(_service.GenerateRandomPlayer(Positions.CB));
+        }
+
+        // Assert - No attribute should exceed its maximum value (95 for most skills)
+        players.Should().OnlyContain(p => p.Speed <= 95, "Speed should never exceed 95");
+        players.Should().OnlyContain(p => p.Strength <= 95, "Strength should never exceed 95");
+        players.Should().OnlyContain(p => p.Agility <= 95, "Agility should never exceed 95");
+        players.Should().OnlyContain(p => p.Awareness <= 95, "Awareness should never exceed 95");
+        players.Should().OnlyContain(p => p.Passing <= 95, "Passing should never exceed 95");
+        players.Should().OnlyContain(p => p.Catching <= 95, "Catching should never exceed 95");
+        players.Should().OnlyContain(p => p.Rushing <= 95, "Rushing should never exceed 95");
+        players.Should().OnlyContain(p => p.Blocking <= 95, "Blocking should never exceed 95");
+        players.Should().OnlyContain(p => p.Tackling <= 95, "Tackling should never exceed 95");
+        players.Should().OnlyContain(p => p.Coverage <= 95, "Coverage should never exceed 95");
+        players.Should().OnlyContain(p => p.Kicking <= 95, "Kicking should never exceed 95");
+        players.Should().OnlyContain(p => p.Potential <= 90, "Potential should never exceed 90 for veterans");
+        players.Should().OnlyContain(p => p.Progression <= 85, "Progression should never exceed 85 for veterans");
+        players.Should().OnlyContain(p => p.Discipline <= 95, "Discipline should never exceed 95");
+        players.Should().OnlyContain(p => p.Morale <= 100, "Morale should never exceed 100");
+        players.Should().OnlyContain(p => p.Fragility <= 60, "Fragility should never exceed 60");
+        players.Should().OnlyContain(p => p.Health <= 100, "Health should never exceed 100");
+    }
+
+    [Fact]
+    public void GenerateRandomPlayer_NoAttribute_ShouldBeBelowMinimumValue()
+    {
+        // Act - Generate multiple players to test for edge cases
+        var players = new List<Player>();
+        for (int i = 0; i < 100; i++)
+        {
+            players.Add(_service.GenerateRandomPlayer(Positions.RB));
+            players.Add(_service.GenerateRandomPlayer(Positions.LB));
+            players.Add(_service.GenerateRandomPlayer(Positions.K));
+        }
+
+        // Assert - No attribute should be below its minimum value (60 for most veteran skills)
+        players.Should().OnlyContain(p => p.Speed >= 60, "Speed should never be below 60");
+        players.Should().OnlyContain(p => p.Strength >= 60, "Strength should never be below 60");
+        players.Should().OnlyContain(p => p.Agility >= 60, "Agility should never be below 60");
+        players.Should().OnlyContain(p => p.Awareness >= 60, "Awareness should never be below 60");
+        players.Should().OnlyContain(p => p.Passing >= 60, "Passing should never be below 60");
+        players.Should().OnlyContain(p => p.Catching >= 60, "Catching should never be below 60");
+        players.Should().OnlyContain(p => p.Rushing >= 60, "Rushing should never be below 60");
+        players.Should().OnlyContain(p => p.Blocking >= 60, "Blocking should never be below 60");
+        players.Should().OnlyContain(p => p.Tackling >= 60, "Tackling should never be below 60");
+        players.Should().OnlyContain(p => p.Coverage >= 60, "Coverage should never be below 60");
+        players.Should().OnlyContain(p => p.Kicking >= 60, "Kicking should never be below 60");
+        players.Should().OnlyContain(p => p.Potential >= 60, "Potential should never be below 60");
+        players.Should().OnlyContain(p => p.Progression >= 50, "Progression should never be below 50");
+        players.Should().OnlyContain(p => p.Discipline >= 60, "Discipline should never be below 60");
+        players.Should().OnlyContain(p => p.Morale >= 70, "Morale should never be below 70");
+        players.Should().OnlyContain(p => p.Fragility >= 20, "Fragility should never be below 20");
+    }
+
     [Fact]
     public void GenerateRandomPlayer_QB_ShouldHaveHighPassingAttribute()
     {
@@ -351,6 +480,50 @@ public class PlayerGeneratorServiceTests
                            draftClass2024[0].LastName != draftClass2025[0].LastName;
 
         areDifferent.Should().BeTrue();
+    }
+
+    [Fact]
+    public void GenerateDraftClass_AllAttributes_ShouldBeWithinRookieRanges()
+    {
+        // Act
+        var draftClass = _service.GenerateDraftClass(2024, 7);
+
+        // Assert - Rookies have different ranges (40-85) compared to veterans (60-95)
+        // Core Physical Attributes
+        draftClass.Should().OnlyContain(p => p.Speed >= 40 && p.Speed <= 85, "Speed should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Strength >= 40 && p.Strength <= 85, "Strength should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Agility >= 40 && p.Agility <= 85, "Agility should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Awareness >= 40 && p.Awareness <= 85, "Awareness should be in rookie range");
+
+        // Position-Specific Skills
+        draftClass.Should().OnlyContain(p => p.Passing >= 40 && p.Passing <= 85, "Passing should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Catching >= 40 && p.Catching <= 85, "Catching should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Rushing >= 40 && p.Rushing <= 85, "Rushing should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Blocking >= 40 && p.Blocking <= 85, "Blocking should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Tackling >= 40 && p.Tackling <= 85, "Tackling should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Coverage >= 40 && p.Coverage <= 85, "Coverage should be in rookie range");
+        draftClass.Should().OnlyContain(p => p.Kicking >= 40 && p.Kicking <= 85, "Kicking should be in rookie range");
+
+        // Development & Mental Attributes (rookies have higher potential)
+        draftClass.Should().OnlyContain(p => p.Potential >= 70 && p.Potential <= 99, "Rookies should have high potential");
+        draftClass.Should().OnlyContain(p => p.Progression >= 60 && p.Progression <= 95, "Rookies should have high progression");
+        draftClass.Should().OnlyContain(p => p.Discipline >= 50 && p.Discipline <= 90, "Discipline should be in rookie range");
+
+        // Status Attributes
+        draftClass.Should().OnlyContain(p => p.Health == 100, "All rookies should be at full health");
+        draftClass.Should().OnlyContain(p => p.Morale >= 80 && p.Morale <= 100, "Rookies should have high morale");
+        draftClass.Should().OnlyContain(p => p.Fragility >= 20 && p.Fragility <= 60, "Fragility should be in valid range");
+
+        // All attributes must be positive
+        draftClass.Should().OnlyContain(p => p.Speed > 0, "Speed must be positive");
+        draftClass.Should().OnlyContain(p => p.Strength > 0, "Strength must be positive");
+        draftClass.Should().OnlyContain(p => p.Passing > 0, "Passing must be positive");
+        draftClass.Should().OnlyContain(p => p.Catching > 0, "Catching must be positive");
+        draftClass.Should().OnlyContain(p => p.Rushing > 0, "Rushing must be positive");
+        draftClass.Should().OnlyContain(p => p.Blocking > 0, "Blocking must be positive");
+        draftClass.Should().OnlyContain(p => p.Tackling > 0, "Tackling must be positive");
+        draftClass.Should().OnlyContain(p => p.Coverage > 0, "Coverage must be positive");
+        draftClass.Should().OnlyContain(p => p.Kicking > 0, "Kicking must be positive");
     }
 
     #endregion
