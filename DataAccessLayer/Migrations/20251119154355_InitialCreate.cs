@@ -43,9 +43,6 @@ namespace DataAccessLayer.Migrations
                     RandomSeed = table.Column<int>(type: "int", nullable: true),
                     WonCoinToss = table.Column<int>(type: "int", nullable: false),
                     DeferredPossession = table.Column<bool>(type: "bit", nullable: false),
-                    FieldPosition = table.Column<int>(type: "int", nullable: false),
-                    YardsToGo = table.Column<int>(type: "int", nullable: false),
-                    CurrentDown = table.Column<int>(type: "int", nullable: false),
                     HomeScore = table.Column<int>(type: "int", nullable: false),
                     AwayScore = table.Column<int>(type: "int", nullable: false)
                 },

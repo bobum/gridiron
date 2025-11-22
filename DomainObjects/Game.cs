@@ -31,8 +31,14 @@ namespace DomainObjects
 
         // Field position tracking (absolute position 0-100 on field, does not flip on possession changes)
         // Use FormatFieldPosition(possession) to display in NFL notation (e.g., "Team 25 yard line")
+        // NOTE: These are runtime simulation state only - NOT persisted to database
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
         public int FieldPosition { get; set; } = 0; // Line of scrimmage
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
         public int YardsToGo { get; set; } = 10; // Yards needed for first down
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
         public Downs CurrentDown { get; set; } = Downs.First;
 
         // Score tracking
