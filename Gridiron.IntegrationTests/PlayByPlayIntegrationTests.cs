@@ -204,7 +204,47 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         }
 
         // ==========================================
-        // STEP 10: Verify State Transitions Filtered Out
+        // STEP 10: Verify Player Stats Accumulated During Game
+        // ==========================================
+        var homeTeamWithPlayers = await teamRepository.GetByIdWithPlayersAsync(homeTeamId);
+        var awayTeamWithPlayers = await teamRepository.GetByIdWithPlayersAsync(awayTeamId);
+
+        homeTeamWithPlayers.Should().NotBeNull();
+        awayTeamWithPlayers.Should().NotBeNull();
+
+        // Verify that at least some stats were accumulated during the game
+        var allPlayers = homeTeamWithPlayers!.Players.Concat(awayTeamWithPlayers!.Players).ToList();
+
+        // At least one QB should have passing stats
+        var qbsWithPassingYards = allPlayers
+            .Where(p => p.Position == DomainObjects.Positions.QB)
+            .Where(p => p.Stats.ContainsKey(DomainObjects.StatTypes.PlayerStatType.PassingYards))
+            .Where(p => p.Stats[DomainObjects.StatTypes.PlayerStatType.PassingYards] > 0)
+            .ToList();
+
+        qbsWithPassingYards.Should().NotBeEmpty(
+            "because quarterbacks should accumulate passing yards during game simulation");
+
+        // At least one player should have rushing stats (RB, QB, or other)
+        var playersWithRushingYards = allPlayers
+            .Where(p => p.Stats.ContainsKey(DomainObjects.StatTypes.PlayerStatType.RushingYards))
+            .Where(p => p.Stats[DomainObjects.StatTypes.PlayerStatType.RushingYards] > 0)
+            .ToList();
+
+        playersWithRushingYards.Should().NotBeEmpty(
+            "because players should accumulate rushing yards during game simulation");
+
+        // At least one receiver should have receiving stats
+        var playersWithReceptions = allPlayers
+            .Where(p => p.Stats.ContainsKey(DomainObjects.StatTypes.PlayerStatType.Receptions))
+            .Where(p => p.Stats[DomainObjects.StatTypes.PlayerStatType.Receptions] > 0)
+            .ToList();
+
+        playersWithReceptions.Should().NotBeEmpty(
+            "because receivers should accumulate receptions during game simulation");
+
+        // ==========================================
+        // STEP 11: Verify State Transitions Filtered Out
         // ==========================================
         retrievedPlayByPlay.PlayByPlayLog.Should().NotContain("State transition:",
             "because diagnostic state transition messages should be filtered from play-by-play log");
@@ -221,6 +261,7 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         // ✓ PlayByPlay creation and persistence
         // ✓ PlaysJson serialization
         // ✓ PlayByPlayLog capture from game engine logging
+        // ✓ Player statistics accumulation during game simulation
         // ✓ Filtering of diagnostic state transition messages
         // ✓ Complete end-to-end workflow functions correctly
     }
