@@ -18,7 +18,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             var rng = RunPlayScenarios.SimpleGain(yards: 5, direction: 4);
 
             // Act
@@ -37,7 +37,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
 
             // Test RB gets the ball (uses SimpleGain which has QB check > 0.10)
             var rng = RunPlayScenarios.SimpleGain(yards: 5, direction: 4);
@@ -53,7 +53,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
 
             // Test QB scramble (uses QBScramble which has QB check < 0.10)
             var rng = RunPlayScenarios.QBScramble(yards: 5, direction: 4);
@@ -69,7 +69,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             // Uses SimpleGain with direction = Middle (2)
             var rng = RunPlayScenarios.SimpleGain(yards: 5, direction: 2);
 
@@ -110,8 +110,8 @@ namespace UnitTestProject1
             runBad.Execute(game2);
 
             // Assert
-            var yardsWithGoodBlocking = game1.CurrentPlay.YardsGained;
-            var yardsWithBadBlocking = game2.CurrentPlay.YardsGained;
+            var yardsWithGoodBlocking = game1.CurrentPlay!.YardsGained;
+            var yardsWithBadBlocking = game2.CurrentPlay!.YardsGained;
 
             Assert.IsGreaterThan(yardsWithBadBlocking, yardsWithGoodBlocking, $"Good blocking ({yardsWithGoodBlocking}) should yield more yards than bad blocking ({yardsWithBadBlocking})");
         }
@@ -125,7 +125,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
 
             // Uses TackleBreak scenario with 5 extra yards
@@ -153,10 +153,10 @@ namespace UnitTestProject1
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
             // Set high speed for big run potential
-            var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier1 = game1.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier1!.Speed = 95;
 
-            var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier2 = game2.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier2!.Speed = 95;
 
             // Test WITHOUT big run - uses SimpleGain
@@ -201,7 +201,7 @@ bigRunYards, $"Big run ({bigRunYards}) should add significantly more yards than 
 
             // Assert
             var yardsToGoal = 100 - 95; // Should be capped at 5 yards
-            Assert.IsLessThanOrEqualTo(yardsToGoal, game.CurrentPlay.YardsGained, $"Yards gained ({game.CurrentPlay.YardsGained}) should not exceed yards to goal ({yardsToGoal})");
+            Assert.IsLessThanOrEqualTo(yardsToGoal, game.CurrentPlay!.YardsGained, $"Yards gained ({game.CurrentPlay.YardsGained}) should not exceed yards to goal ({yardsToGoal})");
         }
 
         [TestMethod]
@@ -219,7 +219,7 @@ bigRunYards, $"Big run ({bigRunYards}) should add significantly more yards than 
             run.Execute(game);
 
             // Assert - can have negative yards (tackle for loss)
-            Assert.IsLessThanOrEqualTo(5, game.CurrentPlay.YardsGained, "Should be able to lose yards or gain minimal yards");
+            Assert.IsLessThanOrEqualTo(5, game.CurrentPlay!.YardsGained, "Should be able to lose yards or gain minimal yards");
         }
 
         #endregion
@@ -231,7 +231,7 @@ bigRunYards, $"Big run ({bigRunYards}) should add significantly more yards than 
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var initialElapsedTime = game.CurrentPlay.ElapsedTime;
+            var initialElapsedTime = game.CurrentPlay!.ElapsedTime;
             // Uses SimpleGain scenario which sets elapsed time to ~6.5 seconds execution + ~30 seconds runoff = ~36.5 total
             var rng = RunPlayScenarios.SimpleGain(yards: 5);
 
@@ -267,7 +267,7 @@ bigRunYards, $"Big run ({bigRunYards}) should add significantly more yards than 
             // Assert - Should have base yards calculated by RunYardsSkillsCheckResult
             // With even matchup (70 vs 70): skillDiff = 0, baseYards = 3.0, randomFactor = 3.0, total = 6
             // After blocking fails (0.8x): 6 * 0.8 = 4.8 ≈ 5 yards
-            var yardsGained = game.CurrentPlay.YardsGained;
+            var yardsGained = game.CurrentPlay!.YardsGained;
             Assert.IsTrue(yardsGained >= 4 && yardsGained <= 8,
                 $"RunYardsSkillsCheckResult should calculate yards in expected range (got {yardsGained})");
         }
@@ -288,7 +288,7 @@ bigRunYards, $"Big run ({bigRunYards}) should add significantly more yards than 
 
             // Assert - Should have higher base yards with skill advantage
             // skillDiff ≈ +40, baseYards = 3.0 + 40/20 = 5.0, randomFactor = 2.5, total = 7.5 → Round(8) * 1.2 = 9
-            var yardsGained = game.CurrentPlay.YardsGained;
+            var yardsGained = game.CurrentPlay!.YardsGained;
             Assert.IsGreaterThanOrEqualTo(8,
 yardsGained, $"RunYardsSkillsCheckResult should calculate higher yards for strong offense (got {yardsGained})");
         }
@@ -309,7 +309,7 @@ yardsGained, $"RunYardsSkillsCheckResult should calculate higher yards for stron
 
             // Assert - Should have lower/negative yards with skill disadvantage
             // skillDiff ≈ -40, baseYards = 3.0 - 2.0 = 1.0, randomFactor = -0.8, total ≈ 0.2 * 0.8 = 0
-            var yardsGained = game.CurrentPlay.YardsGained;
+            var yardsGained = game.CurrentPlay!.YardsGained;
             Assert.IsLessThanOrEqualTo(3,
 yardsGained, $"RunYardsSkillsCheckResult should calculate low yards for weak offense (got {yardsGained})");
         }
@@ -322,7 +322,7 @@ yardsGained, $"RunYardsSkillsCheckResult should calculate low yards for weak off
             SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
 
             // Set ball carrier to have high tackle break chance
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier!.Rushing = 90;
             ballCarrier.Strength = 88;
             ballCarrier.Agility = 85;
@@ -349,12 +349,12 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
             SetPlayerSkills(game1, offenseSkill: 70, defenseSkill: 70);
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
-            var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier1 = game1.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier1!.Rushing = 90;
             ballCarrier1.Strength = 88;
             ballCarrier1.Agility = 85;
 
-            var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier2 = game2.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier2!.Rushing = 90;
             ballCarrier2.Strength = 88;
             ballCarrier2.Agility = 85;
@@ -386,7 +386,7 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
             SetPlayerSkills(game, offenseSkill: 70, defenseSkill: 70);
 
             // Set ball carrier to be fast for breakaway potential
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier!.Speed = 95;
 
             // Uses Breakaway scenario with 30 yards added
@@ -410,10 +410,10 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
             SetPlayerSkills(game1, offenseSkill: 70, defenseSkill: 70);
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
-            var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier1 = game1.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier1!.Speed = 95;
 
-            var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier2 = game2.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier2!.Speed = 95;
 
             // Test minimum (15 yards)
@@ -442,7 +442,7 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
             var game = CreateGameWithRunPlay();
             SetPlayerSkills(game, offenseSkill: 75, defenseSkill: 70);
 
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier!.Rushing = 85;
             ballCarrier.Speed = 90;
             ballCarrier.Agility = 88;
@@ -470,7 +470,7 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
             game.FieldPosition = 20; // Plenty of room to run
             SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50);
 
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
             ballCarrier!.Rushing = 95;
             ballCarrier.Speed = 98;
             ballCarrier.Agility = 95;
@@ -505,7 +505,7 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
 
             // Assert - RunYardsSkillsCheckResult should allow negative yards
             // skillDiff ≈ -65, baseYards ≈ -0.25, randomFactor = -13.75, total ≈ -14 * 0.8 ≈ -11
-            var yardsGained = game.CurrentPlay.YardsGained;
+            var yardsGained = game.CurrentPlay!.YardsGained;
             Assert.IsLessThanOrEqualTo(0, yardsGained, $"Weak offense should result in tackle for loss (got {yardsGained})");
         }
 
@@ -569,7 +569,7 @@ yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsG
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
             // Set all offensive players to the same skill level
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Rushing = offenseSkill;

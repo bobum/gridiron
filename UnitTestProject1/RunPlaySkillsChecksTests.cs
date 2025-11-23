@@ -21,7 +21,7 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
 
             // Set offensive line to have strong blocking (80+)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 if (player.Position == Positions.C || player.Position == Positions.G ||
                     player.Position == Positions.T || player.Position == Positions.TE ||
@@ -55,7 +55,7 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
 
             // Set offensive line to be weak (30)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 if (player.Position == Positions.C || player.Position == Positions.G ||
                     player.Position == Positions.T || player.Position == Positions.TE ||
@@ -93,7 +93,7 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
 
             // Set both offense and defense to be equal (60)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = 60;
             }
@@ -131,7 +131,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Elite ball carrier
             ballCarrier!.Rushing = 95;
@@ -161,7 +161,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Weak ball carrier
             ballCarrier!.Rushing = 40;
@@ -196,7 +196,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Average ball carrier
             ballCarrier!.Rushing = 70;
@@ -238,7 +238,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Very fast ball carrier (speed 95 gives ~13% probability)
             ballCarrier!.Speed = 95;
@@ -258,7 +258,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Slow ball carrier (speed 50 gives ~4% probability)
             ballCarrier!.Speed = 50;
@@ -278,7 +278,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
+            var ballCarrier = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Average speed (70 gives base 8% probability)
             ballCarrier!.Speed = 70;

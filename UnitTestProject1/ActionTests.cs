@@ -99,7 +99,7 @@ namespace UnitTestProject1
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
 
-            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
+            Assert.AreEqual(Possession.Away, game.CurrentPlay!.Possession);
             Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType);
         }
 
@@ -116,7 +116,7 @@ namespace UnitTestProject1
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
 
-            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession);
+            Assert.AreEqual(Possession.Home, game.CurrentPlay!.Possession);
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            game.CurrentPlay.Possession = Possession.Home;
+            game.CurrentPlay!.Possession = Possession.Home;
             var fumble = new Fumble(Possession.Away);
             fumble.Execute(game);
 
@@ -138,7 +138,7 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            game.CurrentPlay.Possession = Possession.Home;
+            game.CurrentPlay!.Possession = Possession.Home;
             var interception = new Interception(Possession.Away);
             interception.Execute(game);
 
@@ -156,7 +156,7 @@ namespace UnitTestProject1
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.First, game.CurrentQuarter.QuarterType);
             Assert.AreEqual(HalfType.First, game.CurrentHalf.HalfType);
-            Assert.IsFalse(game.CurrentPlay.QuarterExpired);
+            Assert.IsFalse(game.CurrentPlay!.QuarterExpired);
             Assert.IsFalse(game.CurrentPlay.HalfExpired);
 
             //end the first quarter

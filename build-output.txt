@@ -1,0 +1,52 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\projects\gridiron\DomainObjects\Team.cs(31,44): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(31,44): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(32,55): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(32,55): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(33,55): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(33,55): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(34,58): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(34,58): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(38,56): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(38,56): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(39,47): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(39,47): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(42,53): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(42,53): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Game.cs(65,16): warning CS8618: Non-nullable property 'HomeTeam' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Game.cs(65,16): warning CS8618: Non-nullable property 'AwayTeam' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Game.cs(65,16): warning CS8618: Non-nullable property 'CurrentPlay' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Penalty.cs(82,24): warning CS8602: Dereference of a possibly null reference. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Penalties\PenaltyRegistry.cs(49,20): warning CS8603: Possible null reference return. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Penalties\PenaltyBase.cs(102,24): warning CS8603: Possible null reference return. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\Diagram\Program.cs(686,25): warning CS8604: Possible null reference argument for parameter 'path' in 'string[] Directory.GetFiles(string path, string searchPattern)'. [C:\projects\gridiron\Diagram\Diagram.csproj]
+  Diagram -> C:\projects\gridiron\Diagram\bin\Debug\net8.0\Diagram.dll
+
+Build FAILED.
+
+C:\projects\gridiron\DomainObjects\Game.cs(65,16): warning CS8618: Non-nullable property 'HomeTeam' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Game.cs(65,16): warning CS8618: Non-nullable property 'AwayTeam' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Game.cs(65,16): warning CS8618: Non-nullable property 'CurrentPlay' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Penalty.cs(82,24): warning CS8602: Dereference of a possibly null reference. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Penalties\PenaltyRegistry.cs(49,20): warning CS8603: Possible null reference return. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Penalties\PenaltyBase.cs(102,24): warning CS8603: Possible null reference return. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\Diagram\Program.cs(686,25): warning CS8604: Possible null reference argument for parameter 'path' in 'string[] Directory.GetFiles(string path, string searchPattern)'. [C:\projects\gridiron\Diagram\Diagram.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(31,44): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(31,44): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(32,55): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(32,55): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(33,55): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(33,55): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(34,58): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(34,58): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(38,56): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(38,56): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(39,47): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(39,47): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(42,53): error CS9035: Required member 'Person.FirstName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+C:\projects\gridiron\DomainObjects\Team.cs(42,53): error CS9035: Required member 'Person.LastName' must be set in the object initializer or attribute constructor. [C:\projects\gridiron\DomainObjects\DomainObjects.csproj]
+    7 Warning(s)
+    14 Error(s)
+
+Time Elapsed 00:00:04.86

@@ -129,7 +129,7 @@ namespace UnitTestProject1
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
             // Set all offensive players to the same skill level
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Passing = offenseSkill;
@@ -184,7 +184,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithBlockingAndTacklePenalty(airYards: 10);
@@ -208,7 +208,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithBlockingPenalty(airYards: 10);
@@ -228,7 +228,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithReceiverTacklePenalty(airYards: 10);
@@ -252,7 +252,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = RunPlayScenarios.WithBlockingAndTacklePenalty(yards: 5);
@@ -276,7 +276,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = RunPlayScenarios.WithBlockingPenalty(yards: 5);
@@ -296,7 +296,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = RunPlayScenarios.WithTacklePenalty(yards: 5);
@@ -320,7 +320,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.CompletedPassImmediateTackle(airYards: 10);
@@ -338,7 +338,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay();
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = RunPlayScenarios.SimpleGain(yards: 5);

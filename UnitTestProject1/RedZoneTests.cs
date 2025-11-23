@@ -28,7 +28,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(6, runPlay.YardsGained, $"Run should be effective in red zone (got {runPlay.YardsGained})");
         }
 
@@ -45,7 +45,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Should complete");
             Assert.IsGreaterThanOrEqualTo(15, passPlay.YardsGained, $"Can still throw deep from 20 (got {passPlay.YardsGained})");
         }
@@ -67,7 +67,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(6, runPlay.YardsGained, $"Power run should work (got {runPlay.YardsGained})");
         }
 
@@ -84,7 +84,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsLessThanOrEqualTo(15, passPlay.PassSegments[0].AirYards, $"Air yards limited by field (got {passPlay.PassSegments[0].AirYards})");
         }
 
@@ -105,7 +105,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(10, runPlay.YardsGained, "Should score TD");
             Assert.AreEqual(100, game.FieldPosition, "Should reach end zone");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
@@ -124,7 +124,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsLessThan(10, runPlay.YardsGained, $"Should not score (got {runPlay.YardsGained})");
             Assert.AreEqual(0, game.HomeScore, "No touchdown");
         }
@@ -142,7 +142,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "TD pass should complete");
             Assert.IsGreaterThanOrEqualTo(10, passPlay.YardsGained, "Should score");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
@@ -165,7 +165,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(5, runPlay.YardsGained, "Elite RB should score from 5");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
         }
@@ -183,7 +183,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsLessThan(5, runPlay.YardsGained, $"Should be stopped (got {runPlay.YardsGained})");
             Assert.AreEqual(0, game.HomeScore, "No touchdown");
         }
@@ -201,7 +201,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Quick slant completes");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
         }
@@ -219,7 +219,7 @@ namespace UnitTestProject1
 
             ExecuteRunPlayWithResult(game, rng);
 
-            Assert.IsGreaterThanOrEqualTo(6, game.CurrentPlay.YardsGained, "Good gain");
+            Assert.IsGreaterThanOrEqualTo(6, game.CurrentPlay!.YardsGained, "Good gain");
         }
 
         [TestMethod]
@@ -231,7 +231,7 @@ namespace UnitTestProject1
 
             ExecutePassPlayWithResult(game, rng);
 
-            Assert.IsTrue(((PassPlay)game.CurrentPlay).PassSegments[0].IsComplete, "Complete");
+            Assert.IsTrue(((PassPlay)game.CurrentPlay!).PassSegments[0].IsComplete, "Complete");
         }
 
         [TestMethod]
@@ -243,7 +243,7 @@ namespace UnitTestProject1
 
             ExecuteRunPlayWithResult(game, rng);
 
-            Assert.IsLessThanOrEqualTo(4, game.CurrentPlay.YardsGained, "Limited gain");
+            Assert.IsLessThanOrEqualTo(4, game.CurrentPlay!.YardsGained, "Limited gain");
         }
 
         [TestMethod]
@@ -311,7 +311,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsFalse(passPlay.PassSegments[0].IsComplete,
                 "Compressed field gives defense advantage");
         }
@@ -329,7 +329,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(5, runPlay.YardsGained, $"Power run effective in red zone (got {runPlay.YardsGained})");
         }
 
@@ -439,7 +439,7 @@ namespace UnitTestProject1
 
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Rushing = offenseSkill;
@@ -458,7 +458,7 @@ namespace UnitTestProject1
 
         private void SetPassPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Passing = offenseSkill;

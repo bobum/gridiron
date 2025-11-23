@@ -137,7 +137,7 @@ namespace UnitTestProject1
             var play = game.CurrentPlay;
 
             // Set all offensive player skills
-            foreach (var player in play.OffensePlayersOnField)
+            foreach (var player in play!.OffensePlayersOnField)
             {
                 player.Speed = offensiveSkill;
                 player.Strength = offensiveSkill;
@@ -166,7 +166,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay(Possession.Home);
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithBlockingPenalty(airYards: 10);
@@ -197,7 +197,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay(Possession.Away);
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithBlockingPenalty(airYards: 10);
@@ -228,7 +228,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay(Possession.Home);
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = RunPlayScenarios.WithBlockingPenalty(yards: 5);
@@ -259,7 +259,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithRunPlay(Possession.Away);
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = RunPlayScenarios.WithBlockingPenalty(yards: 5);
@@ -294,7 +294,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay(Possession.Home);
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithDefensiveHoldingPenalty(airYards: 10);
@@ -325,7 +325,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay(Possession.Away);
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithDefensiveHoldingPenalty(airYards: 10);
@@ -356,7 +356,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay(Possession.Home);
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithDefensivePassInterferencePenalty(airYards: 20);
@@ -387,7 +387,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay(Possession.Away);
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 70, 70);
 
             var rng = PassPlayScenarios.WithDefensivePassInterferencePenalty(airYards: 20);

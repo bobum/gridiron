@@ -30,7 +30,7 @@ namespace UnitTestProject1
             Assert.AreEqual(Downs.Second, game.CurrentDown, "Should advance to 2nd down");
             Assert.AreEqual(7, game.YardsToGo, "Should need 7 more yards (10 - 3)");
             Assert.AreEqual(28, game.FieldPosition, "Field position should be 25 + 3");
-            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession, "Possession should not change");
+            Assert.AreEqual(Possession.Home, game.CurrentPlay!.Possession, "Possession should not change");
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace UnitTestProject1
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down");
             Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards to go");
             Assert.AreEqual(52, game.FieldPosition, "Field position should be 40 + 12");
-            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession, "Possession should not change");
+            Assert.AreEqual(Possession.Home, game.CurrentPlay!.Possession, "Possession should not change");
         }
 
         [TestMethod]
@@ -122,7 +122,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Play result should set turnover
-            Assert.IsTrue(game.CurrentPlay.PossessionChange, "PossessionChange should be true");
+            Assert.IsTrue(game.CurrentPlay!.PossessionChange, "PossessionChange should be true");
             Assert.AreEqual(47, game.FieldPosition, "Field position should be 45 + 2");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down for new possession");
             Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards to go");
@@ -155,7 +155,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            Assert.IsTrue(game.CurrentPlay.PossessionChange, "PossessionChange should be true");
+            Assert.IsTrue(game.CurrentPlay!.PossessionChange, "PossessionChange should be true");
             Assert.AreEqual(61, game.FieldPosition, "Field position should be 60 + 1");
 
             // Add to game.Plays so PrePlay can check previous play
@@ -184,7 +184,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            Assert.IsTrue(game.CurrentPlay.PossessionChange, "Should still be turnover on downs");
+            Assert.IsTrue(game.CurrentPlay!.PossessionChange, "Should still be turnover on downs");
             Assert.AreEqual(49, game.FieldPosition, "Field position should be 50 + (-1) = 49");
 
             // Add to game.Plays so PrePlay can check previous play
@@ -261,7 +261,7 @@ namespace UnitTestProject1
             passResult.Execute(game);
 
             // Assert
-            Assert.IsTrue(game.CurrentPlay.PossessionChange, "4th down incomplete should be turnover");
+            Assert.IsTrue(game.CurrentPlay!.PossessionChange, "4th down incomplete should be turnover");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st for new possession");
             Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards");
 
@@ -291,7 +291,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(23, game.FieldPosition, "Ball should be at Home's 23");
-            Assert.IsTrue(game.CurrentPlay.PossessionChange, "Should be turnover");
+            Assert.IsTrue(game.CurrentPlay!.PossessionChange, "Should be turnover");
 
             // Add to game.Plays so PrePlay can check previous play
             game.Plays.Add(game.CurrentPlay);
@@ -419,7 +419,7 @@ namespace UnitTestProject1
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
             // Set all offensive players to the same skill level
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Rushing = offenseSkill;
@@ -440,7 +440,7 @@ namespace UnitTestProject1
         private void SetPassPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
             // Set offensive players
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Passing = offenseSkill;
@@ -538,7 +538,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should gain significant yards
-            Assert.IsGreaterThanOrEqualTo(8, game.CurrentPlay.YardsGained, $"High skills + good blocking should produce high yards (got {game.CurrentPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(8, game.CurrentPlay!.YardsGained, $"High skills + good blocking should produce high yards (got {game.CurrentPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -553,7 +553,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should still gain decent yards despite bad blocking
-            Assert.IsGreaterThanOrEqualTo(5, game.CurrentPlay.YardsGained, $"High skills + bad blocking should still produce medium yards (got {game.CurrentPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(5, game.CurrentPlay!.YardsGained, $"High skills + bad blocking should still produce medium yards (got {game.CurrentPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -568,7 +568,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should gain medium yards
-            Assert.IsTrue(game.CurrentPlay.YardsGained >= 4 && game.CurrentPlay.YardsGained <= 6,
+            Assert.IsTrue(game.CurrentPlay!.YardsGained >= 4 && game.CurrentPlay.YardsGained <= 6,
                 $"Even skills + good blocking should produce medium yards (got {game.CurrentPlay.YardsGained})");
         }
 
@@ -584,7 +584,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should gain few yards
-            Assert.IsTrue(game.CurrentPlay.YardsGained >= 1 && game.CurrentPlay.YardsGained <= 3,
+            Assert.IsTrue(game.CurrentPlay!.YardsGained >= 1 && game.CurrentPlay.YardsGained <= 3,
                 $"Even skills + bad blocking should produce low yards (got {game.CurrentPlay.YardsGained})");
         }
 
@@ -600,7 +600,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should gain minimal yards even with good blocking
-            Assert.IsLessThanOrEqualTo(3, game.CurrentPlay.YardsGained, $"Low skills + good blocking should still produce low yards (got {game.CurrentPlay.YardsGained})");
+            Assert.IsLessThanOrEqualTo(3, game.CurrentPlay!.YardsGained, $"Low skills + good blocking should still produce low yards (got {game.CurrentPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -615,7 +615,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should lose yards (tackle for loss)
-            Assert.IsLessThanOrEqualTo(0, game.CurrentPlay.YardsGained, $"Low skills + bad blocking should produce tackle for loss (got {game.CurrentPlay.YardsGained})");
+            Assert.IsLessThanOrEqualTo(0, game.CurrentPlay!.YardsGained, $"Low skills + bad blocking should produce tackle for loss (got {game.CurrentPlay.YardsGained})");
         }
 
         #endregion

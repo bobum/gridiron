@@ -32,7 +32,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsFalse(play.GoodSnap, "Should be marked as bad snap");
             Assert.IsLessThan(0, play.YardsGained, "Should lose yards on bad snap");
             Assert.IsGreaterThanOrEqualTo(-30, play.YardsGained, "Can't lose more than current field position");
@@ -44,7 +44,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 5;  // Very close to own goal line
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 0;
             game.AwayScore = 0;
@@ -81,7 +81,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.GoodSnap, "Should be good snap");
             Assert.IsFalse(play.Blocked, "Should not be blocked");
         }
@@ -96,7 +96,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             var rng = PuntPlayScenarios.BlockedPuntDefenseRecovers(baseBounce: 0.5, randomFactor: 0.6);
 
@@ -128,7 +128,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.Blocked, "Punt should be blocked");
             Assert.IsNotNull(play.RecoveredBy, "Offense should recover");
             Assert.IsLessThan(0, play.YardsGained, "Should lose yards");
@@ -141,7 +141,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 95;  // Near opponent goal line
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 14;
@@ -168,7 +168,7 @@ namespace UnitTestProject1
             // Arrange - Test that good snaps have low (~1%) block rate
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Use RNG value that would NOT block with good snap
             // Good snap: ~1% block rate, so 0.02 should NOT block
@@ -190,7 +190,7 @@ namespace UnitTestProject1
             // Arrange - Test that bad snaps dramatically increase block chance
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Make long snapper terrible to ensure bad snap
             var snapper = play.OffensePlayersOnField.FirstOrDefault(p => p.Position == Positions.LS);
@@ -218,7 +218,7 @@ namespace UnitTestProject1
             // Arrange - Test that skill differential affects block probability
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Create elite defensive rusher
             var eliteRusher = new Player
@@ -274,7 +274,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.Touchback, "Should be a touchback");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.IsFalse(play.Blocked, "Should not be blocked");
@@ -299,7 +299,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsFalse(play.Blocked, "Should not be blocked");
             Assert.IsFalse(play.Touchback, "Should not be touchback");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
@@ -326,7 +326,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.Downed, "Punt should be downed");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.IsGreaterThan(0, play.DownedAtYardLine, "Should have downed location");
@@ -348,7 +348,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.Downed, "Should be downed");
             Assert.IsGreaterThan(90, play.DownedAtYardLine, "Should be downed deep in opponent territory");
         }
@@ -372,7 +372,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.FairCatch, "Should be fair catch");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.IsEmpty(play.ReturnSegments, "Should have no return");
@@ -393,7 +393,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.FairCatch, "Should be fair catch deep in own territory");
         }
 
@@ -416,7 +416,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.MuffedCatch, "Should be muffed catch");
             Assert.IsTrue(play.PossessionChange, "Possession should still change (receiving team recovered)");
             Assert.IsNotNull(play.MuffedBy, "Should record who muffed");
@@ -438,7 +438,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.MuffedCatch, "Should be muffed catch");
             Assert.IsFalse(play.PossessionChange, "Possession should NOT change (punting team recovered)");
             Assert.IsNotNull(play.MuffedBy, "Should record who muffed");
@@ -464,7 +464,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsFalse(play.Blocked, "Should not be blocked");
             Assert.IsFalse(play.FairCatch, "Should not be fair catch");
             Assert.IsFalse(play.MuffedCatch, "Should not be muffed");
@@ -479,7 +479,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 60;  // Own 40-yard line
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 14;
             game.AwayScore = 10;
@@ -506,7 +506,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 45;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Remove all potential returners from defense
             play.DefensePlayersOnField.Clear();
@@ -542,7 +542,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(-2, play.YardsGained, "Cannot lose more than current field position");
         }
 
@@ -561,7 +561,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             // Should be touchback since punt would exceed 100
             Assert.IsTrue(play.Touchback || play.PuntDistance <= 55, "Punt distance should be clamped or result in touchback");
         }
@@ -585,7 +585,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsGreaterThan(0, play.PuntDistance, "Should have positive punt distance");
             Assert.IsTrue(play.Downed || play.Touchback || play.ReturnSegments.Count > 0, "Punt should complete successfully");
         }
@@ -596,7 +596,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 3;  // Close to own goal
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             var rng = PuntPlayScenarios.BadSnap(baseLoss: 0.8, randomFactor: 0.95);
@@ -619,7 +619,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Replace with weak punter (kicking skill 15) to enable shanked punt
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.P);
@@ -661,7 +661,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsGreaterThanOrEqualTo(55, play.PuntDistance, "Maximum punt should be 55+ yards");
             Assert.IsLessThanOrEqualTo(80, play.PuntDistance, "Punt distance should be reasonable");
         }
@@ -681,7 +681,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.Touchback, "Punt landing at/beyond 100 should be touchback");
             Assert.IsTrue(play.PossessionChange, "Possession should change on touchback");
         }
@@ -692,7 +692,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 8;  // Close to own end zone
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 3;
@@ -718,7 +718,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 5;  // Very close to own end zone
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 14;
             game.AwayScore = 10;
@@ -747,7 +747,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 50;  // Midfield
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             var rng = PuntPlayScenarios.MuffReceivingTeamRecovers(recoveryYards: 0.0);
 
@@ -777,7 +777,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.OutOfBounds, "Should be out of bounds");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.IsEmpty(play.ReturnSegments, "No return on out of bounds");
@@ -798,7 +798,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsNotEmpty(play.ReturnSegments, "Should have return attempt");
             // Return yards can be negative (tackled behind catch point)
             Assert.IsGreaterThanOrEqualTo(-3, play.YardsGained, "Return can lose up to 3 yards");
@@ -809,7 +809,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Remove punter
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.P);
@@ -828,7 +828,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Remove long snapper (should fall back to center or default logic)
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.LS);
@@ -847,7 +847,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Give returner maximum skills
             var superReturner = play.DefensePlayersOnField.First(p => p.Position == Positions.CB);
@@ -863,7 +863,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play2 = (PuntPlay)game.CurrentPlay;
+            var play2 = (PuntPlay)game.CurrentPlay!;
             Assert.IsNotEmpty(play2.ReturnSegments, "Should have return");
             // With max skills, return should be decent even against good coverage
         }
@@ -873,7 +873,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
 
             // Give returner minimum skills
             var weakReturner = play.DefensePlayersOnField.First(p => p.Position == Positions.CB);
@@ -889,7 +889,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play2 = (PuntPlay)game.CurrentPlay;
+            var play2 = (PuntPlay)game.CurrentPlay!;
             Assert.IsNotEmpty(play2.ReturnSegments, "Should have return attempt");
             // With low skills, return should be limited
         }
@@ -909,7 +909,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsGreaterThan(0, play.PuntDistance, "Should have punt distance");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
@@ -929,7 +929,7 @@ namespace UnitTestProject1
                 punt.Execute(game);
 
                 // Assert
-                var play = (PuntPlay)game.CurrentPlay;
+                var play = (PuntPlay)game.CurrentPlay!;
                 Assert.IsNotNull(play, $"Punt {i + 1} should complete successfully");
                 Assert.IsGreaterThan(0, play.PuntDistance, $"Punt {i + 1} should have positive distance");
             }
@@ -950,7 +950,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsFalse(play.GoodSnap, "Should be bad snap");
             Assert.IsLessThan(0, play.YardsGained, "Should lose some yards");
             Assert.IsGreaterThanOrEqualTo(-20, play.YardsGained, "Loss should be minimal");
@@ -971,7 +971,7 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             Assert.IsTrue(play.Downed, "Should be downed");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             // Punt should land close to goal line (great field position)

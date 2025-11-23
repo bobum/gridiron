@@ -41,7 +41,7 @@ namespace UnitTestProject1
         public void InterceptionPossessionChangeSkillsCheckResultHomeTeamTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.Possession = Possession.Away;
+            game.CurrentPlay!.Possession = Possession.Away;
 
             var interceptionResult = new InterceptionPossessionChangeSkillsCheckResult();
             interceptionResult.Execute(game);
@@ -53,7 +53,7 @@ namespace UnitTestProject1
         public void InterceptionPossessionChangeSkillsCheckResultAwayTeamTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.Possession = Possession.Home;
+            game.CurrentPlay!.Possession = Possession.Home;
 
             var interceptionResult = new InterceptionPossessionChangeSkillsCheckResult();
             interceptionResult.Execute(game);

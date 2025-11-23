@@ -94,7 +94,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame(); // Starts with kickoff
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             
             var rng = KickoffPlayScenarios.NormalReturn(0.5, 0.5);
             var kickoff = new Kickoff(rng);

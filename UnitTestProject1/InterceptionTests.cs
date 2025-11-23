@@ -355,7 +355,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             SetPlayerSkills(game, 40, 95); // Weak QB, strong coverage = high INT chance
 
             var rng = PassPlayScenarios.Interception(returnYards: 15);
@@ -428,7 +428,7 @@ namespace UnitTestProject1
 
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Passing = offenseSkill;
                 player.Awareness = offenseSkill;

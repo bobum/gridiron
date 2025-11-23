@@ -24,7 +24,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: true);
             game.FieldPosition = 97; // 3-yard line (20-yard attempt)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 6; // Just scored TD
             game.AwayScore = 0;
@@ -51,7 +51,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: true);
             game.FieldPosition = 97; // 3-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 6;
             game.AwayScore = 0;
@@ -80,7 +80,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 90; // 10-yard line (27-yard attempt)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 0;
             game.AwayScore = 0;
@@ -111,7 +111,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70; // 30-yard line (47-yard attempt for Home team)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;  // Changed from Away to Home
             game.HomeScore = 7;
             game.AwayScore = 7;
@@ -137,7 +137,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70; // 30-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 14;
             game.AwayScore = 10;
@@ -169,7 +169,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 50; // Midfield (67-yard attempt)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             // Use excellent kicker
@@ -200,7 +200,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 50; // Midfield
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             game.HomeScore = 10;
             game.AwayScore = 7;
@@ -232,7 +232,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             var rng = FieldGoalPlayScenarios.BadSnap(baseLoss: 0.5, randomFactor: 0.5);
 
@@ -254,7 +254,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 5; // Very close to own goal
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 0;
             game.AwayScore = 0;
@@ -284,7 +284,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             var rng = FieldGoalPlayScenarios.BlockedFieldGoalOffenseRecovers(recoveryYards: 0.5);
 
@@ -306,7 +306,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             var rng = FieldGoalPlayScenarios.BlockedFieldGoalDefenseRecovers(returnYards: 0.5);
 
@@ -327,7 +327,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 95; // Near opponent goal
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 3;
             game.AwayScore = 7;
@@ -353,7 +353,7 @@ namespace UnitTestProject1
             // Arrange - Test defensive TD from opponent territory with excellent return
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 35; // Opponent 35-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 10;
@@ -383,7 +383,7 @@ namespace UnitTestProject1
             // Arrange - Test defense recovers blocked FG and returns 15 yards
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70; // 30-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 10;
@@ -413,7 +413,7 @@ namespace UnitTestProject1
             // Arrange - Test defensive TD on blocked FG return (scoop and score)
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 95; // 5-yard line (near opponent goal)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 14;
             game.AwayScore = 17;
@@ -441,7 +441,7 @@ namespace UnitTestProject1
             // Arrange - Test offense recovers in own end zone = safety
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 5; // Very close to own goal
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 10;
             game.AwayScore = 14;
@@ -470,7 +470,7 @@ namespace UnitTestProject1
             // Arrange - Test offense recovers with yardage loss
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70; // 30-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             var rng = FieldGoalPlayScenarios.BlockedFieldGoalOffenseRecovers(recoveryYards: 0.5);
@@ -496,7 +496,7 @@ namespace UnitTestProject1
             // Arrange - Test that 55+ yard kicks have higher block chance
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 40; // 60-yard line (77-yard attempt)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             var rng = FieldGoalPlayScenarios.LongKickBlocked();
 
@@ -516,7 +516,7 @@ namespace UnitTestProject1
             // Arrange - Test that XP/short FGs have lower block chance
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: true);
             game.FieldPosition = 97; // 3-yard line (20-yard PAT)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             // Use NextDouble value that would NOT block for short kick
             // Extra points: 1.5% base, so 0.03 would NOT block
@@ -544,7 +544,7 @@ namespace UnitTestProject1
             // Arrange - Test that bad snaps dramatically increase block chance
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             // Make long snapper terrible to ensure bad snap
             var snapper = play.OffensePlayersOnField.First(p => p.Position == Positions.LS);
@@ -570,7 +570,7 @@ namespace UnitTestProject1
             // Arrange - Test defense recovers and runs backwards into kicking team's end zone
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 3; // Very close to own goal
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 7;
@@ -600,7 +600,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             // Remove kicker
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.K);
@@ -623,7 +623,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 1; // Own 1-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             var rng = FieldGoalPlayScenarios.ExtremelyLongFieldGoal();
 
@@ -633,7 +633,7 @@ namespace UnitTestProject1
             fieldGoal.Execute(game);
 
             // Assert
-            var play2 = (FieldGoalPlay)game.CurrentPlay;
+            var play2 = (FieldGoalPlay)game.CurrentPlay!;
             Assert.AreEqual(116, play2.AttemptDistance, "Should be 116-yard attempt");
             Assert.IsFalse(play2.IsGood, "116-yard kick should miss");
         }
@@ -644,7 +644,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 60; // 40-yard line (57-yard attempt)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             // Excellent kicker (85 skill)
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -669,7 +669,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 80; // 20-yard line (37-yard attempt)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
 
             // Poor kicker (30 skill)
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -692,7 +692,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 70; // 30-yard line (LOS)
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             var rng = FieldGoalPlayScenarios.MediumFieldGoalMissed(missDirection: 0.5);
@@ -717,7 +717,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(isExtraPoint: false);
             game.FieldPosition = 95; // 5-yard line
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             var rng = FieldGoalPlayScenarios.MediumFieldGoalMissed(missDirection: 0.5);
@@ -785,7 +785,7 @@ namespace UnitTestProject1
             var game = CreateGameWithFieldGoalPlay(false);
             game.FieldPosition = 70; // 30-yard line
             game.CurrentDown = Downs.Fourth;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = false; // Missed FG
 
             // Add defensive penalty (roughing the kicker, 15 yards, automatic first down)
@@ -817,7 +817,7 @@ namespace UnitTestProject1
             var game = CreateGameWithFieldGoalPlay(false);
             game.FieldPosition = 70;
             game.CurrentDown = Downs.Fourth;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = true; // Good FG
 
             // Add offensive penalty (delay of game, 5 yards)
@@ -846,7 +846,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(true); // PAT
             game.FieldPosition = 98; // 2-yard line for PAT
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = false; // Missed PAT
             play.IsExtraPoint = true;
 
@@ -876,7 +876,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(true); // PAT
             game.FieldPosition = 98; // 2-yard line for PAT
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = true; // Good PAT
             play.IsExtraPoint = true;
 
@@ -907,7 +907,7 @@ namespace UnitTestProject1
             var game = CreateGameWithFieldGoalPlay(false);
             game.FieldPosition = 70;
             game.CurrentDown = Downs.Fourth;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = false; // Missed
 
             // Add offsetting penalties
@@ -944,7 +944,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.Blocked = true;
             play.YardsGained = -5; // Blocked, lost yards
             play.RecoveredBy = new Player { LastName = "Defender", Position = Positions.DT };
@@ -976,7 +976,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithFieldGoalPlay(false);
             game.FieldPosition = 70;
-            var play = (FieldGoalPlay)game.CurrentPlay;
+            var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = true;
 
             // No penalties

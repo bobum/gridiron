@@ -629,7 +629,7 @@ namespace UnitTestProject1
             prePlay1.Execute(game);
 
             // Verify extra point is for HOME team (same team that scored)
-            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay.PlayType);
+            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay!.PlayType);
             Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession,
                 "Extra point should be attempted by team that scored TD");
             Assert.AreEqual(Downs.None, game.CurrentPlay.Down,

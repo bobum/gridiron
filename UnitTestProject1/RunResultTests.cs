@@ -20,7 +20,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             game.FieldPosition = 95;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 10; // Will exceed 100
             runPlay.Possession = Possession.Home;
             var initialHomeScore = game.HomeScore;
@@ -42,7 +42,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             game.FieldPosition = 92;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 15; // Will exceed 100
             runPlay.Possession = Possession.Away;
             var initialAwayScore = game.AwayScore;
@@ -68,7 +68,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             game.FieldPosition = 3;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = -5; // Tackled in own end zone
             runPlay.Possession = Possession.Home;
             var initialAwayScore = game.AwayScore;
@@ -89,7 +89,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             game.FieldPosition = 2;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = -3; // Tackled in own end zone
             runPlay.Possession = Possession.Away;
             var initialHomeScore = game.HomeScore;
@@ -116,7 +116,7 @@ namespace UnitTestProject1
             game.FieldPosition = 25;
             game.YardsToGo = 10;
             game.CurrentDown = Downs.First;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 12; // Exceeds yards to go
 
             // Act
@@ -138,7 +138,7 @@ namespace UnitTestProject1
             game.FieldPosition = 30;
             game.YardsToGo = 7;
             game.CurrentDown = Downs.Third;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 7; // Exactly enough
 
             // Act
@@ -163,7 +163,7 @@ namespace UnitTestProject1
             game.FieldPosition = 25;
             game.YardsToGo = 10;
             game.CurrentDown = Downs.First;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 4; // Not enough for first down
 
             // Act
@@ -184,7 +184,7 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             game.CurrentDown = Downs.Second;
             game.YardsToGo = 7;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 3;
 
             // Act
@@ -203,7 +203,7 @@ namespace UnitTestProject1
             var game = CreateGameWithRunPlay();
             game.CurrentDown = Downs.Third;
             game.YardsToGo = 8;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 2;
 
             // Act
@@ -227,7 +227,7 @@ namespace UnitTestProject1
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Fourth;
             game.YardsToGo = 5;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 3; // Not enough
 
             // Act
@@ -251,7 +251,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithRunPlay();
             game.FieldPosition = 30;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = 8;
 
             // Act
@@ -272,7 +272,7 @@ namespace UnitTestProject1
             game.FieldPosition = 35;
             game.CurrentDown = Downs.Second;
             game.YardsToGo = 8;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.YardsGained = -3; // Loss of 3
 
             // Act
@@ -301,7 +301,7 @@ namespace UnitTestProject1
             game.CurrentDown = Downs.First;
 
             // First down: 4 yards
-            var runPlay1 = (RunPlay)game.CurrentPlay;
+            var runPlay1 = (RunPlay)game.CurrentPlay!;
             runPlay1.YardsGained = 4;
             var runResult1 = new RunResult();
             runResult1.Execute(game);

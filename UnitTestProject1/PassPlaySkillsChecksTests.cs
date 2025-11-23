@@ -20,7 +20,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set offensive line to have strong blocking (85+)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 if (player.Position == Positions.C || player.Position == Positions.G ||
                     player.Position == Positions.T || player.Position == Positions.TE ||
@@ -59,7 +59,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set offensive line to be weak (40)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 if (player.Position == Positions.C || player.Position == Positions.G ||
                     player.Position == Positions.T)
@@ -97,7 +97,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set both offense and defense to be equal (70)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = 70;
             }
@@ -137,7 +137,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set pass rush to be elite (90)
-            foreach (var player in game.CurrentPlay.DefensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.DefensePlayersOnField)
             {
                 if (player.Position == Positions.DT || player.Position == Positions.DE ||
                     player.Position == Positions.LB || player.Position == Positions.OLB)
@@ -174,7 +174,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set pass rush to be weak (50)
-            foreach (var player in game.CurrentPlay.DefensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.DefensePlayersOnField)
             {
                 if (player.Position == Positions.DT || player.Position == Positions.DE ||
                     player.Position == Positions.LB || player.Position == Positions.OLB)
@@ -211,7 +211,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set both to be equal (70)
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = 70;
             }
@@ -248,7 +248,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var qb = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.QB);
+            var qb = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.QB);
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Elite QB
@@ -287,7 +287,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var qb = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.QB);
+            var qb = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.QB);
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Poor QB
@@ -326,7 +326,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var qb = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.QB);
+            var qb = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.QB);
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Good QB and receiver
@@ -376,7 +376,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
+            var receiver = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Elite receiver (avg 91.67 = +5.4% YAC bonus)
             receiver!.Speed = 95;
@@ -398,7 +398,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.TE);
+            var receiver = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.TE);
 
             // Slow, possession receiver (avg 60 = -2.5% YAC penalty)
             receiver!.Speed = 65;
@@ -420,7 +420,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPassPlay();
-            var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
+            var receiver = game.CurrentPlay!.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Average receiver (avg 72.67 = +0.67% YAC bonus)
             receiver!.Speed = 75;
@@ -512,7 +512,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
 
             // Set equal skills for ~75% protection probability
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField.Where(p =>
                 p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
             {
                 player.Blocking = 70;
@@ -545,7 +545,7 @@ namespace UnitTestProject1
             // Arrange - Protection probability ~75%, roll = 0.73 (just under threshold)
             var game = CreateGameWithPassPlay();
 
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField.Where(p =>
                 p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
             {
                 player.Blocking = 70;
@@ -578,7 +578,7 @@ namespace UnitTestProject1
             // Arrange - Protection probability ~75%, roll = 0.77 (just over threshold)
             var game = CreateGameWithPassPlay();
 
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField.Where(p =>
                 p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
             {
                 player.Blocking = 70;
@@ -611,7 +611,7 @@ namespace UnitTestProject1
             // Arrange - Protection probability ~75%, roll = 0.95 (way over threshold)
             var game = CreateGameWithPassPlay();
 
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField.Where(p =>
                 p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
             {
                 player.Blocking = 70;
@@ -644,7 +644,7 @@ namespace UnitTestProject1
             // Arrange - Strong O-Line (90) vs average D-Line (70) = high protection probability
             var game = CreateGameWithPassPlay();
 
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField.Where(p =>
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField.Where(p =>
                 p.Position == Positions.C || p.Position == Positions.G || p.Position == Positions.T))
             {
                 player.Blocking = 90;
