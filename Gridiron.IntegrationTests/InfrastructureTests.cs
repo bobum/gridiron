@@ -67,6 +67,13 @@ public class InfrastructureTests : IDisposable
 
         await _dbContext.Database.EnsureCreatedAsync();
 
+        // Verify schema includes soft delete infrastructure
+        // We test this by querying with IsDeleted - if the column doesn't exist, this will throw
+        var teamsQuery = await _dbContext.Teams.Where(t => !t.IsDeleted).ToListAsync();
+        var playersQuery = await _dbContext.Players.Where(p => !p.IsDeleted).ToListAsync();
+        teamsQuery.Should().NotBeNull("because IsDeleted column should exist on Teams table");
+        playersQuery.Should().NotBeNull("because IsDeleted column should exist on Players table");
+
         // ============================================================
         // STEP 2: Seed Player Generation Data
         // ============================================================
