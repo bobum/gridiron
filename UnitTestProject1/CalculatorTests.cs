@@ -98,7 +98,7 @@ namespace UnitTestProject1
             var power = TeamPowerCalculator.CalculatePassRushPower(players);
 
             // Assert
-            Assert.IsTrue(power > 0); // Should calculate from LBs
+            Assert.IsGreaterThan(0, power); // Should calculate from LBs
         }
 
         [TestMethod]
@@ -225,8 +225,8 @@ namespace UnitTestProject1
             var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
 
             // Assert - Should be less than 1.0 (1 fewer rusher = -0.15)
-            Assert.IsTrue(pressure < 1.0);
-            Assert.IsTrue(pressure > 0.7); // Around 0.85
+            Assert.IsLessThan(1.0, pressure);
+            Assert.IsGreaterThan(0.7, pressure); // Around 0.85
         }
 
         [TestMethod]
@@ -254,8 +254,8 @@ namespace UnitTestProject1
             var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
 
             // Assert - Should be greater than 1.0 (2 extra rushers = +0.30)
-            Assert.IsTrue(pressure > 1.0);
-            Assert.IsTrue(pressure < 1.5); // Around 1.30
+            Assert.IsGreaterThan(1.0, pressure);
+            Assert.IsLessThan(1.5, pressure); // Around 1.30
         }
 
         [TestMethod]
@@ -281,7 +281,7 @@ namespace UnitTestProject1
             var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
 
             // Assert - Should be well below 1.0 (skill differential -40 = -0.40)
-            Assert.IsTrue(pressure < 0.8);
+            Assert.IsLessThan(0.8, pressure);
         }
 
         [TestMethod]
@@ -307,7 +307,7 @@ namespace UnitTestProject1
             var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
 
             // Assert - Should be well above 1.0 (skill differential +40 = +0.40)
-            Assert.IsTrue(pressure > 1.2);
+            Assert.IsGreaterThan(1.2, pressure);
         }
 
         [TestMethod]
@@ -337,8 +337,8 @@ namespace UnitTestProject1
             var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
 
             // Assert - Should be clamped at or below MAX_PRESSURE (2.5)
-            Assert.IsTrue(pressure <= 2.5);
-            Assert.IsTrue(pressure >= 2.0); // Should be high
+            Assert.IsLessThanOrEqualTo(2.5, pressure);
+            Assert.IsGreaterThanOrEqualTo(2.0, pressure); // Should be high
         }
 
         [TestMethod]
@@ -364,8 +364,8 @@ namespace UnitTestProject1
             var pressure = LineBattleCalculator.CalculateDPressureFactor(offense, defense, isPassPlay: true);
 
             // Assert - Should be clamped at or above MIN_PRESSURE (0.0)
-            Assert.IsTrue(pressure >= 0.0);
-            Assert.IsTrue(pressure < 0.5); // Should be very low
+            Assert.IsGreaterThanOrEqualTo(0.0, pressure);
+            Assert.IsLessThan(0.5, pressure); // Should be very low
         }
 
         [TestMethod]
@@ -394,7 +394,7 @@ namespace UnitTestProject1
 
             // Assert - Pass should have slightly higher pressure because RB's lower blocking (60) 
             // reduces the average from 70 to 67.5, making offense weaker
-            Assert.IsTrue(passPressure > runPressure);
+            Assert.IsGreaterThan(runPressure, passPressure);
         }
 
         #endregion

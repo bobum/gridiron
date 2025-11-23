@@ -29,10 +29,10 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert
-            Assert.AreEqual(1, passPlay.PassSegments.Count, "Should have exactly 1 pass segment");
+            Assert.HasCount(1, passPlay.PassSegments, "Should have exactly 1 pass segment");
             Assert.IsNotNull(passPlay.PassSegments[0].Passer, "Passer should be assigned");
             Assert.IsNotNull(passPlay.PassSegments[0].Receiver, "Receiver should be assigned");
-            Assert.IsTrue(passPlay.ElapsedTime > 0, "Elapsed time should be set");
+            Assert.IsGreaterThan(0, passPlay.ElapsedTime, "Elapsed time should be set");
         }
 
         [TestMethod]
@@ -73,7 +73,7 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert
-            Assert.IsTrue(passPlay.YardsGained < 0, "Sack should result in negative yards");
+            Assert.IsLessThan(0, passPlay.YardsGained, "Sack should result in negative yards");
             Assert.IsFalse(passPlay.PassSegments[0].IsComplete, "Sack should be marked as incomplete");
         }
 
@@ -92,8 +92,7 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert - sack should be limited to 3 yards (can't go past own goal)
-            Assert.IsTrue(game.CurrentPlay.YardsGained >= -3,
-                $"Sack yards ({game.CurrentPlay.YardsGained}) should not exceed field position");
+            Assert.IsGreaterThanOrEqualTo(-3, game.CurrentPlay.YardsGained, $"Sack yards ({game.CurrentPlay.YardsGained}) should not exceed field position");
         }
 
         #endregion
@@ -168,7 +167,7 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.AreEqual(PassType.Deep, passPlay.PassSegments[0].Type, "Should be deep pass");
-            Assert.IsTrue(passPlay.PassSegments[0].AirYards > 15, "Deep pass should have significant air yards");
+            Assert.IsGreaterThan(15, passPlay.PassSegments[0].AirYards, "Deep pass should have significant air yards");
         }
 
         #endregion
@@ -182,7 +181,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPassPlay();
             SetPlayerSkills(game, 70, 70);
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
-            receiver.Speed = 90;
+            receiver!.Speed = 90;
             receiver.Agility = 88;
 
             var rng = PassPlayScenarios.CompletedPassWithYAC(airYards: 10, yacFactor: 0.9, hasBigPlay: false);
@@ -193,7 +192,7 @@ namespace UnitTestProject1
 
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch > 3, "Should have good YAC");
+            Assert.IsGreaterThan(3, passPlay.PassSegments[0].YardsAfterCatch, "Should have good YAC");
         }
 
         [TestMethod]
@@ -220,8 +219,7 @@ namespace UnitTestProject1
 
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.IsTrue(passPlay.YardsGained > 30,
-                $"Big play should result in significant yardage (got {passPlay.YardsGained})");
+            Assert.IsGreaterThan(30, passPlay.YardsGained, $"Big play should result in significant yardage (got {passPlay.YardsGained})");
         }
 
         #endregion
@@ -244,8 +242,7 @@ namespace UnitTestProject1
 
             // Assert
             var yardsToGoal = 100 - 92;
-            Assert.IsTrue(game.CurrentPlay.YardsGained <= yardsToGoal,
-                $"Yards gained ({game.CurrentPlay.YardsGained}) should not exceed yards to goal ({yardsToGoal})");
+            Assert.IsLessThanOrEqualTo(yardsToGoal, game.CurrentPlay.YardsGained, $"Yards gained ({game.CurrentPlay.YardsGained}) should not exceed yards to goal ({yardsToGoal})");
         }
 
         #endregion
@@ -260,7 +257,7 @@ namespace UnitTestProject1
 
             // Set one receiver to have very high catching (weighted selection should favor this one)
             var eliteReceiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
-            eliteReceiver.Catching = 95;
+            eliteReceiver!.Catching = 95;
 
             // Set others to low catching
             foreach (var player in game.CurrentPlay.OffensePlayersOnField)
@@ -444,7 +441,7 @@ namespace UnitTestProject1
 
             // Set receiver skills for predictable YAC calculation
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
-            receiver.Speed = 80;
+            receiver!.Speed = 80;
             receiver.Agility = 75;
             receiver.Rushing = 70;  // Average = 75, baseYAC = 3 + 75/20 = 6.75
 
@@ -486,8 +483,7 @@ namespace UnitTestProject1
 
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch >= 25,
-                $"YardsAfterCatchSkillsCheckResult should add big play bonus (got {passPlay.PassSegments[0].YardsAfterCatch})");
+            Assert.IsGreaterThanOrEqualTo(25, passPlay.PassSegments[0].YardsAfterCatch, $"YardsAfterCatchSkillsCheckResult should add big play bonus (got {passPlay.PassSegments[0].YardsAfterCatch})");
         }
 
         [TestMethod]
@@ -514,8 +510,8 @@ namespace UnitTestProject1
 
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch < 20,
-                "YardsAfterCatchSkillsCheckResult should NOT trigger big play for slow receiver");
+            Assert.IsLessThan(20,
+passPlay.PassSegments[0].YardsAfterCatch, "YardsAfterCatchSkillsCheckResult should NOT trigger big play for slow receiver");
         }
 
         [TestMethod]
@@ -527,7 +523,7 @@ namespace UnitTestProject1
             SetPlayerSkills(game, 75, 70);
 
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
-            receiver.Speed = 90;
+            receiver!.Speed = 90;
             receiver.Agility = 88;
             receiver.Rushing = 85;
 
@@ -542,8 +538,7 @@ namespace UnitTestProject1
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Pass should be complete");
             Assert.AreEqual(15, passPlay.PassSegments[0].AirYards,
                 "AirYardsSkillsCheckResult should set air yards to 15");
-            Assert.IsTrue(passPlay.PassSegments[0].YardsAfterCatch > 5,
-                "YardsAfterCatchSkillsCheckResult should calculate YAC");
+            Assert.IsGreaterThan(5, passPlay.PassSegments[0].YardsAfterCatch, "YardsAfterCatchSkillsCheckResult should calculate YAC");
             Assert.AreEqual(passPlay.PassSegments[0].AirYards + passPlay.PassSegments[0].YardsAfterCatch,
                 passPlay.YardsGained,
                 "Total yards should equal air yards + YAC");
@@ -594,8 +589,7 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "High skills with good protection should complete");
-            Assert.IsTrue(passPlay.YardsGained >= 20,
-                $"Elite offense should gain significant yards (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(20, passPlay.YardsGained, $"Elite offense should gain significant yards (got {passPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -614,8 +608,7 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "High skills should overcome strong coverage");
-            Assert.IsTrue(passPlay.YardsGained >= 10,
-                $"Should still gain decent yards despite coverage (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(10, passPlay.YardsGained, $"Should still gain decent yards despite coverage (got {passPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -692,8 +685,7 @@ namespace UnitTestProject1
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete,
                 "Favorable conditions should allow weak offense to complete");
-            Assert.IsTrue(passPlay.YardsGained <= 20,
-                $"Low skills should limit yardage (got {passPlay.YardsGained})");
+            Assert.IsLessThanOrEqualTo(20, passPlay.YardsGained, $"Low skills should limit yardage (got {passPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -731,10 +723,8 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsFalse(passPlay.PassSegments[0].IsComplete, "Sack should be incomplete");
-            Assert.IsTrue(passPlay.YardsGained < 0,
-                $"Sack should result in negative yards (got {passPlay.YardsGained})");
-            Assert.IsTrue(passPlay.YardsGained <= -5,
-                $"Strong rush should produce significant loss (got {passPlay.YardsGained})");
+            Assert.IsLessThan(0, passPlay.YardsGained, $"Sack should result in negative yards (got {passPlay.YardsGained})");
+            Assert.IsLessThanOrEqualTo(-5, passPlay.YardsGained, $"Strong rush should produce significant loss (got {passPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -773,8 +763,8 @@ namespace UnitTestProject1
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.AreEqual(PassType.Screen, passPlay.PassSegments[0].Type, "Should be screen pass");
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Screen should be complete");
-            Assert.IsTrue(passPlay.YardsGained >= 5,
-                $"Screen with good YAC should gain yards (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(5,
+passPlay.YardsGained, $"Screen with good YAC should gain yards (got {passPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -802,8 +792,7 @@ namespace UnitTestProject1
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.AreEqual(PassType.Deep, passPlay.PassSegments[0].Type, "Should be deep pass");
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Deep pass should connect");
-            Assert.IsTrue(passPlay.YardsGained >= 40,
-                $"Deep completion should gain major yards (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(40, passPlay.YardsGained, $"Deep completion should gain major yards (got {passPlay.YardsGained})");
         }
 
         #endregion

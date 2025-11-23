@@ -252,11 +252,11 @@ namespace UnitTestProject1
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Elite QB
-            qb.Passing = 95;
+            qb!.Passing = 95;
             qb.Awareness = 90;
 
             // Elite receiver
-            receiver.Catching = 95;
+            receiver!.Catching = 95;
             receiver.Speed = 92;
             receiver.Agility = 90;
 
@@ -291,11 +291,11 @@ namespace UnitTestProject1
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Poor QB
-            qb.Passing = 45;
+            qb!.Passing = 45;
             qb.Awareness = 40;
 
             // Poor receiver
-            receiver.Catching = 50;
+            receiver!.Catching = 50;
             receiver.Speed = 60;
             receiver.Agility = 55;
 
@@ -330,9 +330,9 @@ namespace UnitTestProject1
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Good QB and receiver
-            qb.Passing = 80;
+            qb!.Passing = 80;
             qb.Awareness = 75;
-            receiver.Catching = 80;
+            receiver!.Catching = 80;
             receiver.Speed = 78;
             receiver.Agility = 75;
 
@@ -379,7 +379,7 @@ namespace UnitTestProject1
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Elite receiver (avg 91.67 = +5.4% YAC bonus)
-            receiver.Speed = 95;
+            receiver!.Speed = 95;
             receiver.Agility = 92;
             receiver.Rushing = 88;
 
@@ -401,7 +401,7 @@ namespace UnitTestProject1
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.TE);
 
             // Slow, possession receiver (avg 60 = -2.5% YAC penalty)
-            receiver.Speed = 65;
+            receiver!.Speed = 65;
             receiver.Agility = 60;
             receiver.Rushing = 55;
 
@@ -423,7 +423,7 @@ namespace UnitTestProject1
             var receiver = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.WR);
 
             // Average receiver (avg 72.67 = +0.67% YAC bonus)
-            receiver.Speed = 75;
+            receiver!.Speed = 75;
             receiver.Agility = 73;
             receiver.Rushing = 70;
 
@@ -535,8 +535,8 @@ namespace UnitTestProject1
 
             // Assert - Should succeed with large positive margin
             Assert.IsTrue(protectionCheck.Occurred);
-            Assert.IsTrue(protectionCheck.Margin > 40); // (0.75 - 0.20) * 100 = 55
-            Assert.IsTrue(protectionCheck.Margin < 70);
+            Assert.IsGreaterThan(40, protectionCheck.Margin); // (0.75 - 0.20) * 100 = 55
+            Assert.IsLessThan(70, protectionCheck.Margin);
         }
 
         [TestMethod]
@@ -568,8 +568,8 @@ namespace UnitTestProject1
 
             // Assert - Should succeed with small positive margin
             Assert.IsTrue(protectionCheck.Occurred);
-            Assert.IsTrue(protectionCheck.Margin > 0);
-            Assert.IsTrue(protectionCheck.Margin < 10); // (0.75 - 0.73) * 100 = 2
+            Assert.IsGreaterThan(0, protectionCheck.Margin);
+            Assert.IsLessThan(10, protectionCheck.Margin); // (0.75 - 0.73) * 100 = 2
         }
 
         [TestMethod]
@@ -601,8 +601,8 @@ namespace UnitTestProject1
 
             // Assert - Should fail with small negative margin
             Assert.IsFalse(protectionCheck.Occurred);
-            Assert.IsTrue(protectionCheck.Margin < 0);
-            Assert.IsTrue(protectionCheck.Margin > -10); // (0.75 - 0.77) * 100 = -2
+            Assert.IsLessThan(0, protectionCheck.Margin);
+            Assert.IsGreaterThan(-10, protectionCheck.Margin); // (0.75 - 0.77) * 100 = -2
         }
 
         [TestMethod]
@@ -634,8 +634,8 @@ namespace UnitTestProject1
 
             // Assert - Should fail with large negative margin
             Assert.IsFalse(protectionCheck.Occurred);
-            Assert.IsTrue(protectionCheck.Margin < -15); // (0.75 - 0.95) * 100 = -20
-            Assert.IsTrue(protectionCheck.Margin > -30);
+            Assert.IsLessThan(-15, protectionCheck.Margin); // (0.75 - 0.95) * 100 = -20
+            Assert.IsGreaterThan(-30, protectionCheck.Margin);
         }
 
         [TestMethod]
@@ -667,7 +667,7 @@ namespace UnitTestProject1
 
             // Assert - Should succeed with high margin (better O-Line = higher probability ~85%)
             Assert.IsTrue(protectionCheck.Occurred);
-            Assert.IsTrue(protectionCheck.Margin > 25); // Probability should be ~85%, margin ~35
+            Assert.IsGreaterThan(25, protectionCheck.Margin); // Probability should be ~85%, margin ~35
         }
 
         #endregion

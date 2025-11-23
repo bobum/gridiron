@@ -15,7 +15,7 @@ namespace UnitTestProject1
     public class PenaltyAcceptanceTests
     {
         private readonly TestGame _testGame = new TestGame();
-        private PenaltyEnforcement _penaltyEnforcement;
+        private PenaltyEnforcement? _penaltyEnforcement;
 
         [TestInitialize]
         public void Setup()
@@ -38,7 +38,7 @@ namespace UnitTestProject1
             };
 
             // Act - Even with a long gain on the play, should accept for automatic 1st
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -64,7 +64,7 @@ namespace UnitTestProject1
             };
 
             // Act - Even on a completed pass, roughing the passer is automatic 1st
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -90,7 +90,7 @@ namespace UnitTestProject1
             };
 
             // Act
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -120,7 +120,7 @@ namespace UnitTestProject1
             };
 
             // Act - Play gained 2 yards, penalty gives 5 yards
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -146,7 +146,7 @@ namespace UnitTestProject1
             };
 
             // Act - Play gained 20 yards (first down), penalty only gives 5 yards
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -172,7 +172,7 @@ namespace UnitTestProject1
             };
 
             // Act - Offense scored TD, penalty only gives 5 yards
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -204,7 +204,7 @@ namespace UnitTestProject1
             // Act - Offense gained 3 yards on 3rd and 10
             // Accept: 3rd and 20 (gives offense another chance)
             // Decline: 4th and 7 (forces punt)
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -233,7 +233,7 @@ namespace UnitTestProject1
             // Accept: 3rd and 20 (makes it harder for offense, keeps them on 3rd)
             // Decline: Would result in 4th and 8 in real game, but implementation
             //          doesn't simulate down advancement for incomplete conversions
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -262,7 +262,7 @@ namespace UnitTestProject1
             };
 
             // Act - 1st and 10 becomes 1st and 15
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -288,7 +288,7 @@ namespace UnitTestProject1
             };
 
             // Act - 2nd and 10, intentional grounding
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -318,7 +318,7 @@ namespace UnitTestProject1
             };
 
             // Act - 3rd and 2, incomplete pass, holding penalty gives automatic 1st
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -346,7 +346,7 @@ namespace UnitTestProject1
             // Act - 4th down sack with holding
             // Decline: Get ball on turnover on downs
             // Accept: Gives offense another 4th down try
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -375,7 +375,7 @@ namespace UnitTestProject1
 
             // Act - Punting team (offense for penalty purposes), 4th down punt
             // Running into the kicker does NOT give automatic first down
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -401,7 +401,7 @@ namespace UnitTestProject1
             };
 
             // Act - Roughing the kicker DOES give automatic first down
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,
@@ -429,7 +429,7 @@ namespace UnitTestProject1
             // Act - 30-yard gain on 2nd and 10 with holding
             // Accept: 2nd and 20 (still 2nd down)
             // Decline: 1st and 10 (first down conversion)
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -464,7 +464,7 @@ namespace UnitTestProject1
             };
 
             // Act - Sack for -5 yards with holding
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -494,7 +494,7 @@ namespace UnitTestProject1
             };
 
             // Act - 2nd and 15, incomplete pass with holding
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Home,
@@ -522,7 +522,7 @@ namespace UnitTestProject1
             };
 
             // Act - 3rd and goal from 5, incomplete pass
-            var shouldAccept = _penaltyEnforcement.ShouldAcceptPenalty(
+            var shouldAccept = _penaltyEnforcement!.ShouldAcceptPenalty(
                 game,
                 penalty,
                 penalizedTeam: Possession.Away,

@@ -5,7 +5,7 @@ namespace DomainObjects
 {
     public class Trainer : Person
     {
-        public string Role { get; set; } // e.g., Head Athletic Trainer, Assistant Trainer, Team Doctor, Physical Therapist
+        public string? Role { get; set; } // e.g., Head Athletic Trainer, Assistant Trainer, Team Doctor, Physical Therapist
         public int Age { get; set; }
         public int Experience { get; set; } // Years in profession
         public int MedicalSkill { get; set; } // 0-100

@@ -56,7 +56,7 @@ namespace UnitTestProject1
             Assert.AreEqual(qb, interception.ThrownBy);
             Assert.AreEqual(receiver, interception.IntendedReceiver);
             Assert.AreEqual(interceptionSpot, interception.InterceptionSpot);
-            Assert.IsTrue(interception.ReturnYards >= 0, "Return yards should be non-negative");
+            Assert.IsGreaterThanOrEqualTo(0, interception.ReturnYards, "Return yards should be non-negative");
             Assert.IsFalse(interception.IsPickSix, "Should not be pick-six from midfield with normal return");
             Assert.IsFalse(interception.FumbledDuringReturn);
             Assert.IsTrue(interception.PossessionChange);
@@ -181,8 +181,8 @@ namespace UnitTestProject1
             var interception = result.Result;
 
             // Assert
-            Assert.IsTrue(interception.FinalPosition >= 0, "Position should not go below 0");
-            Assert.IsTrue(interception.FinalPosition <= 100, "Position should not exceed 100");
+            Assert.IsGreaterThanOrEqualTo(0, interception.FinalPosition, "Position should not go below 0");
+            Assert.IsLessThanOrEqualTo(100, interception.FinalPosition, "Position should not exceed 100");
             
             if (interception.FinalPosition == 0)
             {
@@ -275,11 +275,10 @@ namespace UnitTestProject1
             Assert.IsNotNull(returnResult);
             Assert.AreEqual(fastInterceptor, returnResult.Interceptor);
             Assert.AreEqual(interceptionSpot, returnResult.InterceptionSpot);
-            Assert.IsTrue(returnResult.ReturnYards >= 0, "Return yards should be non-negative");
+            Assert.IsGreaterThanOrEqualTo(0, returnResult.ReturnYards, "Return yards should be non-negative");
             
             // Fast interceptor vs slow pursuit should yield good return
-            Assert.IsTrue(returnResult.ReturnYards > 10, 
-                "Fast interceptor vs slow pursuit should yield significant return");
+            Assert.IsGreaterThan(10, returnResult.ReturnYards, "Fast interceptor vs slow pursuit should yield significant return");
         }
 
         [TestMethod]
@@ -313,11 +312,10 @@ namespace UnitTestProject1
             var returnResult = result.Result;
 
             // Assert
-            Assert.IsTrue(returnResult.ReturnYards >= 0, "Return yards should never be negative");
+            Assert.IsGreaterThanOrEqualTo(0, returnResult.ReturnYards, "Return yards should never be negative");
             
             // Slow interceptor vs fast pursuit should yield minimal return
-            Assert.IsTrue(returnResult.ReturnYards < 15, 
-                "Slow interceptor vs fast pursuit should yield minimal return");
+            Assert.IsLessThan(15, returnResult.ReturnYards, "Slow interceptor vs fast pursuit should yield minimal return");
         }
 
         [TestMethod]
@@ -345,8 +343,7 @@ namespace UnitTestProject1
             var returnResult = result.Result;
 
             // Assert
-            Assert.IsTrue(returnResult.ReturnYards <= interceptionSpot, 
-                "Return yards should not exceed distance to goal line");
+            Assert.IsLessThanOrEqualTo(interceptionSpot, returnResult.ReturnYards, "Return yards should not exceed distance to goal line");
         }
 
         #endregion

@@ -5,7 +5,7 @@ namespace DomainObjects
 {
     public class Scout : Person
     {
-        public string Role { get; set; } // e.g., Director of Scouting, College Scout, Pro Scout
+        public string? Role { get; set; } // e.g., Director of Scouting, College Scout, Pro Scout
         public int Age { get; set; }
         public int Experience { get; set; } // Years scouting
         public int EvaluationSkill { get; set; } // 0-100

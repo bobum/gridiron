@@ -15,7 +15,7 @@ namespace UnitTestProject1
             var teams = TestTeams.CreateTestTeams();
             var qbList = teams.HomeTeam.OffenseDepthChart.Chart[Positions.QB];
             Assert.IsNotNull(qbList);
-            Assert.IsTrue(qbList.Count > 0);
+            Assert.IsNotEmpty(qbList);
 
             var expectedQB = teams.HomeTeam.Players
                 .Where(p => p.Position == Positions.QB)
@@ -31,7 +31,7 @@ namespace UnitTestProject1
             var teams = TestTeams.CreateTestTeams();
             var lbList = teams.HomeTeam.DefenseDepthChart.Chart[Positions.LB];
             Assert.IsNotNull(lbList);
-            Assert.AreEqual(4, lbList.Count);
+            Assert.HasCount(4, lbList);
 
             var expectedLBs = teams.HomeTeam.Players
                 .Where(p => p.Position == Positions.LB)
@@ -50,7 +50,7 @@ namespace UnitTestProject1
             var teams = TestTeams.CreateTestTeams();
             var kList = teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.K];
             Assert.IsNotNull(kList);
-            Assert.AreEqual(1, kList.Count);
+            Assert.HasCount(1, kList);
 
             var expectedKicker = teams.HomeTeam.Players
                 .Where(p => p.Position == Positions.K)
@@ -66,7 +66,7 @@ namespace UnitTestProject1
             var teams = TestTeams.CreateTestTeams();
             var kList = teams.HomeTeam.PuntOffenseDepthChart.Chart[Positions.P];
             Assert.IsNotNull(kList);
-            Assert.AreEqual(1, kList.Count);
+            Assert.HasCount(1, kList);
 
             var expectedKicker = teams.HomeTeam.Players
                 .Where(p => p.Position == Positions.P)
@@ -82,7 +82,7 @@ namespace UnitTestProject1
             var teams = TestTeams.CreateTestTeams();
             var holderList = teams.HomeTeam.FieldGoalOffenseDepthChart.Chart[Positions.H];
             Assert.IsNotNull(holderList);
-            Assert.AreEqual(1, holderList.Count);
+            Assert.HasCount(1, holderList);
 
             var expectedHolder = teams.HomeTeam.Players
                 .Where(p => p.Position == Positions.QB)

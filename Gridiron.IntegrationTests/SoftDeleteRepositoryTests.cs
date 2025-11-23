@@ -323,6 +323,7 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
 
         var playByPlay = new PlayByPlay
         {
+            Game = game,
             GameId = game.Id,
             PlaysJson = "[{\"play\": \"data\"}]",
             PlayByPlayLog = "Test log"

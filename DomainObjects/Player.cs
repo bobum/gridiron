@@ -10,11 +10,11 @@ namespace DomainObjects
         public int? TeamId { get; set; }  // Foreign key to Team (nullable - player might not be on a team)
         public Positions Position { get; set; }
         public int Number { get; set; }
-        public string Height { get; set; }
+        public string? Height { get; set; }
         public int Weight { get; set; }
         public int Age { get; set; }
         public int Exp { get; set; }
-        public string College { get; set; }
+        public string? College { get; set; }
         public Dictionary<PlayerStatType, int> Stats { get; set; } = new();
         public Dictionary<PlayerStatType, int> SeasonStats { get; set; } = new();
 

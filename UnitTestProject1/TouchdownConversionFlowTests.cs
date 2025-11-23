@@ -404,8 +404,8 @@ namespace UnitTestProject1
 
             var kickoff = (KickoffPlay)game.CurrentPlay;
             Assert.IsNotNull(kickoff.Kicker, "Kickoff should have kicker");
-            Assert.AreEqual(11, kickoff.OffensePlayersOnField.Count);
-            Assert.AreEqual(11, kickoff.DefensePlayersOnField.Count);
+            Assert.HasCount(11, kickoff.OffensePlayersOnField);
+            Assert.HasCount(11, kickoff.DefensePlayersOnField);
 
             // Execute kickoff
             var kickoffExec = new Kickoff(rng);

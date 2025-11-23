@@ -358,13 +358,13 @@ namespace UnitTestProject1
             game.AwayScore = 10;
 
             // Act & Assert - Home winning
-            Assert.IsTrue(game.HomeScore > game.AwayScore, "Home should be winning");
+            Assert.IsGreaterThan(game.AwayScore, game.HomeScore, "Home should be winning");
 
             game.AddTouchdown(Possession.Away);
             game.AddExtraPoint(Possession.Away);
 
             // Assert - Away now winning
-            Assert.IsTrue(game.AwayScore > game.HomeScore, "Away should now be winning (17 vs 14)");
+            Assert.IsGreaterThan(game.HomeScore, game.AwayScore, "Away should now be winning (17 vs 14)");
         }
 
         [TestMethod]

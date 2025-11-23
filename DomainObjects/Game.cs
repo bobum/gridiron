@@ -16,11 +16,11 @@ namespace DomainObjects
         public int Id { get; set; }  // Primary key for EF Core
         public int HomeTeamId { get; set; }  // Foreign key to Team
         public int AwayTeamId { get; set; }  // Foreign key to Team
-        public Team HomeTeam { get; set; }  // EF Core navigation property
-        public Team AwayTeam { get; set; }  // EF Core navigation property
+        public Team HomeTeam { get; set; } = null!;  // EF Core navigation property (populated by EF Core)
+        public Team AwayTeam { get; set; } = null!;  // EF Core navigation property (populated by EF Core)
         public int? RandomSeed { get; set; }  // Seed for reproducible game simulation
         public PlayByPlay? PlayByPlay { get; set; }  // EF Core navigation property to play-by-play data
-        public IPlay CurrentPlay { get; set; }
+        public IPlay? CurrentPlay { get; set; }  // Runtime state - current play being executed (nullable)
         public Possession WonCoinToss { get; set; }
         public bool DeferredPossession { get; set; }
 

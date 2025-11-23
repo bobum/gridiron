@@ -39,7 +39,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Away);
+            Assert.AreEqual(Possession.Away, game.WonCoinToss);
             Assert.IsTrue(game.DeferredPossession);
         }
 
@@ -54,7 +54,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Away);
+            Assert.AreEqual(Possession.Away, game.WonCoinToss);
             Assert.IsFalse(game.DeferredPossession);
         }
 
@@ -69,7 +69,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Home);
+            Assert.AreEqual(Possession.Home, game.WonCoinToss);
             Assert.IsFalse(game.DeferredPossession);
         }
 
@@ -84,7 +84,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Home);
+            Assert.AreEqual(Possession.Home, game.WonCoinToss);
             Assert.IsTrue(game.DeferredPossession);
         }
 
@@ -129,8 +129,8 @@ namespace UnitTestProject1
             fumble.Execute(game);
 
             Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
-            Assert.AreEqual(1, game.CurrentPlay.Fumbles.Count);
-            Assert.AreEqual(true, game.CurrentPlay.PossessionChange);
+            Assert.HasCount(1, game.CurrentPlay.Fumbles);
+            Assert.IsTrue(game.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
@@ -143,8 +143,8 @@ namespace UnitTestProject1
             interception.Execute(game);
 
             Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
-            Assert.AreEqual(true, game.CurrentPlay.PossessionChange);
-            Assert.AreEqual(true, game.CurrentPlay.Interception);
+            Assert.IsTrue(game.CurrentPlay.PossessionChange);
+            Assert.IsTrue(game.CurrentPlay.Interception);
         }
 
         [TestMethod]

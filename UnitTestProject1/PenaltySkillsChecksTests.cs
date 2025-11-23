@@ -88,7 +88,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(check.Occurred);
-            Assert.IsTrue(check.Margin > 0); // Should have positive margin (distance from penalty)
+            Assert.IsGreaterThan(0, check.Margin); // Should have positive margin (distance from penalty)
         }
 
         #endregion
@@ -547,8 +547,7 @@ namespace UnitTestProject1
             Assert.IsNotNull(result.Result);
             Assert.IsNotNull(result.Result.CommittedBy);
             // Verify player is from one of the teams
-            Assert.IsTrue(
-                result.Result.CommittedBy.LastName == "Player1");
+            Assert.AreEqual("Player1", result.Result.CommittedBy.LastName);
         }
 
         [TestMethod]

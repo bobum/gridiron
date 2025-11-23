@@ -26,10 +26,10 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert
-            Assert.AreEqual(1, runPlay.RunSegments.Count, "Should have exactly 1 run segment");
+            Assert.HasCount(1, runPlay.RunSegments, "Should have exactly 1 run segment");
             Assert.IsNotNull(runPlay.RunSegments[0].BallCarrier, "Ball carrier should be assigned");
-            Assert.IsTrue(runPlay.YardsGained != 0, "Yards gained should be calculated");
-            Assert.IsTrue(runPlay.ElapsedTime > 0, "Elapsed time should be set");
+            Assert.AreNotEqual(0, runPlay.YardsGained, "Yards gained should be calculated");
+            Assert.IsGreaterThan(0, runPlay.ElapsedTime, "Elapsed time should be set");
         }
 
         [TestMethod]
@@ -45,7 +45,7 @@ namespace UnitTestProject1
             var run = new Run(rng);
             run.Execute(game);
 
-            Assert.AreEqual(Positions.RB, runPlay.InitialBallCarrier.Position, "RB should get the ball when random > 0.10");
+            Assert.AreEqual(Positions.RB, runPlay.InitialBallCarrier!.Position, "RB should get the ball when random > 0.10");
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace UnitTestProject1
             var run = new Run(rng);
             run.Execute(game);
 
-            Assert.AreEqual(Positions.QB, runPlay.InitialBallCarrier.Position, "QB should scramble when random < 0.10");
+            Assert.AreEqual(Positions.QB, runPlay.InitialBallCarrier!.Position, "QB should scramble when random < 0.10");
         }
 
         [TestMethod]
@@ -113,8 +113,7 @@ namespace UnitTestProject1
             var yardsWithGoodBlocking = game1.CurrentPlay.YardsGained;
             var yardsWithBadBlocking = game2.CurrentPlay.YardsGained;
 
-            Assert.IsTrue(yardsWithGoodBlocking > yardsWithBadBlocking,
-                $"Good blocking ({yardsWithGoodBlocking}) should yield more yards than bad blocking ({yardsWithBadBlocking})");
+            Assert.IsGreaterThan(yardsWithBadBlocking, yardsWithGoodBlocking, $"Good blocking ({yardsWithGoodBlocking}) should yield more yards than bad blocking ({yardsWithBadBlocking})");
         }
 
         #endregion
@@ -137,7 +136,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert
-            Assert.IsTrue(runPlay.YardsGained > 0, "Should have positive yards after tackle break");
+            Assert.IsGreaterThan(0, runPlay.YardsGained, "Should have positive yards after tackle break");
         }
 
         #endregion
@@ -155,10 +154,10 @@ namespace UnitTestProject1
 
             // Set high speed for big run potential
             var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier1.Speed = 95;
+            ballCarrier1!.Speed = 95;
 
             var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier2.Speed = 95;
+            ballCarrier2!.Speed = 95;
 
             // Test WITHOUT big run - uses SimpleGain
             var rngNoBigRun = RunPlayScenarios.SimpleGain(yards: 5);
@@ -177,8 +176,8 @@ namespace UnitTestProject1
             var normalYards = game1.CurrentPlay.YardsGained;
             var bigRunYards = game2.CurrentPlay.YardsGained;
 
-            Assert.IsTrue(bigRunYards > normalYards + 10,
-                $"Big run ({bigRunYards}) should add significantly more yards than normal run ({normalYards})");
+            Assert.IsGreaterThan(normalYards + 10,
+bigRunYards, $"Big run ({bigRunYards}) should add significantly more yards than normal run ({normalYards})");
         }
 
         #endregion
@@ -202,8 +201,7 @@ namespace UnitTestProject1
 
             // Assert
             var yardsToGoal = 100 - 95; // Should be capped at 5 yards
-            Assert.IsTrue(game.CurrentPlay.YardsGained <= yardsToGoal,
-                $"Yards gained ({game.CurrentPlay.YardsGained}) should not exceed yards to goal ({yardsToGoal})");
+            Assert.IsLessThanOrEqualTo(yardsToGoal, game.CurrentPlay.YardsGained, $"Yards gained ({game.CurrentPlay.YardsGained}) should not exceed yards to goal ({yardsToGoal})");
         }
 
         [TestMethod]
@@ -221,7 +219,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert - can have negative yards (tackle for loss)
-            Assert.IsTrue(game.CurrentPlay.YardsGained <= 5, "Should be able to lose yards or gain minimal yards");
+            Assert.IsLessThanOrEqualTo(5, game.CurrentPlay.YardsGained, "Should be able to lose yards or gain minimal yards");
         }
 
         #endregion
@@ -291,8 +289,8 @@ namespace UnitTestProject1
             // Assert - Should have higher base yards with skill advantage
             // skillDiff ≈ +40, baseYards = 3.0 + 40/20 = 5.0, randomFactor = 2.5, total = 7.5 → Round(8) * 1.2 = 9
             var yardsGained = game.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsGained >= 8,
-                $"RunYardsSkillsCheckResult should calculate higher yards for strong offense (got {yardsGained})");
+            Assert.IsGreaterThanOrEqualTo(8,
+yardsGained, $"RunYardsSkillsCheckResult should calculate higher yards for strong offense (got {yardsGained})");
         }
 
         [TestMethod]
@@ -312,8 +310,8 @@ namespace UnitTestProject1
             // Assert - Should have lower/negative yards with skill disadvantage
             // skillDiff ≈ -40, baseYards = 3.0 - 2.0 = 1.0, randomFactor = -0.8, total ≈ 0.2 * 0.8 = 0
             var yardsGained = game.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsGained <= 3,
-                $"RunYardsSkillsCheckResult should calculate low yards for weak offense (got {yardsGained})");
+            Assert.IsLessThanOrEqualTo(3,
+yardsGained, $"RunYardsSkillsCheckResult should calculate low yards for weak offense (got {yardsGained})");
         }
 
         [TestMethod]
@@ -325,7 +323,7 @@ namespace UnitTestProject1
 
             // Set ball carrier to have high tackle break chance
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier.Rushing = 90;
+            ballCarrier!.Rushing = 90;
             ballCarrier.Strength = 88;
             ballCarrier.Agility = 85;
 
@@ -338,8 +336,8 @@ namespace UnitTestProject1
 
             // Assert - Should have base yards + tackle break yards (6)
             var yardsGained = game.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsGained >= 8,
-                $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsGained})");
+            Assert.IsGreaterThanOrEqualTo(8,
+yardsGained, $"TackleBreakYardsSkillsCheckResult should add 6 yards (got {yardsGained})");
         }
 
         [TestMethod]
@@ -352,12 +350,12 @@ namespace UnitTestProject1
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
             var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier1.Rushing = 90;
+            ballCarrier1!.Rushing = 90;
             ballCarrier1.Strength = 88;
             ballCarrier1.Agility = 85;
 
             var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier2.Rushing = 90;
+            ballCarrier2!.Rushing = 90;
             ballCarrier2.Strength = 88;
             ballCarrier2.Agility = 85;
 
@@ -377,8 +375,7 @@ namespace UnitTestProject1
             // Assert
             var yardsMin = game1.CurrentPlay.YardsGained;
             var yardsMax = game2.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsMax > yardsMin,
-                $"TackleBreakYardsSkillsCheckResult with 8 yards ({yardsMax}) should exceed 3 yards ({yardsMin})");
+            Assert.IsGreaterThan(yardsMin, yardsMax, $"TackleBreakYardsSkillsCheckResult with 8 yards ({yardsMax}) should exceed 3 yards ({yardsMin})");
         }
 
         [TestMethod]
@@ -390,7 +387,7 @@ namespace UnitTestProject1
 
             // Set ball carrier to be fast for breakaway potential
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier.Speed = 95;
+            ballCarrier!.Speed = 95;
 
             // Uses Breakaway scenario with 30 yards added
             var rng = RunPlayScenarios.Breakaway(baseYards: 5, breakawayYards: 30);
@@ -401,8 +398,7 @@ namespace UnitTestProject1
 
             // Assert - Should have base yards + breakaway yards (30)
             var yardsGained = game.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsGained >= 30,
-                $"BreakawayYardsSkillsCheckResult should add 30 yards (got {yardsGained})");
+            Assert.IsGreaterThanOrEqualTo(30, yardsGained, $"BreakawayYardsSkillsCheckResult should add 30 yards (got {yardsGained})");
         }
 
         [TestMethod]
@@ -415,10 +411,10 @@ namespace UnitTestProject1
             SetPlayerSkills(game2, offenseSkill: 70, defenseSkill: 70);
 
             var ballCarrier1 = game1.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier1.Speed = 95;
+            ballCarrier1!.Speed = 95;
 
             var ballCarrier2 = game2.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier2.Speed = 95;
+            ballCarrier2!.Speed = 95;
 
             // Test minimum (15 yards)
             var rngMin = RunPlayScenarios.Breakaway(baseYards: 5, breakawayYards: 15);
@@ -436,8 +432,7 @@ namespace UnitTestProject1
             // Assert
             var yardsMin = game1.CurrentPlay.YardsGained;
             var yardsMax = game2.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsMax > yardsMin + 20,
-                $"BreakawayYardsSkillsCheckResult max ({yardsMax}) should significantly exceed min ({yardsMin})");
+            Assert.IsGreaterThan(yardsMin + 20, yardsMax, $"BreakawayYardsSkillsCheckResult max ({yardsMax}) should significantly exceed min ({yardsMin})");
         }
 
         [TestMethod]
@@ -448,7 +443,7 @@ namespace UnitTestProject1
             SetPlayerSkills(game, offenseSkill: 75, defenseSkill: 70);
 
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier.Rushing = 85;
+            ballCarrier!.Rushing = 85;
             ballCarrier.Speed = 90;
             ballCarrier.Agility = 88;
             ballCarrier.Strength = 80;
@@ -462,10 +457,9 @@ namespace UnitTestProject1
 
             // Assert - Verify all components work together
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.AreEqual(1, runPlay.RunSegments.Count, "Should have 1 run segment");
+            Assert.HasCount(1, runPlay.RunSegments, "Should have 1 run segment");
             Assert.IsNotNull(runPlay.RunSegments[0].BallCarrier, "Ball carrier should be set");
-            Assert.IsTrue(runPlay.YardsGained >= 10,
-                $"Should have base + tackle break yards (got {runPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(10, runPlay.YardsGained, $"Should have base + tackle break yards (got {runPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -477,7 +471,7 @@ namespace UnitTestProject1
             SetPlayerSkills(game, offenseSkill: 90, defenseSkill: 50);
 
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
-            ballCarrier.Rushing = 95;
+            ballCarrier!.Rushing = 95;
             ballCarrier.Speed = 98;
             ballCarrier.Agility = 95;
             ballCarrier.Strength = 90;
@@ -492,8 +486,7 @@ namespace UnitTestProject1
             // Assert - Should have massive yardage from all bonuses
             // Base ≈ 10, * 1.2 = 12, + 8 tackle break = 20, + 40 breakaway = 60+
             var yardsGained = game.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsGained >= 50,
-                $"Maximum scenario should produce 50+ yards (got {yardsGained})");
+            Assert.IsGreaterThanOrEqualTo(50, yardsGained, $"Maximum scenario should produce 50+ yards (got {yardsGained})");
         }
 
         [TestMethod]
@@ -513,8 +506,7 @@ namespace UnitTestProject1
             // Assert - RunYardsSkillsCheckResult should allow negative yards
             // skillDiff ≈ -65, baseYards ≈ -0.25, randomFactor = -13.75, total ≈ -14 * 0.8 ≈ -11
             var yardsGained = game.CurrentPlay.YardsGained;
-            Assert.IsTrue(yardsGained <= 0,
-                $"Weak offense should result in tackle for loss (got {yardsGained})");
+            Assert.IsLessThanOrEqualTo(0, yardsGained, $"Weak offense should result in tackle for loss (got {yardsGained})");
         }
 
         #endregion

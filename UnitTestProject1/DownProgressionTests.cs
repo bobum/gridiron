@@ -538,8 +538,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should gain significant yards
-            Assert.IsTrue(game.CurrentPlay.YardsGained >= 8,
-                $"High skills + good blocking should produce high yards (got {game.CurrentPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(8, game.CurrentPlay.YardsGained, $"High skills + good blocking should produce high yards (got {game.CurrentPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -554,8 +553,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should still gain decent yards despite bad blocking
-            Assert.IsTrue(game.CurrentPlay.YardsGained >= 5,
-                $"High skills + bad blocking should still produce medium yards (got {game.CurrentPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(5, game.CurrentPlay.YardsGained, $"High skills + bad blocking should still produce medium yards (got {game.CurrentPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -602,8 +600,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should gain minimal yards even with good blocking
-            Assert.IsTrue(game.CurrentPlay.YardsGained <= 3,
-                $"Low skills + good blocking should still produce low yards (got {game.CurrentPlay.YardsGained})");
+            Assert.IsLessThanOrEqualTo(3, game.CurrentPlay.YardsGained, $"Low skills + good blocking should still produce low yards (got {game.CurrentPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -618,8 +615,7 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert - Should lose yards (tackle for loss)
-            Assert.IsTrue(game.CurrentPlay.YardsGained <= 0,
-                $"Low skills + bad blocking should produce tackle for loss (got {game.CurrentPlay.YardsGained})");
+            Assert.IsLessThanOrEqualTo(0, game.CurrentPlay.YardsGained, $"Low skills + bad blocking should produce tackle for loss (got {game.CurrentPlay.YardsGained})");
         }
 
         #endregion

@@ -8,7 +8,7 @@ namespace UnitTestProject1
     [TestClass]
     public class KickoffPlayExecutionTests
     {
-        private TestGame _testGame;
+        private TestGame? _testGame;
 
         [TestInitialize]
         public void Setup()
@@ -96,7 +96,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(play.Touchback, "Should not be a touchback");
-            Assert.IsTrue(play.KickDistance < 60, "Should be a short kick");
+            Assert.IsLessThan(60, play.KickDistance, "Should be a short kick");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
 
@@ -342,7 +342,7 @@ namespace UnitTestProject1
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should be 1st down");
             Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "No return segment on fair catch");
+            Assert.IsEmpty(play.ReturnSegments, "No return segment on fair catch");
         }
 
         [TestMethod]
@@ -398,7 +398,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(play.FairCatch, "Should not be fair catch");
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return segment");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
 
@@ -419,7 +419,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.FairCatch, "Should be fair catch");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "Should have no return segments");
+            Assert.IsEmpty(play.ReturnSegments, "Should have no return segments");
             Assert.IsNull(play.InitialReturner, "Should have no initial returner");
         }
 
@@ -462,7 +462,7 @@ namespace UnitTestProject1
             // We can't guarantee it will always trigger with 0.35, but the test documents the behavior
             var landingSpot = 35 + play.KickDistance;
             var receivingTeamFieldPosition = 100 - landingSpot;
-            Assert.IsTrue(receivingTeamFieldPosition <= 10, "Ball should land at receiving team's 10-yard line or closer to test deep territory bonus");
+            Assert.IsLessThanOrEqualTo(10, receivingTeamFieldPosition, "Ball should land at receiving team's 10-yard line or closer to test deep territory bonus");
         }
 
         [TestMethod]
@@ -682,7 +682,7 @@ namespace UnitTestProject1
             // Assert
             Assert.IsFalse(play.IsTouchdown, "Should not be TD");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.IsTrue(play.EndFieldPosition > 0, "Should have valid field position");
+            Assert.IsGreaterThan(0, play.EndFieldPosition, "Should have valid field position");
         }
 
         [TestMethod]
@@ -704,7 +704,7 @@ namespace UnitTestProject1
             kickoff.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.KickDistance >= 60, "Excellent kicker should kick far");
+            Assert.IsGreaterThanOrEqualTo(60, play.KickDistance, "Excellent kicker should kick far");
         }
 
         [TestMethod]
@@ -726,7 +726,7 @@ namespace UnitTestProject1
             kickoff.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.KickDistance <= 50, "Weak kicker should not kick far");
+            Assert.IsLessThanOrEqualTo(50, play.KickDistance, "Weak kicker should not kick far");
         }
 
         [TestMethod]
@@ -751,8 +751,8 @@ namespace UnitTestProject1
             kickoffResult.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
-            Assert.IsTrue(play.ReturnSegments[0].YardsGained >= 20, "Excellent returner should get good yards");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return segment");
+            Assert.IsGreaterThanOrEqualTo(20, play.ReturnSegments[0].YardsGained, "Excellent returner should get good yards");
         }
 
         [TestMethod]
@@ -777,8 +777,8 @@ namespace UnitTestProject1
             kickoffResult.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
-            Assert.IsTrue(play.ReturnSegments[0].YardsGained < 25, "Slow returner should get fewer yards");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return segment");
+            Assert.IsLessThan(25, play.ReturnSegments[0].YardsGained, "Slow returner should get fewer yards");
         }
 
         #endregion
@@ -1121,7 +1121,7 @@ namespace UnitTestProject1
 
         private Game CreateGameWithKickoffPlay()
         {
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
 
             var kickoffPlay = new KickoffPlay
             {

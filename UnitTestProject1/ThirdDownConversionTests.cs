@@ -30,7 +30,7 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Should complete pass");
-            Assert.IsTrue(passPlay.YardsGained >= 10, $"Should convert (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(10, passPlay.YardsGained, $"Should convert (got {passPlay.YardsGained})");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down");
             Assert.AreEqual(10, game.YardsToGo, "Should reset to 10 yards to go");
         }
@@ -67,7 +67,7 @@ namespace UnitTestProject1
 
             // Assert
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 8, $"Elite RB can convert 3rd & long (got {runPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(8, runPlay.YardsGained, $"Elite RB can convert 3rd & long (got {runPlay.YardsGained})");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should convert");
         }
 
@@ -85,7 +85,7 @@ namespace UnitTestProject1
 
             // Assert
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained < 10, $"Should not convert (got {runPlay.YardsGained})");
+            Assert.IsLessThan(10, runPlay.YardsGained, $"Should not convert (got {runPlay.YardsGained})");
             Assert.AreEqual(Downs.Fourth, game.CurrentDown, "Should advance to 4th down");
         }
 
@@ -107,7 +107,7 @@ namespace UnitTestProject1
 
             // Assert
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 1, $"Should convert QB sneak/power run (got {runPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(1, runPlay.YardsGained, $"Should convert QB sneak/power run (got {runPlay.YardsGained})");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down");
         }
 
@@ -125,7 +125,7 @@ namespace UnitTestProject1
 
             // Assert
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained < 2, $"Should be stuffed (got {runPlay.YardsGained})");
+            Assert.IsLessThan(2, runPlay.YardsGained, $"Should be stuffed (got {runPlay.YardsGained})");
             Assert.AreEqual(Downs.Fourth, game.CurrentDown, "Should advance to 4th down");
         }
 
@@ -144,7 +144,7 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Quick pass should complete");
-            Assert.IsTrue(passPlay.YardsGained >= 2, $"Should convert (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(2, passPlay.YardsGained, $"Should convert (got {passPlay.YardsGained})");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down");
         }
 
@@ -166,7 +166,7 @@ namespace UnitTestProject1
 
             // Assert
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 5, $"Should convert (got {runPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(5, runPlay.YardsGained, $"Should convert (got {runPlay.YardsGained})");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down");
         }
 
@@ -185,7 +185,7 @@ namespace UnitTestProject1
             // Assert
             var passPlay = (PassPlay)game.CurrentPlay;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Should complete");
-            Assert.IsTrue(passPlay.YardsGained >= 6, $"Should convert (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(6, passPlay.YardsGained, $"Should convert (got {passPlay.YardsGained})");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should reset to 1st down");
         }
 
@@ -221,7 +221,7 @@ namespace UnitTestProject1
 
             // Assert
             var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained < 5, $"Should not convert (got {runPlay.YardsGained})");
+            Assert.IsLessThan(5, runPlay.YardsGained, $"Should not convert (got {runPlay.YardsGained})");
             Assert.AreEqual(Downs.Fourth, game.CurrentDown, "Should advance to 4th down");
         }
 

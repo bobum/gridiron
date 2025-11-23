@@ -194,8 +194,7 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert
-            Assert.AreEqual(2, passPlay.Penalties.Count,
-                "Should detect both blocking penalty and tackle penalty");
+            Assert.HasCount(2, passPlay.Penalties, "Should detect both blocking penalty and tackle penalty");
 
             var penaltyTypes = passPlay.Penalties.Select(p => p.Name).ToList();
             Assert.IsTrue(penaltyTypes.Any(p => BlockingPenalties.Contains(p)),
@@ -219,7 +218,7 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert
-            Assert.AreEqual(1, passPlay.Penalties.Count, "Should have exactly one penalty");
+            Assert.HasCount(1, passPlay.Penalties, "Should have exactly one penalty");
             Assert.IsTrue(BlockingPenalties.Contains(passPlay.Penalties[0].Name),
                 "Should be a blocking penalty");
         }
@@ -239,7 +238,7 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert
-            Assert.AreEqual(1, passPlay.Penalties.Count, "Should have exactly one penalty");
+            Assert.HasCount(1, passPlay.Penalties, "Should have exactly one penalty");
             Assert.IsTrue(TacklePenalties.Contains(passPlay.Penalties[0].Name),
                 "Should be a tackle penalty");
         }
@@ -263,8 +262,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert
-            Assert.AreEqual(2, runPlay.Penalties.Count,
-                "Should detect both blocking penalty and tackle penalty");
+            Assert.HasCount(2, runPlay.Penalties, "Should detect both blocking penalty and tackle penalty");
 
             var penaltyTypes = runPlay.Penalties.Select(p => p.Name).ToList();
             Assert.IsTrue(penaltyTypes.Any(p => BlockingPenalties.Contains(p)),
@@ -288,7 +286,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert
-            Assert.AreEqual(1, runPlay.Penalties.Count, "Should have exactly one penalty");
+            Assert.HasCount(1, runPlay.Penalties, "Should have exactly one penalty");
             Assert.IsTrue(BlockingPenalties.Contains(runPlay.Penalties[0].Name),
                 "Should be a blocking penalty");
         }
@@ -308,7 +306,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert
-            Assert.AreEqual(1, runPlay.Penalties.Count, "Should have exactly one penalty");
+            Assert.HasCount(1, runPlay.Penalties, "Should have exactly one penalty");
             Assert.IsTrue(TacklePenalties.Contains(runPlay.Penalties[0].Name),
                 "Should be a tackle penalty");
         }
@@ -332,7 +330,7 @@ namespace UnitTestProject1
             pass.Execute(game);
 
             // Assert
-            Assert.AreEqual(0, passPlay.Penalties.Count, "Should have no penalties");
+            Assert.IsEmpty(passPlay.Penalties, "Should have no penalties");
         }
 
         [TestMethod]
@@ -350,7 +348,7 @@ namespace UnitTestProject1
             run.Execute(game);
 
             // Assert
-            Assert.AreEqual(0, runPlay.Penalties.Count, "Should have no penalties");
+            Assert.IsEmpty(runPlay.Penalties, "Should have no penalties");
         }
 
         #endregion

@@ -8,7 +8,7 @@ namespace UnitTestProject1
     [TestClass]
     public class FieldGoalPlayExecutionTests
     {
-        private TestGame _testGame;
+        private TestGame? _testGame;
 
         [TestInitialize]
         public void Setup()
@@ -244,7 +244,7 @@ namespace UnitTestProject1
             // Assert
             Assert.IsFalse(play.GoodSnap, "Should be marked as bad snap");
             Assert.IsFalse(play.IsGood, "Kick should not be good");
-            Assert.IsTrue(play.YardsGained < 0, "Should lose yards on bad snap");
+            Assert.IsLessThan(0, play.YardsGained, "Should lose yards on bad snap");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
 
@@ -402,9 +402,9 @@ namespace UnitTestProject1
             Assert.IsFalse(play.IsGood, "Blocked kick is not good");
             Assert.IsNotNull(play.BlockedBy, "Should track who blocked");
             Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
-            Assert.IsTrue(play.DefensePlayersOnField.Contains(play.RecoveredBy), "Defense should have recovered");
+            Assert.Contains(play.RecoveredBy, play.DefensePlayersOnField, "Defense should have recovered");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.IsTrue(play.YardsGained > 0, "Should have positive return yards");
+            Assert.IsGreaterThan(0, play.YardsGained, "Should have positive return yards");
         }
 
         [TestMethod]
@@ -459,7 +459,7 @@ namespace UnitTestProject1
             Assert.IsTrue(play.Blocked, "Should be blocked");
             Assert.IsTrue(play.IsSafety, "Should be safety");
             Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
-            Assert.IsTrue(play.OffensePlayersOnField.Contains(play.RecoveredBy), "Offense should have recovered");
+            Assert.Contains(play.RecoveredBy, play.OffensePlayersOnField, "Offense should have recovered");
             Assert.AreEqual(16, game.AwayScore, "Away team should get 2 points (14 + 2)");
             Assert.AreEqual(0, play.EndFieldPosition, "Should be at goal line");
         }
@@ -485,8 +485,8 @@ namespace UnitTestProject1
             Assert.IsFalse(play.IsSafety, "Should not be safety");
             Assert.IsFalse(play.IsTouchdown, "Should not be TD");
             Assert.IsNotNull(play.RecoveredBy, "Should track who recovered");
-            Assert.IsTrue(play.OffensePlayersOnField.Contains(play.RecoveredBy), "Offense should have recovered");
-            Assert.IsTrue(play.YardsGained < 0, "Should lose yards");
+            Assert.Contains(play.RecoveredBy, play.OffensePlayersOnField, "Offense should have recovered");
+            Assert.IsLessThan(0, play.YardsGained, "Should lose yards");
             Assert.IsTrue(play.PossessionChange, "Possession should change (turnover on downs)");
         }
 
@@ -867,7 +867,7 @@ namespace UnitTestProject1
             fieldGoalResult.Execute(game);
 
             // Assert - PAT can be retried from closer (half the distance)
-            Assert.IsTrue(game.FieldPosition > 98, "Should move closer to goal line");
+            Assert.IsGreaterThan(98, game.FieldPosition, "Should move closer to goal line");
         }
 
         [TestMethod]
@@ -997,7 +997,7 @@ namespace UnitTestProject1
 
         private Game CreateGameWithFieldGoalPlay(bool isExtraPoint)
         {
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
 
             // Create a field goal play
             var fieldGoalPlay = new FieldGoalPlay

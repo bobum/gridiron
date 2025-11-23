@@ -21,7 +21,7 @@ namespace UnitTestProject1
     [TestClass]
     public class PenaltyEnforcementRulesTests
     {
-        private PenaltyEnforcement _penaltyEnforcement;
+        private PenaltyEnforcement? _penaltyEnforcement;
 
         [TestInitialize]
         public void Setup()

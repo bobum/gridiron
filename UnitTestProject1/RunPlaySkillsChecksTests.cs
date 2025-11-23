@@ -134,7 +134,7 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Elite ball carrier
-            ballCarrier.Rushing = 95;
+            ballCarrier!.Rushing = 95;
             ballCarrier.Strength = 90;
             ballCarrier.Agility = 95;
 
@@ -164,7 +164,7 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Weak ball carrier
-            ballCarrier.Rushing = 40;
+            ballCarrier!.Rushing = 40;
             ballCarrier.Strength = 35;
             ballCarrier.Agility = 40;
 
@@ -199,7 +199,7 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Average ball carrier
-            ballCarrier.Rushing = 70;
+            ballCarrier!.Rushing = 70;
             ballCarrier.Strength = 70;
             ballCarrier.Agility = 70;
 
@@ -241,7 +241,7 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Very fast ball carrier (speed 95 gives ~13% probability)
-            ballCarrier.Speed = 95;
+            ballCarrier!.Speed = 95;
 
             // Act & Assert - should succeed with ~13% probability
             var rng = new TestFluentSeedableRandom()
@@ -261,7 +261,7 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Slow ball carrier (speed 50 gives ~4% probability)
-            ballCarrier.Speed = 50;
+            ballCarrier!.Speed = 50;
 
             // Act & Assert - should have ~4% probability
             var rng = new TestFluentSeedableRandom()
@@ -281,7 +281,7 @@ namespace UnitTestProject1
             var ballCarrier = game.CurrentPlay.OffensePlayersOnField.Find(p => p.Position == Positions.RB);
 
             // Average speed (70 gives base 8% probability)
-            ballCarrier.Speed = 70;
+            ballCarrier!.Speed = 70;
 
             // Act & Assert - base 8% probability
             var rng = new TestFluentSeedableRandom()

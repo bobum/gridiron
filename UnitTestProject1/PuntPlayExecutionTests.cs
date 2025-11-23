@@ -34,8 +34,8 @@ namespace UnitTestProject1
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsFalse(play.GoodSnap, "Should be marked as bad snap");
-            Assert.IsTrue(play.YardsGained < 0, "Should lose yards on bad snap");
-            Assert.IsTrue(play.YardsGained >= -30, "Can't lose more than current field position");
+            Assert.IsLessThan(0, play.YardsGained, "Should lose yards on bad snap");
+            Assert.IsGreaterThanOrEqualTo(-30, play.YardsGained, "Can't lose more than current field position");
         }
 
         [TestMethod]
@@ -109,8 +109,8 @@ namespace UnitTestProject1
             Assert.IsTrue(play.Blocked, "Punt should be blocked");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.IsNotNull(play.RecoveredBy, "Someone should recover");
-            Assert.IsTrue(play.YardsGained >= 0, "Recovery should gain yards for defense");
-            Assert.IsTrue(play.YardsGained <= 15, "Recovery limited to 0-15 yards");
+            Assert.IsGreaterThanOrEqualTo(0, play.YardsGained, "Recovery should gain yards for defense");
+            Assert.IsLessThanOrEqualTo(15, play.YardsGained, "Recovery limited to 0-15 yards");
         }
 
         [TestMethod]
@@ -131,8 +131,8 @@ namespace UnitTestProject1
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsTrue(play.Blocked, "Punt should be blocked");
             Assert.IsNotNull(play.RecoveredBy, "Offense should recover");
-            Assert.IsTrue(play.YardsGained < 0, "Should lose yards");
-            Assert.IsTrue(play.YardsGained >= -10, "Loss limited to -5 to -10 yards");
+            Assert.IsLessThan(0, play.YardsGained, "Should lose yards");
+            Assert.IsGreaterThanOrEqualTo(-10, play.YardsGained, "Loss limited to -5 to -10 yards");
         }
 
         [TestMethod]
@@ -303,8 +303,8 @@ namespace UnitTestProject1
             Assert.IsFalse(play.Blocked, "Should not be blocked");
             Assert.IsFalse(play.Touchback, "Should not be touchback");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.IsTrue(play.PuntDistance > 0, "Should have punt distance");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "Should have no return");
+            Assert.IsGreaterThan(0, play.PuntDistance, "Should have punt distance");
+            Assert.IsEmpty(play.ReturnSegments, "Should have no return");
         }
 
         #endregion
@@ -329,8 +329,8 @@ namespace UnitTestProject1
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsTrue(play.Downed, "Punt should be downed");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.IsTrue(play.DownedAtYardLine > 0, "Should have downed location");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "Should have no return");
+            Assert.IsGreaterThan(0, play.DownedAtYardLine, "Should have downed location");
+            Assert.IsEmpty(play.ReturnSegments, "Should have no return");
         }
 
         [TestMethod]
@@ -350,7 +350,7 @@ namespace UnitTestProject1
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsTrue(play.Downed, "Should be downed");
-            Assert.IsTrue(play.DownedAtYardLine > 90, "Should be downed deep in opponent territory");
+            Assert.IsGreaterThan(90, play.DownedAtYardLine, "Should be downed deep in opponent territory");
         }
 
         #endregion
@@ -375,7 +375,7 @@ namespace UnitTestProject1
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsTrue(play.FairCatch, "Should be fair catch");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "Should have no return");
+            Assert.IsEmpty(play.ReturnSegments, "Should have no return");
         }
 
         [TestMethod]
@@ -468,7 +468,7 @@ namespace UnitTestProject1
             Assert.IsFalse(play.Blocked, "Should not be blocked");
             Assert.IsFalse(play.FairCatch, "Should not be fair catch");
             Assert.IsFalse(play.MuffedCatch, "Should not be muffed");
-            Assert.AreEqual(1, play.ReturnSegments.Count, "Should have one return segment");
+            Assert.HasCount(1, play.ReturnSegments, "Should have one return segment");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.IsNotNull(play.InitialReturner, "Should have a returner");
         }
@@ -497,7 +497,7 @@ namespace UnitTestProject1
             Assert.IsTrue(play.IsTouchdown, "Should be touchdown on return");
             Assert.AreEqual(16, game.AwayScore, "Away team should score TD (10 + 6)");
             Assert.AreEqual(14, game.HomeScore, "Home score should not change");
-            Assert.AreEqual(1, play.ReturnSegments.Count, "Should have return segment");
+            Assert.HasCount(1, play.ReturnSegments, "Should have return segment");
         }
 
         [TestMethod]
@@ -543,7 +543,7 @@ namespace UnitTestProject1
 
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play.YardsGained >= -2, "Cannot lose more than current field position");
+            Assert.IsGreaterThanOrEqualTo(-2, play.YardsGained, "Cannot lose more than current field position");
         }
 
         [TestMethod]
@@ -586,7 +586,7 @@ namespace UnitTestProject1
 
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play.PuntDistance > 0, "Should have positive punt distance");
+            Assert.IsGreaterThan(0, play.PuntDistance, "Should have positive punt distance");
             Assert.IsTrue(play.Downed || play.Touchback || play.ReturnSegments.Count > 0, "Punt should complete successfully");
         }
 
@@ -642,8 +642,8 @@ namespace UnitTestProject1
             punt.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.PuntDistance >= 10, "Even shanked punt should have minimum distance");
-            Assert.IsTrue(play.PuntDistance < 25, "Shanked punt should be short");
+            Assert.IsGreaterThanOrEqualTo(10, play.PuntDistance, "Even shanked punt should have minimum distance");
+            Assert.IsLessThan(25, play.PuntDistance, "Shanked punt should be short");
         }
 
         [TestMethod]
@@ -662,8 +662,8 @@ namespace UnitTestProject1
 
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play.PuntDistance >= 55, "Maximum punt should be 55+ yards");
-            Assert.IsTrue(play.PuntDistance <= 80, "Punt distance should be reasonable");
+            Assert.IsGreaterThanOrEqualTo(55, play.PuntDistance, "Maximum punt should be 55+ yards");
+            Assert.IsLessThanOrEqualTo(80, play.PuntDistance, "Punt distance should be reasonable");
         }
 
         [TestMethod]
@@ -780,7 +780,7 @@ namespace UnitTestProject1
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsTrue(play.OutOfBounds, "Should be out of bounds");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "No return on out of bounds");
+            Assert.IsEmpty(play.ReturnSegments, "No return on out of bounds");
         }
 
         [TestMethod]
@@ -799,9 +799,9 @@ namespace UnitTestProject1
 
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return attempt");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return attempt");
             // Return yards can be negative (tackled behind catch point)
-            Assert.IsTrue(play.YardsGained >= -3, "Return can lose up to 3 yards");
+            Assert.IsGreaterThanOrEqualTo(-3, play.YardsGained, "Return can lose up to 3 yards");
         }
 
         [TestMethod]
@@ -864,7 +864,7 @@ namespace UnitTestProject1
 
             // Assert
             var play2 = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play2.ReturnSegments.Count > 0, "Should have return");
+            Assert.IsNotEmpty(play2.ReturnSegments, "Should have return");
             // With max skills, return should be decent even against good coverage
         }
 
@@ -890,7 +890,7 @@ namespace UnitTestProject1
 
             // Assert
             var play2 = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play2.ReturnSegments.Count > 0, "Should have return attempt");
+            Assert.IsNotEmpty(play2.ReturnSegments, "Should have return attempt");
             // With low skills, return should be limited
         }
 
@@ -910,7 +910,7 @@ namespace UnitTestProject1
 
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
-            Assert.IsTrue(play.PuntDistance > 0, "Should have punt distance");
+            Assert.IsGreaterThan(0, play.PuntDistance, "Should have punt distance");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
 
@@ -931,7 +931,7 @@ namespace UnitTestProject1
                 // Assert
                 var play = (PuntPlay)game.CurrentPlay;
                 Assert.IsNotNull(play, $"Punt {i + 1} should complete successfully");
-                Assert.IsTrue(play.PuntDistance > 0, $"Punt {i + 1} should have positive distance");
+                Assert.IsGreaterThan(0, play.PuntDistance, $"Punt {i + 1} should have positive distance");
             }
         }
 
@@ -952,8 +952,8 @@ namespace UnitTestProject1
             // Assert
             var play = (PuntPlay)game.CurrentPlay;
             Assert.IsFalse(play.GoodSnap, "Should be bad snap");
-            Assert.IsTrue(play.YardsGained < 0, "Should lose some yards");
-            Assert.IsTrue(play.YardsGained >= -20, "Loss should be minimal");
+            Assert.IsLessThan(0, play.YardsGained, "Should lose some yards");
+            Assert.IsGreaterThanOrEqualTo(-20, play.YardsGained, "Loss should be minimal");
         }
 
         [TestMethod]
