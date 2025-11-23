@@ -193,6 +193,40 @@ Test complete user journeys in a real browser.
 - ❌ Don't duplicate component tests
 - ❌ Don't test every edge case (too slow)
 
+### Prerequisites
+
+**IMPORTANT:** E2E tests require the backend API and a seeded database.
+
+Before running E2E tests, ensure:
+1. ✅ API is running on `http://localhost:5000`
+2. ✅ Database is seeded with test data
+3. ✅ Frontend dev server will auto-start (configured in `playwright.config.ts`)
+
+**To verify the API is ready:**
+```bash
+# Visit Swagger UI
+open http://localhost:5000/swagger/index.html
+```
+
+**If E2E tests fail due to missing/corrupted data, reset the database:**
+
+```bash
+# Navigate to the API project directory
+cd ../Gridiron.WebApi
+
+# Drop the database (WARNING: deletes all data)
+dotnet ef database drop --force
+
+# Recreate database with latest migrations
+dotnet ef database update
+
+# Seed with test data
+dotnet run -- --seed
+
+# Start the API
+dotnet run
+```
+
 ### Running E2E Tests
 
 ```bash
