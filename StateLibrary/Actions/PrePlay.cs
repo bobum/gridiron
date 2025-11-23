@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using DomainObjects;
+﻿using DomainObjects;
 using Microsoft.Extensions.Logging;
 using DomainObjects.Helpers;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StateLibrary.Configuration;
 using StateLibrary.Interfaces;

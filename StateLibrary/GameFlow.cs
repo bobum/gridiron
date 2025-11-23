@@ -72,7 +72,7 @@ namespace StateLibrary
 
         private readonly StateMachine<State, Trigger> _machine;
 
-        // Constructor now takes ICryptoRandom and ILogger as dependencies
+        // Constructor now takes ISeedableRandom and ILogger as dependencies
         public GameFlow(Game game, ISeedableRandom rng, ILogger<GameFlow> logger)
         {
             _game = game ?? throw new ArgumentNullException(nameof(game));
