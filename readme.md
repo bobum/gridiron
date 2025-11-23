@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-A comprehensive NFL football game simulation engine written in C# .NET 8. Originally created to see if modeling NFL football games with a state machine was possible - it actually works! Now featuring statistical models, comprehensive play types, penalty systems, injury tracking, and database persistence.
+A comprehensive NFL style football game simulation engine written in C# .NET 8. Originally created to see if modeling NFL football games with a state machine was possible - it actually works! Now featuring statistical models, comprehensive play types, penalty systems, injury tracking, and database persistence.
 
 ## Features
 

@@ -275,3 +275,8 @@ appsettings.*.local.json
 # Keep EF Core migrations (these should be committed)
 !**/Migrations/
 /coveragereport
+
+# Frontend specific
+gridiron-web/dist/
+gridiron-web/.env.local
+gridiron-web/.env.*.local
