@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		deploy-database.sh = deploy-database.sh
 		FIELD_POSITION_SYSTEM.md = FIELD_POSITION_SYSTEM.md
 		readme.md = readme.md
+		reset-database.ps1 = reset-database.ps1
 		states.png = states.png
 	EndProjectSection
 EndProject

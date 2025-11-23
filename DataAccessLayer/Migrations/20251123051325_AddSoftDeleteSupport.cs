@@ -13,26 +13,31 @@ namespace DataAccessLayer.Migrations
         {
             // Only drop columns if they exist (for existing databases)
             // This allows the migration to work on fresh databases too
-            migrationBuilder.Sql(@"
-                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'CurrentDown')
-                BEGIN
-                    ALTER TABLE Games DROP COLUMN CurrentDown;
-                END
-            ");
+            // NOTE: This uses SQL Server-specific syntax and only runs on SQL Server
+            // SQLite and other providers skip this because the columns don't exist on fresh databases anyway
+            if (migrationBuilder.ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.Sql(@"
+                    IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'CurrentDown')
+                    BEGIN
+                        ALTER TABLE Games DROP COLUMN CurrentDown;
+                    END
+                ");
 
-            migrationBuilder.Sql(@"
-                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'FieldPosition')
-                BEGIN
-                    ALTER TABLE Games DROP COLUMN FieldPosition;
-                END
-            ");
+                migrationBuilder.Sql(@"
+                    IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'FieldPosition')
+                    BEGIN
+                        ALTER TABLE Games DROP COLUMN FieldPosition;
+                    END
+                ");
 
-            migrationBuilder.Sql(@"
-                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'YardsToGo')
-                BEGIN
-                    ALTER TABLE Games DROP COLUMN YardsToGo;
-                END
-            ");
+                migrationBuilder.Sql(@"
+                    IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'YardsToGo')
+                    BEGIN
+                        ALTER TABLE Games DROP COLUMN YardsToGo;
+                    END
+                ");
+            }
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "DeletedAt",
