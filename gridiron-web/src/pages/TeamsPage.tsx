@@ -1,6 +1,6 @@
 import { useTeams } from '../api';
 import { Loading, ErrorMessage } from '../components';
-import { Team } from '../types';
+import type { Team } from '../types/Team';
 
 export const TeamsPage = () => {
   const { data: teams, isLoading, error } = useTeams();

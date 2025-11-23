@@ -1,4 +1,4 @@
-import { Team } from './Team';
+import type { Team } from './Team';
 import { Possession, PlayType, Downs } from './enums';
 
 export interface Game {

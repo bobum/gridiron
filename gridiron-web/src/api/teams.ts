@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from './client';
-import { Team, TeamWithRoster } from '../types';
+import type { Team, TeamWithRoster } from '../types/Team';
 
 // API functions
 export const teamsApi = {

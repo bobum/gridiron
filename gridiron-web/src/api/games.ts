@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
-import { Game, Play, SimulateGameRequest, SimulateGameResponse } from '../types';
+import type { Game, Play, SimulateGameRequest, SimulateGameResponse } from '../types/Game';
 
 // API functions
 export const gamesApi = {

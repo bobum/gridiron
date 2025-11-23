@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from './client';
-import { Player } from '../types';
+import type { Player } from '../types/Player';
 
 // API functions
 export const playersApi = {
