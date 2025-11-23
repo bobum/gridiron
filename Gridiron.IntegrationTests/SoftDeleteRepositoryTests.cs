@@ -9,7 +9,9 @@ namespace Gridiron.IntegrationTests;
 
 /// <summary>
 /// Integration tests for soft delete functionality across repositories
-/// Tests ensure soft delete infrastructure works correctly with in-memory database
+/// Uses SQLite in-memory database to properly test EF Core query filters
+/// (EF Core InMemory provider doesn't support query filters)
+/// All tests verify soft-deleted entities are excluded from normal queries
 /// </summary>
 public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
 {
@@ -36,9 +38,11 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
         // Act
         await leagueRepo.SoftDeleteAsync(leagueId, "TestUser", "Test deletion");
 
-        // Assert - Verify entity is marked as deleted
-        // NOTE: EF Core InMemory provider doesn't support query filters,
-        // so we verify the soft delete flags directly instead of testing query exclusion
+        // Assert - Query filters should EXCLUDE soft-deleted entities (SQLite supports this!)
+        var foundLeague = await leagueRepo.GetByIdAsync(leagueId);
+        foundLeague.Should().BeNull("because soft-deleted entities are excluded from normal queries");
+
+        // Assert - Using IgnoreQueryFilters should FIND it with metadata
         var deletedLeague = await _fixture.DbContext.Leagues
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(l => l.Id == leagueId);
@@ -147,7 +151,11 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
         // Act
         await teamRepo.SoftDeleteAsync(teamId, "Commissioner", "Team disbanded");
 
-        // Assert - Verify soft delete metadata is set correctly
+        // Assert - Query filters should exclude it
+        var foundTeam = await teamRepo.GetByIdAsync(teamId);
+        foundTeam.Should().BeNull("because soft-deleted teams are excluded from normal queries");
+
+        // Assert - Verify soft delete metadata with IgnoreQueryFilters
         var deletedTeam = await _fixture.DbContext.Teams
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(t => t.Id == teamId);
@@ -211,6 +219,10 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
 
         // Act - Commissioner rolls back the week
         await gameRepo.SoftDeleteAsync(gameId, "Commissioner", "Week 5 rollback");
+
+        // Assert - Query filters exclude rolled-back games
+        var foundGame = await gameRepo.GetByIdAsync(gameId);
+        foundGame.Should().BeNull("because soft-deleted games are excluded (rollback scenario)");
 
         // Assert - Verify soft delete metadata for rollback scenario
         var deletedGame = await _fixture.DbContext.Games
@@ -336,12 +348,13 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // QUERY FILTER TESTS
     // ==========================================
-    // NOTE: Query filters don't work with EF Core InMemory provider
-    // These tests verify the soft delete flags are set correctly
-    // Query filter exclusion will work with real SQL Server database
+    // SQLite in-memory supports query filters (unlike EF Core InMemory provider)
+    // These tests verify soft-deleted entities are properly excluded from normal queries
+    // Note: Repository GetByIdAsync methods use FirstOrDefaultAsync (not FindAsync)
+    // because FindAsync bypasses EF Core query filters
 
     [Fact]
-    public async Task QueryFilters_SoftDeletedEntitiesAreMarkedCorrectly()
+    public async Task QueryFilters_ExcludeSoftDeletedEntitiesFromNormalQueries()
     {
         // Arrange
         var leagueRepo = _fixture.ServiceProvider.GetRequiredService<ILeagueRepository>();
@@ -356,20 +369,13 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
 
         await leagueRepo.SoftDeleteAsync(league2.Id);
 
-        // Act - Query with IgnoreQueryFilters to check soft delete flag
-        var allLeagues = await _fixture.DbContext.Leagues
-            .IgnoreQueryFilters()
-            .ToListAsync();
+        // Act - Normal query should exclude soft-deleted entities
+        var activeLeagues = await leagueRepo.GetAllAsync();
 
-        // Assert
-        var league2Retrieved = allLeagues.First(l => l.Id == league2.Id);
-        league2Retrieved.IsDeleted.Should().BeTrue("league2 should be marked as soft deleted");
-
-        var league1Retrieved = allLeagues.First(l => l.Id == league1.Id);
-        league1Retrieved.IsDeleted.Should().BeFalse("league1 should not be deleted");
-
-        var league3Retrieved = allLeagues.First(l => l.Id == league3.Id);
-        league3Retrieved.IsDeleted.Should().BeFalse("league3 should not be deleted");
+        // Assert - Query filters WORK with SQLite!
+        activeLeagues.Should().Contain(l => l.Id == league1.Id);
+        activeLeagues.Should().Contain(l => l.Id == league3.Id);
+        activeLeagues.Should().NotContain(l => l.Id == league2.Id, "soft-deleted league should be excluded by query filter");
     }
 
     [Fact]

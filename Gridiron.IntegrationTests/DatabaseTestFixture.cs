@@ -1,6 +1,7 @@
 using DataAccessLayer;
 using DataAccessLayer.Repositories;
 using DomainObjects;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
@@ -8,23 +9,36 @@ using System.Text.Json;
 namespace Gridiron.IntegrationTests;
 
 /// <summary>
-/// Test fixture that sets up an in-memory database for integration tests
+/// Test fixture that sets up a SQLite in-memory database for integration tests.
+/// SQLite in-memory provides a real SQL database that supports:
+/// - Query filters (unlike EF Core InMemory provider)
+/// - Migrations
+/// - Transactions
+/// - Foreign keys and constraints
+/// - Much closer to production SQL Server behavior
 /// Seeds the database with FirstNames, LastNames, and Colleges data
 /// </summary>
 public class DatabaseTestFixture : IDisposable
 {
     public ServiceProvider ServiceProvider { get; private set; }
     public GridironDbContext DbContext { get; private set; }
+    private readonly SqliteConnection _connection;
 
     public DatabaseTestFixture()
     {
         // Create service collection and configure DI
         var services = new ServiceCollection();
 
-        // Configure in-memory database with unique name per test run
-        var dbName = $"GridironTestDb_{Guid.NewGuid()}";
+        // Create and open SQLite in-memory connection
+        // IMPORTANT: Connection must stay open for lifetime of in-memory database
+        // Mode=Memory creates a pure in-memory database
+        // Cache=Shared allows multiple connections to see the same database
+        _connection = new SqliteConnection("DataSource=:memory:");
+        _connection.Open();
+
+        // Configure DbContext to use SQLite in-memory database
         services.AddDbContext<GridironDbContext>(options =>
-            options.UseInMemoryDatabase(dbName));
+            options.UseSqlite(_connection));
 
         // Register repositories
         services.AddScoped<ILeagueRepository, LeagueRepository>();
@@ -52,7 +66,12 @@ public class DatabaseTestFixture : IDisposable
         // Get DbContext instance
         DbContext = ServiceProvider.GetRequiredService<GridironDbContext>();
 
-        // Ensure database is created
+        // Create database schema from model (includes soft delete columns)
+        // Note: We use EnsureCreated() instead of Migrate() because:
+        // - Migrations contain SQL Server-specific syntax (nvarchar(max), GETUTCDATE(), etc.)
+        // - SQLite uses different syntax (TEXT, datetime('now'), etc.)
+        // - For testing, we just need the schema structure, not the actual migration scripts
+        // - Migrations will be tested when deploying to real SQL Server database
         DbContext.Database.EnsureCreated();
 
         // Seed database with player generation data
@@ -95,6 +114,8 @@ public class DatabaseTestFixture : IDisposable
     public void Dispose()
     {
         DbContext?.Dispose();
+        _connection?.Close();
+        _connection?.Dispose();
         ServiceProvider?.Dispose();
     }
 }

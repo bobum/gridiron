@@ -23,7 +23,7 @@ public class LeagueRepository : ILeagueRepository
 
     public async Task<League?> GetByIdAsync(int leagueId)
     {
-        return await _context.Leagues.FindAsync(leagueId);
+        return await _context.Leagues.FirstOrDefaultAsync(l => l.Id == leagueId);
     }
 
     public async Task<League?> GetByIdWithFullStructureAsync(int leagueId)

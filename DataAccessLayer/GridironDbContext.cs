@@ -195,10 +195,10 @@ namespace DataAccessLayer
                       .HasForeignKey<PlayByPlay>(p => p.GameId)
                       .OnDelete(DeleteBehavior.Cascade);  // Delete playbyplay if game is deleted
 
-                // Store JSON as large text
-                entity.Property(p => p.PlaysJson).HasColumnType("nvarchar(max)");
-                entity.Property(p => p.PlayByPlayLog).HasColumnType("nvarchar(max)");
-                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // Store JSON and logs as large text
+                // Note: Let EF Core choose appropriate column type based on provider
+                // SQL Server: nvarchar(max), SQLite: TEXT, etc.
+                // Removed explicit HasColumnType to support multiple databases
 
                 // Soft delete query filter - exclude deleted play-by-plays from queries
                 entity.HasQueryFilter(p => !p.IsDeleted);

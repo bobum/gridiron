@@ -23,7 +23,7 @@ public class TeamRepository : ITeamRepository
 
     public async Task<Team?> GetByIdAsync(int teamId)
     {
-        return await _context.Teams.FindAsync(teamId);
+        return await _context.Teams.FirstOrDefaultAsync(t => t.Id == teamId);
     }
 
     public async Task<Team?> GetByIdWithPlayersAsync(int teamId)
