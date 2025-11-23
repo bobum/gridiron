@@ -194,8 +194,9 @@ namespace UnitTestProject1
                 EndFieldPosition = 85,
                 IsGood = true,
                 PossessionChange = false,
-                Result = logger
-            };
+                Result = logger,
+                Kicker = new Player { FirstName = "Kicker1", Position = Positions.K }
+                };
 
             game.CurrentPlay = extraPointPlay;
             game.FieldPosition = 85;
@@ -521,7 +522,8 @@ namespace UnitTestProject1
                 StartFieldPosition = 85,
                 IsGood = false, // MISSED
                 PossessionChange = false,
-                Result = logger
+                Result = logger,
+                Kicker = new Player { FirstName = "Kicker2", Position = Positions.K }
             };
 
             game.CurrentPlay = missedXP;

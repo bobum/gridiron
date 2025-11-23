@@ -978,6 +978,7 @@ namespace UnitTestProject1
             game.FieldPosition = 70;
             var play = (FieldGoalPlay)game.CurrentPlay!;
             play.IsGood = true;
+            play.Kicker = new Player { LastName = "Kicker", Position = Positions.K };
 
             // No penalties
             play.Penalties = new List<Penalty>();

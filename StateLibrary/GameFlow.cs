@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DomainObjects;
+﻿using DomainObjects;
 using DomainObjects.Helpers;
 using DomainObjects.Time;
 using Microsoft.Extensions.Logging;
@@ -13,7 +10,6 @@ using StateLibrary.Plays;
 using StateLibrary.SkillsCheckResults;
 using StateLibrary.SkillsChecks;
 using Fumble = StateLibrary.Actions.Fumble;
-using Interception = StateLibrary.Actions.Interception;
 
 namespace StateLibrary
 {
@@ -103,11 +99,11 @@ namespace StateLibrary
             //we then snap the ball and make sure the snap was good
             _machine.Configure(State.PrePlay)
                 .OnEntry(DoPrePlay, "Determine play, pre-play penalty and snap the ball")
-                .PermitIf(Trigger.Snap, State.FieldGoal, () => _game.CurrentPlay.PlayType == PlayType.FieldGoal)
-                .PermitIf(Trigger.Snap, State.RunPlay, () => _game.CurrentPlay.PlayType == PlayType.Run)
-                .PermitIf(Trigger.Snap, State.Kickoff, () => _game.CurrentPlay.PlayType == PlayType.Kickoff)
-                .PermitIf(Trigger.Snap, State.Punt, () => _game.CurrentPlay.PlayType == PlayType.Punt)
-                .PermitIf(Trigger.Snap, State.PassPlay, () => _game.CurrentPlay.PlayType == PlayType.Pass)
+                .PermitIf(Trigger.Snap, State.FieldGoal, () => _game.CurrentPlay?.PlayType == PlayType.FieldGoal)
+                .PermitIf(Trigger.Snap, State.RunPlay, () => _game.CurrentPlay?.PlayType == PlayType.Run)
+                .PermitIf(Trigger.Snap, State.Kickoff, () => _game.CurrentPlay?.PlayType == PlayType.Kickoff)
+                .PermitIf(Trigger.Snap, State.Punt, () => _game.CurrentPlay?.PlayType == PlayType.Punt)
+                .PermitIf(Trigger.Snap, State.PassPlay, () => _game.CurrentPlay?.PlayType == PlayType.Pass)
                 .Permit(Trigger.PlayResult, State.PostPlay);
 
             //every play state should end in a fumble check state
@@ -143,11 +139,11 @@ namespace StateLibrary
             //every "Result" action should end in the POST PLAY state
             _machine.Configure(State.FumbleReturn)
                 .OnEntry(DoFumbleCheck, "was there a fumble on the play")
-                .PermitIf(Trigger.PlayResult, State.FieldGoalResult, () => _game.CurrentPlay.PlayType == PlayType.FieldGoal)
-                .PermitIf(Trigger.PlayResult, State.RunPlayResult, () => _game.CurrentPlay.PlayType == PlayType.Run)
-                .PermitIf(Trigger.PlayResult, State.KickoffResult, () => _game.CurrentPlay.PlayType == PlayType.Kickoff)
-                .PermitIf(Trigger.PlayResult, State.PuntResult, () => _game.CurrentPlay.PlayType == PlayType.Punt)
-                .PermitIf(Trigger.PlayResult, State.PassPlayResult, () => _game.CurrentPlay.PlayType == PlayType.Pass);
+                .PermitIf(Trigger.PlayResult, State.FieldGoalResult, () => _game.CurrentPlay?.PlayType == PlayType.FieldGoal)
+                .PermitIf(Trigger.PlayResult, State.RunPlayResult, () => _game.CurrentPlay?.PlayType == PlayType.Run)
+                .PermitIf(Trigger.PlayResult, State.KickoffResult, () => _game.CurrentPlay?.PlayType == PlayType.Kickoff)
+                .PermitIf(Trigger.PlayResult, State.PuntResult, () => _game.CurrentPlay?.PlayType == PlayType.Punt)
+                .PermitIf(Trigger.PlayResult, State.PassPlayResult, () => _game.CurrentPlay?.PlayType == PlayType.Pass);
 
             _machine.Configure(State.FieldGoalResult)
                 .OnEntry(DoFieldGoalResult, "the kick is up...")
@@ -497,6 +493,11 @@ namespace StateLibrary
         {
             // Only pre-snap penalties are checked here
             // Other penalties (blocking, coverage, tackle, post-play) are checked within Play classes
+            if (_game.CurrentPlay == null)
+            {
+                throw new InvalidOperationException("Current Play is null");
+            }
+
             if (penaltyOccuredWhen == PenaltyOccuredWhen.Before)
             {
                 var preSnapCheck = new PreSnapPenaltyOccurredSkillsCheck(_rng, _game.CurrentPlay.PlayType);

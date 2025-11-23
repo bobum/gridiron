@@ -79,7 +79,7 @@ namespace DomainObjects
                     {'Name':'Leverage','Odds':0.00002635,'HomeOdds':0,'AwayOdds':1},
                     {'Name':'NoPenalty','Odds':0,'HomeOdds':0,'AwayOdds':0}]";
 
-            List = [.. JsonConvert.DeserializeObject<List<Penalty>>(penalties)];
+            List = [.. JsonConvert.DeserializeObject<List<Penalty>>(penalties)!];
         }
     }
 

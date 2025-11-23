@@ -264,7 +264,8 @@ namespace UnitTestProject1
             {
                 Possession = Possession.Home,
                 YardsGained = 15,
-                IsTouchdown = true
+                IsTouchdown = true,
+                Punter = new Player { LastName = "Punter", Position = Positions.P }
             };
             puntPlay.ReturnSegments.Add(new ReturnSegment
             {
@@ -284,7 +285,8 @@ namespace UnitTestProject1
                 YardsGained = 15,
                 PossessionChange = true,
                 IsTouchdown = true,
-                RecoveredBy = new Player { LastName = "Blocker" }
+                RecoveredBy = new Player { LastName = "Blocker" },
+                Punter = new Player { LastName = "Punter", Position = Positions.P }
             };
             game.CurrentPlay = blockedPunt;
             game.FieldPosition = 88;

@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DomainObjects;
-using StateLibrary.Interfaces;
-using StateLibrary.Plays;
+using System.Reflection;
 using static DomainObjects.StatTypes;
 
 namespace StateLibrary.Services
@@ -31,7 +27,7 @@ namespace StateLibrary.Services
                     UpdatePlayerStat(play.PrimaryPasser, PlayerStatType.PassingAttempts, 1);
                     UpdatePlayerStat(play.PrimaryPasser, PlayerStatType.PassingCompletions, play.IsComplete ? 1 : 0);
                 }
-                
+
                 foreach (var segment in play.PassSegments)
                 {
                     UpdatePlayerStat(segment.Receiver, PlayerStatType.ReceivingTargets, 1);
@@ -53,7 +49,7 @@ namespace StateLibrary.Services
         {
             foreach (var segment in play.RunSegments)
             {
-                UpdatePlayerStat(segment.BallCarrier, PlayerStatType.RushingYards, segment.YardsGained); 
+                UpdatePlayerStat(segment.BallCarrier, PlayerStatType.RushingYards, segment.YardsGained);
                 // RunSegment likely doesn't have Touchdown property either.
                 bool isTouchdown = play.IsTouchdown && segment == play.RunSegments.Last();
                 UpdatePlayerStat(segment.BallCarrier, PlayerStatType.RushingTouchdowns, isTouchdown ? 1 : 0);
@@ -63,7 +59,14 @@ namespace StateLibrary.Services
 
         public static void AccumulateFieldGoalStats(FieldGoalPlay play)
         {
-             if (play.IsGood)
+            // Defensive check - should never happen, but catches bugs early
+            if (play.Kicker == null)
+            {
+                // Log or throw - this indicates a bug in play execution
+                throw new InvalidOperationException("Field goal play missing kicker");
+            }
+
+            if (play.IsGood)
             {
                 UpdatePlayerStat(play.Kicker, PlayerStatType.FieldGoalsMade, 1);
             }
@@ -72,9 +75,15 @@ namespace StateLibrary.Services
 
         public static void AccumulatePuntStats(PuntPlay play)
         {
+            // Defensive check - should never happen, but catches bugs early
+            if (play.Punter == null)
+            {
+                throw new InvalidOperationException("Punt play missing kicker");
+            }
+
             UpdatePlayerStat(play.Punter, PlayerStatType.Punts, 1);
             UpdatePlayerStat(play.Punter, PlayerStatType.PuntYards, play.PuntDistance);
-            
+
             // Return stats
             if (play.InitialReturner != null)
             {
@@ -111,7 +120,7 @@ namespace StateLibrary.Services
         private static void ProcessFumbles(List<Fumble> fumbles)
         {
             if (fumbles == null) return;
-            
+
             foreach (var fumble in fumbles)
             {
                 UpdatePlayerStat(fumble.FumbledBy, PlayerStatType.Fumbles, 1);
@@ -144,11 +153,11 @@ namespace StateLibrary.Services
             // Generic Tackles
             // Only award generic tackle if it wasn't a sack AND play ended in a tackle (not TD, not incomplete)
             bool genericTackleOccurred = !play.IsTouchdown;
-            
+
             if (play is PassPlay pp)
             {
                 // If incomplete and not a sack, no tackle occurred
-                if (!pp.IsComplete && !isSack) 
+                if (!pp.IsComplete && !isSack)
                 {
                     genericTackleOccurred = false;
                 }
@@ -159,7 +168,7 @@ namespace StateLibrary.Services
                 var tackler = defenders[_random.Next(defenders.Count)];
                 UpdatePlayerStat(tackler, PlayerStatType.Tackles, 1);
             }
-            
+
             // Interceptions
             if (play is PassPlay interceptionPlay && interceptionPlay.Interception && interceptionPlay.InterceptionDetails != null)
             {
@@ -180,11 +189,11 @@ namespace StateLibrary.Services
 
         private static bool IsDefender(Player p)
         {
-            return p.Position == Positions.DT || 
-                   p.Position == Positions.DE || 
-                   p.Position == Positions.LB || 
-                   p.Position == Positions.CB || 
-                   p.Position == Positions.S || 
+            return p.Position == Positions.DT ||
+                   p.Position == Positions.DE ||
+                   p.Position == Positions.LB ||
+                   p.Position == Positions.CB ||
+                   p.Position == Positions.S ||
                    p.Position == Positions.FS;
         }
     }

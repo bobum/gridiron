@@ -11,7 +11,7 @@ namespace StateLibrary.PlayResults
     {
         public void Execute(Game game)
         {
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = game.CurrentPlay as PuntPlay;
 
             // Set start field position
             play.StartFieldPosition = game.FieldPosition;
