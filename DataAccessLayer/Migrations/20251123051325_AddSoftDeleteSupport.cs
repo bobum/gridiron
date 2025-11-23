@@ -11,17 +11,28 @@ namespace DataAccessLayer.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "CurrentDown",
-                table: "Games");
+            // Only drop columns if they exist (for existing databases)
+            // This allows the migration to work on fresh databases too
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'CurrentDown')
+                BEGIN
+                    ALTER TABLE Games DROP COLUMN CurrentDown;
+                END
+            ");
 
-            migrationBuilder.DropColumn(
-                name: "FieldPosition",
-                table: "Games");
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'FieldPosition')
+                BEGIN
+                    ALTER TABLE Games DROP COLUMN FieldPosition;
+                END
+            ");
 
-            migrationBuilder.DropColumn(
-                name: "YardsToGo",
-                table: "Games");
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'Games') AND name = 'YardsToGo')
+                BEGIN
+                    ALTER TABLE Games DROP COLUMN YardsToGo;
+                END
+            ");
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "DeletedAt",
