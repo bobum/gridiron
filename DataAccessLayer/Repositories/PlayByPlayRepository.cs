@@ -53,8 +53,54 @@ public class PlayByPlayRepository : IPlayByPlayRepository
         }
     }
 
+    public async Task SoftDeleteAsync(int id, string? deletedBy = null, string? reason = null)
+    {
+        var playByPlay = await _context.PlayByPlays
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (playByPlay == null)
+            throw new InvalidOperationException($"PlayByPlay with ID {id} not found");
+
+        if (playByPlay.IsDeleted)
+            throw new InvalidOperationException($"PlayByPlay with ID {id} is already deleted");
+
+        playByPlay.SoftDelete(deletedBy, reason);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RestoreAsync(int id)
+    {
+        var playByPlay = await _context.PlayByPlays
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (playByPlay == null)
+            throw new InvalidOperationException($"PlayByPlay with ID {id} not found");
+
+        if (!playByPlay.IsDeleted)
+            throw new InvalidOperationException($"PlayByPlay with ID {id} is not deleted");
+
+        playByPlay.Restore();
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<PlayByPlay>> GetDeletedAsync()
+    {
+        return await _context.PlayByPlays
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .Where(p => p.IsDeleted)
+            .OrderByDescending(p => p.DeletedAt)
+            .ToListAsync();
+    }
+
     public async Task<bool> ExistsForGameAsync(int gameId)
     {
         return await _context.PlayByPlays.AnyAsync(p => p.GameId == gameId);
+    }
+
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _context.SaveChangesAsync();
     }
 }

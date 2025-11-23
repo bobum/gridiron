@@ -11,7 +11,7 @@ using Half = DomainObjects.Time.Half;
 
 namespace DomainObjects
 {
-    public class Game
+    public class Game : SoftDeletableEntity
     {
         public int Id { get; set; }  // Primary key for EF Core
         public int HomeTeamId { get; set; }  // Foreign key to Team

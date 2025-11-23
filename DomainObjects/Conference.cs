@@ -1,6 +1,6 @@
 namespace DomainObjects;
 
-public class Conference
+public class Conference : SoftDeletableEntity
 {
     public int Id { get; set; }  // Primary key for EF Core
     public string Name { get; set; } = string.Empty;

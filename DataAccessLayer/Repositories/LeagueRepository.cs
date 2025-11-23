@@ -64,6 +64,46 @@ public class LeagueRepository : ILeagueRepository
         }
     }
 
+    public async Task SoftDeleteAsync(int leagueId, string? deletedBy = null, string? reason = null)
+    {
+        var league = await _context.Leagues
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(l => l.Id == leagueId);
+
+        if (league == null)
+            throw new InvalidOperationException($"League with ID {leagueId} not found");
+
+        if (league.IsDeleted)
+            throw new InvalidOperationException($"League with ID {leagueId} is already deleted");
+
+        league.SoftDelete(deletedBy, reason);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RestoreAsync(int leagueId)
+    {
+        var league = await _context.Leagues
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(l => l.Id == leagueId);
+
+        if (league == null)
+            throw new InvalidOperationException($"League with ID {leagueId} not found");
+
+        if (!league.IsDeleted)
+            throw new InvalidOperationException($"League with ID {leagueId} is not deleted");
+
+        league.Restore();
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<League>> GetDeletedAsync()
+    {
+        return await _context.Leagues
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .Where(l => l.IsDeleted)
+            .ToListAsync();
+    }
+
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();

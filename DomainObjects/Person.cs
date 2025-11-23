@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DomainObjects
 {
-    public class Person
+    public class Person : SoftDeletableEntity
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

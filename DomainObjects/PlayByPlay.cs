@@ -6,7 +6,7 @@ namespace DomainObjects
     /// Stores play-by-play execution data for a completed game
     /// Allows exact recreation of game with same seed
     /// </summary>
-    public class PlayByPlay
+    public class PlayByPlay : SoftDeletableEntity
     {
         public int Id { get; set; }  // Primary key
         public int GameId { get; set; }  // Foreign key to Game

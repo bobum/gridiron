@@ -1,7 +1,7 @@
 ﻿using DomainObjects;
 using static DomainObjects.StatTypes;
 
-public class Team
+public class Team : SoftDeletableEntity
 {
     public int Id { get; set; }  // Primary key for EF Core
     public string Name { get; set; }
