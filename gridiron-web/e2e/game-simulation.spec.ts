@@ -7,8 +7,8 @@ test.describe('Game Simulation', () => {
 
   test('should display page title and dropdowns', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Simulate Game' })).toBeVisible()
-    await expect(page.getByText('Home Team')).toBeVisible()
-    await expect(page.getByText('Away Team')).toBeVisible()
+    await expect(page.locator('label').filter({ hasText: 'Home Team' }).first()).toBeVisible()
+    await expect(page.locator('label').filter({ hasText: 'Away Team' }).first()).toBeVisible()
   })
 
   test('should have disabled simulate button initially', async ({ page }) => {
