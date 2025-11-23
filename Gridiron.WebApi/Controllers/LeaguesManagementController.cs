@@ -275,4 +275,65 @@ public class LeaguesManagementController : ControllerBase
             return StatusCode(500, new { error = "Failed to populate league rosters" });
         }
     }
+
+    /// <summary>
+    /// Updates an existing league
+    /// </summary>
+    /// <param name="id">League ID</param>
+    /// <param name="request">Update request with optional fields</param>
+    /// <returns>Updated league</returns>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<LeagueDto>> UpdateLeague(int id, [FromBody] UpdateLeagueRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        try
+        {
+            // Get league from repository (excludes soft-deleted by default)
+            var league = await _leagueRepository.GetByIdAsync(id);
+            if (league == null)
+            {
+                return NotFound(new { error = $"League with ID {id} not found" });
+            }
+
+            // Use builder service to update league (domain logic)
+            _leagueBuilderService.UpdateLeague(league, request.Name, request.Season, request.IsActive);
+
+            // Persist changes
+            await _leagueRepository.UpdateAsync(league);
+
+            // Map to DTO and return
+            var leagueDto = new LeagueDto
+            {
+                Id = league.Id,
+                Name = league.Name,
+                Season = league.Season,
+                IsActive = league.IsActive,
+                TotalConferences = 0,  // Not loaded for update response
+                TotalTeams = 0         // Not loaded for update response
+            };
+
+            _logger.LogInformation(
+                "Updated league {LeagueId}: Name={Name}, Season={Season}, IsActive={IsActive}",
+                league.Id, league.Name, league.Season, league.IsActive);
+
+            return Ok(leagueDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid update request for league {LeagueId}", id);
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating league {LeagueId}", id);
+            return StatusCode(500, new { error = "Failed to update league" });
+        }
+    }
 }

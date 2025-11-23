@@ -38,6 +38,8 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
 // Register repositories - these are the ONLY way to access the database
 // Controllers and services MUST use these repositories, NOT DbContext directly
 builder.Services.AddScoped<ILeagueRepository, LeagueRepository>();
+builder.Services.AddScoped<IConferenceRepository, ConferenceRepository>();
+builder.Services.AddScoped<IDivisionRepository, DivisionRepository>();
 builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
@@ -53,8 +55,10 @@ builder.Services.AddScoped<IGameSimulationService, GameSimulationService>();
 // GAME MANAGEMENT SERVICES
 // ========================================
 builder.Services.AddScoped<GameManagement.Services.ILeagueBuilderService, GameManagement.Services.LeagueBuilderService>();
-builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
+builder.Services.AddScoped<GameManagement.Services.IConferenceBuilderService, GameManagement.Services.ConferenceBuilderService>();
+builder.Services.AddScoped<GameManagement.Services.IDivisionBuilderService, GameManagement.Services.DivisionBuilderService>();
 builder.Services.AddScoped<GameManagement.Services.ITeamBuilderService, GameManagement.Services.TeamBuilderService>();
+builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
 builder.Services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
 
 // Configure logging

@@ -122,4 +122,49 @@ public class LeagueBuilderService : ILeagueBuilderService
 
         return league;
     }
+
+    public void UpdateLeague(League league, string? newName, int? newSeason, bool? newIsActive)
+    {
+        if (league == null)
+            throw new ArgumentNullException(nameof(league));
+
+        // Update name if provided and not empty
+        if (!string.IsNullOrWhiteSpace(newName))
+        {
+            _logger.LogInformation(
+                "Updating league {LeagueId} name from '{OldName}' to '{NewName}'",
+                league.Id, league.Name, newName);
+
+            league.Name = newName;
+        }
+
+        // Update season if provided and valid
+        if (newSeason.HasValue)
+        {
+            // Validate season is reasonable (1900 to current year + 5)
+            int currentYear = DateTime.Now.Year;
+            if (newSeason.Value < 1900 || newSeason.Value > currentYear + 5)
+            {
+                throw new ArgumentException(
+                    $"Season must be between 1900 and {currentYear + 5}",
+                    nameof(newSeason));
+            }
+
+            _logger.LogInformation(
+                "Updating league {LeagueId} season from {OldSeason} to {NewSeason}",
+                league.Id, league.Season, newSeason.Value);
+
+            league.Season = newSeason.Value;
+        }
+
+        // Update IsActive if provided
+        if (newIsActive.HasValue)
+        {
+            _logger.LogInformation(
+                "Updating league {LeagueId} active status from {OldStatus} to {NewStatus}",
+                league.Id, league.IsActive, newIsActive.Value);
+
+            league.IsActive = newIsActive.Value;
+        }
+    }
 }
