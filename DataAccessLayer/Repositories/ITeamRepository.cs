@@ -44,6 +44,25 @@ public interface ITeamRepository
     Task DeleteAsync(int teamId);
 
     /// <summary>
+    /// Soft deletes a team by marking it as deleted
+    /// </summary>
+    /// <param name="teamId">ID of the team to soft delete</param>
+    /// <param name="deletedBy">Username or identifier of who is deleting</param>
+    /// <param name="reason">Optional reason for deletion</param>
+    Task SoftDeleteAsync(int teamId, string? deletedBy = null, string? reason = null);
+
+    /// <summary>
+    /// Restores a soft-deleted team
+    /// </summary>
+    /// <param name="teamId">ID of the team to restore</param>
+    Task RestoreAsync(int teamId);
+
+    /// <summary>
+    /// Gets all soft-deleted teams
+    /// </summary>
+    Task<List<Team>> GetDeletedAsync();
+
+    /// <summary>
     /// Saves all pending changes
     /// </summary>
     Task<int> SaveChangesAsync();

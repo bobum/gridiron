@@ -23,7 +23,7 @@ public class TeamRepository : ITeamRepository
 
     public async Task<Team?> GetByIdAsync(int teamId)
     {
-        return await _context.Teams.FindAsync(teamId);
+        return await _context.Teams.FirstOrDefaultAsync(t => t.Id == teamId);
     }
 
     public async Task<Team?> GetByIdWithPlayersAsync(int teamId)
@@ -61,6 +61,46 @@ public class TeamRepository : ITeamRepository
             _context.Teams.Remove(team);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task SoftDeleteAsync(int teamId, string? deletedBy = null, string? reason = null)
+    {
+        var team = await _context.Teams
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(t => t.Id == teamId);
+
+        if (team == null)
+            throw new InvalidOperationException($"Team with ID {teamId} not found");
+
+        if (team.IsDeleted)
+            throw new InvalidOperationException($"Team with ID {teamId} is already deleted");
+
+        team.SoftDelete(deletedBy, reason);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RestoreAsync(int teamId)
+    {
+        var team = await _context.Teams
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(t => t.Id == teamId);
+
+        if (team == null)
+            throw new InvalidOperationException($"Team with ID {teamId} not found");
+
+        if (!team.IsDeleted)
+            throw new InvalidOperationException($"Team with ID {teamId} is not deleted");
+
+        team.Restore();
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Team>> GetDeletedAsync()
+    {
+        return await _context.Teams
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .Where(t => t.IsDeleted)
+            .ToListAsync();
     }
 
     public async Task<int> SaveChangesAsync()

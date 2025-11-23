@@ -74,9 +74,9 @@ namespace UnitTestProject1
 
             // Assert
             Assert.AreEqual(seed, log.Seed);
-            Assert.AreEqual(2, log.Doubles.Count);
-            Assert.AreEqual(1, log.IntRanges.Count);
-            Assert.AreEqual(2, log.Ints.Count);
+            Assert.HasCount(2, log.Doubles);
+            Assert.HasCount(1, log.IntRanges);
+            Assert.HasCount(2, log.Ints);
 
             // Verify IntRange entry
             Assert.AreEqual(5, log.IntRanges[0].Min);
@@ -98,7 +98,7 @@ namespace UnitTestProject1
             var log = rng.GetReplayLog();
 
             // Assert - Verify order is preserved
-            Assert.AreEqual(3, log.Doubles.Count);
+            Assert.HasCount(3, log.Doubles);
             Assert.AreEqual(d1, log.Doubles[0]);
             Assert.AreEqual(d2, log.Doubles[1]);
             Assert.AreEqual(d3, log.Doubles[2]);
@@ -412,14 +412,14 @@ namespace UnitTestProject1
         public void RecordingMode_WithNullLog_CreatesNewLog()
         {
             // Arrange & Act
-            var rng = new ReplaySeedableRandom(seed: 456, log: null);
+            var rng = new ReplaySeedableRandom(seed: 456, log: null!);
             rng.NextDouble();
 
             // Assert
             var log = rng.GetReplayLog();
             Assert.IsNotNull(log);
             Assert.AreEqual(456, log.Seed);
-            Assert.AreEqual(1, log.Doubles.Count);
+            Assert.HasCount(1, log.Doubles);
         }
 
         [TestMethod]
@@ -438,7 +438,7 @@ namespace UnitTestProject1
             var log = rng.GetReplayLog();
 
             // Assert
-            Assert.AreEqual(5, log.Doubles.Count);
+            Assert.HasCount(5, log.Doubles);
         }
 
         [TestMethod]
@@ -456,7 +456,7 @@ namespace UnitTestProject1
             var replayRng = new ReplaySeedableRandom(321, log);
 
             // Assert
-            Assert.AreEqual(3, log.IntRanges.Count);
+            Assert.HasCount(3, log.IntRanges);
             Assert.AreEqual(v1, replayRng.Next(1, 10));
             Assert.AreEqual(v2, replayRng.Next(50, 100));
             Assert.AreEqual(v3, replayRng.Next(1, 10));
@@ -478,9 +478,9 @@ namespace UnitTestProject1
             var log = rng.GetReplayLog();
 
             // Assert - GetBytes should not be logged
-            Assert.AreEqual(0, log.Doubles.Count);
-            Assert.AreEqual(0, log.Ints.Count);
-            Assert.AreEqual(0, log.IntRanges.Count);
+            Assert.IsEmpty(log.Doubles);
+            Assert.IsEmpty(log.Ints);
+            Assert.IsEmpty(log.IntRanges);
 
             // Verify it fills the buffer
             bool hasNonZero = false;
@@ -504,9 +504,9 @@ namespace UnitTestProject1
             var log = rng.GetReplayLog();
 
             // Assert - GetNonZeroBytes should not be logged
-            Assert.AreEqual(0, log.Doubles.Count);
-            Assert.AreEqual(0, log.Ints.Count);
-            Assert.AreEqual(0, log.IntRanges.Count);
+            Assert.IsEmpty(log.Doubles);
+            Assert.IsEmpty(log.Ints);
+            Assert.IsEmpty(log.IntRanges);
 
             // Verify all bytes are non-zero
             foreach (var b in buffer1)
@@ -528,7 +528,7 @@ namespace UnitTestProject1
             replayRng.GetBytes(buffer);
 
             // Assert - Should not throw, and should fill buffer
-            Assert.AreEqual(10, buffer.Length);
+            Assert.HasCount(10, buffer);
         }
 
         [TestMethod]
@@ -577,7 +577,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsNotNull(log);
-            Assert.AreEqual(1, log.Doubles.Count);
+            Assert.HasCount(1, log.Doubles);
         }
 
         #endregion
@@ -599,7 +599,7 @@ namespace UnitTestProject1
             var replayResults = SimulateGameEvents(replayRng);
 
             // Assert - All results should match exactly
-            Assert.AreEqual(results.Length, replayResults.Length);
+            Assert.HasCount(results.Length, replayResults);
             for (int i = 0; i < results.Length; i++)
             {
                 Assert.AreEqual(results[i], replayResults[i], $"Mismatch at event {i}");
@@ -657,9 +657,9 @@ namespace UnitTestProject1
 
             // Assert - Verify logs match
             Assert.AreEqual(originalLog.Seed, loadedLog.Seed);
-            Assert.AreEqual(originalLog.Doubles.Count, loadedLog.Doubles.Count);
-            Assert.AreEqual(originalLog.Ints.Count, loadedLog.Ints.Count);
-            Assert.AreEqual(originalLog.IntRanges.Count, loadedLog.IntRanges.Count);
+            Assert.HasCount(originalLog.Doubles.Count, loadedLog.Doubles);
+            Assert.HasCount(originalLog.Ints.Count, loadedLog.Ints);
+            Assert.HasCount(originalLog.IntRanges.Count, loadedLog.IntRanges);
 
             // Verify all values match
             for (int i = 0; i < originalLog.Doubles.Count; i++)

@@ -28,8 +28,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 6, $"Run should be effective in red zone (got {runPlay.YardsGained})");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsGreaterThanOrEqualTo(6, runPlay.YardsGained, $"Run should be effective in red zone (got {runPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -45,9 +45,9 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Should complete");
-            Assert.IsTrue(passPlay.YardsGained >= 15, $"Can still throw deep from 20 (got {passPlay.YardsGained})");
+            Assert.IsGreaterThanOrEqualTo(15, passPlay.YardsGained, $"Can still throw deep from 20 (got {passPlay.YardsGained})");
         }
 
         #endregion
@@ -67,8 +67,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 6, $"Power run should work (got {runPlay.YardsGained})");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsGreaterThanOrEqualTo(6, runPlay.YardsGained, $"Power run should work (got {runPlay.YardsGained})");
         }
 
         [TestMethod]
@@ -84,9 +84,8 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
-            Assert.IsTrue(passPlay.PassSegments[0].AirYards <= 15,
-                $"Air yards limited by field (got {passPlay.PassSegments[0].AirYards})");
+            var passPlay = (PassPlay)game.CurrentPlay!;
+            Assert.IsLessThanOrEqualTo(15, passPlay.PassSegments[0].AirYards, $"Air yards limited by field (got {passPlay.PassSegments[0].AirYards})");
         }
 
         #endregion
@@ -106,8 +105,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 10, "Should score TD");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsGreaterThanOrEqualTo(10, runPlay.YardsGained, "Should score TD");
             Assert.AreEqual(100, game.FieldPosition, "Should reach end zone");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
         }
@@ -125,8 +124,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained < 10, $"Should not score (got {runPlay.YardsGained})");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsLessThan(10, runPlay.YardsGained, $"Should not score (got {runPlay.YardsGained})");
             Assert.AreEqual(0, game.HomeScore, "No touchdown");
         }
 
@@ -143,9 +142,9 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "TD pass should complete");
-            Assert.IsTrue(passPlay.YardsGained >= 10, "Should score");
+            Assert.IsGreaterThanOrEqualTo(10, passPlay.YardsGained, "Should score");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
         }
 
@@ -166,8 +165,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 5, "Elite RB should score from 5");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsGreaterThanOrEqualTo(5, runPlay.YardsGained, "Elite RB should score from 5");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
         }
 
@@ -184,8 +183,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained < 5, $"Should be stopped (got {runPlay.YardsGained})");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsLessThan(5, runPlay.YardsGained, $"Should be stopped (got {runPlay.YardsGained})");
             Assert.AreEqual(0, game.HomeScore, "No touchdown");
         }
 
@@ -202,7 +201,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsTrue(passPlay.PassSegments[0].IsComplete, "Quick slant completes");
             Assert.AreEqual(6, game.HomeScore, "Touchdown!");
         }
@@ -220,7 +219,7 @@ namespace UnitTestProject1
 
             ExecuteRunPlayWithResult(game, rng);
 
-            Assert.IsTrue(game.CurrentPlay.YardsGained >= 6, "Good gain");
+            Assert.IsGreaterThanOrEqualTo(6, game.CurrentPlay!.YardsGained, "Good gain");
         }
 
         [TestMethod]
@@ -232,7 +231,7 @@ namespace UnitTestProject1
 
             ExecutePassPlayWithResult(game, rng);
 
-            Assert.IsTrue(((PassPlay)game.CurrentPlay).PassSegments[0].IsComplete, "Complete");
+            Assert.IsTrue(((PassPlay)game.CurrentPlay!).PassSegments[0].IsComplete, "Complete");
         }
 
         [TestMethod]
@@ -244,7 +243,7 @@ namespace UnitTestProject1
 
             ExecuteRunPlayWithResult(game, rng);
 
-            Assert.IsTrue(game.CurrentPlay.YardsGained <= 4, "Limited gain");
+            Assert.IsLessThanOrEqualTo(4, game.CurrentPlay!.YardsGained, "Limited gain");
         }
 
         [TestMethod]
@@ -312,7 +311,7 @@ namespace UnitTestProject1
             ExecutePassPlayWithResult(game, rng);
 
             // Assert
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             Assert.IsFalse(passPlay.PassSegments[0].IsComplete,
                 "Compressed field gives defense advantage");
         }
@@ -330,9 +329,8 @@ namespace UnitTestProject1
             ExecuteRunPlayWithResult(game, rng);
 
             // Assert
-            var runPlay = (RunPlay)game.CurrentPlay;
-            Assert.IsTrue(runPlay.YardsGained >= 5,
-                $"Power run effective in red zone (got {runPlay.YardsGained})");
+            var runPlay = (RunPlay)game.CurrentPlay!;
+            Assert.IsGreaterThanOrEqualTo(5, runPlay.YardsGained, $"Power run effective in red zone (got {runPlay.YardsGained})");
         }
 
         #endregion
@@ -441,7 +439,7 @@ namespace UnitTestProject1
 
         private void SetPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Rushing = offenseSkill;
@@ -460,7 +458,7 @@ namespace UnitTestProject1
 
         private void SetPassPlayerSkills(Game game, int offenseSkill, int defenseSkill)
         {
-            foreach (var player in game.CurrentPlay.OffensePlayersOnField)
+            foreach (var player in game.CurrentPlay!.OffensePlayersOnField)
             {
                 player.Blocking = offenseSkill;
                 player.Passing = offenseSkill;

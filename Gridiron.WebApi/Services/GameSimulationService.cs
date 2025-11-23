@@ -109,6 +109,7 @@ public class GameSimulationService : IGameSimulationService
             // Create PlayByPlay entity
             var playByPlay = new PlayByPlay
             {
+                Game = game,
                 GameId = game.Id,
                 PlaysJson = playsJson,
                 PlayByPlayLog = playByPlayLog

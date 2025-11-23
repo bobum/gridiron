@@ -44,6 +44,25 @@ public interface ILeagueRepository
     Task DeleteAsync(int leagueId);
 
     /// <summary>
+    /// Soft deletes a league by marking it as deleted
+    /// </summary>
+    /// <param name="leagueId">ID of the league to soft delete</param>
+    /// <param name="deletedBy">Username or identifier of who is deleting</param>
+    /// <param name="reason">Optional reason for deletion</param>
+    Task SoftDeleteAsync(int leagueId, string? deletedBy = null, string? reason = null);
+
+    /// <summary>
+    /// Restores a soft-deleted league
+    /// </summary>
+    /// <param name="leagueId">ID of the league to restore</param>
+    Task RestoreAsync(int leagueId);
+
+    /// <summary>
+    /// Gets all soft-deleted leagues
+    /// </summary>
+    Task<List<League>> GetDeletedAsync();
+
+    /// <summary>
     /// Saves all pending changes
     /// </summary>
     Task<int> SaveChangesAsync();

@@ -27,7 +27,7 @@ namespace UnitTestProject1
             game.FieldPosition = 85;
             game.HomeScore = 7;
             game.AwayScore = 14;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.Possession = Possession.Home;
             passPlay.YardsGained = 18;  // TD
 
@@ -51,7 +51,7 @@ namespace UnitTestProject1
             game.FieldPosition = 3;
             game.HomeScore = 10;
             game.AwayScore = 7;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.Possession = Possession.Home;
             passPlay.YardsGained = -5;  // Sacked in end zone
 
@@ -78,7 +78,7 @@ namespace UnitTestProject1
             game.FieldPosition = 92;
             game.HomeScore = 14;
             game.AwayScore = 10;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.Possession = Possession.Away;
             runPlay.YardsGained = 10;  // TD
 
@@ -102,7 +102,7 @@ namespace UnitTestProject1
             game.FieldPosition = 4;
             game.HomeScore = 7;
             game.AwayScore = 3;
-            var runPlay = (RunPlay)game.CurrentPlay;
+            var runPlay = (RunPlay)game.CurrentPlay!;
             runPlay.Possession = Possession.Away;
             runPlay.YardsGained = -6;  // Tackled in end zone
 
@@ -129,7 +129,7 @@ namespace UnitTestProject1
             game.FieldPosition = 90;
             game.HomeScore = 21;
             game.AwayScore = 17;
-            var puntPlay = (PuntPlay)game.CurrentPlay;
+            var puntPlay = (PuntPlay)game.CurrentPlay!;
             puntPlay.Possession = Possession.Home;
             puntPlay.YardsGained = 12;  // Short punt + return for TD
             puntPlay.IsTouchdown = true;
@@ -160,7 +160,7 @@ namespace UnitTestProject1
             game.FieldPosition = 95;
             game.HomeScore = 10;
             game.AwayScore = 14;
-            var puntPlay = (PuntPlay)game.CurrentPlay;
+            var puntPlay = (PuntPlay)game.CurrentPlay!;
             puntPlay.Possession = Possession.Home;
             puntPlay.Blocked = true;
             puntPlay.YardsGained = 10;
@@ -186,7 +186,7 @@ namespace UnitTestProject1
             game.FieldPosition = 4;
             game.HomeScore = 7;
             game.AwayScore = 10;
-            var puntPlay = (PuntPlay)game.CurrentPlay;
+            var puntPlay = (PuntPlay)game.CurrentPlay!;
             puntPlay.Possession = Possession.Home;
             puntPlay.GoodSnap = false;
             puntPlay.YardsGained = -4;
@@ -264,7 +264,8 @@ namespace UnitTestProject1
             {
                 Possession = Possession.Home,
                 YardsGained = 15,
-                IsTouchdown = true
+                IsTouchdown = true,
+                Punter = new Player { LastName = "Punter", Position = Positions.P }
             };
             puntPlay.ReturnSegments.Add(new ReturnSegment
             {
@@ -284,7 +285,8 @@ namespace UnitTestProject1
                 YardsGained = 15,
                 PossessionChange = true,
                 IsTouchdown = true,
-                RecoveredBy = new Player { LastName = "Blocker" }
+                RecoveredBy = new Player { LastName = "Blocker" },
+                Punter = new Player { LastName = "Punter", Position = Positions.P }
             };
             game.CurrentPlay = blockedPunt;
             game.FieldPosition = 88;
@@ -358,13 +360,13 @@ namespace UnitTestProject1
             game.AwayScore = 10;
 
             // Act & Assert - Home winning
-            Assert.IsTrue(game.HomeScore > game.AwayScore, "Home should be winning");
+            Assert.IsGreaterThan(game.AwayScore, game.HomeScore, "Home should be winning");
 
             game.AddTouchdown(Possession.Away);
             game.AddExtraPoint(Possession.Away);
 
             // Assert - Away now winning
-            Assert.IsTrue(game.AwayScore > game.HomeScore, "Away should now be winning (17 vs 14)");
+            Assert.IsGreaterThan(game.HomeScore, game.AwayScore, "Away should now be winning (17 vs 14)");
         }
 
         [TestMethod]

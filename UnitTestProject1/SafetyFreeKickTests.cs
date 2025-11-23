@@ -277,9 +277,9 @@ namespace UnitTestProject1
             // Verify players are on field for the punt
             var freeKickPunt = (PuntPlay)game.CurrentPlay;
             Assert.IsNotNull(freeKickPunt.Punter, "Free kick should have a punter assigned");
-            Assert.AreEqual(11, freeKickPunt.OffensePlayersOnField.Count,
+            Assert.HasCount(11, freeKickPunt.OffensePlayersOnField,
                 "Should have 11 offensive players for free kick");
-            Assert.AreEqual(11, freeKickPunt.DefensePlayersOnField.Count,
+            Assert.HasCount(11, freeKickPunt.DefensePlayersOnField,
                 "Should have 11 defensive players for free kick");
 
             // ===== STEP 3: Execute the free kick (punt) =====

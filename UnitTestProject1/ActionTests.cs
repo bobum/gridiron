@@ -39,7 +39,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Away);
+            Assert.AreEqual(Possession.Away, game.WonCoinToss);
             Assert.IsTrue(game.DeferredPossession);
         }
 
@@ -54,7 +54,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Away);
+            Assert.AreEqual(Possession.Away, game.WonCoinToss);
             Assert.IsFalse(game.DeferredPossession);
         }
 
@@ -69,7 +69,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Home);
+            Assert.AreEqual(Possession.Home, game.WonCoinToss);
             Assert.IsFalse(game.DeferredPossession);
         }
 
@@ -84,7 +84,7 @@ namespace UnitTestProject1
             var coinToss = new CoinToss(rng);
             coinToss.Execute(game);
 
-            Assert.AreEqual(game.WonCoinToss, Possession.Home);
+            Assert.AreEqual(Possession.Home, game.WonCoinToss);
             Assert.IsTrue(game.DeferredPossession);
         }
 
@@ -99,7 +99,7 @@ namespace UnitTestProject1
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
 
-            Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
+            Assert.AreEqual(Possession.Away, game.CurrentPlay!.Possession);
             Assert.AreEqual(PlayType.Kickoff, game.CurrentPlay.PlayType);
         }
 
@@ -116,7 +116,7 @@ namespace UnitTestProject1
             var prePlay = new PrePlay(rng);
             prePlay.Execute(game);
 
-            Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession);
+            Assert.AreEqual(Possession.Home, game.CurrentPlay!.Possession);
         }
 
         [TestMethod]
@@ -124,13 +124,13 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            game.CurrentPlay.Possession = Possession.Home;
+            game.CurrentPlay!.Possession = Possession.Home;
             var fumble = new Fumble(Possession.Away);
             fumble.Execute(game);
 
             Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
-            Assert.AreEqual(1, game.CurrentPlay.Fumbles.Count);
-            Assert.AreEqual(true, game.CurrentPlay.PossessionChange);
+            Assert.HasCount(1, game.CurrentPlay.Fumbles);
+            Assert.IsTrue(game.CurrentPlay.PossessionChange);
         }
 
         [TestMethod]
@@ -138,13 +138,13 @@ namespace UnitTestProject1
         {
             var game = _testGame.GetGame();
 
-            game.CurrentPlay.Possession = Possession.Home;
+            game.CurrentPlay!.Possession = Possession.Home;
             var interception = new Interception(Possession.Away);
             interception.Execute(game);
 
             Assert.AreEqual(Possession.Away, game.CurrentPlay.Possession);
-            Assert.AreEqual(true, game.CurrentPlay.PossessionChange);
-            Assert.AreEqual(true, game.CurrentPlay.Interception);
+            Assert.IsTrue(game.CurrentPlay.PossessionChange);
+            Assert.IsTrue(game.CurrentPlay.Interception);
         }
 
         [TestMethod]
@@ -156,7 +156,7 @@ namespace UnitTestProject1
 
             Assert.AreEqual(DomainObjects.Time.QuarterType.First, game.CurrentQuarter.QuarterType);
             Assert.AreEqual(HalfType.First, game.CurrentHalf.HalfType);
-            Assert.IsFalse(game.CurrentPlay.QuarterExpired);
+            Assert.IsFalse(game.CurrentPlay!.QuarterExpired);
             Assert.IsFalse(game.CurrentPlay.HalfExpired);
 
             //end the first quarter

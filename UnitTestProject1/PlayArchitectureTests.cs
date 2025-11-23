@@ -43,7 +43,7 @@ namespace UnitTestProject1
             Assert.AreEqual(rb, play.FinalBallCarrier);
             Assert.AreEqual(7, play.TotalYards);
             Assert.IsFalse(play.HadFumbles);
-            Assert.AreEqual(1, play.RunSegments.Count);
+            Assert.HasCount(1, play.RunSegments);
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace UnitTestProject1
             // Assert
             Assert.AreEqual(PlayType.Kickoff, play.PlayType);
             Assert.IsTrue(play.Touchback);
-            Assert.AreEqual(0, play.ReturnSegments.Count);
+            Assert.IsEmpty(play.ReturnSegments);
             Assert.AreEqual(kicker, play.Kicker);
         }
 
@@ -159,7 +159,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(play.Touchback);
-            Assert.AreEqual(1, play.ReturnSegments.Count);
+            Assert.HasCount(1, play.ReturnSegments);
             Assert.AreEqual(returner, play.InitialReturner);
             Assert.AreEqual(25, play.TotalReturnYards);
         }
@@ -183,7 +183,7 @@ namespace UnitTestProject1
             // Assert
             Assert.AreEqual(PlayType.Punt, play.PlayType);
             Assert.IsTrue(play.FairCatch);
-            Assert.AreEqual(0, play.ReturnSegments.Count);
+            Assert.IsEmpty(play.ReturnSegments);
             Assert.AreEqual(45, play.PuntDistance);
         }
 
@@ -263,7 +263,7 @@ namespace UnitTestProject1
             });
 
             // Assert
-            Assert.AreEqual(3, play.RunSegments.Count);
+            Assert.HasCount(3, play.RunSegments);
             Assert.IsTrue(play.HadFumbles);
             Assert.AreEqual(rb, play.InitialBallCarrier);
             Assert.AreEqual(te, play.FinalBallCarrier);
@@ -389,7 +389,7 @@ namespace UnitTestProject1
             });
 
             // Assert
-            Assert.AreEqual(2, play.PassSegments.Count);
+            Assert.HasCount(2, play.PassSegments);
             Assert.IsTrue(play.HadLaterals);
             Assert.AreEqual(qb, play.PrimaryPasser);
             Assert.AreEqual(rb, play.FinalReceiver);
@@ -443,7 +443,7 @@ namespace UnitTestProject1
             });
 
             // Assert
-            Assert.AreEqual(3, play.PassSegments.Count);
+            Assert.HasCount(3, play.PassSegments);
             Assert.IsTrue(play.HadLaterals);
             Assert.AreEqual(qb, play.PrimaryPasser);
             Assert.AreEqual(rb, play.FinalReceiver);
@@ -522,6 +522,7 @@ namespace UnitTestProject1
 
             play.InterceptionDetails = new Interception
             {
+                ThrownBy = qb,
                 InterceptedBy = cb,
                 InterceptionYardLine = 15,
                 ReturnYards = 0
@@ -562,6 +563,7 @@ namespace UnitTestProject1
 
             play.InterceptionDetails = new Interception
             {
+                ThrownBy = qb,
                 InterceptedBy = fs,
                 InterceptionYardLine = 35,
                 ReturnYards = 45
@@ -601,6 +603,7 @@ namespace UnitTestProject1
 
             play.InterceptionDetails = new Interception
             {
+                ThrownBy = qb,
                 InterceptedBy = cb,
                 InterceptionYardLine = 30,
                 ReturnYards = 10,
@@ -677,7 +680,7 @@ namespace UnitTestProject1
             // Assert
             Assert.IsTrue(play.Blocked);
             Assert.IsNotNull(play.BlockReturnSegments);
-            Assert.AreEqual(1, play.BlockReturnSegments.Count);
+            Assert.HasCount(1, play.BlockReturnSegments);
             Assert.AreEqual(35, play.BlockReturnSegments[0].YardsGained);
         }
 
@@ -812,7 +815,7 @@ namespace UnitTestProject1
             });
 
             // Assert
-            Assert.AreEqual(3, play.ReturnSegments.Count);
+            Assert.HasCount(3, play.ReturnSegments);
             Assert.AreEqual(2, play.ReturnSegments.Count(s => s.EndedInFumble));
             Assert.AreEqual(30, play.TotalReturnYards);
             Assert.AreEqual(wr1, play.InitialReturner);
@@ -900,7 +903,7 @@ namespace UnitTestProject1
             // Assert
             Assert.IsTrue(play.IsTouchdown);
             Assert.IsTrue(play.HadLaterals);
-            Assert.AreEqual(3, play.PassSegments.Count);
+            Assert.HasCount(3, play.PassSegments);
         }
 
         [TestMethod]
@@ -930,6 +933,7 @@ namespace UnitTestProject1
 
             play.InterceptionDetails = new Interception
             {
+                ThrownBy = qb,
                 InterceptedBy = cb,
                 InterceptionYardLine = 35,
                 ReturnYards = 65 // Pick six!
@@ -1000,7 +1004,7 @@ namespace UnitTestProject1
             });
 
             // Assert
-            Assert.AreEqual(3, play.PassSegments.Count);
+            Assert.HasCount(3, play.PassSegments);
             Assert.IsTrue(play.HadLaterals);
             Assert.IsTrue(play.HadFumbles);
             Assert.IsTrue(play.IsTouchdown);
@@ -1048,7 +1052,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.IsTouchdown);
-            Assert.AreEqual(2, play.ReturnSegments.Count);
+            Assert.HasCount(2, play.ReturnSegments);
             Assert.AreEqual(35, play.TotalReturnYards);
             Assert.AreEqual(1, play.ReturnSegments.Count(s => s.EndedInFumble));
         }
@@ -1114,7 +1118,7 @@ namespace UnitTestProject1
             });
 
             // Assert
-            Assert.AreEqual(1, play.Penalties.Count);
+            Assert.HasCount(1, play.Penalties);
             Assert.IsTrue(play.Penalties[0].Accepted);
             Assert.AreEqual(10, play.Penalties[0].Yards);
         }

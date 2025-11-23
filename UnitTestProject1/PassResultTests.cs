@@ -20,7 +20,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 88;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 15; // Will exceed 100
             passPlay.Possession = Possession.Home;
             var initialHomeScore = game.HomeScore;
@@ -42,7 +42,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 85;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 20; // Will exceed 100
             passPlay.Possession = Possession.Away;
             var initialAwayScore = game.AwayScore;
@@ -68,7 +68,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 5;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = -8; // Sacked in own end zone
             passPlay.Possession = Possession.Home;
             var initialAwayScore = game.AwayScore;
@@ -89,7 +89,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 3;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = -5; // Sacked in own end zone
             passPlay.Possession = Possession.Away;
             var initialHomeScore = game.HomeScore;
@@ -116,7 +116,7 @@ namespace UnitTestProject1
             game.FieldPosition = 30;
             game.YardsToGo = 10;
             game.CurrentDown = Downs.First;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 15; // Exceeds yards to go
 
             // Act
@@ -138,7 +138,7 @@ namespace UnitTestProject1
             game.FieldPosition = 40;
             game.YardsToGo = 8;
             game.CurrentDown = Downs.Third;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 8; // Exactly enough
 
             // Act
@@ -163,7 +163,7 @@ namespace UnitTestProject1
             game.FieldPosition = 25;
             game.YardsToGo = 10;
             game.CurrentDown = Downs.First;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 5; // Not enough for first down
 
             // Act
@@ -185,7 +185,7 @@ namespace UnitTestProject1
             game.FieldPosition = 35;
             game.YardsToGo = 7;
             game.CurrentDown = Downs.Second;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 0; // Incomplete
 
             // Create an incomplete pass segment
@@ -218,7 +218,7 @@ namespace UnitTestProject1
             game.FieldPosition = 30;
             game.YardsToGo = 10;
             game.CurrentDown = Downs.First;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = -6; // Sacked for 6 yards
 
             // Act
@@ -243,7 +243,7 @@ namespace UnitTestProject1
             game.FieldPosition = 50;
             game.CurrentDown = Downs.Fourth;
             game.YardsToGo = 8;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 5; // Not enough
 
             // Act
@@ -265,7 +265,7 @@ namespace UnitTestProject1
             game.FieldPosition = 45;
             game.CurrentDown = Downs.Fourth;
             game.YardsToGo = 3;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 0; // Incomplete
 
             // Create incomplete segment
@@ -301,7 +301,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 40;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 12;
 
             // Act
@@ -320,7 +320,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 35;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 0;
 
             // Create incomplete segment
@@ -353,7 +353,7 @@ namespace UnitTestProject1
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Second;
             game.YardsToGo = 8;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = -7; // Sacked for 7
 
             // Act
@@ -378,7 +378,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPassPlay();
             game.FieldPosition = 30;
-            var passPlay = (PassPlay)game.CurrentPlay;
+            var passPlay = (PassPlay)game.CurrentPlay!;
             passPlay.YardsGained = 15;
 
             // Create completed pass segment
@@ -418,7 +418,7 @@ namespace UnitTestProject1
             game.CurrentDown = Downs.First;
 
             // First down: complete pass for 6 yards
-            var passPlay1 = (PassPlay)game.CurrentPlay;
+            var passPlay1 = (PassPlay)game.CurrentPlay!;
             passPlay1.YardsGained = 6;
             var passResult1 = new PassResult();
             passResult1.Execute(game);

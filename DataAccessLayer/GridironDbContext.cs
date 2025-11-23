@@ -45,6 +45,9 @@ namespace DataAccessLayer
                       .WithOne()
                       .HasForeignKey(c => c.LeagueId)
                       .OnDelete(DeleteBehavior.Cascade);  // Delete conferences if league deleted
+
+                // Soft delete query filter - exclude deleted leagues from queries
+                entity.HasQueryFilter(l => !l.IsDeleted);
             });
 
             // ========================================
@@ -60,6 +63,9 @@ namespace DataAccessLayer
                       .WithOne()
                       .HasForeignKey(d => d.ConferenceId)
                       .OnDelete(DeleteBehavior.Cascade);  // Delete divisions if conference deleted
+
+                // Soft delete query filter - exclude deleted conferences from queries
+                entity.HasQueryFilter(c => !c.IsDeleted);
             });
 
             // ========================================
@@ -75,6 +81,9 @@ namespace DataAccessLayer
                       .WithOne()
                       .HasForeignKey(t => t.DivisionId)
                       .OnDelete(DeleteBehavior.SetNull);  // If division deleted, teams remain but without division
+
+                // Soft delete query filter - exclude deleted divisions from queries
+                entity.HasQueryFilter(d => !d.IsDeleted);
             });
 
             // ========================================
@@ -113,6 +122,9 @@ namespace DataAccessLayer
                 entity.Ignore(t => t.DirectorOfScouting);
                 entity.Ignore(t => t.CollegeScouts);
                 entity.Ignore(t => t.ProScouts);
+
+                // Soft delete query filter - exclude deleted teams from queries
+                entity.HasQueryFilter(t => !t.IsDeleted);
             });
 
             // ========================================
@@ -134,6 +146,9 @@ namespace DataAccessLayer
                 // Ignore injury tracking (runtime only)
                 entity.Ignore(p => p.CurrentInjury);
                 entity.Ignore(p => p.IsInjured);
+
+                // Soft delete query filter - exclude deleted players from queries
+                entity.HasQueryFilter(p => !p.IsDeleted);
             });
 
             // ========================================
@@ -162,6 +177,9 @@ namespace DataAccessLayer
                 entity.Ignore(g => g.CurrentQuarter);
                 entity.Ignore(g => g.CurrentHalf);
                 entity.Ignore(g => g.TimeRemaining);
+
+                // Soft delete query filter - exclude deleted games from queries
+                entity.HasQueryFilter(g => !g.IsDeleted);
             });
 
             // ========================================
@@ -177,10 +195,13 @@ namespace DataAccessLayer
                       .HasForeignKey<PlayByPlay>(p => p.GameId)
                       .OnDelete(DeleteBehavior.Cascade);  // Delete playbyplay if game is deleted
 
-                // Store JSON as large text
-                entity.Property(p => p.PlaysJson).HasColumnType("nvarchar(max)");
-                entity.Property(p => p.PlayByPlayLog).HasColumnType("nvarchar(max)");
-                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                // Store JSON and logs as large text
+                // Note: Let EF Core choose appropriate column type based on provider
+                // SQL Server: nvarchar(max), SQLite: TEXT, etc.
+                // Removed explicit HasColumnType to support multiple databases
+
+                // Soft delete query filter - exclude deleted play-by-plays from queries
+                entity.HasQueryFilter(p => !p.IsDeleted);
             });
 
             // ========================================

@@ -7,7 +7,7 @@ namespace UnitTestProject1
     [TestClass]
     public class GameFieldPositionTests
     {
-        private Game _game;
+        private Game? _game;
 
         [TestInitialize]
         public void Setup()
@@ -32,7 +32,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetOffensiveTeam_HomePossession_ReturnsHomeTeam()
         {
-            var team = _game.GetOffensiveTeam(Possession.Home);
+            var team = _game!.GetOffensiveTeam(Possession.Home);
             Assert.AreEqual("Buffalo", team.City);
             Assert.AreEqual("Bills", team.Name);
         }
@@ -40,7 +40,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetOffensiveTeam_AwayPossession_ReturnsAwayTeam()
         {
-            var team = _game.GetOffensiveTeam(Possession.Away);
+            var team = _game!.GetOffensiveTeam(Possession.Away);
             Assert.AreEqual("Kansas City", team.City);
             Assert.AreEqual("Chiefs", team.Name);
         }
@@ -52,7 +52,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetDefensiveTeam_HomePossession_ReturnsAwayTeam()
         {
-            var team = _game.GetDefensiveTeam(Possession.Home);
+            var team = _game!.GetDefensiveTeam(Possession.Home);
             Assert.AreEqual("Kansas City", team.City);
             Assert.AreEqual("Chiefs", team.Name);
         }
@@ -60,7 +60,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void GetDefensiveTeam_AwayPossession_ReturnsHomeTeam()
         {
-            var team = _game.GetDefensiveTeam(Possession.Away);
+            var team = _game!.GetDefensiveTeam(Possession.Away);
             Assert.AreEqual("Buffalo", team.City);
             Assert.AreEqual("Bills", team.Name);
         }
@@ -72,7 +72,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPosition_HomePossession_OwnSide_ReturnsCorrectFormat()
         {
-            _game.FieldPosition = 20;
+            _game!.FieldPosition = 20;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Buffalo 20", result);
         }
@@ -80,7 +80,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPosition_HomePossession_OpponentSide_ReturnsCorrectFormat()
         {
-            _game.FieldPosition = 80;
+            _game!.FieldPosition = 80;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Kansas City 20", result);
         }
@@ -90,7 +90,7 @@ namespace UnitTestProject1
         {
             // With absolute positioning, position 35 is always in Buffalo's territory (0-49)
             // Possession doesn't affect formatting - it's based on which half of field (home/away)
-            _game.FieldPosition = 35;
+            _game!.FieldPosition = 35;
             var result = _game.FormatFieldPosition(Possession.Away);
             Assert.AreEqual("Buffalo 35", result);
         }
@@ -100,7 +100,7 @@ namespace UnitTestProject1
         {
             // With absolute positioning, position 75 is always in Kansas City's territory (51-100)
             // That's 100-75 = 25 yards from KC's goal line
-            _game.FieldPosition = 75;
+            _game!.FieldPosition = 75;
             var result = _game.FormatFieldPosition(Possession.Away);
             Assert.AreEqual("Kansas City 25", result);
         }
@@ -108,7 +108,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPosition_Midfield_Returns50()
         {
-            _game.FieldPosition = 50;
+            _game!.FieldPosition = 50;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("50", result);
         }
@@ -117,7 +117,7 @@ namespace UnitTestProject1
         public void FormatFieldPosition_SpecificPosition_HomePossession_ReturnsCorrectFormat()
         {
             // Test the overload that takes a specific field position
-            var result = _game.FormatFieldPosition(97, Possession.Home);
+            var result = _game!.FormatFieldPosition(97, Possession.Home);
             Assert.AreEqual("Kansas City 3", result);
         }
 
@@ -126,7 +126,7 @@ namespace UnitTestProject1
         {
             // Test the overload that takes a specific field position
             // Position 60 is in Kansas City's territory (51-100), that's 100-60 = 40 yards from KC's goal
-            var result = _game.FormatFieldPosition(60, Possession.Away);
+            var result = _game!.FormatFieldPosition(60, Possession.Away);
             Assert.AreEqual("Kansas City 40", result);
         }
 
@@ -137,7 +137,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPositionWithYardLine_HomePossession_IncludesSuffix()
         {
-            _game.FieldPosition = 20;
+            _game!.FieldPosition = 20;
             var result = _game.FormatFieldPositionWithYardLine(Possession.Home);
             Assert.AreEqual("Buffalo 20 yard line", result);
         }
@@ -145,7 +145,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPositionWithYardLine_OpponentSide_IncludesSuffix()
         {
-            _game.FieldPosition = 80;
+            _game!.FieldPosition = 80;
             var result = _game.FormatFieldPositionWithYardLine(Possession.Home);
             Assert.AreEqual("Kansas City 20 yard line", result);
         }
@@ -153,7 +153,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void FormatFieldPositionWithYardLine_Midfield_IncludesMidfieldNote()
         {
-            _game.FieldPosition = 50;
+            _game!.FieldPosition = 50;
             var result = _game.FormatFieldPositionWithYardLine(Possession.Home);
             Assert.AreEqual("50 yard line (midfield)", result);
         }
@@ -166,7 +166,7 @@ namespace UnitTestProject1
         public void Scenario_HomeDriveStartsAt25_CorrectFormat()
         {
             // Home team receives kickoff, starts at their own 25
-            _game.FieldPosition = 25;
+            _game!.FieldPosition = 25;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Buffalo 25", result);
         }
@@ -175,7 +175,7 @@ namespace UnitTestProject1
         public void Scenario_HomeInRedZone_CorrectFormat()
         {
             // Home team drives to opponent's 15
-            _game.FieldPosition = 85;
+            _game!.FieldPosition = 85;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Kansas City 15", result);
             Assert.IsTrue(FieldPositionHelper.IsInRedZone(85));
@@ -186,7 +186,7 @@ namespace UnitTestProject1
         {
             // Away team (Kansas City) has goal-to-go at opponent's (Buffalo's) 5 yard line
             // With absolute positioning: Buffalo's 5 yard line = position 5
-            _game.FieldPosition = 5;
+            _game!.FieldPosition = 5;
             var result = _game.FormatFieldPosition(Possession.Away);
             Assert.AreEqual("Buffalo 5", result);
             // Note: IsGoalToGo only checks >= 90, which doesn't work for both ends with absolute positioning
@@ -197,7 +197,7 @@ namespace UnitTestProject1
         public void Scenario_HomeBackedUpInOwnTerritory_CorrectFormat()
         {
             // Home team backed up at their own 2
-            _game.FieldPosition = 2;
+            _game!.FieldPosition = 2;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Buffalo 2", result);
         }
@@ -207,7 +207,7 @@ namespace UnitTestProject1
         {
             // Away team (Kansas City) just crossed midfield to opponent's (Buffalo's) 48
             // With absolute positioning: Buffalo's 48 yard line = position 48
-            _game.FieldPosition = 48;
+            _game!.FieldPosition = 48;
             var result = _game.FormatFieldPosition(Possession.Away);
             Assert.AreEqual("Buffalo 48", result);
         }
@@ -216,7 +216,7 @@ namespace UnitTestProject1
         public void Scenario_HomeAtOpponentOneYardLine_CorrectFormat()
         {
             // Home team at opponent's 1-yard line, about to score
-            _game.FieldPosition = 99;
+            _game!.FieldPosition = 99;
             var result = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Kansas City 1", result);
         }
@@ -229,7 +229,7 @@ namespace UnitTestProject1
         public void Scenario_TurnoverChangesFieldPosition_CorrectFormatForNewPossession()
         {
             // Home team fumbles at their own 30 (position 30 = Buffalo 30)
-            _game.FieldPosition = 30;
+            _game!.FieldPosition = 30;
             var beforeTurnover = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Buffalo 30", beforeTurnover);
 
@@ -244,13 +244,13 @@ namespace UnitTestProject1
         public void Scenario_InterceptionReturn_FieldPositionFromDefenderPerspective()
         {
             // Home throws INT at opponent's 40 (position 60 = Kansas City 40)
-            _game.FieldPosition = 60;
+            _game!.FieldPosition = 60;
             var homeView = _game.FormatFieldPosition(Possession.Home);
             Assert.AreEqual("Kansas City 40", homeView);
 
             // Away team (defender) intercepts - field position DOES NOT FLIP
             // Position stays at 60 (Kansas City 40) regardless of possession
-            var awayView = _game.FormatFieldPosition(Possession.Away);
+            var awayView = _game!.FormatFieldPosition(Possession.Away);
             Assert.AreEqual("Kansas City 40", awayView); // Same absolute position
         }
 

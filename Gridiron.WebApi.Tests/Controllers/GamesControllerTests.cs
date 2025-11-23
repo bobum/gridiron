@@ -202,6 +202,7 @@ public class GamesControllerTests
         // The game should have PlayByPlay associated with it
         simulatedGame.PlayByPlay = new PlayByPlay
         {
+            Game = simulatedGame,
             Id = 1,
             GameId = simulatedGame.Id,
             PlaysJson = "{\"plays\":[]}",

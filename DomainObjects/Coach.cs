@@ -5,7 +5,7 @@ namespace DomainObjects
 {
     public class Coach : Person
     {
-        public string Role { get; set; } // e.g., Head Coach, Offensive Coordinator, Defensive Coordinator, Special Teams Coordinator
+        public string? Role { get; set; } // e.g., Head Coach, Offensive Coordinator, Defensive Coordinator, Special Teams Coordinator
         public int Age { get; set; }
         public int Experience { get; set; } // Years coaching
         public int Leadership { get; set; } // 0-100

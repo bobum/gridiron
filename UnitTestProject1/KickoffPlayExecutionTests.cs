@@ -8,7 +8,7 @@ namespace UnitTestProject1
     [TestClass]
     public class KickoffPlayExecutionTests
     {
-        private TestGame _testGame;
+        private TestGame? _testGame;
 
         [TestInitialize]
         public void Setup()
@@ -23,7 +23,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             // Using NormalReturn scenario: moderate kick with moderate return
@@ -49,7 +49,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             // Excellent kicker with good kick
@@ -78,7 +78,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Weak kicker
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -96,7 +96,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(play.Touchback, "Should not be a touchback");
-            Assert.IsTrue(play.KickDistance < 60, "Should be a short kick");
+            Assert.IsLessThan(60, play.KickDistance, "Should be a short kick");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
 
@@ -109,7 +109,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             game.HomeScore = 7;
             game.AwayScore = 0;
 
@@ -142,7 +142,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Using OutOfBounds scenario: kick goes out of bounds, penalty to 40-yard line
             var rng = KickoffPlayScenarios.OutOfBounds();
@@ -170,7 +170,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 14;
             game.AwayScore = 21; // Trailing by 7
@@ -198,7 +198,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             game.HomeScore = 28;
             game.AwayScore = 17; // Trailing by 11
@@ -225,7 +225,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             game.HomeScore = 10;
             game.AwayScore = 17;
 
@@ -254,7 +254,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 0;
@@ -289,7 +289,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -324,7 +324,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             // Using FairCatch scenario: returner signals fair catch, no return
@@ -342,7 +342,7 @@ namespace UnitTestProject1
             Assert.IsTrue(play.PossessionChange, "Possession should change");
             Assert.AreEqual(Downs.First, game.CurrentDown, "Should be 1st down");
             Assert.AreEqual(10, game.YardsToGo, "Should be 10 yards to go");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "No return segment on fair catch");
+            Assert.IsEmpty(play.ReturnSegments, "No return segment on fair catch");
         }
 
         [TestMethod]
@@ -350,7 +350,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Set up for a kick that lands at specific spot
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -380,7 +380,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Use a shorter kick to avoid all field position and hang time bonuses
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -398,7 +398,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsFalse(play.FairCatch, "Should not be fair catch");
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return segment");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
         }
 
@@ -407,7 +407,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Using FairCatch scenario: fair catch should not create return segment
             var rng = KickoffPlayScenarios.FairCatch(kickDistance: 0.5);
@@ -419,7 +419,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.FairCatch, "Should be fair catch");
-            Assert.AreEqual(0, play.ReturnSegments.Count, "Should have no return segments");
+            Assert.IsEmpty(play.ReturnSegments, "Should have no return segments");
             Assert.IsNull(play.InitialReturner, "Should have no initial returner");
         }
 
@@ -431,7 +431,7 @@ namespace UnitTestProject1
             // Landing spot = 95 (from kicking team's perspective)
             // KickDistance needed = 60 yards
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
             kicker.Kicking = 85; // Good kicker for deep kick
@@ -462,7 +462,7 @@ namespace UnitTestProject1
             // We can't guarantee it will always trigger with 0.35, but the test documents the behavior
             var landingSpot = 35 + play.KickDistance;
             var receivingTeamFieldPosition = 100 - landingSpot;
-            Assert.IsTrue(receivingTeamFieldPosition <= 10, "Ball should land at receiving team's 10-yard line or closer to test deep territory bonus");
+            Assert.IsLessThanOrEqualTo(10, receivingTeamFieldPosition, "Ball should land at receiving team's 10-yard line or closer to test deep territory bonus");
         }
 
         [TestMethod]
@@ -470,7 +470,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.FieldPosition = 35;
 
@@ -503,7 +503,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             game.HomeScore = 7;
             game.AwayScore = 0;
@@ -551,7 +551,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
@@ -592,7 +592,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Away; // Away kicks
             game.HomeScore = 10;
             game.AwayScore = 14;
@@ -639,7 +639,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Remove kicker
             play.OffensePlayersOnField.RemoveAll(p => p.Position == Positions.K);
@@ -664,7 +664,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             // Remove all potential returners
             play.DefensePlayersOnField.Clear();
@@ -682,7 +682,7 @@ namespace UnitTestProject1
             // Assert
             Assert.IsFalse(play.IsTouchdown, "Should not be TD");
             Assert.IsTrue(play.PossessionChange, "Possession should change");
-            Assert.IsTrue(play.EndFieldPosition > 0, "Should have valid field position");
+            Assert.IsGreaterThan(0, play.EndFieldPosition, "Should have valid field position");
         }
 
         [TestMethod]
@@ -690,7 +690,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
             kicker.Kicking = 95;
@@ -704,7 +704,7 @@ namespace UnitTestProject1
             kickoff.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.KickDistance >= 60, "Excellent kicker should kick far");
+            Assert.IsGreaterThanOrEqualTo(60, play.KickDistance, "Excellent kicker should kick far");
         }
 
         [TestMethod]
@@ -712,7 +712,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             var kicker = play.OffensePlayersOnField.First(p => p.Position == Positions.K);
             kicker.Kicking = 20;
@@ -726,7 +726,7 @@ namespace UnitTestProject1
             kickoff.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.KickDistance <= 50, "Weak kicker should not kick far");
+            Assert.IsLessThanOrEqualTo(50, play.KickDistance, "Weak kicker should not kick far");
         }
 
         [TestMethod]
@@ -734,7 +734,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             var returner = play.DefensePlayersOnField.First(p => p.Position == Positions.WR);
             returner.Speed = 98;
@@ -751,8 +751,8 @@ namespace UnitTestProject1
             kickoffResult.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
-            Assert.IsTrue(play.ReturnSegments[0].YardsGained >= 20, "Excellent returner should get good yards");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return segment");
+            Assert.IsGreaterThanOrEqualTo(20, play.ReturnSegments[0].YardsGained, "Excellent returner should get good yards");
         }
 
         [TestMethod]
@@ -760,7 +760,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
 
             var returner = play.DefensePlayersOnField.First(p => p.Position == Positions.WR);
             returner.Speed = 30;
@@ -777,8 +777,8 @@ namespace UnitTestProject1
             kickoffResult.Execute(game);
 
             // Assert
-            Assert.IsTrue(play.ReturnSegments.Count > 0, "Should have return segment");
-            Assert.IsTrue(play.ReturnSegments[0].YardsGained < 25, "Slow returner should get fewer yards");
+            Assert.IsNotEmpty(play.ReturnSegments, "Should have return segment");
+            Assert.IsLessThan(25, play.ReturnSegments[0].YardsGained, "Slow returner should get fewer yards");
         }
 
         #endregion
@@ -790,7 +790,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Home; // Home kicks after scoring
             game.HomeScore = 7;
             game.AwayScore = 0;
@@ -815,7 +815,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             game.HomeScore = 14;
             game.AwayScore = 10;
@@ -913,7 +913,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithKickoffPlay();
             game.FieldPosition = 35;
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 25; // Normal touchback
             play.Touchback = true;
 
@@ -942,7 +942,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 40; // Returned to 40
             play.Touchback = false;
 
@@ -973,7 +973,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithKickoffPlay();
             game.FieldPosition = 35;
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 30;
 
             // Add offsetting penalties
@@ -1008,7 +1008,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 100;
             play.IsTouchdown = true;
 
@@ -1039,7 +1039,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithKickoffPlay();
             game.FieldPosition = 88; // Near goal line
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 88;
 
             // Add kicking team penalty that pushes returner into end zone
@@ -1069,7 +1069,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithKickoffPlay();
             game.FieldPosition = 8; // Near own goal line
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 8;
 
             // Add receiving team penalty that pushes them into own end zone
@@ -1098,7 +1098,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithKickoffPlay();
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             play.EndFieldPosition = 30;
             play.Touchback = false;
 
@@ -1121,7 +1121,7 @@ namespace UnitTestProject1
 
         private Game CreateGameWithKickoffPlay()
         {
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
 
             var kickoffPlay = new KickoffPlay
             {

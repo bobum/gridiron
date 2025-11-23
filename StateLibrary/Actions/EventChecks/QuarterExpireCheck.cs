@@ -1,7 +1,6 @@
 ﻿using DomainObjects;
 using Microsoft.Extensions.Logging;
 using DomainObjects.Time;
-using Microsoft.Extensions.Logging;
 using StateLibrary.Interfaces;
 
 namespace StateLibrary.Actions.EventChecks

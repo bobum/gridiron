@@ -19,7 +19,7 @@ namespace UnitTestProject1
     [TestClass]
     public class DeadBallPenaltyTests
     {
-        private PenaltyEnforcement _penaltyEnforcement;
+        private PenaltyEnforcement? _penaltyEnforcement;
 
         [TestInitialize]
         public void Setup()
@@ -33,7 +33,7 @@ namespace UnitTestProject1
         public void FalseStart_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.FalseStart);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.FalseStart);
 
             // Assert
             Assert.IsTrue(isDeadBall, "FalseStart should be a dead ball foul");
@@ -43,7 +43,7 @@ namespace UnitTestProject1
         public void Encroachment_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.Encroachment);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.Encroachment);
 
             // Assert
             Assert.IsTrue(isDeadBall, "Encroachment should be a dead ball foul");
@@ -53,7 +53,7 @@ namespace UnitTestProject1
         public void DelayOfGame_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.DelayofGame);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.DelayofGame);
 
             // Assert
             Assert.IsTrue(isDeadBall, "DelayofGame should be a dead ball foul");
@@ -63,7 +63,7 @@ namespace UnitTestProject1
         public void DefensiveDelayOfGame_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.DefensiveDelayofGame);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.DefensiveDelayofGame);
 
             // Assert
             Assert.IsTrue(isDeadBall, "DefensiveDelayofGame should be a dead ball foul");
@@ -73,7 +73,7 @@ namespace UnitTestProject1
         public void Offensive12OnField_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.Offensive12OnField);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.Offensive12OnField);
 
             // Assert
             Assert.IsTrue(isDeadBall, "Offensive12OnField should be a dead ball foul");
@@ -83,7 +83,7 @@ namespace UnitTestProject1
         public void Defensive12OnField_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.Defensive12OnField);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.Defensive12OnField);
 
             // Assert
             Assert.IsTrue(isDeadBall, "Defensive12OnField should be a dead ball foul");
@@ -93,7 +93,7 @@ namespace UnitTestProject1
         public void IllegalSubstitution_IsDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.IllegalSubstitution);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.IllegalSubstitution);
 
             // Assert
             Assert.IsTrue(isDeadBall, "IllegalSubstitution should be a dead ball foul");
@@ -107,7 +107,7 @@ namespace UnitTestProject1
         public void OffensiveHolding_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.OffensiveHolding);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.OffensiveHolding);
 
             // Assert
             Assert.IsFalse(isDeadBall, "OffensiveHolding occurs during the play, not before");
@@ -117,7 +117,7 @@ namespace UnitTestProject1
         public void DefensiveOffside_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.DefensiveOffside);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.DefensiveOffside);
 
             // Assert
             Assert.IsFalse(isDeadBall, "DefensiveOffside allows a 'free play' to continue");
@@ -127,7 +127,7 @@ namespace UnitTestProject1
         public void DefensiveHolding_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.DefensiveHolding);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.DefensiveHolding);
 
             // Assert
             Assert.IsFalse(isDeadBall, "DefensiveHolding occurs during the play");
@@ -137,7 +137,7 @@ namespace UnitTestProject1
         public void DefensivePassInterference_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.DefensivePassInterference);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.DefensivePassInterference);
 
             // Assert
             Assert.IsFalse(isDeadBall, "DPI occurs during the play");
@@ -147,7 +147,7 @@ namespace UnitTestProject1
         public void RoughingThePasser_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.RoughingthePasser);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.RoughingthePasser);
 
             // Assert
             Assert.IsFalse(isDeadBall, "Roughing the passer occurs after the snap");
@@ -157,7 +157,7 @@ namespace UnitTestProject1
         public void NeutralZoneInfraction_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.NeutralZoneInfraction);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.NeutralZoneInfraction);
 
             // Assert
             Assert.IsFalse(isDeadBall, "Neutral zone infraction allows play to continue");
@@ -167,7 +167,7 @@ namespace UnitTestProject1
         public void IntentionalGrounding_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.IntentionalGrounding);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.IntentionalGrounding);
 
             // Assert
             Assert.IsFalse(isDeadBall, "Intentional grounding occurs during the play");
@@ -177,7 +177,7 @@ namespace UnitTestProject1
         public void UnnecessaryRoughness_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.UnnecessaryRoughness);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.UnnecessaryRoughness);
 
             // Assert
             Assert.IsFalse(isDeadBall, "Unnecessary roughness can occur during or after the play");
@@ -187,7 +187,7 @@ namespace UnitTestProject1
         public void FaceMask_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.FaceMask15Yards);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.FaceMask15Yards);
 
             // Assert
             Assert.IsFalse(isDeadBall, "Facemask occurs during the play");
@@ -197,7 +197,7 @@ namespace UnitTestProject1
         public void IllegalContact_IsNotDeadBallFoul()
         {
             // Act
-            var isDeadBall = _penaltyEnforcement.IsDeadBallFoul(PenaltyNames.IllegalContact);
+            var isDeadBall = _penaltyEnforcement!.IsDeadBallFoul(PenaltyNames.IllegalContact);
 
             // Assert
             Assert.IsFalse(isDeadBall, "Illegal contact occurs during the play");

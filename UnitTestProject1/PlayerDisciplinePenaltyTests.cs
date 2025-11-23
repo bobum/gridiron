@@ -73,7 +73,7 @@ namespace UnitTestProject1
                     Possession.Home,
                     50);
 
-                result.Execute(null);
+                result.Execute(null!);
 
                 if (result.Result.CommittedBy.Discipline == 20)
                     lowDisciplineCount++;
@@ -84,8 +84,7 @@ namespace UnitTestProject1
             // Assert - Low discipline player should commit significantly more penalties
             // Expected ratio: 100:30 or about 3.3:1
             // With 1000 trials, we expect roughly 769 low discipline, 231 high discipline
-            Assert.IsTrue(lowDisciplineCount > highDisciplineCount * 2,
-                $"Low discipline player should commit > 2x penalties. " +
+            Assert.IsGreaterThan(highDisciplineCount * 2, lowDisciplineCount, $"Low discipline player should commit > 2x penalties. " +
                 $"Actual: Low={lowDisciplineCount}, High={highDisciplineCount}");
 
             // More specific assertion - should be roughly 3:1 ratio (allowing for variance)
@@ -144,7 +143,7 @@ namespace UnitTestProject1
                     Possession.Home,
                     50);
 
-                result.Execute(null);
+                result.Execute(null!);
 
                 if (result.Result.CommittedBy.Discipline == 0)
                     noDisciplineCount++;
@@ -154,8 +153,7 @@ namespace UnitTestProject1
 
             // Assert - Expected ratio 120:20 = 6:1
             // With 1000 trials, expect roughly 857 undisciplined, 143 disciplined
-            Assert.IsTrue(noDisciplineCount > perfectDisciplineCount * 4,
-                $"Zero discipline should commit > 4x penalties. " +
+            Assert.IsGreaterThan(perfectDisciplineCount * 4, noDisciplineCount, $"Zero discipline should commit > 4x penalties. " +
                 $"Actual: Zero={noDisciplineCount}, Perfect={perfectDisciplineCount}");
 
             if (perfectDisciplineCount > 0)
@@ -198,7 +196,7 @@ namespace UnitTestProject1
                     Possession.Home,
                     50);
 
-                result.Execute(null);
+                result.Execute(null!);
 
                 var discipline = result.Result.CommittedBy.Discipline;
                 if (discipline == 30) lowCount++;
@@ -252,7 +250,7 @@ namespace UnitTestProject1
                 Possession.Home,
                 50);
 
-            result.Execute(null);
+            result.Execute(null!);
 
             // Assert - Single player always gets the penalty
             Assert.IsNotNull(result.Result.CommittedBy);
@@ -309,7 +307,7 @@ namespace UnitTestProject1
                     Possession.Home,
                     50);
 
-                result.Execute(null);
+                result.Execute(null!);
 
                 if (result.Result.CommittedBy.Discipline == 0)
                     zeroCount++;
@@ -319,8 +317,7 @@ namespace UnitTestProject1
 
             // Assert - Zero discipline (weight 120) should commit more than discipline 70 (weight 50)
             // Expected ratio: 120:50 = 2.4:1
-            Assert.IsTrue(zeroCount > normalCount,
-                $"Zero discipline should commit more penalties than discipline 70. " +
+            Assert.IsGreaterThan(normalCount, zeroCount, $"Zero discipline should commit more penalties than discipline 70. " +
                 $"Actual: Zero={zeroCount}, Normal={normalCount}");
 
             if (normalCount > 0)
@@ -382,7 +379,7 @@ namespace UnitTestProject1
                     highDisciplineTeam,
                     Possession.Home,
                     50);
-                result1.Execute(null);
+                result1.Execute(null!);
                 highTeamPenaltyCount++;
 
                 // Low discipline team penalty
@@ -395,7 +392,7 @@ namespace UnitTestProject1
                     lowDisciplineTeam,
                     Possession.Home,
                     50);
-                result2.Execute(null);
+                result2.Execute(null!);
                 lowTeamPenaltyCount++;
             }
 

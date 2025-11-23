@@ -3,9 +3,9 @@
     public class Fumble
     {
         /// <summary>
-        /// Player who fumbled the ball
+        /// Player who fumbled the ball (nullable because may be set after creation)
         /// </summary>
-        public Player FumbledBy { get; set; }
+        public Player? FumbledBy { get; set; }
 
         /// <summary>
         /// Player who forced the fumble (if applicable)
@@ -13,9 +13,9 @@
         public Player? ForcedBy { get; set; }
 
         /// <summary>
-        /// Player who recovered the fumble
+        /// Player who recovered the fumble (nullable because may be set after creation)
         /// </summary>
-        public Player RecoveredBy { get; set; }
+        public Player? RecoveredBy { get; set; }
 
         /// <summary>
         /// Yard line where fumble occurred (0-100 scale)

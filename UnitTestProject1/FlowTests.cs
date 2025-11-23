@@ -74,8 +74,8 @@ namespace UnitTestProject1
 
             // Assertions
             Assert.AreEqual(0, game.TimeRemaining);
-            Assert.IsTrue(game.Plays.Count > 0, "Game should have plays");
-            Assert.IsTrue(logger.LogMessages.Count > 0, "Logger should have captured messages");
+            Assert.IsNotEmpty(game.Plays, "Game should have plays");
+            Assert.IsNotEmpty(logger.LogMessages, "Logger should have captured messages");
         }
     }
 }

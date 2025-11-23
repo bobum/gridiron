@@ -27,7 +27,7 @@ public class GameRepository : IGameRepository
 
     public async Task<Game?> GetByIdAsync(int gameId)
     {
-        return await _context.Games.FindAsync(gameId);
+        return await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
     }
 
     public async Task<Game?> GetByIdWithTeamsAsync(int gameId)
@@ -59,6 +59,47 @@ public class GameRepository : IGameRepository
             _context.Games.Remove(game);
             await _context.SaveChangesAsync();
         }
+    }
+
+    public async Task SoftDeleteAsync(int gameId, string? deletedBy = null, string? reason = null)
+    {
+        var game = await _context.Games
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+
+        if (game == null)
+            throw new InvalidOperationException($"Game with ID {gameId} not found");
+
+        if (game.IsDeleted)
+            throw new InvalidOperationException($"Game with ID {gameId} is already deleted");
+
+        game.SoftDelete(deletedBy, reason);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RestoreAsync(int gameId)
+    {
+        var game = await _context.Games
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+
+        if (game == null)
+            throw new InvalidOperationException($"Game with ID {gameId} not found");
+
+        if (!game.IsDeleted)
+            throw new InvalidOperationException($"Game with ID {gameId} is not deleted");
+
+        game.Restore();
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Game>> GetDeletedAsync()
+    {
+        return await _context.Games
+            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .Where(g => g.IsDeleted)
+            .OrderByDescending(g => g.DeletedAt)
+            .ToListAsync();
     }
 
     public async Task<int> SaveChangesAsync()

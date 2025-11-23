@@ -9,7 +9,7 @@ namespace UnitTestProject1
     [TestClass]
     public class TwoPointConversionTests
     {
-        private TestGame _testGame;
+        private TestGame? _testGame;
 
         [TestInitialize]
         public void Setup()
@@ -24,7 +24,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: true);
-            var play = (RunPlay)game.CurrentPlay;
+            var play = (RunPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = 2; // Enough to score from the 2-yard line
             game.HomeScore = 6; // Just scored TD
@@ -48,7 +48,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: false);
-            var play = (PassPlay)game.CurrentPlay;
+            var play = (PassPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             play.YardsGained = 2; // Enough to score from the 2-yard line
             game.HomeScore = 7;
@@ -71,7 +71,7 @@ namespace UnitTestProject1
         public void TwoPointConversion_SuccessfulRun_MultipleAttempts()
         {
             // Arrange
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
             game.HomeScore = 0;
             game.AwayScore = 0;
 
@@ -105,7 +105,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: true);
-            var play = (RunPlay)game.CurrentPlay;
+            var play = (RunPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = 1; // Stopped short of the goal line
             game.HomeScore = 6; // Just scored TD
@@ -130,7 +130,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: false);
-            var play = (PassPlay)game.CurrentPlay;
+            var play = (PassPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             play.YardsGained = 0; // Incomplete or no gain
             game.HomeScore = 14;
@@ -154,7 +154,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: true);
-            var play = (RunPlay)game.CurrentPlay;
+            var play = (RunPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = 1; // Gets to 99-yard line, one yard short
             game.HomeScore = 6;
@@ -181,7 +181,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: true);
-            var play = (RunPlay)game.CurrentPlay;
+            var play = (RunPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = -3; // Sacked/tackled for loss
             game.HomeScore = 6;
@@ -204,7 +204,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: false);
-            var play = (PassPlay)game.CurrentPlay;
+            var play = (PassPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             play.YardsGained = -5; // Sacked
             game.HomeScore = 10;
@@ -231,7 +231,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: true);
-            var play = (RunPlay)game.CurrentPlay;
+            var play = (RunPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = 2;
             game.HomeScore = 20;
@@ -252,7 +252,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithTwoPointAttempt(isRun: false);
-            var play = (PassPlay)game.CurrentPlay;
+            var play = (PassPlay)game.CurrentPlay!;
             play.Possession = Possession.Away;
             play.YardsGained = 3; // More than enough
             game.HomeScore = 14;
@@ -276,7 +276,7 @@ namespace UnitTestProject1
         public void TwoPointConversion_GameSituation_TieGame()
         {
             // Arrange - Home team down by 8, scores TD and needs 2pt to tie
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
             game.HomeScore = 13;
             game.AwayScore = 21;
 
@@ -294,7 +294,7 @@ namespace UnitTestProject1
         public void TwoPointConversion_GameSituation_TakeLead()
         {
             // Arrange - Away team down by 1, scores TD and 2pt to take lead
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
             game.HomeScore = 24;
             game.AwayScore = 18;
 
@@ -312,7 +312,7 @@ namespace UnitTestProject1
         public void TwoPointConversion_Failed_StaysDown()
         {
             // Arrange - Home team down by 8, scores TD but fails 2pt
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
             game.HomeScore = 14;
             game.AwayScore = 22;
 
@@ -332,7 +332,7 @@ namespace UnitTestProject1
 
         private Game CreateGameWithTwoPointAttempt(bool isRun)
         {
-            var game = _testGame.GetGame();
+            var game = _testGame!.GetGame();
             game.FieldPosition = 98; // 2-yard line (standard 2pt conversion spot)
             game.CurrentDown = Downs.First; // Doesn't really matter for 2pt
             game.YardsToGo = 2;

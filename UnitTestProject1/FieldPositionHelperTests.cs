@@ -7,8 +7,8 @@ namespace UnitTestProject1
     [TestClass]
     public class FieldPositionHelperTests
     {
-        private Team _buffaloTeam;
-        private Team _kansasCityTeam;
+        private Team? _buffaloTeam;
+        private Team? _kansasCityTeam;
 
         [TestInitialize]
         public void Setup()
@@ -339,24 +339,6 @@ namespace UnitTestProject1
         }
 
         #endregion
-
-        #region Edge Case Tests
-
-        // Additional tests for edge cases
-        [TestMethod]
-        public void EdgeCase_Test1()
-        {
-            // Example edge case test
-            Assert.IsTrue(true);
-        }
-
-        [TestMethod]
-        public void EdgeCase_Test2()
-        {
-            // Example edge case test
-            Assert.IsTrue(true);
-        }
-
-        #endregion
+        
     }
 }

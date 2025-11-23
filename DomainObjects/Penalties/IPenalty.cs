@@ -162,8 +162,8 @@ namespace DomainObjects.Penalties
     public class PenaltyContext
     {
         public PlayType PlayType { get; set; }
-        public List<Player> OffensivePlayers { get; set; }
-        public List<Player> DefensivePlayers { get; set; }
+        public List<Player> OffensivePlayers { get; set; } = new();
+        public List<Player> DefensivePlayers { get; set; } = new();
         public int FieldPosition { get; set; }
         public Downs Down { get; set; }
         public int YardsToGo { get; set; }

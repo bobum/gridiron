@@ -20,7 +20,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 92;  // Near goal line
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.Blocked = true;
             play.YardsGained = 10;  // Reaches 100+
@@ -47,7 +47,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Blocked = true;
             play.YardsGained = 8;
             play.PossessionChange = true;
@@ -71,7 +71,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Fourth;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Blocked = true;
             play.YardsGained = -7;  // Loss
             play.PossessionChange = false;  // Offense recovered
@@ -98,7 +98,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 45;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.MuffedCatch = true;
             play.YardsGained = 38;  // Punt + recovery
             play.PossessionChange = true;  // Receiving team recovered
@@ -122,7 +122,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.MuffedCatch = true;
             play.YardsGained = 42;
             play.PossessionChange = false;  // Punting team recovered!
@@ -148,7 +148,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Touchback = true;
             play.YardsGained = 65;  // Punt went into end zone
 
@@ -174,7 +174,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Downed = true;
             play.YardsGained = 48;
             play.DownedAtYardLine = 83;
@@ -197,7 +197,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 42;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.FairCatch = true;
             play.YardsGained = 38;
 
@@ -222,7 +222,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 52;  // 45 yard punt + 7 yard return
             var returner = new Player { LastName = "Speedster", Position = Positions.CB };
             play.ReturnSegments.Add(new ReturnSegment
@@ -250,7 +250,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 88;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = 15;  // Return for TD
             play.IsTouchdown = true;
@@ -282,7 +282,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 92;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Possession = Possession.Home;
             play.YardsGained = 20;  // Would exceed 100
             var returner = new Player { LastName = "Returner" };
@@ -314,7 +314,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Downed = true;
             play.YardsGained = 45;
 
@@ -333,7 +333,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.FairCatch = true;
             play.YardsGained = 42;
 
@@ -358,7 +358,7 @@ namespace UnitTestProject1
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Fourth;
             game.YardsToGo = 5;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Downed = true;
             play.YardsGained = 45;
 
@@ -376,14 +376,14 @@ namespace UnitTestProject1
         {
             // Test touchback
             var game1 = CreateGameWithPuntPlay();
-            var play1 = (PuntPlay)game1.CurrentPlay;
+            var play1 = (PuntPlay)game1.CurrentPlay!;
             play1.Touchback = true;
             new PuntResult().Execute(game1);
             Assert.AreEqual(Downs.First, game1.CurrentDown, "Touchback should reset to first down");
 
             // Test fair catch
             var game2 = CreateGameWithPuntPlay();
-            var play2 = (PuntPlay)game2.CurrentPlay;
+            var play2 = (PuntPlay)game2.CurrentPlay!;
             play2.FairCatch = true;
             play2.YardsGained = 40;
             new PuntResult().Execute(game2);
@@ -391,7 +391,7 @@ namespace UnitTestProject1
 
             // Test return
             var game3 = CreateGameWithPuntPlay();
-            var play3 = (PuntPlay)game3.CurrentPlay;
+            var play3 = (PuntPlay)game3.CurrentPlay!;
             play3.ReturnSegments.Add(new ReturnSegment { BallCarrier = new Player(), YardsGained = 10 });
             play3.YardsGained = 50;
             new PuntResult().Execute(game3);
@@ -407,7 +407,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.Downed = true;
             play.YardsGained = 40;
 
@@ -424,7 +424,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = CreateGameWithPuntPlay();
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.MuffedCatch = true;
             play.PossessionChange = false;  // Punting team recovered
             play.RecoveredBy = new Player();
@@ -450,7 +450,7 @@ namespace UnitTestProject1
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Fourth;
             game.YardsToGo = 10;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 35; // Punt goes 35 yards
             play.Downed = true;
 
@@ -483,7 +483,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Fourth;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 25;
             play.Downed = true;
 
@@ -514,7 +514,7 @@ namespace UnitTestProject1
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
             game.CurrentDown = Downs.Fourth;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 30;
 
             // Add offsetting penalties
@@ -551,7 +551,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 35;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 40; // Punt and return net 40 yards
             play.ReturnSegments = new System.Collections.Generic.List<ReturnSegment>
             {
@@ -585,7 +585,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 5; // Near own goal line
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 15;
             play.Downed = true;
 
@@ -616,7 +616,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 20;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 80; // Return for TD
             play.IsTouchdown = true;
             play.ReturnSegments = new System.Collections.Generic.List<ReturnSegment>
@@ -651,7 +651,7 @@ namespace UnitTestProject1
             // Arrange
             var game = CreateGameWithPuntPlay();
             game.FieldPosition = 40;
-            var play = (PuntPlay)game.CurrentPlay;
+            var play = (PuntPlay)game.CurrentPlay!;
             play.YardsGained = 30;
             play.Downed = true;
 

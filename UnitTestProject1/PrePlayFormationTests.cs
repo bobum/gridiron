@@ -33,10 +33,10 @@ namespace UnitTestProject1
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
-            var offense = game.CurrentPlay.OffensePlayersOnField;
+            var offense = game.CurrentPlay!.OffensePlayersOnField;
             Assert.AreEqual(2, offense.Count(p => p.Position == Positions.WR), "Should have 2 WRs for RUN");
             Assert.AreEqual(1, offense.Count(p => p.Position == Positions.TE), "Should have 1 TE for RUN");
-            Assert.AreEqual(11, offense.Count, "Should have 11 offensive players");
+            Assert.HasCount(11, offense, "Should have 11 offensive players");
         }
 
         [TestMethod]
@@ -50,10 +50,10 @@ namespace UnitTestProject1
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
-            var offense = game.CurrentPlay.OffensePlayersOnField;
+            var offense = game.CurrentPlay!.OffensePlayersOnField;
             Assert.AreEqual(3, offense.Count(p => p.Position == Positions.WR), "Should have 3 WRs for PASS");
             Assert.AreEqual(0, offense.Count(p => p.Position == Positions.TE), "Should have 0 TEs for PASS");
-            Assert.AreEqual(11, offense.Count, "Should have 11 offensive players");
+            Assert.HasCount(11, offense, "Should have 11 offensive players");
         }
 
         [TestMethod]
@@ -67,11 +67,11 @@ namespace UnitTestProject1
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
-            var defense = game.CurrentPlay.DefensePlayersOnField;
+            var defense = game.CurrentPlay!.DefensePlayersOnField;
             Assert.AreEqual(2, defense.Count(p => p.Position == Positions.DE), "Should have 2 DEs for RUN");
             Assert.AreEqual(2, defense.Count(p => p.Position == Positions.DT), "Should have 2 DTs for RUN");
             Assert.AreEqual(3, defense.Count(p => p.Position == Positions.LB), "Should have 3 LBs for RUN");
-            Assert.AreEqual(11, defense.Count, "Should have 11 defensive players");
+            Assert.HasCount(11, defense, "Should have 11 defensive players");
         }
 
         [TestMethod]
@@ -85,11 +85,11 @@ namespace UnitTestProject1
             game.WonCoinToss = Possession.Home;
             prePlay.Execute(game);
 
-            var defense = game.CurrentPlay.DefensePlayersOnField;
+            var defense = game.CurrentPlay!.DefensePlayersOnField;
             Assert.AreEqual(1, defense.Count(p => p.Position == Positions.DE), "Should have 1 DE for PASS");
             Assert.AreEqual(2, defense.Count(p => p.Position == Positions.DT), "Should have 2 DTs for PASS");
             Assert.AreEqual(4, defense.Count(p => p.Position == Positions.LB), "Should have 4 LBs for PASS");
-            Assert.AreEqual(11, defense.Count, "Should have 11 defensive players");
+            Assert.HasCount(11, defense, "Should have 11 defensive players");
         }                
     }
 }

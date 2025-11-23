@@ -23,7 +23,7 @@ public InjurySeverity Severity { get; set; }
 /// The player who was injured
         /// </summary>
         [JsonIgnore] // Prevents circular reference: Player -> Injury -> Player
-        public Player InjuredPlayer { get; set; }
+        public required Player InjuredPlayer { get; set; }
 
      /// <summary>
         /// Which play number this injury occurred on (0-based index in Plays list)

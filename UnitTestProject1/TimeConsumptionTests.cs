@@ -49,7 +49,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(passPlay.ClockStopped, "Clock should stop on incomplete pass");
-            Assert.IsTrue(passPlay.ElapsedTime > 0, "Incomplete pass should still consume execution time");
+            Assert.IsGreaterThan(0, passPlay.ElapsedTime, "Incomplete pass should still consume execution time");
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@ namespace UnitTestProject1
         {
             // Arrange
             var game = _testGame.GetGame(); // Starts with kickoff
-            var play = (KickoffPlay)game.CurrentPlay;
+            var play = (KickoffPlay)game.CurrentPlay!;
             
             var rng = KickoffPlayScenarios.NormalReturn(0.5, 0.5);
             var kickoff = new Kickoff(rng);
@@ -104,7 +104,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(play.ClockStopped, "Clock should stop after kickoff");
-            Assert.IsTrue(play.ElapsedTime > 0, "Kickoff should consume time");
+            Assert.IsGreaterThan(0, play.ElapsedTime, "Kickoff should consume time");
         }
 
         [TestMethod]
@@ -138,7 +138,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(puntPlay.ClockStopped, "Clock should stop after punt");
-            Assert.IsTrue(puntPlay.ElapsedTime > 0, "Punt should consume time");
+            Assert.IsGreaterThan(0, puntPlay.ElapsedTime, "Punt should consume time");
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace UnitTestProject1
 
             // Assert
             Assert.IsTrue(fgPlay.ClockStopped, "Clock should stop after field goal");
-            Assert.IsTrue(fgPlay.ElapsedTime > 0, "Field goal should consume time");
+            Assert.IsGreaterThan(0, fgPlay.ElapsedTime, "Field goal should consume time");
         }
 
         #endregion

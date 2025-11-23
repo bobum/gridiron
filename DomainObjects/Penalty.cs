@@ -11,10 +11,10 @@ namespace DomainObjects
         public float AwayOdds { get; set; }
         public Possession CalledOn { get; set; }
         public PenaltyOccuredWhen OccuredWhen { get; set; }
-        public Player Player { get; set; }
+        public Player? Player { get; set; }  // Nullable - penalty definitions don't have a specific player
 
         // Additional properties for penalty instances
-        public Player? CommittedBy { get; set; }
+        public Player? CommittedBy { get; set; }  // The actual player who committed this penalty
         public PenaltyNames PenaltyType { get; set; }
         public int Yards { get; set; }
         public bool Accepted { get; set; }
@@ -79,7 +79,7 @@ namespace DomainObjects
                     {'Name':'Leverage','Odds':0.00002635,'HomeOdds':0,'AwayOdds':1},
                     {'Name':'NoPenalty','Odds':0,'HomeOdds':0,'AwayOdds':0}]";
 
-            List = new List<Penalty>(JsonConvert.DeserializeObject<List<Penalty>>(penalties));
+            List = [.. JsonConvert.DeserializeObject<List<Penalty>>(penalties)!];
         }
     }
 

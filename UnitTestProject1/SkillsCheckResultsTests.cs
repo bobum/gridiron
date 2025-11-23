@@ -41,7 +41,7 @@ namespace UnitTestProject1
         public void InterceptionPossessionChangeSkillsCheckResultHomeTeamTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.Possession = Possession.Away;
+            game.CurrentPlay!.Possession = Possession.Away;
 
             var interceptionResult = new InterceptionPossessionChangeSkillsCheckResult();
             interceptionResult.Execute(game);
@@ -53,7 +53,7 @@ namespace UnitTestProject1
         public void InterceptionPossessionChangeSkillsCheckResultAwayTeamTest()
         {
             var game = _testGame.GetGame();
-            game.CurrentPlay.Possession = Possession.Home;
+            game.CurrentPlay!.Possession = Possession.Home;
 
             var interceptionResult = new InterceptionPossessionChangeSkillsCheckResult();
             interceptionResult.Execute(game);
@@ -145,8 +145,8 @@ namespace UnitTestProject1
             airYardsResult.Execute(game);
 
             // Assert - Screen passes range from -3 to 2 yards
-            Assert.IsTrue(airYardsResult.Result >= -3);
-            Assert.IsTrue(airYardsResult.Result < 3);
+            Assert.IsGreaterThanOrEqualTo(-3, airYardsResult.Result);
+            Assert.IsLessThan(3, airYardsResult.Result);
         }
 
         [TestMethod]
@@ -162,8 +162,8 @@ namespace UnitTestProject1
             airYardsResult.Execute(game);
 
             // Assert - Short passes range from 3 to 11 yards
-            Assert.IsTrue(airYardsResult.Result >= 3);
-            Assert.IsTrue(airYardsResult.Result < 12);
+            Assert.IsGreaterThanOrEqualTo(3, airYardsResult.Result);
+            Assert.IsLessThan(12, airYardsResult.Result);
         }
 
         [TestMethod]
@@ -179,8 +179,8 @@ namespace UnitTestProject1
             airYardsResult.Execute(game);
 
             // Assert - Forward passes range from 8 to 19 yards
-            Assert.IsTrue(airYardsResult.Result >= 8);
-            Assert.IsTrue(airYardsResult.Result < 20);
+            Assert.IsGreaterThanOrEqualTo(8, airYardsResult.Result);
+            Assert.IsLessThan(20, airYardsResult.Result);
         }
 
         [TestMethod]
@@ -196,8 +196,8 @@ namespace UnitTestProject1
             airYardsResult.Execute(game);
 
             // Assert - Deep passes range from 18 to 44 yards
-            Assert.IsTrue(airYardsResult.Result >= 18);
-            Assert.IsTrue(airYardsResult.Result < 45);
+            Assert.IsGreaterThanOrEqualTo(18, airYardsResult.Result);
+            Assert.IsLessThan(45, airYardsResult.Result);
         }
 
         [TestMethod]
@@ -215,8 +215,8 @@ namespace UnitTestProject1
             // Assert - Should be clamped to yards to goal (10 yards, not 18)
             // Deep pass at 90 yard line: Next(18, Max(19, Min(45, 10))) = Next(18, 19) returns 18
             // Final clamping: Result = Math.Min(18, 10) = 10
-            Assert.IsTrue(airYardsResult.Result >= 10);
-            Assert.IsTrue(airYardsResult.Result < 11); // Clamped to actual field distance
+            Assert.IsGreaterThanOrEqualTo(10, airYardsResult.Result);
+            Assert.IsLessThan(11, airYardsResult.Result); // Clamped to actual field distance
         }
 
         [TestMethod]
@@ -232,8 +232,8 @@ namespace UnitTestProject1
             airYardsResult.Execute(game);
 
             // Assert - Short pass at 95 yard line: Next(3, Max(4, Min(12, 5))) = Next(3, 5)
-            Assert.IsTrue(airYardsResult.Result >= 3);
-            Assert.IsTrue(airYardsResult.Result < 5);
+            Assert.IsGreaterThanOrEqualTo(3, airYardsResult.Result);
+            Assert.IsLessThan(5, airYardsResult.Result);
         }
 
         #endregion
@@ -253,9 +253,9 @@ namespace UnitTestProject1
             sackResult.Execute(game);
 
             // Assert - Should return negative yards (loss)
-            Assert.IsTrue(sackResult.Result < 0);
-            Assert.IsTrue(sackResult.Result >= -10);
-            Assert.IsTrue(sackResult.Result <= -2);
+            Assert.IsLessThan(0, sackResult.Result);
+            Assert.IsGreaterThanOrEqualTo(-10, sackResult.Result);
+            Assert.IsLessThanOrEqualTo(-2, sackResult.Result);
         }
 
         [TestMethod]
@@ -327,8 +327,8 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - Should be 0-2 yards when tackled immediately
-            Assert.IsTrue(yacResult.Result >= 0);
-            Assert.IsTrue(yacResult.Result < 3);
+            Assert.IsGreaterThanOrEqualTo(0, yacResult.Result);
+            Assert.IsLessThan(3, yacResult.Result);
         }
 
         [TestMethod]
@@ -351,8 +351,8 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - YAC potential = 75, base = 3 + 75/20 = 6.75, randomFactor = 2, total ≈ 9
-            Assert.IsTrue(yacResult.Result > 3);
-            Assert.IsTrue(yacResult.Result < 15);
+            Assert.IsGreaterThan(3, yacResult.Result);
+            Assert.IsLessThan(15, yacResult.Result);
         }
 
         [TestMethod]
@@ -373,8 +373,8 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - YAC potential = 56.67, base = 3 + 56.67/20 = 5.83, randomFactor = 2, total ≈ 8
-            Assert.IsTrue(yacResult.Result >= 3);
-            Assert.IsTrue(yacResult.Result <= 12);
+            Assert.IsGreaterThanOrEqualTo(3, yacResult.Result);
+            Assert.IsLessThanOrEqualTo(12, yacResult.Result);
         }
 
         [TestMethod]
@@ -395,8 +395,8 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - YAC potential = 90, base = 3 + 90/20 = 7.5, randomFactor = 4, total ≈ 12
-            Assert.IsTrue(yacResult.Result >= 8);
-            Assert.IsTrue(yacResult.Result <= 18);
+            Assert.IsGreaterThanOrEqualTo(8, yacResult.Result);
+            Assert.IsLessThanOrEqualTo(18, yacResult.Result);
         }
 
         [TestMethod]
@@ -421,8 +421,8 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - Should have normal YAC + big play yards (>20 total)
-            Assert.IsTrue(yacResult.Result >= 20);
-            Assert.IsTrue(yacResult.Result < 45);
+            Assert.IsGreaterThanOrEqualTo(20, yacResult.Result);
+            Assert.IsLessThan(45, yacResult.Result);
         }
 
         [TestMethod]
@@ -443,7 +443,7 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - Should NOT have big play yards (speed 80 < 85)
-            Assert.IsTrue(yacResult.Result < 20);
+            Assert.IsLessThan(20, yacResult.Result);
         }
 
         [TestMethod]
@@ -464,7 +464,7 @@ namespace UnitTestProject1
             yacResult.Execute(game);
 
             // Assert - Should be at least 0 (Math.Max clamps)
-            Assert.IsTrue(yacResult.Result >= 0);
+            Assert.IsGreaterThanOrEqualTo(0, yacResult.Result);
         }
 
         #endregion

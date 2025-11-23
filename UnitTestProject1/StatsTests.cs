@@ -138,7 +138,7 @@ namespace UnitTestProject1
                 },
                 YardsGained = 0,
                 Interception = true,
-                InterceptionDetails = new Interception { InterceptedBy = cb, ReturnYards = 5 },
+                InterceptionDetails = new Interception { ThrownBy = qb, InterceptedBy = cb, ReturnYards = 5 },
                 DefensePlayersOnField = new List<Player> { cb }
             };
             game.CurrentPlay = intPlay;

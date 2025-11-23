@@ -73,7 +73,7 @@ namespace UnitTestProject1
             var passProb = penalty.CalculateOccurrenceProbability(passContext);
             var runProb = penalty.CalculateOccurrenceProbability(runContext);
 
-            Assert.IsTrue(passProb > runProb, "Offensive holding should be more likely on pass plays");
+            Assert.IsGreaterThan(runProb, passProb, "Offensive holding should be more likely on pass plays");
         }
 
         // ==================== Defensive Holding Tests ====================
@@ -123,7 +123,7 @@ namespace UnitTestProject1
             var shortProb = penalty.CalculateOccurrenceProbability(shortRouteContext);
             var deepProb = penalty.CalculateOccurrenceProbability(deepRouteContext);
 
-            Assert.IsTrue(shortProb > deepProb, "Defensive holding should be more likely on short routes");
+            Assert.IsGreaterThan(deepProb, shortProb, "Defensive holding should be more likely on short routes");
         }
 
         // ==================== False Start Tests ====================
@@ -202,7 +202,7 @@ namespace UnitTestProject1
             var shortProb = penalty.CalculateOccurrenceProbability(shortPassContext);
             var deepProb = penalty.CalculateOccurrenceProbability(deepPassContext);
 
-            Assert.IsTrue(deepProb > shortProb * 2, "DPI should be MUCH more likely on deep passes");
+            Assert.IsGreaterThan(shortProb * 2, deepProb, "DPI should be MUCH more likely on deep passes");
         }
 
         [TestMethod]
@@ -216,7 +216,7 @@ namespace UnitTestProject1
             var incompleteProb = penalty.CalculateOccurrenceProbability(incompleteContext);
             var completeProb = penalty.CalculateOccurrenceProbability(completeContext);
 
-            Assert.IsTrue(incompleteProb > completeProb * 10, "DPI should be very rare on completions");
+            Assert.IsGreaterThan(completeProb * 10, incompleteProb, "DPI should be very rare on completions");
         }
 
         [TestMethod]
@@ -233,7 +233,7 @@ namespace UnitTestProject1
             var yardage = penalty.CalculateYardage(endZoneContext);
 
             // Should place ball at 1-yard line (position 99 in 0-100 system)
-            Assert.IsTrue(yardage > 0, "End zone DPI should result in positive yardage");
+            Assert.IsGreaterThan(0, yardage, "End zone DPI should result in positive yardage");
         }
 
         [TestMethod]
@@ -278,8 +278,7 @@ namespace UnitTestProject1
             }
 
             // Undisciplined player should be selected much more often
-            Assert.IsTrue(undisciplinedCount > 60,
-                $"Undisciplined player should be selected >60% of time, was {undisciplinedCount}%");
+            Assert.IsGreaterThan(60, undisciplinedCount, $"Undisciplined player should be selected >60% of time, was {undisciplinedCount}%");
         }
 
         [TestMethod]

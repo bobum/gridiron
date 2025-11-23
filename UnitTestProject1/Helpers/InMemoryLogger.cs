@@ -20,7 +20,16 @@ namespace UnitTestProject1.Helpers
 
         public IReadOnlyList<string> LogMessages => _logMessages.AsReadOnly();
 
-        public IDisposable BeginScope<TState>(TState state) => null!;
+        IDisposable ILogger.BeginScope<TState>(TState state)
+        {
+            return NullScope.Instance;
+        }
+
+        private class NullScope : IDisposable
+        {
+            public static readonly NullScope Instance = new NullScope();
+            public void Dispose() { }
+        }
 
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _minLevel;
 

@@ -194,8 +194,9 @@ namespace UnitTestProject1
                 EndFieldPosition = 85,
                 IsGood = true,
                 PossessionChange = false,
-                Result = logger
-            };
+                Result = logger,
+                Kicker = new Player { FirstName = "Kicker1", Position = Positions.K }
+                };
 
             game.CurrentPlay = extraPointPlay;
             game.FieldPosition = 85;
@@ -404,8 +405,8 @@ namespace UnitTestProject1
 
             var kickoff = (KickoffPlay)game.CurrentPlay;
             Assert.IsNotNull(kickoff.Kicker, "Kickoff should have kicker");
-            Assert.AreEqual(11, kickoff.OffensePlayersOnField.Count);
-            Assert.AreEqual(11, kickoff.DefensePlayersOnField.Count);
+            Assert.HasCount(11, kickoff.OffensePlayersOnField);
+            Assert.HasCount(11, kickoff.DefensePlayersOnField);
 
             // Execute kickoff
             var kickoffExec = new Kickoff(rng);
@@ -521,7 +522,8 @@ namespace UnitTestProject1
                 StartFieldPosition = 85,
                 IsGood = false, // MISSED
                 PossessionChange = false,
-                Result = logger
+                Result = logger,
+                Kicker = new Player { FirstName = "Kicker2", Position = Positions.K }
             };
 
             game.CurrentPlay = missedXP;
@@ -629,7 +631,7 @@ namespace UnitTestProject1
             prePlay1.Execute(game);
 
             // Verify extra point is for HOME team (same team that scored)
-            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay.PlayType);
+            Assert.AreEqual(PlayType.FieldGoal, game.CurrentPlay!.PlayType);
             Assert.AreEqual(Possession.Home, game.CurrentPlay.Possession,
                 "Extra point should be attempted by team that scored TD");
             Assert.AreEqual(Downs.None, game.CurrentPlay.Down,
