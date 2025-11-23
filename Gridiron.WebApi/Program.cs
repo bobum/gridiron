@@ -82,7 +82,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Gridiron API v1");
-        options.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+        options.RoutePrefix = "swagger"; // Serve Swagger UI at /swagger (frees up root for React frontend)
     });
 }
 
@@ -94,6 +94,6 @@ app.MapControllers();
 // Display startup information
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Gridiron Football Simulation API started");
-logger.LogInformation("Swagger UI available at: {BaseUrl}", app.Environment.IsDevelopment() ? "http://localhost:5000" : "");
+logger.LogInformation("Swagger UI available at: {BaseUrl}", app.Environment.IsDevelopment() ? "http://localhost:5000/swagger" : "");
 
 app.Run();
