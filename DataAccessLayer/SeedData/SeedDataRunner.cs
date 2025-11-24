@@ -11,19 +11,43 @@ namespace DataAccessLayer.SeedData
     {
         public static async Task RunAsync(string[] args)
         {
+            // Check for force flag (non-interactive mode for CI/CD)
+            bool forceMode = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
+
             // Build configuration
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddUserSecrets<Program>(optional: true)
+                .AddEnvironmentVariables() // Add environment variables for CI/CD
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("GridironDb");
+            // In CI/CD, prefer DefaultConnection from environment variables
+            // In local dev, prefer GridironDb from appsettings/user secrets
+            var defaultConnection = configuration.GetConnectionString("DefaultConnection");
+            var gridironDbConnection = configuration.GetConnectionString("GridironDb");
+
+            // Use DefaultConnection if it exists (CI/CD), otherwise fall back to GridironDb (local dev)
+            // Also check if GridironDb is a placeholder value
+            var connectionString = defaultConnection;
+            if (string.IsNullOrEmpty(connectionString) &&
+                !string.IsNullOrEmpty(gridironDbConnection) &&
+                !gridironDbConnection.Contains("YOUR_SERVER"))
+            {
+                connectionString = gridironDbConnection;
+            }
+
+            // Debug logging for CI/CD troubleshooting
+            Console.WriteLine($"Connection string source: {(defaultConnection != null ? "DefaultConnection (CI/CD)" : "GridironDb (Local)")}");
+            Console.WriteLine($"Connection string value: {(connectionString != null ? $"{connectionString.Substring(0, Math.Min(50, connectionString.Length))}..." : "NULL")}");
 
             if (string.IsNullOrEmpty(connectionString))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Connection string 'GridironDb' not found.");
+                Console.WriteLine("Error: Connection string not found.");
+                Console.WriteLine("Checked: GridironDb and DefaultConnection");
+                Console.WriteLine("Environment variables:");
+                Console.WriteLine($"  ConnectionStrings__DefaultConnection: {Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")?.Substring(0, Math.Min(50, Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")?.Length ?? 0))}");
                 Console.ResetColor();
                 return;
             }
@@ -57,14 +81,21 @@ namespace DataAccessLayer.SeedData
                 Console.WriteLine($"  - {existingTeams} teams");
                 Console.WriteLine($"  - {existingPlayers} players");
                 Console.WriteLine($"  - {existingFirstNames} first names, {existingLastNames} last names, {existingColleges} colleges");
-                Console.Write("Do you want to clear existing data and reseed? (y/n): ");
                 Console.ResetColor();
 
-                var response = Console.ReadLine()?.ToLower();
-                if (response != "y")
+                if (!forceMode)
                 {
-                    Console.WriteLine("Seeding cancelled.");
-                    return;
+                    Console.Write("Do you want to clear existing data and reseed? (y/n): ");
+                    var response = Console.ReadLine()?.ToLower();
+                    if (response != "y")
+                    {
+                        Console.WriteLine("Seeding cancelled.");
+                        return;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Running in force mode - clearing existing data automatically...");
                 }
 
                 Console.WriteLine("Clearing existing data...");

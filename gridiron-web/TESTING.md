@@ -343,13 +343,40 @@ Coverage reports are generated in `coverage/` directory.
 
 ## Continuous Integration
 
-### GitHub Actions
+### GitHub Actions Workflow
 
-Tests run automatically on:
-- Every pull request
-- Every push to `master`
+Frontend tests run automatically in CI/CD via GitHub Actions.
 
-See `.github/workflows/frontend-tests.yml` (to be added)
+**Workflow:** `.github/workflows/frontend-tests.yml`
+
+**Triggers:**
+- Every pull request to `master` (when frontend files change)
+- Every push to `master` (when frontend files change)
+- Manual trigger via workflow dispatch
+
+**Jobs:**
+
+#### 1. Component & Integration Tests (Fast ~2-3 minutes)
+- Runs on every PR
+- Uses Node.js 20
+- Installs dependencies with `npm ci`
+- Runs `npm test -- --run` (15 tests with MSW mocks)
+- No database or API required
+- Uploads test coverage artifacts
+
+#### 2. End-to-End Tests (Slower ~5-8 minutes)
+- Runs after component tests pass
+- Spins up SQL Server 2022 container
+- Builds and runs the .NET API
+- Runs database migrations and seeds test data
+- Installs Playwright browsers
+- Runs `npm run test:e2e` (10 tests with real API)
+- Uploads test reports and traces on failure
+
+**Viewing Results:**
+- Check the "Actions" tab in GitHub
+- View test reports in PR checks
+- Download artifacts for detailed results
 
 ### Pre-commit Hook
 

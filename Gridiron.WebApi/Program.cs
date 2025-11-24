@@ -1,7 +1,15 @@
 using DataAccessLayer;
 using DataAccessLayer.Repositories;
+using DataAccessLayer.SeedData;
 using Gridiron.WebApi.Services;
 using Microsoft.EntityFrameworkCore;
+
+// Check if we're running in seed mode
+if (args.Contains("--seed", StringComparer.OrdinalIgnoreCase))
+{
+    await SeedDataRunner.RunAsync(args);
+    return; // Exit after seeding
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
