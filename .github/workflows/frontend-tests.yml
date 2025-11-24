@@ -63,7 +63,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
-          --health-start-period 60s
+          --health-start-period 180s
 
     steps:
       - name: Checkout code
