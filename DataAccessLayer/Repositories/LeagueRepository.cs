@@ -221,7 +221,7 @@ public class LeagueRepository : ILeagueRepository
 
             // Add warning about preserved historical data
             var gamesCount = await _context.Games
-                .Where(g => teamIds.Contains(g.HomeTeamId ?? 0) || teamIds.Contains(g.AwayTeamId ?? 0))
+                .Where(g => teamIds.Contains(g.HomeTeamId) || teamIds.Contains(g.AwayTeamId))
                 .CountAsync();
 
             if (gamesCount > 0)
