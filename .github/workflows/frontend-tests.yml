@@ -86,6 +86,9 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore
 
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
       - name: Build API
         run: dotnet build Gridiron.WebApi/Gridiron.WebApi.csproj --no-restore
 
