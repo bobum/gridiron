@@ -105,7 +105,7 @@ jobs:
       - name: Start API in background
         working-directory: ./Gridiron.WebApi
         env:
-          ConnectionStrings__DefaultConnection: 'Server=localhost;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+          ConnectionStrings__GridironDb: 'Server=localhost;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
           ASPNETCORE_URLS: 'http://localhost:5000'
         run: |
           dotnet run &
