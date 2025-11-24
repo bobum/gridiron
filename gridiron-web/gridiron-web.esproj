@@ -1,13 +1,19 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.784122">
   <PropertyGroup>
-    <StartupCommand>npm run dev</StartupCommand>
+    <StartupCommand></StartupCommand>
     <JavaScriptTestRoot>src\</JavaScriptTestRoot>
     <JavaScriptTestFramework>Vitest</JavaScriptTestFramework>
-    <!-- Allows the build (or compile) JavaScript project to run in parallel with other projects -->
+    <!-- Prevent build and run from Visual Studio -->
     <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
+
+  <!-- Override build targets to do nothing -->
+  <Target Name="Build" />
+  <Target Name="Clean" />
+  <Target Name="Rebuild" />
 
   <ItemGroup>
     <!-- Exclude node_modules, build output, and other generated folders -->
