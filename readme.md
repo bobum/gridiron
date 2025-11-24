@@ -25,12 +25,16 @@ A comprehensive NFL style football game simulation engine written in C# .NET 8. 
 
 ```
 gridiron/
-??? DomainObjects/          - Domain models (Players, Teams, Games, Plays)
-??? StateLibrary/           - Game simulation engine and state machine
-??? DataAccessLayer/        - Entity Framework Core persistence layer
-??? GridironConsole/        - Console application for running simulations
-??? UnitTestProject1/       - 839 comprehensive tests
-??? Diagram/                - C4 architecture diagram generation
+??? DomainObjects/             - Domain models (Players, Teams, Games, Plays)
+??? StateLibrary/              - Game simulation engine and state machine
+??? DataAccessLayer/           - Entity Framework Core persistence layer
+??? Gridiron.WebApi/           - REST API for game simulation and team management
+??? gridiron-web/              - React frontend application (Vite + TypeScript)
+??? GridironConsole/           - Console application for running simulations
+??? GameManagement/            - Player/team builder services
+??? UnitTestProject1/          - 839 comprehensive backend tests
+??? Gridiron.IntegrationTests/ - API integration tests
+??? Diagram/                   - C4 architecture diagram generation
 ```
 
 ## Quick Start
@@ -57,15 +61,68 @@ cd GridironConsole
 dotnet run
 ```
 
+### Run Frontend Tests
+
+```bash
+# Navigate to frontend directory
+cd gridiron-web
+
+# Run component and integration tests
+npm test
+
+# Run E2E tests (requires API running on localhost:5000)
+npm run test:e2e
+
+# Run tests with UI
+npm run test:ui
+npm run test:e2e:ui
+```
+
+## Testing & CI/CD
+
+### Automated Testing Pipeline
+
+All tests run automatically on every pull request via GitHub Actions:
+
+**Component & Integration Tests** (~2-3 minutes)
+- 15 frontend tests with Vitest + React Testing Library
+- Mock Service Worker (MSW) for API mocking
+- No backend dependencies required
+- Fast feedback on UI changes
+
+**End-to-End Tests** (~5-8 minutes)
+- SQL Server 2022 container spun up automatically
+- Database migrations applied
+- Test data seeded (2 teams, 106 players)
+- 10 Playwright tests against real API
+- Full integration testing in GitHub Actions
+
+**Backend Tests**
+- 839 MSTest unit tests (100% pass rate)
+- Integration tests for API endpoints
+- Soft delete cascade operation tests
+
+See [`gridiron-web/TESTING.md`](gridiron-web/TESTING.md) for detailed testing documentation.
+
 ## Technology Stack
 
+### Backend
 - **Language**: C# 12
 - **Framework**: .NET 8
 - **State Machine**: Stateless library
 - **Database**: Entity Framework Core 8 + Azure SQL
-- **Testing**: MSTest (839 tests)
+- **Testing**: MSTest (839 tests), Integration Tests
 - **Logging**: Microsoft.Extensions.Logging
 - **Architecture**: C4 Model with Structurizr
+
+### Frontend
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **UI**: TailwindCSS
+- **Data Fetching**: TanStack Query (React Query)
+- **HTTP Client**: Axios
+- **Testing**: Vitest + React Testing Library + MSW + Playwright
+- **E2E Testing**: Playwright with real API integration
 
 ## Project Stats
 
@@ -77,10 +134,24 @@ dotnet run
 
 ## Documentation
 
-- [`ARCHITECTURE_SUMMARY.txt`](ARCHITECTURE_SUMMARY.txt) - Quick reference for system architecture
+### Architecture & Design
+- [`GRIDIRON_COMPREHENSIVE_ARCHITECTURE.md`](GRIDIRON_COMPREHENSIVE_ARCHITECTURE.md) - Complete architecture overview
 - [`CODEBASE_ANALYSIS.md`](CODEBASE_ANALYSIS.md) - Detailed architectural analysis
-- [`DATABASE_SETUP.md`](DATABASE_SETUP.md) - Database configuration and setup guide
+- [`ARCHITECTURE_PRINCIPLES.md`](ARCHITECTURE_PRINCIPLES.md) - Core design principles
 - [`FIELD_POSITION_SYSTEM.md`](FIELD_POSITION_SYSTEM.md) - Field position coordinate system
+
+### Database & Deployment
+- [`DATABASE_SETUP.md`](DATABASE_SETUP.md) - Database configuration and setup guide
+- [`DATABASE-MANAGEMENT.md`](DATABASE-MANAGEMENT.md) - Database management procedures
+- [`DATABASE_DEPLOYMENT.md`](DATABASE_DEPLOYMENT.md) - Production deployment guide
+- [`AZURE_MIGRATION_CHECKLIST.md`](AZURE_MIGRATION_CHECKLIST.md) - Azure migration steps
+
+### Testing
+- [`API_TESTING_GUIDE.md`](API_TESTING_GUIDE.md) - Backend API testing guide
+- [`gridiron-web/TESTING.md`](gridiron-web/TESTING.md) - Frontend testing guide (Vitest, MSW, Playwright)
+
+### Implementation Guides
+- [`GAMEMANAGEMENT_IMPLEMENTATION_GUIDE.md`](GAMEMANAGEMENT_IMPLEMENTATION_GUIDE.md) - Game management services
 
 ## Contributing
 
