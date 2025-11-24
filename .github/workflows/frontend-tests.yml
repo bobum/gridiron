@@ -116,6 +116,11 @@ jobs:
         run: |
           curl --retry 5 --retry-delay 2 --retry-connrefused http://localhost:5000/swagger/index.html || exit 1
 
+      - name: Verify API has teams data
+        run: |
+          echo "Fetching teams from API..."
+          curl -v http://localhost:5000/api/teams
+
       - name: Install Playwright browsers
         working-directory: ./gridiron-web
         run: npx playwright install chromium --with-deps
