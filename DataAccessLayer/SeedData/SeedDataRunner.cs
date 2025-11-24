@@ -11,6 +11,9 @@ namespace DataAccessLayer.SeedData
     {
         public static async Task RunAsync(string[] args)
         {
+            // Check for force flag (non-interactive mode for CI/CD)
+            bool forceMode = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
+
             // Build configuration
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -57,14 +60,21 @@ namespace DataAccessLayer.SeedData
                 Console.WriteLine($"  - {existingTeams} teams");
                 Console.WriteLine($"  - {existingPlayers} players");
                 Console.WriteLine($"  - {existingFirstNames} first names, {existingLastNames} last names, {existingColleges} colleges");
-                Console.Write("Do you want to clear existing data and reseed? (y/n): ");
                 Console.ResetColor();
 
-                var response = Console.ReadLine()?.ToLower();
-                if (response != "y")
+                if (!forceMode)
                 {
-                    Console.WriteLine("Seeding cancelled.");
-                    return;
+                    Console.Write("Do you want to clear existing data and reseed? (y/n): ");
+                    var response = Console.ReadLine()?.ToLower();
+                    if (response != "y")
+                    {
+                        Console.WriteLine("Seeding cancelled.");
+                        return;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Running in force mode - clearing existing data automatically...");
                 }
 
                 Console.WriteLine("Clearing existing data...");
