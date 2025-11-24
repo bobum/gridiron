@@ -55,17 +55,15 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
         env:
-          ACCEPT_EULA: Y
-          MSSQL_SA_PASSWORD: YourStrong!Passw0rd
-          MSSQL_PID: Developer
-        ports:
-          - 1433:1433
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
+          MSSQL_PID: "Developer"
         options: >-
           --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -Q 'SELECT 1' || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
-          --health-start-period 30s
+          --health-start-period 60s
 
     steps:
       - name: Checkout code
@@ -73,6 +71,10 @@ jobs:
 
       - name: Debug running containers
         run: docker ps -a
+
+      - name: Dump SQL Server container logs
+        run: |
+          docker logs $(docker ps -a -q -f "ancestor=mcr.microsoft.com/mssql/server:2022-latest")
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -97,7 +99,7 @@ jobs:
 
       - name: Wait for SQL Server
         run: |
-          for i in {1..20}; do
+          for i in {1..30}; do
             /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -Q "SELECT 1" && break
             echo "SQL Server not ready yet..."
             sleep 5
