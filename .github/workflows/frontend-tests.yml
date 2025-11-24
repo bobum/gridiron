@@ -53,7 +53,7 @@ jobs:
 
     services:
       sqlserver:
-        image: mcr.microsoft.com/mssql/server:2022-CU17-ubuntu-22.04
+        image: mcr.microsoft.com/mssql/server:2019-latest
         env:
           ACCEPT_EULA: "Y"
           MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
@@ -65,7 +65,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
-          --health-start-period 180s
+          --health-start-period 120s
 
     steps:
       - name: Checkout code
@@ -76,7 +76,7 @@ jobs:
 
       - name: Dump SQL Server container logs
         run: |
-          docker logs $(docker ps -a -q -f "ancestor=mcr.microsoft.com/mssql/server:2022-latest")
+          docker logs $(docker ps -a -q -f "ancestor=mcr.microsoft.com/mssql/server:2019-latest")
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
