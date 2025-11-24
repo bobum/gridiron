@@ -153,8 +153,8 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
         var conferenceBuilder = _fixture.ServiceProvider.GetRequiredService<IConferenceBuilderService>();
         var leagueBuilder = _fixture.ServiceProvider.GetRequiredService<ILeagueBuilderService>();
 
-        // Create league with 1 conference
-        var league = leagueBuilder.CreateLeague("Test League", 1, 0, 0);
+        // Create league with 1 conference, 1 division, 1 team (minimum valid structure)
+        var league = leagueBuilder.CreateLeague("Test League", 1, 1, 1);
         await leagueRepo.AddAsync(league);
         var conference = league.Conferences.First();
         var conferenceId = conference.Id;
@@ -180,7 +180,7 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
         var conferenceRepo = _fixture.ServiceProvider.GetRequiredService<IConferenceRepository>();
         var leagueBuilder = _fixture.ServiceProvider.GetRequiredService<ILeagueBuilderService>();
 
-        var league = leagueBuilder.CreateLeague("Test League", 1, 0, 0);
+        var league = leagueBuilder.CreateLeague("Test League", 1, 1, 1);
         await leagueRepo.AddAsync(league);
         var conferenceId = league.Conferences.First().Id;
 
@@ -206,8 +206,8 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
         var divisionBuilder = _fixture.ServiceProvider.GetRequiredService<IDivisionBuilderService>();
         var leagueBuilder = _fixture.ServiceProvider.GetRequiredService<ILeagueBuilderService>();
 
-        // Create league with 1 conference → 1 division
-        var league = leagueBuilder.CreateLeague("Test League", 1, 1, 0);
+        // Create league with 1 conference → 1 division → 1 team (minimum valid structure)
+        var league = leagueBuilder.CreateLeague("Test League", 1, 1, 1);
         await leagueRepo.AddAsync(league);
         var division = league.Conferences.First().Divisions.First();
         var divisionId = division.Id;
@@ -233,7 +233,7 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
         var divisionRepo = _fixture.ServiceProvider.GetRequiredService<IDivisionRepository>();
         var leagueBuilder = _fixture.ServiceProvider.GetRequiredService<ILeagueBuilderService>();
 
-        var league = leagueBuilder.CreateLeague("Test League", 1, 1, 0);
+        var league = leagueBuilder.CreateLeague("Test League", 1, 1, 1);
         await leagueRepo.AddAsync(league);
         var divisionId = league.Conferences.First().Divisions.First().Id;
 
@@ -468,11 +468,11 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
         // Act - Simulate controller GET /deleted endpoint
         var deletedLeagues = await leagueRepo.GetDeletedAsync();
 
-        // Assert
-        deletedLeagues.Should().HaveCount(2);
+        // Assert - Check that our deleted leagues are present (other tests may have created additional deleted leagues)
         deletedLeagues.Should().Contain(l => l.Name == "Deleted League 1");
         deletedLeagues.Should().Contain(l => l.Name == "Deleted League 2");
         deletedLeagues.Should().NotContain(l => l.Name == "Active League");
+        deletedLeagues.Count(l => l.Name == "Deleted League 1" || l.Name == "Deleted League 2").Should().Be(2);
     }
 
     [Fact]
@@ -494,7 +494,7 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
         // Assert
         validationResult.Should().NotBeNull();
         validationResult.CanRestore.Should().BeTrue();
-        validationResult.Errors.Should().BeEmpty();
+        validationResult.ValidationErrors.Should().BeEmpty();
     }
 
     [Fact]
