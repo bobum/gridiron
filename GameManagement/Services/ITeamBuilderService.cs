@@ -44,4 +44,21 @@ public interface ITeamBuilderService
     /// <param name="seed">Optional seed for reproducible generation</param>
     /// <returns>The team with populated roster</returns>
     Team PopulateTeamRoster(Team team, int? seed = null);
+
+    /// <summary>
+    /// Updates a team with new values
+    /// </summary>
+    /// <param name="team">The team to update</param>
+    /// <param name="newName">Optional new name for the team</param>
+    /// <param name="newCity">Optional new city for the team</param>
+    /// <param name="newBudget">Optional new budget for the team</param>
+    /// <param name="newChampionships">Optional new championships count</param>
+    /// <param name="newWins">Optional new wins count</param>
+    /// <param name="newLosses">Optional new losses count</param>
+    /// <param name="newTies">Optional new ties count</param>
+    /// <param name="newFanSupport">Optional new fan support (0-100)</param>
+    /// <param name="newChemistry">Optional new chemistry (0-100)</param>
+    void UpdateTeam(Team team, string? newName, string? newCity, int? newBudget,
+        int? newChampionships, int? newWins, int? newLosses, int? newTies,
+        int? newFanSupport, int? newChemistry);
 }

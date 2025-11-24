@@ -275,4 +275,198 @@ public class LeaguesManagementController : ControllerBase
             return StatusCode(500, new { error = "Failed to populate league rosters" });
         }
     }
+
+    /// <summary>
+    /// Updates an existing league
+    /// </summary>
+    /// <param name="id">League ID</param>
+    /// <param name="request">Update request with optional fields</param>
+    /// <returns>Updated league</returns>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<LeagueDto>> UpdateLeague(int id, [FromBody] UpdateLeagueRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        try
+        {
+            // Get league from repository (excludes soft-deleted by default)
+            var league = await _leagueRepository.GetByIdAsync(id);
+            if (league == null)
+            {
+                return NotFound(new { error = $"League with ID {id} not found" });
+            }
+
+            // Use builder service to update league (domain logic)
+            _leagueBuilderService.UpdateLeague(league, request.Name, request.Season, request.IsActive);
+
+            // Persist changes
+            await _leagueRepository.UpdateAsync(league);
+
+            // Map to DTO and return
+            var leagueDto = new LeagueDto
+            {
+                Id = league.Id,
+                Name = league.Name,
+                Season = league.Season,
+                IsActive = league.IsActive,
+                TotalConferences = 0,  // Not loaded for update response
+                TotalTeams = 0         // Not loaded for update response
+            };
+
+            _logger.LogInformation(
+                "Updated league {LeagueId}: Name={Name}, Season={Season}, IsActive={IsActive}",
+                league.Id, league.Name, league.Season, league.IsActive);
+
+            return Ok(leagueDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid update request for league {LeagueId}", id);
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating league {LeagueId}", id);
+            return StatusCode(500, new { error = "Failed to update league" });
+        }
+    }
+
+    /// <summary>
+    /// Soft deletes a league with cascade to all child entities
+    /// </summary>
+    /// <param name="id">League ID</param>
+    /// <param name="deletedBy">Who is deleting the league</param>
+    /// <param name="reason">Reason for deletion</param>
+    /// <returns>Cascade delete result with statistics</returns>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(typeof(DomainObjects.CascadeDeleteResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DomainObjects.CascadeDeleteResult>> DeleteLeague(
+        int id,
+        [FromQuery] string? deletedBy = null,
+        [FromQuery] string? reason = null)
+    {
+        try
+        {
+            var result = await _leagueRepository.SoftDeleteWithCascadeAsync(id, deletedBy, reason);
+
+            if (!result.Success)
+            {
+                return BadRequest(new { error = result.ErrorMessage, result });
+            }
+
+            _logger.LogInformation(
+                "Cascade soft-deleted league {LeagueId}: {TotalDeleted} entities deleted ({Details})",
+                id, result.TotalEntitiesDeleted, string.Join(", ", result.DeletedByType.Select(kvp => $"{kvp.Value} {kvp.Key}")));
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error cascade soft-deleting league {LeagueId}", id);
+            return StatusCode(500, new { error = "Failed to cascade soft-delete league" });
+        }
+    }
+
+    /// <summary>
+    /// Restores a soft-deleted league with optional cascade to child entities
+    /// </summary>
+    /// <param name="id">League ID</param>
+    /// <param name="cascade">Whether to cascade restore to all child entities</param>
+    /// <returns>Cascade restore result with statistics</returns>
+    [HttpPost("{id}/restore")]
+    [ProducesResponseType(typeof(DomainObjects.CascadeRestoreResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DomainObjects.CascadeRestoreResult>> RestoreLeague(
+        int id,
+        [FromQuery] bool cascade = false)
+    {
+        try
+        {
+            var result = await _leagueRepository.RestoreWithCascadeAsync(id, cascade);
+
+            if (!result.Success)
+            {
+                return BadRequest(new { error = result.ErrorMessage, result });
+            }
+
+            _logger.LogInformation(
+                "Cascade restored league {LeagueId}: {TotalRestored} entities restored ({Details})",
+                id, result.TotalEntitiesRestored, string.Join(", ", result.RestoredByType.Select(kvp => $"{kvp.Value} {kvp.Key}")));
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error cascade restoring league {LeagueId}", id);
+            return StatusCode(500, new { error = "Failed to cascade restore league" });
+        }
+    }
+
+    /// <summary>
+    /// Validates whether a league can be restored
+    /// </summary>
+    /// <param name="id">League ID</param>
+    /// <returns>Validation result</returns>
+    [HttpGet("{id}/validate-restore")]
+    [ProducesResponseType(typeof(DomainObjects.RestoreValidationResult), StatusCodes.Status200OK)]
+    public async Task<ActionResult<DomainObjects.RestoreValidationResult>> ValidateRestore(int id)
+    {
+        try
+        {
+            var result = await _leagueRepository.ValidateRestoreAsync(id);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating restore for league {LeagueId}", id);
+            return StatusCode(500, new { error = "Failed to validate restore" });
+        }
+    }
+
+    /// <summary>
+    /// Gets all soft-deleted leagues
+    /// </summary>
+    /// <param name="season">Optional filter by season</param>
+    /// <returns>List of soft-deleted leagues</returns>
+    [HttpGet("deleted")]
+    [ProducesResponseType(typeof(List<LeagueDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<LeagueDto>>> GetDeletedLeagues([FromQuery] int? season = null)
+    {
+        try
+        {
+            var deletedLeagues = await _leagueRepository.GetDeletedAsync();
+
+            // Filter by season if provided
+            if (season.HasValue)
+            {
+                deletedLeagues = deletedLeagues.Where(l => l.Season == season.Value).ToList();
+            }
+
+            var leagueDtos = deletedLeagues.Select(l => new LeagueDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                Season = l.Season,
+                IsActive = l.IsActive,
+                TotalConferences = 0,  // Not loaded for list view
+                TotalTeams = 0         // Not loaded for list view
+            }).ToList();
+
+            return Ok(leagueDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving deleted leagues");
+            return StatusCode(500, new { error = "Failed to retrieve deleted leagues" });
+        }
+    }
 }

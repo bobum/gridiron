@@ -24,4 +24,13 @@ public interface ILeagueBuilderService
     /// <param name="seed">Optional seed for reproducible generation</param>
     /// <returns>The league with all teams populated</returns>
     League PopulateLeagueRosters(League league, int? seed = null);
+
+    /// <summary>
+    /// Updates a league with new values
+    /// </summary>
+    /// <param name="league">The league to update</param>
+    /// <param name="newName">Optional new name for the league</param>
+    /// <param name="newSeason">Optional new season for the league</param>
+    /// <param name="newIsActive">Optional new active status for the league</param>
+    void UpdateLeague(League league, string? newName, int? newSeason, bool? newIsActive);
 }

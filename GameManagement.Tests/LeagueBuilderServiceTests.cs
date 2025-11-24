@@ -579,4 +579,142 @@ public class LeagueBuilderServiceTests
     }
 
     #endregion
+
+    #region UpdateLeague Tests
+
+    [Fact]
+    public void UpdateLeague_WithValidName_ShouldUpdateName()
+    {
+        // Arrange
+        var league = _service.CreateLeague("Old Name", 1, 1, 1);
+        var newName = "New League Name";
+
+        // Act
+        _service.UpdateLeague(league, newName, null, null);
+
+        // Assert
+        league.Name.Should().Be(newName);
+    }
+
+    [Fact]
+    public void UpdateLeague_WithValidSeason_ShouldUpdateSeason()
+    {
+        // Arrange
+        var league = _service.CreateLeague("Test League", 1, 1, 1);
+        var newSeason = 2030;
+
+        // Act
+        _service.UpdateLeague(league, null, newSeason, null);
+
+        // Assert
+        league.Season.Should().Be(newSeason);
+    }
+
+    [Fact]
+    public void UpdateLeague_WithValidIsActive_ShouldUpdateIsActive()
+    {
+        // Arrange
+        var league = _service.CreateLeague("Test League", 1, 1, 1);
+        league.IsActive = true;
+
+        // Act
+        _service.UpdateLeague(league, null, null, false);
+
+        // Assert
+        league.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void UpdateLeague_WithAllParameters_ShouldUpdateAll()
+    {
+        // Arrange
+        var league = _service.CreateLeague("Old Name", 1, 1, 1);
+        var newName = "Updated Name";
+        var newSeason = 2025;
+        var newIsActive = false;
+
+        // Act
+        _service.UpdateLeague(league, newName, newSeason, newIsActive);
+
+        // Assert
+        league.Name.Should().Be(newName);
+        league.Season.Should().Be(newSeason);
+        league.IsActive.Should().Be(newIsActive);
+    }
+
+    [Fact]
+    public void UpdateLeague_WithNullLeague_ShouldThrowArgumentNullException()
+    {
+        // Act & Assert
+        var act = () => _service.UpdateLeague(null!, "New Name", 2025, true);
+        act.Should().Throw<ArgumentNullException>()
+            .And.ParamName.Should().Be("league");
+    }
+
+    [Theory]
+    [InlineData(1899)]  // Too old
+    [InlineData(2040)]  // Too far in future (current year + 6 or more)
+    public void UpdateLeague_WithInvalidSeason_ShouldThrowArgumentException(int invalidSeason)
+    {
+        // Arrange
+        var league = _service.CreateLeague("Test League", 1, 1, 1);
+
+        // Act & Assert
+        var act = () => _service.UpdateLeague(league, null, invalidSeason, null);
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*Season must be between*")
+            .And.ParamName.Should().Be("newSeason");
+    }
+
+    [Theory]
+    [InlineData(1900)]  // Minimum valid
+    [InlineData(2025)]  // Current/recent
+    public void UpdateLeague_WithValidSeasonRange_ShouldUpdate(int validSeason)
+    {
+        // Arrange
+        var league = _service.CreateLeague("Test League", 1, 1, 1);
+
+        // Act
+        _service.UpdateLeague(league, null, validSeason, null);
+
+        // Assert
+        league.Season.Should().Be(validSeason);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void UpdateLeague_WithEmptyName_ShouldNotUpdateName(string? emptyName)
+    {
+        // Arrange
+        var league = _service.CreateLeague("Original Name", 1, 1, 1);
+        var originalName = league.Name;
+
+        // Act
+        _service.UpdateLeague(league, emptyName, null, null);
+
+        // Assert
+        league.Name.Should().Be(originalName);
+    }
+
+    [Fact]
+    public void UpdateLeague_WithNullParameters_ShouldNotUpdate()
+    {
+        // Arrange
+        var league = _service.CreateLeague("Original Name", 1, 1, 1);
+        var originalName = league.Name;
+        var originalSeason = league.Season;
+        var originalIsActive = league.IsActive;
+
+        // Act
+        _service.UpdateLeague(league, null, null, null);
+
+        // Assert
+        league.Name.Should().Be(originalName);
+        league.Season.Should().Be(originalSeason);
+        league.IsActive.Should().Be(originalIsActive);
+    }
+
+    #endregion
 }

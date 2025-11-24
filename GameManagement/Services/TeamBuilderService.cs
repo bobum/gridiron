@@ -249,4 +249,123 @@ public class TeamBuilderService : ITeamBuilderService
 
         return team;
     }
+
+    public void UpdateTeam(Team team, string? newName, string? newCity, int? newBudget,
+        int? newChampionships, int? newWins, int? newLosses, int? newTies,
+        int? newFanSupport, int? newChemistry)
+    {
+        if (team == null)
+            throw new ArgumentNullException(nameof(team));
+
+        // Update name if provided and not empty
+        if (!string.IsNullOrWhiteSpace(newName))
+        {
+            _logger.LogInformation(
+                "Updating team {TeamId} name from '{OldName}' to '{NewName}'",
+                team.Id, team.Name, newName);
+
+            team.Name = newName;
+        }
+
+        // Update city if provided and not empty
+        if (!string.IsNullOrWhiteSpace(newCity))
+        {
+            _logger.LogInformation(
+                "Updating team {TeamId} city from '{OldCity}' to '{NewCity}'",
+                team.Id, team.City, newCity);
+
+            team.City = newCity;
+        }
+
+        // Update budget if provided and valid
+        if (newBudget.HasValue)
+        {
+            if (newBudget.Value < 0)
+                throw new ArgumentException("Budget cannot be negative", nameof(newBudget));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} budget from {OldBudget} to {NewBudget}",
+                team.Id, team.Budget, newBudget.Value);
+
+            team.Budget = newBudget.Value;
+        }
+
+        // Update championships if provided and valid
+        if (newChampionships.HasValue)
+        {
+            if (newChampionships.Value < 0)
+                throw new ArgumentException("Championships cannot be negative", nameof(newChampionships));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} championships from {OldChampionships} to {NewChampionships}",
+                team.Id, team.Championships, newChampionships.Value);
+
+            team.Championships = newChampionships.Value;
+        }
+
+        // Update wins if provided and valid
+        if (newWins.HasValue)
+        {
+            if (newWins.Value < 0)
+                throw new ArgumentException("Wins cannot be negative", nameof(newWins));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} wins from {OldWins} to {NewWins}",
+                team.Id, team.Wins, newWins.Value);
+
+            team.Wins = newWins.Value;
+        }
+
+        // Update losses if provided and valid
+        if (newLosses.HasValue)
+        {
+            if (newLosses.Value < 0)
+                throw new ArgumentException("Losses cannot be negative", nameof(newLosses));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} losses from {OldLosses} to {NewLosses}",
+                team.Id, team.Losses, newLosses.Value);
+
+            team.Losses = newLosses.Value;
+        }
+
+        // Update ties if provided and valid
+        if (newTies.HasValue)
+        {
+            if (newTies.Value < 0)
+                throw new ArgumentException("Ties cannot be negative", nameof(newTies));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} ties from {OldTies} to {NewTies}",
+                team.Id, team.Ties, newTies.Value);
+
+            team.Ties = newTies.Value;
+        }
+
+        // Update fan support if provided and valid (0-100 range)
+        if (newFanSupport.HasValue)
+        {
+            if (newFanSupport.Value < 0 || newFanSupport.Value > 100)
+                throw new ArgumentException("Fan support must be between 0 and 100", nameof(newFanSupport));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} fan support from {OldFanSupport} to {NewFanSupport}",
+                team.Id, team.FanSupport, newFanSupport.Value);
+
+            team.FanSupport = newFanSupport.Value;
+        }
+
+        // Update chemistry if provided and valid (0-100 range)
+        if (newChemistry.HasValue)
+        {
+            if (newChemistry.Value < 0 || newChemistry.Value > 100)
+                throw new ArgumentException("Chemistry must be between 0 and 100", nameof(newChemistry));
+
+            _logger.LogInformation(
+                "Updating team {TeamId} chemistry from {OldChemistry} to {NewChemistry}",
+                team.Id, team.Chemistry, newChemistry.Value);
+
+            team.Chemistry = newChemistry.Value;
+        }
+    }
 }

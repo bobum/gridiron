@@ -683,12 +683,12 @@ while (solutionDir != null && !Directory.GetFiles(solutionDir, "*.sln").Any())
 }
 
 // If we couldn't find .sln, assume we're in a subdirectory and go up one level
-if (!Directory.GetFiles(solutionDir, "*.sln").Any())
+if (!Directory.GetFiles(solutionDir!, "*.sln").Any())
 {
  solutionDir = Directory.GetParent(currentDir)?.FullName ?? currentDir;
 }
 
-var outputPath = Path.Combine(solutionDir, "diagram");
+var outputPath = Path.Combine(solutionDir!, "diagram");
 
 // Create diagrams directory if it doesn't exist
 if (!Directory.Exists(outputPath))

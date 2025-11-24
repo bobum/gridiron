@@ -340,6 +340,73 @@ public class TeamsManagementController : ControllerBase
             return StatusCode(500, new { error = "Failed to populate roster" });
         }
     }
+
+    /// <summary>
+    /// Updates an existing team
+    /// </summary>
+    /// <param name="id">Team ID</param>
+    /// <param name="request">Update request with optional fields</param>
+    /// <returns>Updated team</returns>
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TeamDto>> UpdateTeam(int id, [FromBody] UpdateTeamRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        try
+        {
+            // Get team from repository (excludes soft-deleted by default)
+            var team = await _teamRepository.GetByIdAsync(id);
+            if (team == null)
+            {
+                return NotFound(new { error = $"Team with ID {id} not found" });
+            }
+
+            // Use builder service to update team (domain logic)
+            _teamBuilderService.UpdateTeam(team, request.Name, request.City, request.Budget,
+                request.Championships, request.Wins, request.Losses, request.Ties,
+                request.FanSupport, request.Chemistry);
+
+            // Persist changes
+            await _teamRepository.UpdateAsync(team);
+
+            // Map to DTO and return
+            var teamDto = new TeamDto
+            {
+                Id = team.Id,
+                Name = team.Name,
+                City = team.City,
+                Budget = team.Budget,
+                Championships = team.Championships,
+                Wins = team.Wins,
+                Losses = team.Losses,
+                Ties = team.Ties,
+                FanSupport = team.FanSupport,
+                Chemistry = team.Chemistry
+            };
+
+            _logger.LogInformation(
+                "Updated team {TeamId}: Name={Name}, City={City}",
+                team.Id, team.Name, team.City);
+
+            return Ok(teamDto);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid update request for team {TeamId}", id);
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating team {TeamId}", id);
+            return StatusCode(500, new { error = "Failed to update team" });
+        }
+    }
 }
 
 // DTOs for team management endpoints

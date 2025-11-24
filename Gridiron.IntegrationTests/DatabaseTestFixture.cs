@@ -42,6 +42,8 @@ public class DatabaseTestFixture : IDisposable
 
         // Register repositories
         services.AddScoped<ILeagueRepository, LeagueRepository>();
+        services.AddScoped<IConferenceRepository, ConferenceRepository>();
+        services.AddScoped<IDivisionRepository, DivisionRepository>();
         services.AddScoped<ITeamRepository, TeamRepository>();
         services.AddScoped<IPlayerRepository, PlayerRepository>();
         services.AddScoped<IGameRepository, GameRepository>();
@@ -50,6 +52,8 @@ public class DatabaseTestFixture : IDisposable
 
         // Register GameManagement services
         services.AddScoped<GameManagement.Services.ILeagueBuilderService, GameManagement.Services.LeagueBuilderService>();
+        services.AddScoped<GameManagement.Services.IConferenceBuilderService, GameManagement.Services.ConferenceBuilderService>();
+        services.AddScoped<GameManagement.Services.IDivisionBuilderService, GameManagement.Services.DivisionBuilderService>();
         services.AddScoped<GameManagement.Services.ITeamBuilderService, GameManagement.Services.TeamBuilderService>();
         services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
         services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
