@@ -22,14 +22,32 @@ namespace DataAccessLayer.SeedData
                 .AddEnvironmentVariables() // Add environment variables for CI/CD
                 .Build();
 
-            // Try GridironDb first, then fall back to DefaultConnection for CI/CD
-            var connectionString = configuration.GetConnectionString("GridironDb")
-                                ?? configuration.GetConnectionString("DefaultConnection");
+            // In CI/CD, prefer DefaultConnection from environment variables
+            // In local dev, prefer GridironDb from appsettings/user secrets
+            var defaultConnection = configuration.GetConnectionString("DefaultConnection");
+            var gridironDbConnection = configuration.GetConnectionString("GridironDb");
+
+            // Use DefaultConnection if it exists (CI/CD), otherwise fall back to GridironDb (local dev)
+            // Also check if GridironDb is a placeholder value
+            var connectionString = defaultConnection;
+            if (string.IsNullOrEmpty(connectionString) &&
+                !string.IsNullOrEmpty(gridironDbConnection) &&
+                !gridironDbConnection.Contains("YOUR_SERVER"))
+            {
+                connectionString = gridironDbConnection;
+            }
+
+            // Debug logging for CI/CD troubleshooting
+            Console.WriteLine($"Connection string source: {(defaultConnection != null ? "DefaultConnection (CI/CD)" : "GridironDb (Local)")}");
+            Console.WriteLine($"Connection string value: {(connectionString != null ? $"{connectionString.Substring(0, Math.Min(50, connectionString.Length))}..." : "NULL")}");
 
             if (string.IsNullOrEmpty(connectionString))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Connection string 'GridironDb' not found.");
+                Console.WriteLine("Error: Connection string not found.");
+                Console.WriteLine("Checked: GridironDb and DefaultConnection");
+                Console.WriteLine("Environment variables:");
+                Console.WriteLine($"  ConnectionStrings__DefaultConnection: {Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")?.Substring(0, Math.Min(50, Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")?.Length ?? 0))}");
                 Console.ResetColor();
                 return;
             }
