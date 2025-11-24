@@ -19,9 +19,12 @@ namespace DataAccessLayer.SeedData
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddUserSecrets<Program>(optional: true)
+                .AddEnvironmentVariables() // Add environment variables for CI/CD
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("GridironDb");
+            // Try GridironDb first, then fall back to DefaultConnection for CI/CD
+            var connectionString = configuration.GetConnectionString("GridironDb")
+                                ?? configuration.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrEmpty(connectionString))
             {
