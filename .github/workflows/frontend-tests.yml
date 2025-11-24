@@ -61,7 +61,7 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -C -Q 'SELECT 1' || exit 1"
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -Q 'SELECT 1' || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
@@ -70,6 +70,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Debug running containers
+        run: docker ps -a
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -92,23 +95,31 @@ jobs:
       - name: Build API
         run: dotnet build Gridiron.WebApi/Gridiron.WebApi.csproj --no-restore
 
+      - name: Wait for SQL Server
+        run: |
+          for i in {1..20}; do
+            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -Q "SELECT 1" && break
+            echo "SQL Server not ready yet..."
+            sleep 5
+          done
+
       - name: Update database with migrations
         working-directory: ./DataAccessLayer
         env:
-          ConnectionStrings__DefaultConnection: 'Server=sqlserver,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False;'
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False;"
         run: dotnet ef database update --project . --startup-project ../Gridiron.WebApi
 
       - name: Seed test data
         working-directory: ./Gridiron.WebApi
         env:
-          ConnectionStrings__DefaultConnection: 'Server=sqlserver,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False;'
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False;"
         run: dotnet run -- --seed
 
       - name: Start API in background
         working-directory: ./Gridiron.WebApi
         env:
-          ConnectionStrings__DefaultConnection: 'Server=sqlserver,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False;'
-          ASPNETCORE_URLS: 'http://localhost:5000'
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;Encrypt=False;"
+          ASPNETCORE_URLS: "http://localhost:5000"
         run: |
           dotnet run &
           echo "API started with PID $!"
