@@ -86,17 +86,14 @@ jobs:
       - name: Restore .NET dependencies
         run: dotnet restore
 
-      - name: Install EF Core tools
-        run: dotnet tool install --global dotnet-ef
-
       - name: Build API
         run: dotnet build Gridiron.WebApi/Gridiron.WebApi.csproj --no-restore
 
       - name: Update database with migrations
-        working-directory: ./Gridiron.WebApi
+        working-directory: ./DataAccessLayer
         env:
           ConnectionStrings__DefaultConnection: 'Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
-        run: dotnet ef database update
+        run: dotnet ef database update --project . --startup-project ../Gridiron.WebApi
 
       - name: Seed test data
         working-directory: ./Gridiron.WebApi
