@@ -95,19 +95,19 @@ jobs:
       - name: Update database with migrations
         working-directory: ./DataAccessLayer
         env:
-          ConnectionStrings__DefaultConnection: 'Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+          ConnectionStrings__DefaultConnection: 'Server=sqlserver,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
         run: dotnet ef database update --project . --startup-project ../Gridiron.WebApi
 
       - name: Seed test data
         working-directory: ./Gridiron.WebApi
         env:
-          ConnectionStrings__DefaultConnection: 'Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+          ConnectionStrings__DefaultConnection: 'Server=sqlserver,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
         run: dotnet run -- --seed
 
       - name: Start API in background
         working-directory: ./Gridiron.WebApi
         env:
-          ConnectionStrings__DefaultConnection: 'Server=localhost,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
+          ConnectionStrings__DefaultConnection: 'Server=sqlserver,1433;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
           ASPNETCORE_URLS: 'http://localhost:5000'
         run: |
           dotnet run &
