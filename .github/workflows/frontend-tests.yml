@@ -76,6 +76,20 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Diagnose SQL Server
+        run: |
+          echo "=== Docker containers ==="
+          docker ps -a
+          echo ""
+          echo "=== SQL Server container logs ==="
+          docker logs $(docker ps -aq -f ancestor=mcr.microsoft.com/mssql/server:2022-latest) 2>&1 || echo "No SQL Server container found"
+          echo ""
+          echo "=== Network connectivity ==="
+          nc -zv localhost 1433 || echo "Port 1433 not accessible"
+          echo ""
+          echo "=== Listening ports ==="
+          netstat -tuln | grep 1433 || echo "Nothing listening on 1433"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
