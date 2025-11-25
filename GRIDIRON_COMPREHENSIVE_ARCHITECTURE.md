@@ -2,13 +2,15 @@
 
 ## Executive Summary
 
-Gridiron is a sophisticated NFL football game simulation engine built with C# .NET 8. It uses a state machine architecture to simulate realistic football games with comprehensive player attributes, statistical modeling, penalty systems, injury tracking, and database persistence. The codebase is well-structured with clear separation of concerns across 11 projects.
+Gridiron is a sophisticated NFL football game simulation engine with a React frontend and .NET 8 backend. The backend uses a state machine architecture to simulate realistic football games with comprehensive player attributes, statistical modeling, penalty systems, injury tracking, and database persistence. The codebase is well-structured with clear separation of concerns across multiple projects.
 
 **Key Facts:**
 - **Status:** Actively maintained (November 2025)
-- **Size:** 140MB, 229 C# files, 40,800+ lines of code, 22,200+ lines of test code
-- **Test Coverage:** 100% passing (839/839 tests)
-- **Architecture:** Clean layered architecture with clear separation between domain, simulation, persistence, and API layers
+- **Backend:** 140MB, 229 C# files, 40,800+ lines of code, 22,200+ lines of test code
+- **Frontend:** React 18 + TypeScript with Vite, TailwindCSS, TanStack Query
+- **Test Coverage:** 100% passing (839/839 backend tests, 25 frontend tests)
+- **CI/CD:** GitHub Actions with automated testing on every PR
+- **Architecture:** Clean layered architecture with clear separation between frontend, API, domain, simulation, and persistence layers
 
 ---
 
@@ -75,7 +77,49 @@ Gridiron is a sophisticated NFL football game simulation engine built with C# .N
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 The Architectural Rule: Repository Pattern
+### 1.2 Frontend Architecture (gridiron-web)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                   React Frontend (gridiron-web)              │
+│  - Built with Vite + React 18 + TypeScript                  │
+│  - TailwindCSS for styling                                   │
+│  - TanStack Query for data fetching and caching             │
+│  - Axios for HTTP requests to Gridiron.WebApi               │
+│                                                              │
+│  Components:                                                 │
+│    - Navigation: Header nav bar with routing               │
+│    - Loading: Reusable loading spinner                     │
+│    - ErrorMessage: Error state display                     │
+│    - Team components: Team lists and details               │
+│                                                              │
+│  Pages:                                                      │
+│    - HomePage: API status and quick actions                │
+│    - TeamsPage: Browse all teams                            │
+│    - GameSimulationPage: Simulate games between teams      │
+│                                                              │
+│  API Client (src/api/):                                     │
+│    - client.ts: Axios instance with interceptors           │
+│    - teams.ts: useTeams() hook                             │
+│    - games.ts: useSimulateGame() mutation                  │
+│                                                              │
+│  Testing:                                                    │
+│    - Vitest + React Testing Library (15 component tests)   │
+│    - MSW (Mock Service Worker) for API mocking            │
+│    - Playwright E2E tests (10 tests with real API)        │
+│                                                              │
+│  Vite Proxy Configuration:                                  │
+│    - /api/* → http://localhost:5000 (dev)                  │
+│    - Seamless API integration during development          │
+└──────────────────────────────────────────────────────────────┘
+          ↓ HTTP Requests to /api/*
+┌──────────────────────────────────────────────────────────────┐
+│              Gridiron.WebApi (ASP.NET Core)                  │
+│  REST endpoints: /api/teams, /api/games/simulate, etc.     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 1.3 The Architectural Rule: Repository Pattern
 
 **CRITICAL ARCHITECTURE PRINCIPLE:**
 > **Only the DataAccessLayer project may communicate with ANY database. No exceptions.**
@@ -1377,4 +1421,201 @@ public class MyClass
 - `PlayerGeneratorService` - Generates random players and draft classes
 - `TeamBuilderService` - Creates and manages team rosters
 - `PlayerProgressionService` - Handles aging and retirement
+
+---
+
+## 12. CI/CD PIPELINE & TESTING STRATEGY
+
+### 12.1 GitHub Actions Workflow
+
+**File:** `.github/workflows/frontend-tests.yml`
+
+Automated testing runs on every pull request that modifies frontend code or the workflow file.
+
+**Triggers:**
+- Pull requests to `master` branch
+- Pushes to `master` branch
+- Manual workflow dispatch
+- Only when frontend files change (`gridiron-web/**`)
+
+### 12.2 Testing Pipeline Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│         PHASE 1: Component & Integration Tests               │
+│                    (~2-3 minutes)                            │
+│                                                              │
+│  Environment: Ubuntu Latest, Node.js 20                     │
+│  Dependencies: npm ci                                        │
+│  Command: npm test -- --run                                 │
+│                                                              │
+│  Tests Run:                                                  │
+│    ✓ 15 component tests (Vitest + React Testing Library)   │
+│    ✓ MSW mocks for API integration testing                 │
+│    ✓ No backend/database required                          │
+│                                                              │
+│  Artifacts: Test coverage reports                           │
+│  Retention: 7 days                                          │
+└──────────────────────────────────────────────────────────────┘
+          ↓ (Only if Phase 1 passes)
+┌──────────────────────────────────────────────────────────────┐
+│           PHASE 2: End-to-End Tests                          │
+│                    (~5-8 minutes)                            │
+│                                                              │
+│  Infrastructure Setup:                                       │
+│    1. SQL Server 2022 Container                             │
+│       - Image: mcr.microsoft.com/mssql/server:2022-latest  │
+│       - Port: 1433                                          │
+│       - Health checks with sqlcmd                           │
+│       - Password: YourStrong!Passw0rd                       │
+│                                                              │
+│    2. .NET 8 SDK Setup                                      │
+│       - Restore dependencies                                │
+│       - Install dotnet-ef 8.0                               │
+│       - Build Gridiron.WebApi                               │
+│                                                              │
+│    3. Database Migration                                    │
+│       - Command: dotnet ef database update                  │
+│       - Target: GridironCI database                         │
+│                                                              │
+│    4. Database Seeding (Non-Interactive)                    │
+│       - Command: dotnet run -- --seed --force               │
+│       - Seeds: 2 teams, 106 players                         │
+│       - Player data: 147 first names, 126 last names,      │
+│                      107 colleges                           │
+│                                                              │
+│    5. API Startup                                           │
+│       - Run in background                                   │
+│       - Port: 5000                                          │
+│       - Verify with: curl /swagger/index.html              │
+│       - Verify data: curl /api/teams                        │
+│                                                              │
+│    6. Frontend Setup                                        │
+│       - Install Playwright browsers (chromium)              │
+│       - Install npm dependencies                            │
+│       - Vite dev server auto-starts                         │
+│                                                              │
+│  Tests Run:                                                  │
+│    ✓ 10 Playwright E2E tests                                │
+│    ✓ Tests against real API with real database             │
+│    ✓ Full integration coverage                             │
+│                                                              │
+│  Tests Covered:                                              │
+│    - Homepage rendering and navigation                      │
+│    - Teams page data loading                                │
+│    - Game simulation flow                                   │
+│    - Navigation between pages                               │
+│                                                              │
+│  Artifacts:                                                  │
+│    - Playwright HTML report (always)                        │
+│    - Test traces (on failure only)                          │
+│  Retention: 7 days                                          │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 12.3 Test Coverage Summary
+
+**Backend Tests:**
+- **Unit Tests:** 839 MSTest tests (100% pass rate)
+  - Domain object tests
+  - State machine logic tests
+  - Play execution tests
+  - Penalty system tests
+  - Injury system tests
+
+- **Integration Tests:** Gridiron.IntegrationTests
+  - API endpoint tests
+  - Soft delete cascade tests
+  - Database operation tests
+
+**Frontend Tests:**
+- **Component Tests:** 15 tests (Vitest + React Testing Library)
+  - Navigation component
+  - Loading states
+  - Error states
+  - Team components
+  - Homepage components
+
+- **Integration Tests:** 15 tests (MSW)
+  - API mocking
+  - Data fetching flows
+  - Error handling
+  - Loading states
+
+- **E2E Tests:** 10 tests (Playwright)
+  - Homepage functionality
+  - Teams page
+  - Game simulation
+  - Navigation flows
+
+**Total Test Count:** 869 automated tests
+
+### 12.4 Seeding Strategy for CI/CD
+
+**Challenge:** Database seeding requires interactive confirmation
+
+**Solution:** Non-interactive `--force` flag
+
+**Implementation:**
+```csharp
+// DataAccessLayer/SeedData/SeedDataRunner.cs
+public static async Task RunAsync(string[] args)
+{
+    bool forceMode = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
+
+    if (existingData && !forceMode)
+    {
+        // Interactive mode: Prompt user
+        Console.Write("Clear existing data? (y/n): ");
+        var response = Console.ReadLine();
+    }
+    else if (existingData && forceMode)
+    {
+        // CI/CD mode: Auto-clear
+        Console.WriteLine("Force mode - clearing automatically...");
+    }
+}
+```
+
+**Environment Variable Strategy:**
+- Seeding: `ConnectionStrings__DefaultConnection`
+- API Runtime: `ConnectionStrings__GridironDb`
+- Both point to same database: `GridironCI`
+
+### 12.5 Local Testing Guide
+
+**Component Tests:**
+```bash
+cd gridiron-web
+npm test              # Watch mode
+npm test -- --run     # Run once
+npm run test:ui       # Visual test runner
+```
+
+**E2E Tests (Requires API):**
+```bash
+# Terminal 1: Start API
+cd Gridiron.WebApi
+dotnet run
+
+# Terminal 2: Run E2E tests
+cd gridiron-web
+npm run test:e2e           # Headless
+npm run test:e2e:ui        # With UI
+npx playwright test --debug # Debug mode
+```
+
+**Backend Tests:**
+```bash
+dotnet test                 # All tests
+dotnet test --filter "FullyQualifiedName~GameFlow"  # Specific tests
+```
+
+### 12.6 Key Testing Documentation
+
+- **Frontend:** `gridiron-web/TESTING.md` - Complete frontend testing guide
+- **Backend:** `API_TESTING_GUIDE.md` - Backend API testing guide
+- **Workflow:** `.github/workflows/frontend-tests.yml` - CI/CD configuration
+
+---
 
