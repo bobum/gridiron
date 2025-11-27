@@ -124,13 +124,13 @@ jobs:
           echo "Fetching teams from API..."
           curl -v http://localhost:5000/api/teams
 
-      - name: Install Playwright browsers
-        working-directory: ./gridiron-web
-        run: npx playwright install chromium --with-deps
-
       - name: Install frontend dependencies
         working-directory: ./gridiron-web
         run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./gridiron-web
+        run: npx playwright install chromium --with-deps
 
       - name: Run E2E tests
         working-directory: ./gridiron-web
