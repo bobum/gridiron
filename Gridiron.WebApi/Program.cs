@@ -2,7 +2,9 @@ using DataAccessLayer;
 using DataAccessLayer.Repositories;
 using DataAccessLayer.SeedData;
 using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
 
 // Check if we're running in seed mode
 if (args.Contains("--seed", StringComparer.OrdinalIgnoreCase))
@@ -12,6 +14,15 @@ if (args.Contains("--seed", StringComparer.OrdinalIgnoreCase))
 }
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ========================================
+// AUTHENTICATION & AUTHORIZATION
+// ========================================
+// Configure JWT Bearer authentication with Azure Entra ID (External CIAM)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddAuthorization();
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -23,6 +34,32 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Gridiron Football Simulation API",
         Version = "v1",
         Description = "REST API for running football game simulations and accessing team/player data"
+    });
+
+    // Add JWT authentication to Swagger
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. Enter your token in the text input below."
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
@@ -53,11 +90,13 @@ builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IPlayByPlayRepository, PlayByPlayRepository>();
 builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // ========================================
 // APPLICATION SERVICES
 // ========================================
 builder.Services.AddScoped<IGameSimulationService, GameSimulationService>();
+builder.Services.AddScoped<IGridironAuthorizationService, GridironAuthorizationService>();
 
 // ========================================
 // GAME MANAGEMENT SERVICES
@@ -100,6 +139,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();
 

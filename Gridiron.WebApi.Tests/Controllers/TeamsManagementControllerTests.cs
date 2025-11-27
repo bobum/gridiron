@@ -4,9 +4,12 @@ using FluentAssertions;
 using GameManagement.Services;
 using Gridiron.WebApi.Controllers;
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
@@ -19,8 +22,11 @@ public class TeamsManagementControllerTests
 {
     private readonly Mock<ITeamRepository> _mockTeamRepository;
     private readonly Mock<IPlayerRepository> _mockPlayerRepository;
+    private readonly Mock<IDivisionRepository> _mockDivisionRepository;
+    private readonly Mock<IConferenceRepository> _mockConferenceRepository;
     private readonly Mock<ITeamBuilderService> _mockTeamBuilderService;
     private readonly Mock<IPlayerGeneratorService> _mockPlayerGeneratorService;
+    private readonly Mock<IGridironAuthorizationService> _mockAuthorizationService;
     private readonly Mock<ILogger<TeamsManagementController>> _mockLogger;
     private readonly TeamsManagementController _controller;
 
@@ -28,15 +34,71 @@ public class TeamsManagementControllerTests
     {
         _mockTeamRepository = new Mock<ITeamRepository>();
         _mockPlayerRepository = new Mock<IPlayerRepository>();
+        _mockDivisionRepository = new Mock<IDivisionRepository>();
+        _mockConferenceRepository = new Mock<IConferenceRepository>();
         _mockTeamBuilderService = new Mock<ITeamBuilderService>();
         _mockPlayerGeneratorService = new Mock<IPlayerGeneratorService>();
+        _mockAuthorizationService = new Mock<IGridironAuthorizationService>();
         _mockLogger = new Mock<ILogger<TeamsManagementController>>();
         _controller = new TeamsManagementController(
             _mockTeamRepository.Object,
             _mockPlayerRepository.Object,
+            _mockDivisionRepository.Object,
+            _mockConferenceRepository.Object,
             _mockTeamBuilderService.Object,
             _mockPlayerGeneratorService.Object,
+            _mockAuthorizationService.Object,
             _mockLogger.Object);
+
+        // Set up HttpContext with authenticated user claims
+        SetupHttpContextWithClaims("test-oid-123", "test@example.com", "Test User");
+    }
+
+    private void SetupHttpContextWithClaims(string oid, string email, string displayName)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim("oid", oid),
+            new Claim("email", email),
+            new Claim("name", displayName)
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+    }
+
+    private void SetupAuthorizationMocks(bool canAccessTeam = true, bool isCommissioner = false, bool isGlobalAdmin = false)
+    {
+        var testUser = new User { Id = 1, AzureAdObjectId = "test-oid-123", Email = "test@example.com", DisplayName = "Test User" };
+
+        _mockAuthorizationService
+            .Setup(s => s.GetOrCreateUserFromClaimsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(testUser);
+
+        _mockAuthorizationService
+            .Setup(s => s.CanAccessTeamAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(canAccessTeam);
+
+        _mockAuthorizationService
+            .Setup(s => s.IsCommissionerOfLeagueAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(isCommissioner);
+
+        _mockAuthorizationService
+            .Setup(s => s.IsGlobalAdminAsync(It.IsAny<string>()))
+            .ReturnsAsync(isGlobalAdmin);
+
+        _mockAuthorizationService
+            .Setup(s => s.GetAccessibleTeamIdsAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<int> { 1, 2, 3 });
     }
 
     #region PopulateTeamRoster Tests
@@ -45,6 +107,7 @@ public class TeamsManagementControllerTests
     public async Task PopulateTeamRoster_WhenTeamExists_ReturnsOkWithTeam()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeam(1, "City", "Name");
         _mockTeamRepository
             .Setup(r => r.GetByIdAsync(1))
@@ -74,6 +137,7 @@ public class TeamsManagementControllerTests
     public async Task PopulateTeamRoster_WhenTeamNotFound_ReturnsNotFound()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         _mockTeamRepository
             .Setup(r => r.GetByIdAsync(999))
             .ReturnsAsync((Team?)null);
@@ -89,6 +153,7 @@ public class TeamsManagementControllerTests
     public async Task PopulateTeamRoster_WithSeed_PassesSeedToService()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeam(1, "Test", "Team");
         var seed = 54321;
 
@@ -117,6 +182,7 @@ public class TeamsManagementControllerTests
     public async Task PopulateTeamRoster_CallsRepositoryUpdate()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeam(1, "Test", "Team");
 
         _mockTeamRepository
@@ -142,6 +208,7 @@ public class TeamsManagementControllerTests
     public async Task PopulateTeamRoster_WhenServiceThrowsException_ReturnsInternalServerError()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeam(1, "Test", "Team");
 
         _mockTeamRepository

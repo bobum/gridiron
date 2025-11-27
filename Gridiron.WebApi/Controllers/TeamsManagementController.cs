@@ -1,6 +1,9 @@
 using DataAccessLayer.Repositories;
 using GameManagement.Services;
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Extensions;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gridiron.WebApi.Controllers;
@@ -8,39 +11,52 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for team management operations (creation, roster management, depth charts)
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
 /// </summary>
 [ApiController]
 [Route("api/teams-management")]
+[Authorize]
 public class TeamsManagementController : ControllerBase
 {
     private readonly ITeamRepository _teamRepository;
     private readonly IPlayerRepository _playerRepository;
+    private readonly IDivisionRepository _divisionRepository;
+    private readonly IConferenceRepository _conferenceRepository;
     private readonly ITeamBuilderService _teamBuilderService;
     private readonly IPlayerGeneratorService _playerGeneratorService;
+    private readonly IGridironAuthorizationService _authorizationService;
     private readonly ILogger<TeamsManagementController> _logger;
 
     public TeamsManagementController(
         ITeamRepository teamRepository,
         IPlayerRepository playerRepository,
+        IDivisionRepository divisionRepository,
+        IConferenceRepository conferenceRepository,
         ITeamBuilderService teamBuilderService,
         IPlayerGeneratorService playerGeneratorService,
+        IGridironAuthorizationService authorizationService,
         ILogger<TeamsManagementController> logger)
     {
         _teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         _playerRepository = playerRepository ?? throw new ArgumentNullException(nameof(playerRepository));
+        _divisionRepository = divisionRepository ?? throw new ArgumentNullException(nameof(divisionRepository));
+        _conferenceRepository = conferenceRepository ?? throw new ArgumentNullException(nameof(conferenceRepository));
         _teamBuilderService = teamBuilderService ?? throw new ArgumentNullException(nameof(teamBuilderService));
         _playerGeneratorService = playerGeneratorService ?? throw new ArgumentNullException(nameof(playerGeneratorService));
+        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
-    /// Creates a new team
+    /// Creates a new team (Only Commissioners can create teams in their league)
     /// </summary>
     /// <param name="request">Team creation request</param>
     /// <returns>Created team</returns>
     [HttpPost]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> CreateTeam([FromBody] CreateTeamRequest request)
     {
         if (request == null)
@@ -63,10 +79,46 @@ public class TeamsManagementController : ControllerBase
             return BadRequest(new { error = "Budget must be greater than 0" });
         }
 
+        if (request.DivisionId <= 0)
+        {
+            return BadRequest(new { error = "DivisionId is required" });
+        }
+
         try
         {
+            // Get current user from JWT claims
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            // Get division to determine league (need to trace division -> conference -> league)
+            var division = await _divisionRepository.GetByIdAsync(request.DivisionId);
+            if (division == null)
+            {
+                return BadRequest(new { error = $"Division with ID {request.DivisionId} not found" });
+            }
+
+            // Get conference to get leagueId (Division -> Conference -> League hierarchy)
+            var conference = await _conferenceRepository.GetByIdAsync(division.ConferenceId);
+            if (conference == null)
+            {
+                return BadRequest(new { error = "Division's conference not found" });
+            }
+
+            // SECURITY: Only Commissioners of the league can create teams
+            var isCommissioner = await _authorizationService.IsCommissionerOfLeagueAsync(azureAdObjectId, conference.LeagueId);
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+            if (!isCommissioner && !isGlobalAdmin)
+            {
+                return Forbid();
+            }
+
             // Create team using TeamBuilderService
             var team = _teamBuilderService.CreateTeam(request.City, request.Name, request.Budget);
+            team.DivisionId = request.DivisionId;
 
             // Persist to database
             await _teamRepository.AddAsync(team);
@@ -105,8 +157,24 @@ public class TeamsManagementController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> GetTeam(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
+        }
+
         var team = await _teamRepository.GetByIdAsync(id);
 
         if (team == null)
@@ -132,7 +200,7 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Adds a player to a team's roster
+    /// Adds a player to a team's roster (GM can modify their own roster, Commissioner can modify any team in their league)
     /// </summary>
     /// <param name="id">Team ID</param>
     /// <param name="request">Add player request</param>
@@ -141,11 +209,27 @@ public class TeamsManagementController : ControllerBase
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> AddPlayerToRoster(int id, [FromBody] AddPlayerToRosterRequest request)
     {
         if (request == null)
         {
             return BadRequest(new { error = "Request body is required" });
+        }
+
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database (GM can modify their own roster)
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
         }
 
         // Get team
@@ -203,8 +287,24 @@ public class TeamsManagementController : ControllerBase
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> BuildDepthCharts(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
+        }
+
         // Get team with players
         var team = await _teamRepository.GetByIdAsync(id);
         if (team == null)
@@ -259,8 +359,24 @@ public class TeamsManagementController : ControllerBase
     [HttpGet("{id}/validate-roster")]
     [ProducesResponseType(typeof(RosterValidationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<RosterValidationResult>> ValidateRoster(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
+        }
+
         // Get team with players
         var team = await _teamRepository.GetByIdAsync(id);
         if (team == null)
@@ -298,8 +414,24 @@ public class TeamsManagementController : ControllerBase
     [HttpPost("{id}/populate-roster")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> PopulateTeamRoster(int id, [FromQuery] int? seed = null)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
+        }
+
         // Get team
         var team = await _teamRepository.GetByIdAsync(id);
         if (team == null)
@@ -351,6 +483,8 @@ public class TeamsManagementController : ControllerBase
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> UpdateTeam(int id, [FromBody] UpdateTeamRequest request)
     {
         if (request == null)
@@ -360,6 +494,20 @@ public class TeamsManagementController : ControllerBase
 
         try
         {
+            // Get current user from JWT claims
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            // Check authorization BEFORE accessing database
+            var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+            if (!hasAccess)
+            {
+                return Forbid();
+            }
+
             // Get team from repository (excludes soft-deleted by default)
             var team = await _teamRepository.GetByIdAsync(id);
             if (team == null)
@@ -416,6 +564,7 @@ public class CreateTeamRequest
     public string City { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public decimal Budget { get; set; }
+    public int DivisionId { get; set; }
 }
 
 public class AddPlayerToRosterRequest

@@ -1,6 +1,10 @@
 using DataAccessLayer.Repositories;
+using DomainObjects;
 using GameManagement.Services;
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Extensions;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gridiron.WebApi.Controllers;
@@ -8,22 +12,27 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for league management operations (creation, structure management)
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
 /// </summary>
 [ApiController]
 [Route("api/leagues-management")]
+[Authorize] // All endpoints require authentication
 public class LeaguesManagementController : ControllerBase
 {
     private readonly ILeagueRepository _leagueRepository;
     private readonly ILeagueBuilderService _leagueBuilderService;
+    private readonly IGridironAuthorizationService _authorizationService;
     private readonly ILogger<LeaguesManagementController> _logger;
 
     public LeaguesManagementController(
         ILeagueRepository leagueRepository,
         ILeagueBuilderService leagueBuilderService,
+        IGridironAuthorizationService authorizationService,
         ILogger<LeaguesManagementController> logger)
     {
         _leagueRepository = leagueRepository ?? throw new ArgumentNullException(nameof(leagueRepository));
         _leagueBuilderService = leagueBuilderService ?? throw new ArgumentNullException(nameof(leagueBuilderService));
+        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -64,6 +73,22 @@ public class LeaguesManagementController : ControllerBase
 
         try
         {
+            // Get current user from JWT claims
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            var email = HttpContext.GetUserEmail();
+            var displayName = HttpContext.GetUserDisplayName();
+
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            // Sync user to database (create or update)
+            var user = await _authorizationService.GetOrCreateUserFromClaimsAsync(
+                azureAdObjectId,
+                email ?? "unknown@example.com",
+                displayName ?? "Unknown User");
+
             // Create league using LeagueBuilderService
             var league = _leagueBuilderService.CreateLeague(
                 request.Name,
@@ -73,6 +98,17 @@ public class LeaguesManagementController : ControllerBase
 
             // Persist to database
             await _leagueRepository.AddAsync(league);
+
+            // Auto-assign creator as Commissioner of the league
+            user.LeagueRoles.Add(new DomainObjects.UserLeagueRole
+            {
+                UserId = user.Id,
+                LeagueId = league.Id,
+                Role = DomainObjects.UserRole.Commissioner,
+                TeamId = null,
+                AssignedAt = DateTime.UtcNow
+            });
+            await _leagueRepository.SaveChangesAsync();
 
             // Map to detailed DTO with full structure
             var leagueDetailDto = new LeagueDetailDto
@@ -112,8 +148,8 @@ public class LeaguesManagementController : ControllerBase
             };
 
             _logger.LogInformation(
-                "Created league: {Name} (ID: {Id}) with {Conferences} conferences and {Teams} total teams",
-                league.Name, league.Id, leagueDetailDto.TotalConferences, leagueDetailDto.TotalTeams);
+                "Created league: {Name} (ID: {Id}) with {Conferences} conferences and {Teams} total teams. User {UserId} assigned as Commissioner.",
+                league.Name, league.Id, leagueDetailDto.TotalConferences, leagueDetailDto.TotalTeams, user.Id);
 
             return CreatedAtAction(nameof(GetLeague), new { id = league.Id }, leagueDetailDto);
         }
@@ -137,6 +173,7 @@ public class LeaguesManagementController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(LeagueDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<LeagueDetailDto>> GetLeague(int id)
     {
         try
@@ -146,6 +183,19 @@ public class LeaguesManagementController : ControllerBase
             if (league == null)
             {
                 return NotFound(new { error = $"League with ID {id} not found" });
+            }
+
+            // Check authorization: User must have access to this league
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var hasAccess = await _authorizationService.CanAccessLeagueAsync(azureAdObjectId, id);
+            if (!hasAccess)
+            {
+                return Forbid();
             }
 
             var leagueDetailDto = new LeagueDetailDto
@@ -194,18 +244,39 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all leagues (without full structure)
+    /// Gets all leagues (without full structure) that the current user has access to
     /// </summary>
-    /// <returns>List of all leagues</returns>
+    /// <returns>List of accessible leagues</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<LeagueDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<LeagueDto>>> GetAllLeagues()
     {
         try
         {
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            // Check if user is global admin
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
             var leagues = await _leagueRepository.GetAllAsync();
 
-            var leagueDtos = leagues.Select(l => new LeagueDto
+            List<League> filteredLeagues;
+            if (isGlobalAdmin)
+            {
+                // Global admins see all leagues
+                filteredLeagues = leagues;
+            }
+            else
+            {
+                // Regular users only see leagues they have access to
+                var accessibleLeagueIds = await _authorizationService.GetAccessibleLeagueIdsAsync(azureAdObjectId);
+                filteredLeagues = leagues.Where(l => accessibleLeagueIds.Contains(l.Id)).ToList();
+            }
+
+            var leagueDtos = filteredLeagues.Select(l => new LeagueDto
             {
                 Id = l.Id,
                 Name = l.Name,
@@ -233,6 +304,7 @@ public class LeaguesManagementController : ControllerBase
     [HttpPost("{id}/populate-rosters")]
     [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<LeagueDto>> PopulateLeagueRosters(int id, [FromQuery] int? seed = null)
     {
         try
@@ -242,6 +314,21 @@ public class LeaguesManagementController : ControllerBase
             if (league == null)
             {
                 return NotFound(new { error = $"League with ID {id} not found" });
+            }
+
+            // Check authorization: User must be Commissioner of this league or Global Admin
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var isCommissioner = await _authorizationService.IsCommissionerOfLeagueAsync(azureAdObjectId, id);
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+            if (!isCommissioner && !isGlobalAdmin)
+            {
+                return Forbid();
             }
 
             // Populate all team rosters using LeagueBuilderService
@@ -286,6 +373,7 @@ public class LeaguesManagementController : ControllerBase
     [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<LeagueDto>> UpdateLeague(int id, [FromBody] UpdateLeagueRequest request)
     {
         if (request == null)
@@ -300,6 +388,21 @@ public class LeaguesManagementController : ControllerBase
             if (league == null)
             {
                 return NotFound(new { error = $"League with ID {id} not found" });
+            }
+
+            // Check authorization: User must be Commissioner of this league or Global Admin
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var isCommissioner = await _authorizationService.IsCommissionerOfLeagueAsync(azureAdObjectId, id);
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+            if (!isCommissioner && !isGlobalAdmin)
+            {
+                return Forbid();
             }
 
             // Use builder service to update league (domain logic)
@@ -348,6 +451,7 @@ public class LeaguesManagementController : ControllerBase
     [ProducesResponseType(typeof(DomainObjects.CascadeDeleteResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<DomainObjects.CascadeDeleteResult>> DeleteLeague(
         int id,
         [FromQuery] string? deletedBy = null,
@@ -355,6 +459,21 @@ public class LeaguesManagementController : ControllerBase
     {
         try
         {
+            // Check authorization: User must be Commissioner of this league or Global Admin
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var isCommissioner = await _authorizationService.IsCommissionerOfLeagueAsync(azureAdObjectId, id);
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+            if (!isCommissioner && !isGlobalAdmin)
+            {
+                return Forbid();
+            }
+
             var result = await _leagueRepository.SoftDeleteWithCascadeAsync(id, deletedBy, reason);
 
             if (!result.Success)

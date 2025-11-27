@@ -4,9 +4,12 @@ using FluentAssertions;
 using GameManagement.Services;
 using Gridiron.WebApi.Controllers;
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
@@ -19,6 +22,7 @@ public class LeaguesManagementControllerTests
 {
     private readonly Mock<ILeagueRepository> _mockLeagueRepository;
     private readonly Mock<ILeagueBuilderService> _mockLeagueBuilderService;
+    private readonly Mock<IGridironAuthorizationService> _mockAuthorizationService;
     private readonly Mock<ILogger<LeaguesManagementController>> _mockLogger;
     private readonly LeaguesManagementController _controller;
 
@@ -26,11 +30,67 @@ public class LeaguesManagementControllerTests
     {
         _mockLeagueRepository = new Mock<ILeagueRepository>();
         _mockLeagueBuilderService = new Mock<ILeagueBuilderService>();
+        _mockAuthorizationService = new Mock<IGridironAuthorizationService>();
         _mockLogger = new Mock<ILogger<LeaguesManagementController>>();
         _controller = new LeaguesManagementController(
             _mockLeagueRepository.Object,
             _mockLeagueBuilderService.Object,
+            _mockAuthorizationService.Object,
             _mockLogger.Object);
+
+        // Set up HttpContext with authenticated user claims
+        SetupHttpContextWithClaims("test-oid-123", "test@example.com", "Test User");
+    }
+
+    private void SetupHttpContextWithClaims(string oid, string email, string displayName)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim("oid", oid),
+            new Claim("email", email),
+            new Claim("name", displayName)
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+    }
+
+    private void SetupAuthorizationMocks(bool canAccessLeague = true, bool isCommissioner = true, bool isGlobalAdmin = false)
+    {
+        var testUser = new User { Id = 1, AzureAdObjectId = "test-oid-123", Email = "test@example.com", DisplayName = "Test User" };
+
+        _mockAuthorizationService
+            .Setup(s => s.GetOrCreateUserFromClaimsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(testUser);
+
+        _mockAuthorizationService
+            .Setup(s => s.CanAccessLeagueAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(canAccessLeague);
+
+        _mockAuthorizationService
+            .Setup(s => s.IsCommissionerOfLeagueAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(isCommissioner);
+
+        _mockAuthorizationService
+            .Setup(s => s.IsGlobalAdminAsync(It.IsAny<string>()))
+            .ReturnsAsync(isGlobalAdmin);
+
+        _mockAuthorizationService
+            .Setup(s => s.GetAccessibleLeagueIdsAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<int> { 1, 2, 3 });
+
+        _mockLeagueRepository
+            .Setup(r => r.SaveChangesAsync())
+            .ReturnsAsync(1);
     }
 
     #region Constructor Tests
@@ -42,6 +102,7 @@ public class LeaguesManagementControllerTests
         var act = () => new LeaguesManagementController(
             null!,
             _mockLeagueBuilderService.Object,
+            _mockAuthorizationService.Object,
             _mockLogger.Object);
         act.Should().Throw<ArgumentNullException>()
             .And.ParamName.Should().Be("leagueRepository");
@@ -54,9 +115,23 @@ public class LeaguesManagementControllerTests
         var act = () => new LeaguesManagementController(
             _mockLeagueRepository.Object,
             null!,
+            _mockAuthorizationService.Object,
             _mockLogger.Object);
         act.Should().Throw<ArgumentNullException>()
             .And.ParamName.Should().Be("leagueBuilderService");
+    }
+
+    [Fact]
+    public void Constructor_WithNullAuthorizationService_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        var act = () => new LeaguesManagementController(
+            _mockLeagueRepository.Object,
+            _mockLeagueBuilderService.Object,
+            null!,
+            _mockLogger.Object);
+        act.Should().Throw<ArgumentNullException>()
+            .And.ParamName.Should().Be("authorizationService");
     }
 
     [Fact]
@@ -66,6 +141,7 @@ public class LeaguesManagementControllerTests
         var act = () => new LeaguesManagementController(
             _mockLeagueRepository.Object,
             _mockLeagueBuilderService.Object,
+            _mockAuthorizationService.Object,
             null!);
         act.Should().Throw<ArgumentNullException>()
             .And.ParamName.Should().Be("logger");
@@ -88,6 +164,11 @@ public class LeaguesManagementControllerTests
         };
 
         var league = CreateTestLeague(1, "NFL", 2, 4, 4);
+        var testUser = new User { Id = 1, AzureAdObjectId = "test-oid-123", Email = "test@example.com", DisplayName = "Test User" };
+
+        _mockAuthorizationService
+            .Setup(s => s.GetOrCreateUserFromClaimsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(testUser);
 
         _mockLeagueBuilderService
             .Setup(s => s.CreateLeague(request.Name, request.NumberOfConferences,
@@ -97,6 +178,10 @@ public class LeaguesManagementControllerTests
         _mockLeagueRepository
             .Setup(r => r.AddAsync(It.IsAny<League>()))
             .ReturnsAsync(league);
+
+        _mockLeagueRepository
+            .Setup(r => r.SaveChangesAsync())
+            .ReturnsAsync(1);
 
         // Act
         var result = await _controller.CreateLeague(request);
@@ -111,6 +196,7 @@ public class LeaguesManagementControllerTests
     public async Task CreateLeague_WithValidRequest_ReturnsLeagueDetailDto()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var request = new CreateLeagueRequest
         {
             Name = "NFL",
@@ -208,6 +294,7 @@ public class LeaguesManagementControllerTests
     public async Task CreateLeague_MapsCompleteHierarchyToDto()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var request = new CreateLeagueRequest
         {
             Name = "NFL",
@@ -411,6 +498,7 @@ public class LeaguesManagementControllerTests
     public async Task GetLeague_WhenLeagueExists_ReturnsOkWithLeague()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var league = CreateTestLeague(1, "NFL", 2, 4, 4);
         _mockLeagueRepository
             .Setup(r => r.GetByIdWithFullStructureAsync(1))
@@ -483,6 +571,7 @@ public class LeaguesManagementControllerTests
     public async Task GetAllLeagues_WhenLeaguesExist_ReturnsOkWithLeagues()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var leagues = new List<League>
         {
             CreateTestLeague(1, "NFL", 2, 4, 4),
@@ -543,6 +632,7 @@ public class LeaguesManagementControllerTests
     public async Task PopulateLeagueRosters_WhenLeagueExists_ReturnsOkWithLeague()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var league = CreateTestLeague(1, "NFL", 2, 2, 2);
         _mockLeagueRepository
             .Setup(r => r.GetByIdWithFullStructureAsync(1))
@@ -586,6 +676,7 @@ public class LeaguesManagementControllerTests
     public async Task PopulateLeagueRosters_WithSeed_PassesSeedToService()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var league = CreateTestLeague(1, "NFL", 1, 1, 1);
         var seed = 12345;
 
@@ -614,6 +705,7 @@ public class LeaguesManagementControllerTests
     public async Task PopulateLeagueRosters_CallsRepositoryUpdate()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var league = CreateTestLeague(1, "NFL", 1, 1, 1);
 
         _mockLeagueRepository
@@ -639,6 +731,7 @@ public class LeaguesManagementControllerTests
     public async Task PopulateLeagueRosters_WhenServiceThrowsException_ReturnsInternalServerError()
     {
         // Arrange
+        SetupAuthorizationMocks();
         var league = CreateTestLeague(1, "NFL", 1, 1, 1);
 
         _mockLeagueRepository
