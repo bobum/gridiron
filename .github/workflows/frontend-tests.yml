@@ -132,11 +132,23 @@ jobs:
         working-directory: ./gridiron-web
         run: npx playwright install chromium --with-deps
 
-      - name: Enable E2E test mode in .env file
+      - name: Create .env file with E2E test mode
         working-directory: ./gridiron-web
         run: |
-          echo "VITE_E2E_TEST_MODE=true" >> .env
-          echo "✓ Added E2E test mode flag to .env file"
+          cat > .env <<EOF
+          # Azure Entra ID (External CIAM) Configuration
+          VITE_AZURE_CLIENT_ID=29348959-a014-4550-b3c3-044585c83f0a
+          VITE_AZURE_AUTHORITY=https://gtggridiron.ciamlogin.com/gtggridiron.onmicrosoft.com
+          VITE_AZURE_REDIRECT_URI=http://localhost:3000
+          VITE_AZURE_POST_LOGOUT_REDIRECT_URI=http://localhost:3000
+
+          # API Configuration
+          VITE_API_URL=/api
+
+          # E2E Test Mode
+          VITE_E2E_TEST_MODE=true
+          EOF
+          echo "✓ Created .env file with E2E test mode enabled"
           cat .env
 
       - name: Verify Playwright config has test mode
