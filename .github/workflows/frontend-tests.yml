@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build frontend
+        run: npm run build
+
       - name: Run component and integration tests
         run: npm test -- --run
 
@@ -121,13 +124,39 @@ jobs:
           echo "Fetching teams from API..."
           curl -v http://localhost:5000/api/teams
 
+      - name: Install frontend dependencies
+        working-directory: ./gridiron-web
+        run: npm ci
+
       - name: Install Playwright browsers
         working-directory: ./gridiron-web
         run: npx playwright install chromium --with-deps
 
-      - name: Install frontend dependencies
+      - name: Create .env file with E2E test mode
         working-directory: ./gridiron-web
-        run: npm ci
+        run: |
+          cat > .env <<EOF
+          # Azure Entra ID (External CIAM) Configuration
+          VITE_AZURE_CLIENT_ID=29348959-a014-4550-b3c3-044585c83f0a
+          VITE_AZURE_AUTHORITY=https://gtggridiron.ciamlogin.com/gtggridiron.onmicrosoft.com
+          VITE_AZURE_REDIRECT_URI=http://localhost:3000
+          VITE_AZURE_POST_LOGOUT_REDIRECT_URI=http://localhost:3000
+
+          # API Configuration
+          VITE_API_URL=/api
+
+          # E2E Test Mode
+          VITE_E2E_TEST_MODE=true
+          EOF
+          echo "✓ Created .env file with E2E test mode enabled"
+          cat .env
+
+      - name: Verify Playwright config has test mode
+        working-directory: ./gridiron-web
+        run: |
+          echo "Checking Playwright configuration for E2E test mode..."
+          grep -A 5 "webServer:" playwright.config.ts
+          echo "✓ Test mode should be enabled in webServer.env"
 
       - name: Run E2E tests
         working-directory: ./gridiron-web
