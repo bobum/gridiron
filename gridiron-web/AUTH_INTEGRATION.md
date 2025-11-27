@@ -175,6 +175,22 @@ Currently, all authenticated users can access all data. The next phase is to imp
 - No tokens or secrets are committed to git
 - All API requests require authentication
 
+### E2E Test Mode Security
+
+The `VITE_E2E_TEST_MODE` flag is safe because:
+1. **Build-time only**: Set when Vite compiles, not at runtime
+2. **Development only**: Requires `import.meta.env.DEV === true`
+3. **Double-gated**: Test mode requires BOTH flags to be true
+4. **Production builds**: Always require authentication, cannot be bypassed
+5. **No user control**: Users cannot enable test mode in deployed apps
+
+```typescript
+// Test mode only works when BOTH are true:
+const isTestMode =
+  import.meta.env.VITE_E2E_TEST_MODE === 'true' &&
+  import.meta.env.DEV;
+```
+
 ## Troubleshooting
 
 ### Issue: Infinite redirect loop
