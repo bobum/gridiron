@@ -97,12 +97,20 @@ No manual token handling required!
 The authentication integration includes comprehensive tests:
 
 - **Navigation.test.tsx** - Tests login button rendering and navigation
+- **E2E Tests** - All E2E tests run with authentication bypassed via VITE_E2E_TEST_MODE flag
 - All existing tests updated to work with MSAL provider
 
-Run tests with:
+Run component tests with:
 ```bash
 npm test
 ```
+
+Run E2E tests with:
+```bash
+npm run test:e2e
+```
+
+**Important:** The E2E test mode flag (VITE_E2E_TEST_MODE) is set by Playwright's webServer configuration. Do NOT add this flag to your `.env` file, as it will override Playwright's setting and cause tests to fail.
 
 ## Development
 
@@ -177,19 +185,14 @@ Currently, all authenticated users can access all data. The next phase is to imp
 
 ### E2E Test Mode Security
 
-The `VITE_E2E_TEST_MODE` flag is safe because:
+The `VITE_E2E_TEST_MODE` flag is safe for production because:
 1. **Build-time only**: Set when Vite compiles, not at runtime
-2. **Development only**: Requires `import.meta.env.DEV === true`
-3. **Double-gated**: Test mode requires BOTH flags to be true
-4. **Production builds**: Always require authentication, cannot be bypassed
-5. **No user control**: Users cannot enable test mode in deployed apps
+2. **Not set in production**: Production deployment never sets this variable
+3. **Azure Static Web Apps**: Won't have this environment variable configured
+4. **No user control**: Users cannot enable test mode after the app is built
 
-```typescript
-// Test mode only works when BOTH are true:
-const isTestMode =
-  import.meta.env.VITE_E2E_TEST_MODE === 'true' &&
-  import.meta.env.DEV;
-```
+**Important**: Never set `VITE_E2E_TEST_MODE=true` in production environment variables.
+This should ONLY be set by Playwright in the test pipeline.
 
 ## Troubleshooting
 
