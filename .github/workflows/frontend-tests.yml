@@ -132,6 +132,13 @@ jobs:
         working-directory: ./gridiron-web
         run: npx playwright install chromium --with-deps
 
+      - name: Enable E2E test mode in .env file
+        working-directory: ./gridiron-web
+        run: |
+          echo "VITE_E2E_TEST_MODE=true" >> .env
+          echo "✓ Added E2E test mode flag to .env file"
+          cat .env
+
       - name: Verify Playwright config has test mode
         working-directory: ./gridiron-web
         run: |

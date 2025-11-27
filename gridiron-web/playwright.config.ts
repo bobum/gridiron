@@ -20,8 +20,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npx cross-env VITE_E2E_TEST_MODE=true npm run dev',
+    command: 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI, // Reuse locally for speed, fresh in CI for .env changes
   },
 })
