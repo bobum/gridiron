@@ -20,11 +20,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev',
+    command: 'cross-env VITE_E2E_TEST_MODE=true npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    env: {
-      VITE_E2E_TEST_MODE: 'true', // Disable authentication for E2E tests
-    },
   },
 })

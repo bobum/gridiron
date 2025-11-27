@@ -110,7 +110,13 @@ Run E2E tests with:
 npm run test:e2e
 ```
 
-**Important:** The E2E test mode flag (VITE_E2E_TEST_MODE) is set by Playwright's webServer configuration. Do NOT add this flag to your `.env` file, as it will override Playwright's setting and cause tests to fail.
+**Important:** The E2E test mode flag (VITE_E2E_TEST_MODE) is set by Playwright's webServer configuration using `cross-env` for cross-platform compatibility. Do NOT add this flag to your `.env` file, as it will override Playwright's setting and cause tests to fail.
+
+**Technical Details:**
+- Playwright uses `cross-env` to pass the environment variable directly to Vite
+- This ensures the flag is available when Vite builds the application for testing
+- The `cross-env` package is a dev dependency that works on Windows, Linux, and macOS
+- Command: `cross-env VITE_E2E_TEST_MODE=true npm run dev`
 
 ## Development
 
