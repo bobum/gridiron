@@ -12,10 +12,18 @@ const msalInstance = new PublicClientApplication(msalConfig)
 // Setup auth interceptor for API calls
 setupAuthInterceptor(msalInstance)
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <MsalProvider instance={msalInstance}>
-      <App />
-    </MsalProvider>
-  </StrictMode>,
-)
+// Initialize MSAL and handle redirect promise before rendering
+msalInstance.initialize().then(() => {
+  // Handle redirect promise to prevent redirect loops
+  msalInstance.handleRedirectPromise().then(() => {
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <MsalProvider instance={msalInstance}>
+          <App />
+        </MsalProvider>
+      </StrictMode>,
+    )
+  }).catch((error) => {
+    console.error('Error handling redirect:', error)
+  })
+})
