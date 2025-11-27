@@ -1,39 +1,65 @@
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Extensions;
 using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gridiron.WebApi.Controllers;
 
 /// <summary>
 /// Controller for game simulation and results
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// Games are viewable by anyone in the league (both teams' GMs + Commissioner)
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class GamesController : ControllerBase
 {
     private readonly IGameSimulationService _simulationService;
+    private readonly IGridironAuthorizationService _authorizationService;
     private readonly ILogger<GamesController> _logger;
 
     public GamesController(
         IGameSimulationService simulationService,
+        IGridironAuthorizationService authorizationService,
         ILogger<GamesController> logger)
     {
         _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
+        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
-    /// Simulates a new game
+    /// Simulates a new game (User must have access to at least one of the teams involved)
     /// </summary>
     /// <param name="request">Game simulation request</param>
     /// <returns>Completed game result</returns>
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(GameDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<GameDto>> SimulateGame([FromBody] SimulateGameRequest request)
     {
         try
         {
+            // Get current user from JWT claims
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            // Check if user has access to at least one of the teams
+            var hasAccessToHome = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, request.HomeTeamId);
+            var hasAccessToAway = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, request.AwayTeamId);
+
+            if (!hasAccessToHome && !hasAccessToAway)
+            {
+                return Forbid();
+            }
+
             _logger.LogInformation("Simulating game: Home={HomeTeamId}, Away={AwayTeamId}",
                 request.HomeTeamId, request.AwayTeamId);
 
@@ -71,16 +97,41 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all simulated games
+    /// Gets all simulated games (filtered to games involving teams user has access to)
     /// </summary>
-    /// <returns>List of all games</returns>
+    /// <returns>List of accessible games</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GameDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IEnumerable<GameDto>>> GetGames()
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
         var games = await _simulationService.GetGamesAsync();
 
-        var gameDtos = games.Select(g => new GameDto
+        // Filter to games where user has access to at least one team
+        var accessibleTeamIds = await _authorizationService.GetAccessibleTeamIdsAsync(azureAdObjectId);
+        var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+        List<DomainObjects.Game> filteredGames;
+        if (isGlobalAdmin)
+        {
+            filteredGames = games;
+        }
+        else
+        {
+            filteredGames = games.Where(g =>
+                accessibleTeamIds.Contains(g.HomeTeamId) ||
+                accessibleTeamIds.Contains(g.AwayTeamId)
+            ).ToList();
+        }
+
+        var gameDtos = filteredGames.Select(g => new GameDto
         {
             Id = g.Id,
             HomeTeamId = g.HomeTeamId,
@@ -98,20 +149,38 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific game by ID
+    /// Gets a specific game by ID (User must have access to at least one of the teams)
     /// </summary>
     /// <param name="id">Game ID</param>
     /// <returns>Game details</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(GameDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<GameDto>> GetGame(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
         var game = await _simulationService.GetGameAsync(id);
 
         if (game == null)
         {
             return NotFound(new { error = $"Game with ID {id} not found" });
+        }
+
+        // Check if user has access to at least one of the teams in the game
+        var hasAccessToHome = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, game.HomeTeamId);
+        var hasAccessToAway = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, game.AwayTeamId);
+
+        if (!hasAccessToHome && !hasAccessToAway)
+        {
+            return Forbid();
         }
 
         var gameDto = new GameDto
@@ -132,20 +201,38 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets play-by-play data for a game
+    /// Gets play-by-play data for a game (User must have access to at least one of the teams)
     /// </summary>
     /// <param name="id">Game ID</param>
     /// <returns>List of plays</returns>
     [HttpGet("{id}/plays")]
     [ProducesResponseType(typeof(IEnumerable<PlayDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IEnumerable<PlayDto>>> GetGamePlays(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
         var game = await _simulationService.GetGameAsync(id);
 
         if (game == null)
         {
             return NotFound(new { error = $"Game with ID {id} not found" });
+        }
+
+        // Check if user has access to at least one of the teams in the game
+        var hasAccessToHome = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, game.HomeTeamId);
+        var hasAccessToAway = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, game.AwayTeamId);
+
+        if (!hasAccessToHome && !hasAccessToAway)
+        {
+            return Forbid();
         }
 
         if (game.Plays == null || !game.Plays.Any())

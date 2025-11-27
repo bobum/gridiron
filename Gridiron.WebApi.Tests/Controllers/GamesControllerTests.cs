@@ -3,9 +3,11 @@ using FluentAssertions;
 using Gridiron.WebApi.Controllers;
 using Gridiron.WebApi.DTOs;
 using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
@@ -18,14 +20,65 @@ namespace Gridiron.WebApi.Tests.Controllers;
 public class GamesControllerTests
 {
     private readonly Mock<IGameSimulationService> _mockSimulationService;
+    private readonly Mock<IGridironAuthorizationService> _mockAuthorizationService;
     private readonly Mock<ILogger<GamesController>> _mockLogger;
     private readonly GamesController _controller;
 
     public GamesControllerTests()
     {
         _mockSimulationService = new Mock<IGameSimulationService>();
+        _mockAuthorizationService = new Mock<IGridironAuthorizationService>();
         _mockLogger = new Mock<ILogger<GamesController>>();
-        _controller = new GamesController(_mockSimulationService.Object, _mockLogger.Object);
+        _controller = new GamesController(
+            _mockSimulationService.Object,
+            _mockAuthorizationService.Object,
+            _mockLogger.Object);
+
+        // Set up HttpContext with authenticated user claims
+        SetupHttpContextWithClaims("test-oid-123", "test@example.com", "Test User");
+    }
+
+    private void SetupHttpContextWithClaims(string oid, string email, string displayName)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim("oid", oid),
+            new Claim("email", email),
+            new Claim("name", displayName)
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+    }
+
+    private void SetupAuthorizationMocks(bool canAccessTeam = true, bool isGlobalAdmin = false)
+    {
+        var testUser = new User { Id = 1, AzureAdObjectId = "test-oid-123", Email = "test@example.com", DisplayName = "Test User" };
+
+        _mockAuthorizationService
+            .Setup(s => s.GetOrCreateUserFromClaimsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(testUser);
+
+        _mockAuthorizationService
+            .Setup(s => s.CanAccessTeamAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(canAccessTeam);
+
+        _mockAuthorizationService
+            .Setup(s => s.IsGlobalAdminAsync(It.IsAny<string>()))
+            .ReturnsAsync(isGlobalAdmin);
+
+        _mockAuthorizationService
+            .Setup(s => s.GetAccessibleTeamIdsAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<int> { 1, 2, 3, 4, 5 });
     }
 
     #region SimulateGame Tests - PlayByPlay Persistence
@@ -34,6 +87,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WhenSuccessful_ReturnsOkWithGameDto()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 1,
@@ -68,6 +122,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WhenSuccessful_GameDtoContainsTotalPlays()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 1,
@@ -93,6 +148,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WhenSuccessful_CallsSimulationServiceWithCorrectParameters()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 5,
@@ -119,6 +175,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WithoutSeed_CallsSimulationServiceWithNullSeed()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 1,
@@ -145,6 +202,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WhenTeamNotFound_ReturnsBadRequest()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 999,
@@ -166,6 +224,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WhenServiceThrowsException_Returns500()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 1,
@@ -189,6 +248,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WhenPlayByPlayPersisted_GameDtoReflectsCorrectPlayCount()
     {
         // Arrange - simulate a game that would have generated PlayByPlay data
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 1,
@@ -229,6 +289,7 @@ public class GamesControllerTests
     public async Task SimulateGame_WithLongGame_ReturnsHighPlayCount()
     {
         // Arrange - simulate a long game with many plays
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 3,
@@ -255,6 +316,7 @@ public class GamesControllerTests
     public async Task SimulateGame_MapsDtoFieldsCorrectly()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var request = new SimulateGameRequest
         {
             HomeTeamId = 1,
@@ -294,6 +356,7 @@ public class GamesControllerTests
     public async Task GetGames_WhenGamesExist_ReturnsOkWithGames()
     {
         // Arrange
+        SetupAuthorizationMocks(isGlobalAdmin: true);
         var games = new List<Game>
         {
             CreateTestGame(1, 2, 21, 14, playCount: 150),
@@ -319,6 +382,7 @@ public class GamesControllerTests
     public async Task GetGames_WhenNoGames_ReturnsEmptyList()
     {
         // Arrange
+        SetupAuthorizationMocks(isGlobalAdmin: true);
         _mockSimulationService.Setup(s => s.GetGamesAsync()).ReturnsAsync(new List<Game>());
 
         // Act
@@ -340,6 +404,7 @@ public class GamesControllerTests
     public async Task GetGame_WhenGameExists_ReturnsOkWithGame()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var game = CreateTestGame(1, 2, 17, 10, playCount: 160);
         game.Id = 5;
 
@@ -361,6 +426,7 @@ public class GamesControllerTests
     public async Task GetGame_WhenGameNotFound_Returns404()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         _mockSimulationService.Setup(s => s.GetGameAsync(999)).ReturnsAsync((Game?)null);
 
         // Act

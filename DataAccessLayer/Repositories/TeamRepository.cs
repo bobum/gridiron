@@ -40,6 +40,23 @@ public class TeamRepository : ITeamRepository
             .FirstOrDefaultAsync(t => t.City == city && t.Name == name);
     }
 
+    public async Task<List<Team>> GetTeamsByLeagueIdAsync(int leagueId)
+    {
+        // Teams belong to Divisions, which belong to Conferences, which belong to Leagues
+        // We need to join through the hierarchy
+        var teams = await _context.Divisions
+            .Where(d => d.ConferenceId != null)
+            .Join(_context.Conferences,
+                division => division.ConferenceId,
+                conference => conference.Id,
+                (division, conference) => new { Division = division, Conference = conference })
+            .Where(dc => dc.Conference.LeagueId == leagueId)
+            .SelectMany(dc => _context.Teams.Where(t => t.DivisionId == dc.Division.Id))
+            .ToListAsync();
+
+        return teams;
+    }
+
     public async Task<Team> AddAsync(Team team)
     {
         await _context.Teams.AddAsync(team);

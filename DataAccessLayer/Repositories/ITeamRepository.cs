@@ -29,6 +29,11 @@ public interface ITeamRepository
     Task<Team?> GetByCityAndNameAsync(string city, string name);
 
     /// <summary>
+    /// Gets all teams in a specific league
+    /// </summary>
+    Task<List<Team>> GetTeamsByLeagueIdAsync(int leagueId);
+
+    /// <summary>
     /// Adds a new team
     /// </summary>
     Task<Team> AddAsync(Team team);

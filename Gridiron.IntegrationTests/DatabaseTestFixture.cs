@@ -49,6 +49,7 @@ public class DatabaseTestFixture : IDisposable
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IPlayByPlayRepository, PlayByPlayRepository>();
         services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         // Register GameManagement services
         services.AddScoped<GameManagement.Services.ILeagueBuilderService, GameManagement.Services.LeagueBuilderService>();
@@ -60,6 +61,7 @@ public class DatabaseTestFixture : IDisposable
 
         // Register WebApi services
         services.AddScoped<Gridiron.WebApi.Services.IGameSimulationService, Gridiron.WebApi.Services.GameSimulationService>();
+        services.AddScoped<Gridiron.WebApi.Services.IGridironAuthorizationService, Gridiron.WebApi.Services.GridironAuthorizationService>();
 
         // Register logging
         services.AddLogging();

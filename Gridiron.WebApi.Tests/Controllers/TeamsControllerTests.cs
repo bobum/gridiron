@@ -3,9 +3,12 @@ using DomainObjects;
 using FluentAssertions;
 using Gridiron.WebApi.Controllers;
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
@@ -17,14 +20,65 @@ namespace Gridiron.WebApi.Tests.Controllers;
 public class TeamsControllerTests
 {
     private readonly Mock<ITeamRepository> _mockTeamRepository;
+    private readonly Mock<IGridironAuthorizationService> _mockAuthorizationService;
     private readonly Mock<ILogger<TeamsController>> _mockLogger;
     private readonly TeamsController _controller;
 
     public TeamsControllerTests()
     {
         _mockTeamRepository = new Mock<ITeamRepository>();
+        _mockAuthorizationService = new Mock<IGridironAuthorizationService>();
         _mockLogger = new Mock<ILogger<TeamsController>>();
-        _controller = new TeamsController(_mockTeamRepository.Object, _mockLogger.Object);
+        _controller = new TeamsController(
+            _mockTeamRepository.Object,
+            _mockAuthorizationService.Object,
+            _mockLogger.Object);
+
+        // Set up HttpContext with authenticated user claims
+        SetupHttpContextWithClaims("test-oid-123", "test@example.com", "Test User");
+    }
+
+    private void SetupHttpContextWithClaims(string oid, string email, string displayName)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim("oid", oid),
+            new Claim("email", email),
+            new Claim("name", displayName)
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+    }
+
+    private void SetupAuthorizationMocks(bool canAccessTeam = true, bool isGlobalAdmin = false)
+    {
+        var testUser = new User { Id = 1, AzureAdObjectId = "test-oid-123", Email = "test@example.com", DisplayName = "Test User" };
+
+        _mockAuthorizationService
+            .Setup(s => s.GetOrCreateUserFromClaimsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(testUser);
+
+        _mockAuthorizationService
+            .Setup(s => s.CanAccessTeamAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(canAccessTeam);
+
+        _mockAuthorizationService
+            .Setup(s => s.IsGlobalAdminAsync(It.IsAny<string>()))
+            .ReturnsAsync(isGlobalAdmin);
+
+        _mockAuthorizationService
+            .Setup(s => s.GetAccessibleTeamIdsAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<int> { 1, 2, 3 });
     }
 
     #region GetTeams Tests
@@ -33,6 +87,7 @@ public class TeamsControllerTests
     public async Task GetTeams_WhenTeamsExist_ReturnsOkWithTeams()
     {
         // Arrange
+        SetupAuthorizationMocks(isGlobalAdmin: true);
         var teams = new List<Team>
         {
             CreateTestTeam(1, "Falcons", "Atlanta"),
@@ -55,6 +110,7 @@ public class TeamsControllerTests
     public async Task GetTeams_WhenNoTeams_ReturnsEmptyList()
     {
         // Arrange
+        SetupAuthorizationMocks(isGlobalAdmin: true);
         _mockTeamRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(new List<Team>());
 
         // Act
@@ -71,6 +127,7 @@ public class TeamsControllerTests
     public async Task GetTeams_CallsRepositoryGetAllAsync()
     {
         // Arrange
+        SetupAuthorizationMocks(isGlobalAdmin: true);
         _mockTeamRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(new List<Team>());
 
         // Act
@@ -84,6 +141,7 @@ public class TeamsControllerTests
     public async Task GetTeams_MapsToDtoCorrectly()
     {
         // Arrange
+        SetupAuthorizationMocks(isGlobalAdmin: true);
         var team = CreateTestTeam(1, "Falcons", "Atlanta");
         team.Budget = 200000000;
         team.Championships = 5;
@@ -116,6 +174,7 @@ public class TeamsControllerTests
     public async Task GetTeam_WhenTeamExists_ReturnsOkWithTeam()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeam(1, "Falcons", "Atlanta");
         _mockTeamRepository.Setup(repo => repo.GetByIdAsync(1)).ReturnsAsync(team);
 
@@ -134,6 +193,7 @@ public class TeamsControllerTests
     public async Task GetTeam_WhenTeamNotFound_Returns404()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         _mockTeamRepository.Setup(repo => repo.GetByIdAsync(999)).ReturnsAsync((Team?)null);
 
         // Act
@@ -147,6 +207,7 @@ public class TeamsControllerTests
     public async Task GetTeam_CallsRepositoryWithCorrectId()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeam(42, "Test", "City");
         _mockTeamRepository.Setup(repo => repo.GetByIdAsync(42)).ReturnsAsync(team);
 
@@ -165,6 +226,7 @@ public class TeamsControllerTests
     public async Task GetTeamRoster_WhenTeamExists_ReturnsTeamWithPlayers()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 3);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(1)).ReturnsAsync(team);
 
@@ -182,6 +244,7 @@ public class TeamsControllerTests
     public async Task GetTeamRoster_WhenTeamNotFound_Returns404()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         _mockTeamRepository.Setup(repo => repo.GetByIdWithPlayersAsync(999)).ReturnsAsync((Team?)null);
 
         // Act
@@ -195,6 +258,7 @@ public class TeamsControllerTests
     public async Task GetTeamRoster_MapsPlayersToDtosCorrectly()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 2);
         team.Players[0].FirstName = "Matt";
         team.Players[0].LastName = "Ryan";
@@ -222,6 +286,7 @@ public class TeamsControllerTests
     public async Task GetTeamRoster_WhenTeamHasCoach_ReturnsCoachDto()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 1);
         team.HeadCoach = new Coach { FirstName = "Arthur", LastName = "Smith" };
 
@@ -242,6 +307,7 @@ public class TeamsControllerTests
     public async Task GetTeamRoster_WhenTeamHasNoCoach_ReturnsNullForCoach()
     {
         // Arrange
+        SetupAuthorizationMocks(canAccessTeam: true);
         var team = CreateTestTeamWithPlayers(1, "Falcons", "Atlanta", 1);
         team.HeadCoach = null;
 

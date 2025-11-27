@@ -1,5 +1,8 @@
 using DataAccessLayer.Repositories;
 using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Extensions;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gridiron.WebApi.Controllers;
@@ -7,33 +10,62 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for team and roster management
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TeamsController : ControllerBase
 {
     private readonly ITeamRepository _teamRepository;
+    private readonly IGridironAuthorizationService _authorizationService;
     private readonly ILogger<TeamsController> _logger;
 
     public TeamsController(
         ITeamRepository teamRepository,
+        IGridironAuthorizationService authorizationService,
         ILogger<TeamsController> logger)
     {
         _teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
+        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
-    /// Gets all teams
+    /// Gets all teams (filtered to only teams user has access to)
     /// </summary>
-    /// <returns>List of all teams</returns>
+    /// <returns>List of accessible teams</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<TeamDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IEnumerable<TeamDto>>> GetTeams()
     {
-        var teams = await _teamRepository.GetAllAsync();
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
 
-        var teamDtos = teams.Select(t => new TeamDto
+        // Check if user is global admin
+        var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+        var teams = await _teamRepository.GetAllAsync();
+        List<Team> filteredTeams;
+
+        if (isGlobalAdmin)
+        {
+            // Global admins see all teams
+            filteredTeams = teams;
+        }
+        else
+        {
+            // Regular users only see teams they have access to
+            var accessibleTeamIds = await _authorizationService.GetAccessibleTeamIdsAsync(azureAdObjectId);
+            filteredTeams = teams.Where(t => accessibleTeamIds.Contains(t.Id)).ToList();
+        }
+
+        var teamDtos = filteredTeams.Select(t => new TeamDto
         {
             Id = t.Id,
             Name = t.Name,
@@ -58,8 +90,24 @@ public class TeamsController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDto>> GetTeam(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
+        }
+
         var team = await _teamRepository.GetByIdAsync(id);
 
         if (team == null)
@@ -92,8 +140,24 @@ public class TeamsController : ControllerBase
     [HttpGet("{id}/roster")]
     [ProducesResponseType(typeof(TeamDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamDetailDto>> GetTeamRoster(int id)
     {
+        // Get current user from JWT claims
+        var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+        if (string.IsNullOrEmpty(azureAdObjectId))
+        {
+            return Unauthorized(new { error = "User identity not found in token" });
+        }
+
+        // Check authorization BEFORE accessing database
+        var hasAccess = await _authorizationService.CanAccessTeamAsync(azureAdObjectId, id);
+        if (!hasAccess)
+        {
+            return Forbid();
+        }
+
         var team = await _teamRepository.GetByIdWithPlayersAsync(id);
 
         if (team == null)

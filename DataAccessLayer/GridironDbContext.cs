@@ -23,6 +23,10 @@ namespace DataAccessLayer
         public DbSet<Game> Games { get; set; }
         public DbSet<PlayByPlay> PlayByPlays { get; set; }
 
+        // User and authorization
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserLeagueRole> UserLeagueRoles { get; set; }
+
         // Player generation data
         public DbSet<FirstName> FirstNames { get; set; }
         public DbSet<LastName> LastNames { get; set; }
@@ -223,6 +227,64 @@ namespace DataAccessLayer
             {
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            });
+
+            // ========================================
+            // USER CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.AzureAdObjectId).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.Email).IsRequired().HasMaxLength(255);
+                entity.Property(u => u.DisplayName).IsRequired().HasMaxLength(100);
+
+                // Unique index on AzureAdObjectId for fast lookups
+                entity.HasIndex(u => u.AzureAdObjectId).IsUnique();
+
+                // User has many league roles (one-to-many)
+                entity.HasMany(u => u.LeagueRoles)
+                      .WithOne(ulr => ulr.User)
+                      .HasForeignKey(ulr => ulr.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);  // Delete roles if user is deleted
+
+                // Soft delete query filter - exclude deleted users from queries
+                entity.HasQueryFilter(u => !u.IsDeleted);
+            });
+
+            // ========================================
+            // USERLEAGUEROLE CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<UserLeagueRole>(entity =>
+            {
+                entity.HasKey(ulr => ulr.Id);
+
+                // UserLeagueRole belongs to one User (many-to-one)
+                entity.HasOne(ulr => ulr.User)
+                      .WithMany(u => u.LeagueRoles)
+                      .HasForeignKey(ulr => ulr.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // UserLeagueRole belongs to one League (many-to-one)
+                entity.HasOne(ulr => ulr.League)
+                      .WithMany()
+                      .HasForeignKey(ulr => ulr.LeagueId)
+                      .OnDelete(DeleteBehavior.Cascade);  // Delete role if league is deleted
+
+                // UserLeagueRole optionally belongs to one Team (many-to-one, nullable for Commissioners)
+                entity.HasOne(ulr => ulr.Team)
+                      .WithMany()
+                      .HasForeignKey(ulr => ulr.TeamId)
+                      .OnDelete(DeleteBehavior.SetNull);  // Set to null if team is deleted (keep role, just remove team assignment)
+
+                // Composite index for fast authorization queries
+                entity.HasIndex(ulr => new { ulr.UserId, ulr.LeagueId });
+
+                // Prevent duplicate role assignments (unique constraint)
+                entity.HasIndex(ulr => new { ulr.UserId, ulr.LeagueId, ulr.TeamId }).IsUnique();
+
+                // Soft delete query filter - exclude deleted roles from queries
+                entity.HasQueryFilter(ulr => !ulr.IsDeleted);
             });
         }
     }
