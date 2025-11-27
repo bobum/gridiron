@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { InteractionType } from '@azure/msal-browser';
+import { MsalAuthenticationTemplate } from '@azure/msal-react';
+import { loginRequest } from '../config/authConfig';
 import { Loading } from './Loading';
 
 interface ProtectedRouteProps {
@@ -8,24 +9,16 @@ interface ProtectedRouteProps {
 
 /**
  * ProtectedRoute component that ensures user is authenticated
- * Redirects to login if not authenticated
+ * Uses MSAL's built-in authentication template to handle login flow
  */
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading, login } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      login();
-    }
-  }, [isAuthenticated, isLoading, login]);
-
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (!isAuthenticated) {
-    return <Loading />;
-  }
-
-  return <>{children}</>;
+  return (
+    <MsalAuthenticationTemplate
+      interactionType={InteractionType.Redirect}
+      authenticationRequest={loginRequest}
+      loadingComponent={Loading}
+    >
+      {children}
+    </MsalAuthenticationTemplate>
+  );
 };
