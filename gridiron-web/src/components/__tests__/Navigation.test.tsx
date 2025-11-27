@@ -1,47 +1,49 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
+import { PublicClientApplication } from '@azure/msal-browser'
+import { MsalProvider } from '@azure/msal-react'
 import { Navigation } from '../Navigation'
 
-describe('Navigation', () => {
-  it('renders the app title', () => {
-    render(
+// Create a mock MSAL instance for testing
+const msalConfig = {
+  auth: {
+    clientId: 'test-client-id',
+    authority: 'https://test.ciamlogin.com',
+  },
+}
+const msalInstance = new PublicClientApplication(msalConfig)
+
+const renderNavigation = () => {
+  return render(
+    <MsalProvider instance={msalInstance}>
       <BrowserRouter>
         <Navigation />
       </BrowserRouter>
-    )
+    </MsalProvider>
+  )
+}
 
+describe('Navigation', () => {
+  it('renders the app title', () => {
+    renderNavigation()
     expect(screen.getByText('Gridiron')).toBeInTheDocument()
   })
 
   it('renders all navigation links', () => {
-    render(
-      <BrowserRouter>
-        <Navigation />
-      </BrowserRouter>
-    )
-
+    renderNavigation()
     expect(screen.getByText('Home')).toBeInTheDocument()
     expect(screen.getByText('Teams')).toBeInTheDocument()
     expect(screen.getByText('Simulate Game')).toBeInTheDocument()
   })
 
-  it('renders the subtitle', () => {
-    render(
-      <BrowserRouter>
-        <Navigation />
-      </BrowserRouter>
-    )
-
-    expect(screen.getByText('Football Manager')).toBeInTheDocument()
+  it('renders the login button when not authenticated', () => {
+    renderNavigation()
+    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
   })
 
   it('has correct href attributes', () => {
-    render(
-      <BrowserRouter>
-        <Navigation />
-      </BrowserRouter>
-    )
+    renderNavigation()
 
     const homeLink = screen.getByRole('link', { name: /home/i })
     const teamsLink = screen.getByRole('link', { name: /teams/i })

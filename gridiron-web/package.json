@@ -16,6 +16,8 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@azure/msal-browser": "^4.26.2",
+    "@azure/msal-react": "^3.0.22",
     "@tanstack/react-query": "^5.90.10",
     "axios": "^1.13.2",
     "react": "^19.2.0",
