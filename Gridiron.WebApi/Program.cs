@@ -18,11 +18,30 @@ var builder = WebApplication.CreateBuilder(args);
 // ========================================
 // AUTHENTICATION & AUTHORIZATION
 // ========================================
-// Configure JWT Bearer authentication with Azure Entra ID (External CIAM)
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+// Check if we're running in E2E test mode (for CI/CD)
+var isE2ETestMode = builder.Configuration.GetValue<bool>("E2ETestMode", false) ||
+                    Environment.GetEnvironmentVariable("E2E_TEST_MODE") == "true";
 
-builder.Services.AddAuthorization();
+if (isE2ETestMode)
+{
+    Console.WriteLine("[E2E Test Mode] Running with authentication DISABLED for E2E tests");
+    // In E2E test mode, add authentication/authorization services but configure them to allow anonymous access
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+    builder.Services.AddAuthorization(options =>
+    {
+        options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+            .RequireAssertion(_ => true) // Always succeed - bypass all authorization
+            .Build();
+    });
+}
+else
+{
+    // Production mode - require valid JWT tokens
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+    builder.Services.AddAuthorization();
+}
 
 // Add services to the container
 builder.Services.AddControllers();

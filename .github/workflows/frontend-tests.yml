@@ -110,6 +110,7 @@ jobs:
         env:
           ConnectionStrings__GridironDb: 'Server=localhost;Database=GridironCI;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;'
           ASPNETCORE_URLS: 'http://localhost:5000'
+          E2E_TEST_MODE: 'true'
         run: |
           dotnet run &
           echo "API started with PID $!"
