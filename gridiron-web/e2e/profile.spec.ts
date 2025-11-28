@@ -12,14 +12,15 @@ test.describe('Profile Page', () => {
 
   test('should display account information section', async ({ page }) => {
     await expect(page.getByText('Account Information')).toBeVisible()
-    await expect(page.getByText('Your User ID')).toBeVisible()
-    await expect(page.getByText('Display Name')).toBeVisible()
-    await expect(page.getByText('Email')).toBeVisible()
+    // Use first() to avoid strict mode error when text appears multiple times
+    await expect(page.getByText('Your User ID').first()).toBeVisible()
+    await expect(page.getByText('Display Name').first()).toBeVisible()
+    await expect(page.getByText('Email').first()).toBeVisible()
   })
 
   test('should display user ID with copy button', async ({ page }) => {
-    // User ID should be displayed
-    await expect(page.getByText('Your User ID')).toBeVisible()
+    // User ID label should be displayed (use first() to avoid strict mode error if label appears multiple times)
+    await expect(page.getByText('Your User ID').first()).toBeVisible()
 
     // Copy button should be visible
     await expect(page.getByRole('button', { name: 'Copy' })).toBeVisible()
