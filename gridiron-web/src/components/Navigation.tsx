@@ -31,6 +31,12 @@ export const Navigation = () => {
               >
                 Simulate Game
               </Link>
+              <Link
+                to="/profile"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-900 transition-colors"
+              >
+                Profile
+              </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">

@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout, ProtectedRoute } from './components';
-import { HomePage, TeamsPage, GameSimulationPage } from './pages';
+import { HomePage, TeamsPage, GameSimulationPage, ProfilePage } from './pages';
 
 // Create a QueryClient instance for React Query
 const queryClient = new QueryClient({
@@ -40,6 +40,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <GameSimulationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />
