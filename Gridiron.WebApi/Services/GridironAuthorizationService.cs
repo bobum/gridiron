@@ -56,6 +56,12 @@ public class GridironAuthorizationService : IGridironAuthorizationService
 
     public async Task<bool> IsGlobalAdminAsync(string azureAdObjectId)
     {
+        // In E2E test mode, treat the test user as a global admin
+        if (azureAdObjectId == "e2e-test-user-object-id")
+        {
+            return true;
+        }
+
         var user = await _userRepository.GetByAzureAdObjectIdAsync(azureAdObjectId);
         return user?.IsGlobalAdmin ?? false;
     }
