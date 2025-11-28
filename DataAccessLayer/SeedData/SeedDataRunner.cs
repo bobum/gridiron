@@ -67,6 +67,12 @@ namespace DataAccessLayer.SeedData
             Console.WriteLine("==============================================\n");
             Console.ResetColor();
 
+            // Seed God user (Global Admin) - always runs first, idempotent
+            // This runs regardless of whether we clear/reseed other data
+            Console.WriteLine("Seeding God user...");
+            await UserSeeder.SeedGodUserAsync(db);
+            Console.WriteLine("✓ God user seeded.\n");
+
             // Check if data already exists
             var existingTeams = await db.Teams.CountAsync();
             var existingPlayers = await db.Players.CountAsync();
@@ -163,11 +169,14 @@ namespace DataAccessLayer.SeedData
             var totalFirstNames = await db.FirstNames.CountAsync();
             var totalLastNames = await db.LastNames.CountAsync();
             var totalColleges = await db.Colleges.CountAsync();
+            var totalUsers = await db.Users.CountAsync();
+            var godUsers = await db.Users.CountAsync(u => u.IsGlobalAdmin);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("==============================================");
             Console.WriteLine("  Seeding Complete!");
             Console.WriteLine("==============================================");
+            Console.WriteLine($"  Users: {totalUsers} ({godUsers} God)");
             Console.WriteLine($"  Teams: {totalTeams}");
             Console.WriteLine($"  Total Players: {totalPlayers}");
             Console.WriteLine($"    - Falcons: {falconsCount}");

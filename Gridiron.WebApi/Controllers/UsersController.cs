@@ -56,6 +56,7 @@ public class UsersController : ControllerBase
     {
         // Get current user from JWT claims
         var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+
         if (string.IsNullOrEmpty(azureAdObjectId))
         {
             return Unauthorized(new { error = "User identity not found in token" });

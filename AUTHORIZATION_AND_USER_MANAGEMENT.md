@@ -79,6 +79,25 @@ The JWT token contains these critical claims:
 | `aud` | Token audience (Client ID) | `"29348959-a014-4550-b3c3-044585c83f0a"` |
 | `exp` | Token expiration timestamp | `1735372800` |
 
+**CIAM Claim Format Note:**
+
+Azure AD External CIAM uses **full URI claim names** instead of short names. When extracting claims in the backend, check for multiple claim formats:
+
+```csharp
+// HttpContextExtensions.cs - Check multiple claim formats
+return context.User?.FindFirst("oid")?.Value
+    ?? context.User?.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+    ?? context.User?.FindFirst("sub")?.Value
+    ?? context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+```
+
+| Short Name | CIAM Full URI |
+|------------|---------------|
+| `oid` | `http://schemas.microsoft.com/identity/claims/objectidentifier` |
+| `tid` | `http://schemas.microsoft.com/identity/claims/tenantid` |
+| `scp` | `http://schemas.microsoft.com/identity/claims/scope` |
+| `sub` | `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier` |
+
 ### First-Time Login
 
 On first authentication, the backend automatically creates a user record:

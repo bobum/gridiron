@@ -37,7 +37,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colleges");
+                    b.ToTable("Colleges", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.Conference", b =>
@@ -72,7 +72,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("LeagueId");
 
-                    b.ToTable("Conferences");
+                    b.ToTable("Conferences", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.Division", b =>
@@ -107,7 +107,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("ConferenceId");
 
-                    b.ToTable("Divisions");
+                    b.ToTable("Divisions", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.FirstName", b =>
@@ -125,7 +125,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FirstNames");
+                    b.ToTable("FirstNames", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.Game", b =>
@@ -175,7 +175,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("HomeTeamId");
 
-                    b.ToTable("Games");
+                    b.ToTable("Games", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.LastName", b =>
@@ -193,7 +193,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LastNames");
+                    b.ToTable("LastNames", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.League", b =>
@@ -229,7 +229,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Leagues");
+                    b.ToTable("Leagues", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.PlayByPlay", b =>
@@ -271,7 +271,7 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("GameId")
                         .IsUnique();
 
-                    b.ToTable("PlayByPlays");
+                    b.ToTable("PlayByPlays", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.Player", b =>
@@ -394,7 +394,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("TeamId");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.User", b =>
@@ -446,7 +446,7 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("AzureAdObjectId")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.UserLeagueRole", b =>
@@ -496,7 +496,7 @@ namespace DataAccessLayer.Migrations
                         .IsUnique()
                         .HasFilter("[TeamId] IS NOT NULL");
 
-                    b.ToTable("UserLeagueRoles");
+                    b.ToTable("UserLeagueRoles", (string)null);
                 });
 
             modelBuilder.Entity("Team", b =>
@@ -556,7 +556,7 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("DivisionId");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Teams", (string)null);
                 });
 
             modelBuilder.Entity("DomainObjects.Conference", b =>

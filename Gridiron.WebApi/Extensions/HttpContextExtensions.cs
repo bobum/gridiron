@@ -27,7 +27,13 @@ public static class HttpContextExtensions
 
         // The 'oid' claim contains the user's unique object ID in Azure AD
         // This is the immutable identifier we use for authorization
+        // Azure AD v2.0 tokens use different claim names depending on configuration:
+        // - "oid" (short name when MapInboundClaims = false)
+        // - "http://schemas.microsoft.com/identity/claims/objectidentifier" (full URI)
+        // - "sub" (subject claim, often same as oid in v2.0 tokens)
         return context.User?.FindFirst("oid")?.Value
+            ?? context.User?.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+            ?? context.User?.FindFirst("sub")?.Value
             ?? context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 

@@ -101,20 +101,70 @@ Microsoft Entra ID → App registrations → Goal To Go Football
 
 ---
 
-#### 2. Web API Application (To Be Created)
+#### 2. API Scope Configuration (Expose an API)
 
-**Name:** `Gridiron-API` (not yet created)
-**Application (client) ID:** TBD
-**Application ID URI:** `api://gridiron-api`
+**Status:** ✅ Configured
 
-**Exposed API Scopes (To Configure):**
-- `api://gridiron-api/Teams.Read` - Read team and player data
-- `api://gridiron-api/Teams.Write` - Manage teams and simulate games
-- `api://gridiron-api/Leagues.Manage` - Create and manage leagues
+The React SPA and ASP.NET Core API use the same app registration (`Goal To Go Football`). The API is configured to accept tokens with the correct audience by exposing an API scope.
 
-**Path to Create:**
+**Application ID URI:** `api://29348959-a014-4550-b3c3-044585c83f0a`
+
+**Exposed API Scope:**
+- `api://29348959-a014-4550-b3c3-044585c83f0a/access_as_user` - Full access as authenticated user
+
+**Configuration Steps:**
+
+1. **Navigate to App Registration:**
+   ```
+   Microsoft Entra ID → App registrations → Goal To Go Football
+   ```
+
+2. **Configure "Expose an API":**
+   - Click "Expose an API" in the left sidebar
+   - Click "Set" next to "Application ID URI"
+   - Accept the default: `api://29348959-a014-4550-b3c3-044585c83f0a`
+   - Click "Save"
+
+3. **Add a Scope:**
+   - Click "+ Add a scope"
+   - **Scope name:** `access_as_user`
+   - **Who can consent:** Admins and users
+   - **Admin consent display name:** `Access Gridiron API`
+   - **Admin consent description:** `Allows the app to access Gridiron API on behalf of the signed-in user.`
+   - **User consent display name:** `Access Gridiron API`
+   - **User consent description:** `Allow the application to access Gridiron API on your behalf.`
+   - **State:** Enabled
+   - Click "Add scope"
+
+4. **Update Frontend Configuration:**
+
+   In `gridiron-web/src/config/authConfig.ts`:
+   ```typescript
+   export const apiRequest = {
+     scopes: ['api://29348959-a014-4550-b3c3-044585c83f0a/access_as_user'],
+   };
+   ```
+
+5. **Update Backend Configuration:**
+
+   In `Gridiron.WebApi/appsettings.json`:
+   ```json
+   "AzureAd": {
+     "Instance": "https://gtggridiron.ciamlogin.com/",
+     "Domain": "gtggridiron.onmicrosoft.com",
+     "TenantId": "8a101213-4cc7-4424-91f7-87fc81ef3a01",
+     "ClientId": "29348959-a014-4550-b3c3-044585c83f0a"
+   }
+   ```
+
+**Critical Notes:**
+- The `TenantId` must be the GUID (`8a101213-4cc7-4424-91f7-87fc81ef3a01`), not the domain name
+- Azure AD CIAM uses full URI claim names (e.g., `http://schemas.microsoft.com/identity/claims/objectidentifier` instead of `oid`)
+- The token audience will be `29348959-a014-4550-b3c3-044585c83f0a` (the ClientId)
+
+**Path to Configure:**
 ```
-Microsoft Entra ID → App registrations → + New registration
+Microsoft Entra ID → App registrations → Goal To Go Football → Expose an API
 ```
 
 ---

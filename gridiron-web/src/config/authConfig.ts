@@ -55,10 +55,8 @@ export const loginRequest = {
 
 /**
  * Scopes for accessing the Gridiron API
- * Update this with your API's scope once configured in Azure
+ * This scope was configured in Azure AD under "Expose an API"
  */
 export const apiRequest = {
-  scopes: ['openid', 'profile', 'email'],
-  // TODO: Replace with actual API scope when available
-  // Example: scopes: ['api://29348959-a014-4550-b3c3-044585c83f0a/access_as_user']
+  scopes: ['api://29348959-a014-4550-b3c3-044585c83f0a/access_as_user'],
 };
