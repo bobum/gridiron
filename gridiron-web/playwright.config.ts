@@ -22,6 +22,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI, // Reuse locally for speed, fresh in CI for .env changes
+    reuseExistingServer: false, // Always start fresh server to ensure E2E test mode env var is loaded
+    timeout: 120000, // 2 minutes for server to start
   },
 })
