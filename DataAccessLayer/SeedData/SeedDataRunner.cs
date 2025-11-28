@@ -111,6 +111,11 @@ namespace DataAccessLayer.SeedData
                 Console.WriteLine("✓ Player generation data cleared.\n");
             }
 
+            // Seed God user (Global Admin) - always runs first, idempotent
+            Console.WriteLine("Seeding God user...");
+            await UserSeeder.SeedGodUserAsync(db);
+            Console.WriteLine("✓ God user seeded.\n");
+
             // Seed player generation data (FirstNames, LastNames, Colleges)
             Console.WriteLine("Seeding player generation data...");
             var playerDataSeeder = new PlayerDataSeeder(db, loggerFactory.CreateLogger<PlayerDataSeeder>());
@@ -163,11 +168,14 @@ namespace DataAccessLayer.SeedData
             var totalFirstNames = await db.FirstNames.CountAsync();
             var totalLastNames = await db.LastNames.CountAsync();
             var totalColleges = await db.Colleges.CountAsync();
+            var totalUsers = await db.Users.CountAsync();
+            var godUsers = await db.Users.CountAsync(u => u.IsGlobalAdmin);
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("==============================================");
             Console.WriteLine("  Seeding Complete!");
             Console.WriteLine("==============================================");
+            Console.WriteLine($"  Users: {totalUsers} ({godUsers} God)");
             Console.WriteLine($"  Teams: {totalTeams}");
             Console.WriteLine($"  Total Players: {totalPlayers}");
             Console.WriteLine($"    - Falcons: {falconsCount}");
