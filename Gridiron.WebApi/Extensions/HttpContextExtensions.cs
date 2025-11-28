@@ -10,11 +10,21 @@ public static class HttpContextExtensions
     /// <summary>
     /// Gets the Azure AD Object ID (oid claim) from the current user's JWT token.
     /// This is the unique identifier for the user in Azure Entra ID.
+    /// In E2E test mode, returns a special test user ID to bypass authentication.
     /// </summary>
     /// <param name="context">The HTTP context</param>
     /// <returns>Azure AD Object ID, or null if not authenticated or claim not found</returns>
     public static string? GetAzureAdObjectId(this HttpContext context)
     {
+        // Check if we're in E2E test mode
+        var isE2ETestMode = Environment.GetEnvironmentVariable("E2E_TEST_MODE") == "true";
+        if (isE2ETestMode)
+        {
+            // Return a fake Azure AD Object ID for E2E tests
+            // This allows the application to function without real authentication
+            return "e2e-test-user-object-id";
+        }
+
         // The 'oid' claim contains the user's unique object ID in Azure AD
         // This is the immutable identifier we use for authorization
         return context.User?.FindFirst("oid")?.Value

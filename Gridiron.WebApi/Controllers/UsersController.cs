@@ -63,6 +63,21 @@ public class UsersController : ControllerBase
 
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
 
+        // In E2E test mode, create a test user if it doesn't exist
+        if (user == null && azureAdObjectId == "e2e-test-user-object-id")
+        {
+            user = await _authorizationService.GetOrCreateUserFromClaimsAsync(
+                azureAdObjectId,
+                "e2e-test@gridiron.test",
+                "E2E Test User"
+            );
+            // Make the test user a global admin for full access
+            user.IsGlobalAdmin = true;
+            await _userRepository.UpdateAsync(user);
+            // Reload with roles
+            user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
+        }
+
         if (user == null)
         {
             return NotFound(new { error = "User not found" });

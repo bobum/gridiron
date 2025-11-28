@@ -4,8 +4,6 @@ test.describe('Navigation', () => {
   test('should navigate between pages', async ({ page }) => {
     // Start at home page
     await page.goto('/')
-
-    // Should see the title
     await expect(page.getByRole('heading', { name: 'Gridiron Football Manager' })).toBeVisible()
 
     // Navigate to Teams page

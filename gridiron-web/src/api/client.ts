@@ -21,6 +21,13 @@ export const setupAuthInterceptor = (msalInstance: PublicClientApplication) => {
   // Request interceptor to add auth token
   apiClient.interceptors.request.use(
     async (config) => {
+      // Skip authentication in E2E test mode
+      const isTestMode = import.meta.env.VITE_E2E_TEST_MODE === 'true';
+      if (isTestMode) {
+        console.log('[E2E Test Mode] Skipping authentication for API request');
+        return config;
+      }
+
       const accounts = msalInstance.getAllAccounts();
 
       if (accounts.length > 0) {

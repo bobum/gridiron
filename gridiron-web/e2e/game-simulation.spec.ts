@@ -17,9 +17,6 @@ test.describe('Game Simulation', () => {
   })
 
   test('should enable simulate button when teams selected', async ({ page }) => {
-    // Note: This test requires the API to be running with actual teams
-    // In a real scenario, you might mock the API or use test data
-
     // Select home team
     await page.selectOption('select >> nth=0', { index: 1 })
 

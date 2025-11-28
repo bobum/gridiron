@@ -23,5 +23,10 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI, // Reuse locally for speed, fresh in CI for .env changes
+    env: {
+      // Explicitly pass E2E test mode to Vite so it's available during dev server startup
+      // This ensures ProtectedRoute bypasses authentication in E2E tests
+      VITE_E2E_TEST_MODE: 'true',
+    },
   },
 })
