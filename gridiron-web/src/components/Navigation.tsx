@@ -26,6 +26,12 @@ export const Navigation = () => {
                 Teams
               </Link>
               <Link
+                to="/leagues"
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-900 transition-colors"
+              >
+                Leagues
+              </Link>
+              <Link
                 to="/simulate"
                 className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-900 transition-colors"
               >
