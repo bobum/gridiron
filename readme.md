@@ -159,7 +159,7 @@ This is a personal project, but feel free to fork and experiment!
 
 ## License
 
-Personal project - all rights reserved.
+Personal project - all rights reserved. 2025
 
 ## What's Next?
 
