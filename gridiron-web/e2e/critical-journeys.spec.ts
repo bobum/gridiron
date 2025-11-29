@@ -75,7 +75,8 @@ test.describe('Critical User Journeys', () => {
     // Profile loads real user data from API
     await expect(page.getByRole('heading', { name: 'User Profile' })).toBeVisible()
     await expect(page.getByText('Account Information')).toBeVisible()
-    await expect(page.getByLabel('Your User ID')).toBeVisible()
+    // The User ID section has a label and a code element with the ID
+    await expect(page.locator('label', { hasText: 'Your User ID' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Copy' })).toBeVisible()
 
     // Leagues section shows data from API
