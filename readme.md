@@ -42,6 +42,35 @@ gridiron/
 ### Prerequisites
 - .NET 8 SDK
 - Azure SQL Database (optional - for persistence)
+- GitHub Personal Access Token with `read:packages` scope (for NuGet package access)
+
+### NuGet Package Setup
+
+This project uses the `Gridiron.Engine` NuGet package hosted on GitHub Packages. To restore packages locally:
+
+1. **Create a Personal Access Token (PAT)**
+   - Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Generate a new token with `read:packages` scope
+   - Set expiration (recommended: 1 year)
+
+2. **Set Environment Variable**
+   ```bash
+   # Windows (PowerShell)
+   $env:NUGET_AUTH_TOKEN = "your-github-pat-here"
+
+   # Windows (CMD)
+   set NUGET_AUTH_TOKEN=your-github-pat-here
+
+   # Linux/Mac
+   export NUGET_AUTH_TOKEN=your-github-pat-here
+   ```
+
+3. **Restore Packages**
+   ```bash
+   dotnet restore
+   ```
+
+See [`NUGET_AUTHENTICATION.md`](NUGET_AUTHENTICATION.md) for detailed setup instructions.
 
 ### Run a Simulation
 

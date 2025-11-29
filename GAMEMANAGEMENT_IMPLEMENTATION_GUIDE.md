@@ -14,7 +14,12 @@
 ```xml
 <ProjectReference Include="..\DomainObjects\DomainObjects.csproj" />
 <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+
+<!-- External NuGet Package from GitHub Packages -->
+<PackageReference Include="Gridiron.Engine" Version="0.1.*" />
 ```
+
+> **Note:** The `Gridiron.Engine` NuGet package is hosted on GitHub Packages and requires authentication. See [NUGET_AUTHENTICATION.md](NUGET_AUTHENTICATION.md) for setup instructions.
 
 ### How to Use Repositories in GameManagement Services
 ```csharp

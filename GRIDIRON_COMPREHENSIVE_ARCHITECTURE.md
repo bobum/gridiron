@@ -49,8 +49,17 @@ Gridiron is a sophisticated NFL football game simulation engine with a React fro
 │  └─────────────────┘      │    (Player/Team Services)   │ │
 │                           │                             │ │
 │                           │ Depends on: DomainObjects,  │ │
-│                           │ DataAccessLayer             │ │
+│                           │ DataAccessLayer,            │ │
+│                           │ Gridiron.Engine (NuGet)     │ │
 │                           └──────────────────────────────┘ │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │       Gridiron.Engine (External NuGet Package)       │  │
+│  │  - Game simulation engine                            │  │
+│  │  - Domain objects for engine simulation              │  │
+│  │  - Hosted on GitHub Packages                         │  │
+│  │  - See NUGET_AUTHENTICATION.md for setup             │  │
+│  └──────────────────────────────────────────────────────┘  │
 │                                                              │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │            DomainObjects (Models)                    │  │
@@ -1619,3 +1628,65 @@ dotnet test --filter "FullyQualifiedName~GameFlow"  # Specific tests
 
 ---
 
+
+---
+
+## 13. EXTERNAL DEPENDENCIES & NUGET PACKAGES
+
+### 13.1 Gridiron.Engine Package
+
+The `GameManagement` project depends on the `Gridiron.Engine` NuGet package, which provides:
+
+- **Game simulation engine** - Core simulation logic
+- **Domain objects** - Team, Player, Coach, and other engine-specific types
+- **Mapperly integration** - Compile-time object mapping between EF entities and engine types
+
+**Package Details:**
+- **Package Name**: `Gridiron.Engine`
+- **Source**: GitHub Packages (`https://nuget.pkg.github.com/merciless-creations/index.json`)
+- **Version**: See `GameManagement/GameManagement.csproj` for current version
+
+### 13.2 Entity Mapping with Mapperly
+
+The `GridironMapper` class (using Riok.Mapperly) handles mapping between:
+
+```
+EF Entities (DomainObjects)  ←→  Engine Types (Gridiron.Engine.Domain)
+        ↓                                    ↓
+    Team, Player, Coach              EngineTeam, EnginePlayer, etc.
+    (with Id, FK, soft delete)       (pure domain objects)
+```
+
+**Key Mappings:**
+- `ToEngineTeam()` - Map EF Team → Engine Team
+- `ToEnginePlayer()` - Map EF Player → Engine Player  
+- `UpdateTeamEntity()` - Apply simulation results back to EF entities
+
+### 13.3 Authentication Configuration
+
+**Local Development:**
+- Requires `NUGET_AUTH_TOKEN` environment variable
+- Token must have `read:packages` scope
+- See `nuget.config` for source configuration
+
+**CI/CD (GitHub Actions):**
+- Uses `NUGET_READ_TOKEN` organization secret
+- Workflow explicitly configures NuGet credentials before restore
+- Secret must be enabled for the repository
+
+**Configuration Files:**
+- `nuget.config` - NuGet source and credential configuration
+- `.github/workflows/dotnet-ci.yml` - CI/CD authentication setup
+
+See [`NUGET_AUTHENTICATION.md`](NUGET_AUTHENTICATION.md) for complete setup instructions.
+
+### 13.4 Adding New Package Dependencies
+
+When adding new packages from GitHub Packages:
+
+1. **Add to `nuget.config`** if from a different source
+2. **Update CI/CD workflow** if new authentication is needed
+3. **Document in this file** under External Dependencies
+4. **Update `NUGET_AUTHENTICATION.md`** with any new setup requirements
+
+---
