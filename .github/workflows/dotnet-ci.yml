@@ -21,9 +21,16 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-        source-url: https://nuget.pkg.github.com/merciless-creations/index.json
+
+    - name: Configure NuGet authentication
+      run: |
+        dotnet nuget update source github-merciless \
+          --username "github-actions" \
+          --password "$NUGET_TOKEN" \
+          --store-password-in-clear-text \
+          --configfile nuget.config
       env:
-        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
+        NUGET_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
 
     - name: Restore dependencies
       run: dotnet restore gridiron.sln
