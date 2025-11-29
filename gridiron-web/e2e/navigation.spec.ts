@@ -11,6 +11,11 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL('/teams')
     await expect(page.getByRole('heading', { name: 'Teams' })).toBeVisible()
 
+    // Navigate to Leagues page
+    await page.click('text=Leagues')
+    await expect(page).toHaveURL('/leagues')
+    await expect(page.getByRole('heading', { name: 'My Leagues' })).toBeVisible()
+
     // Navigate to Simulate page
     await page.click('text=Simulate Game')
     await expect(page).toHaveURL('/simulate')
@@ -26,6 +31,9 @@ test.describe('Navigation', () => {
     await expect(page.locator('nav')).toContainText('Gridiron')
 
     await page.goto('/teams')
+    await expect(page.locator('nav')).toContainText('Gridiron')
+
+    await page.goto('/leagues')
     await expect(page.locator('nav')).toContainText('Gridiron')
 
     await page.goto('/simulate')
