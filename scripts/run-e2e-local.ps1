@@ -115,18 +115,18 @@ function Reset-Database {
 
     Push-Location $config.DataAccessLayerPath
     try {
-        # Step 1: Drop database
+        # Step 1: Drop database (suppress output, only show errors)
         Write-Status "Dropping existing database..."
-        $dropResult = & dotnet ef database drop --force 2>&1
+        $null = & dotnet ef database drop --force 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Status "Database drop warning (may not exist): $dropResult" "Warning"
+            Write-Status "Database may not have existed (continuing)" "Warning"
         } else {
             Write-Status "Database dropped" "Success"
         }
 
-        # Step 2: Apply migrations
+        # Step 2: Apply migrations (suppress info output)
         Write-Status "Applying EF Core migrations..."
-        & dotnet ef database update --startup-project ../Gridiron.WebApi
+        $null = & dotnet ef database update --startup-project ../Gridiron.WebApi 2>&1
         if ($LASTEXITCODE -ne 0) {
             throw "Database migration failed"
         }
@@ -140,7 +140,7 @@ function Reset-Database {
     Push-Location $config.ApiProjectPath
     try {
         Write-Status "Seeding test data..."
-        & dotnet run -- --seed --force
+        $null = & dotnet run -- --seed --force 2>&1
         if ($LASTEXITCODE -ne 0) {
             throw "Database seeding failed"
         }
