@@ -99,8 +99,8 @@ test.describe('League Creation', () => {
     // Modal should close and league should appear in list
     await expect(page.getByTestId('create-league-modal')).not.toBeVisible({ timeout: 10000 })
 
-    // Wait for the league card to appear
-    await expect(page.getByText('Test League E2E')).toBeVisible({ timeout: 10000 })
+    // Wait for at least one league card with this name to appear
+    await expect(page.getByText('Test League E2E').first()).toBeVisible({ timeout: 10000 })
   })
 })
 
@@ -117,7 +117,7 @@ test.describe('League Detail Page', () => {
     await expect(page.getByTestId('create-league-modal')).not.toBeVisible({ timeout: 10000 })
 
     // Navigate to the league detail page
-    await page.getByText('Detail Test League').click()
+    await page.getByText('Detail Test League').first().click()
     await expect(page.getByTestId('league-name')).toBeVisible({ timeout: 10000 })
   })
 
@@ -127,10 +127,11 @@ test.describe('League Detail Page', () => {
   })
 
   test('should display league stats', async ({ page }) => {
-    await expect(page.getByText('Conferences')).toBeVisible()
-    await expect(page.getByText('Divisions')).toBeVisible()
-    await expect(page.getByText('Teams')).toBeVisible()
-    await expect(page.getByText('Players')).toBeVisible()
+    const main = page.getByRole('main')
+    await expect(main.getByText('Conferences', { exact: true })).toBeVisible()
+    await expect(main.getByText('Divisions', { exact: true })).toBeVisible()
+    await expect(main.getByText('Teams', { exact: true })).toBeVisible()
+    await expect(main.getByText('Players', { exact: true })).toBeVisible()
   })
 
   test('should display league structure with expandable conferences', async ({ page }) => {
@@ -163,7 +164,7 @@ test.describe('League Edit Functionality', () => {
     await page.getByTestId('league-name-input').fill('Edit Test League')
     await page.getByTestId('submit-create-league').click()
     await expect(page.getByTestId('create-league-modal')).not.toBeVisible({ timeout: 10000 })
-    await page.getByText('Edit Test League').click()
+    await page.getByText('Edit Test League').first().click()
     await expect(page.getByTestId('league-name')).toBeVisible({ timeout: 10000 })
   })
 
@@ -198,7 +199,7 @@ test.describe('League Delete Functionality', () => {
     await page.getByTestId('league-name-input').fill('Delete Test League')
     await page.getByTestId('submit-create-league').click()
     await expect(page.getByTestId('create-league-modal')).not.toBeVisible({ timeout: 10000 })
-    await page.getByText('Delete Test League').click()
+    await page.getByText('Delete Test League').first().click()
     await expect(page.getByTestId('league-name')).toBeVisible({ timeout: 10000 })
   })
 
@@ -216,12 +217,16 @@ test.describe('League Delete Functionality', () => {
   })
 
   test('should delete league and redirect to leagues list', async ({ page }) => {
+    // Get current URL to extract league ID
+    const url = page.url()
+    const leagueId = url.split('/').pop()
+
     await page.getByTestId('delete-league-button').click()
     await page.getByTestId('confirm-delete-league').click()
     // Should redirect to leagues list
     await expect(page).toHaveURL('/leagues', { timeout: 10000 })
-    // Deleted league should not be visible
-    await expect(page.getByText('Delete Test League')).not.toBeVisible()
+    // The specific league card should no longer exist
+    await expect(page.getByTestId(`league-card-${leagueId}`)).not.toBeVisible()
   })
 })
 
@@ -236,7 +241,7 @@ test.describe('Populate Rosters Functionality', () => {
     await page.getByTestId('teams-input').fill('1')
     await page.getByTestId('submit-create-league').click()
     await expect(page.getByTestId('create-league-modal')).not.toBeVisible({ timeout: 10000 })
-    await page.getByText('Populate Test League').click()
+    await page.getByText('Populate Test League').first().click()
     await expect(page.getByTestId('league-name')).toBeVisible({ timeout: 10000 })
   })
 
@@ -269,7 +274,7 @@ test.describe('League User Management', () => {
     await page.getByTestId('league-name-input').fill('User Management Test League')
     await page.getByTestId('submit-create-league').click()
     await expect(page.getByTestId('create-league-modal')).not.toBeVisible({ timeout: 10000 })
-    await page.getByText('User Management Test League').click()
+    await page.getByText('User Management Test League').first().click()
     await expect(page.getByTestId('league-name')).toBeVisible({ timeout: 10000 })
   })
 
