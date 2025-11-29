@@ -21,6 +21,8 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore gridiron.sln
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build
       run: dotnet build gridiron.sln --no-restore --configuration Release
