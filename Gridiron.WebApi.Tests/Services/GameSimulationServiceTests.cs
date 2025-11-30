@@ -5,7 +5,7 @@ using GameManagement.Services;
 using Gridiron.WebApi.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using UnitTestProject1.Helpers;
+using Gridiron.TestHelpers.Helpers;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Services;

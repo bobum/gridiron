@@ -27,7 +27,7 @@
     <ProjectReference Include="..\Gridiron.WebApi\Gridiron.WebApi.csproj" />
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
     <ProjectReference Include="..\DomainObjects\DomainObjects.csproj" />
-    <ProjectReference Include="..\UnitTestProject1\UnitTestProject1.csproj" />
+    <ProjectReference Include="..\Gridiron.TestHelpers\Gridiron.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>
