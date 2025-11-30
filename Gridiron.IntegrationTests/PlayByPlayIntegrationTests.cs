@@ -133,10 +133,9 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         var totalScore = simulatedGame.HomeScore + simulatedGame.AwayScore;
         totalScore.Should().BeGreaterThan(0, "because the game should have produced some scoring");
 
-        // Verify plays were created
-        simulatedGame.Plays.Should().NotBeNull();
-        simulatedGame.Plays.Should().NotBeEmpty("because game simulation should create plays");
-        simulatedGame.Plays.Count.Should().BeGreaterThan(50, "because a full game should have many plays");
+        // Note: In the new Gridiron.Engine architecture, plays are stored in PlayByPlay.PlaysJson
+        // rather than Game.Plays. The Game entity just tracks scores and team references.
+        // Plays verification is done in STEP 6-7 below when checking PlayByPlay.
 
         // ==========================================
         // STEP 5: Verify Game Persisted to Database

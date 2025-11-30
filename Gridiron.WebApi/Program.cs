@@ -127,6 +127,13 @@ builder.Services.AddScoped<GameManagement.Services.ITeamBuilderService, GameMana
 builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
 builder.Services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
 
+// ========================================
+// GRIDIRON ENGINE SERVICES (from NuGet package)
+// ========================================
+builder.Services.AddSingleton<Gridiron.Engine.Api.IGameEngine, Gridiron.Engine.Api.GameEngine>();
+builder.Services.AddSingleton<GameManagement.Mapping.GridironMapper>();
+builder.Services.AddScoped<GameManagement.Services.IEngineSimulationService, GameManagement.Services.EngineSimulationService>();
+
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

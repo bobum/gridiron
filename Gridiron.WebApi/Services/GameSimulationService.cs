@@ -1,36 +1,35 @@
 using DataAccessLayer.Repositories;
 using DomainObjects;
-using DomainObjects.Helpers;
+using GameManagement.Services;
+using Gridiron.Engine.Simulation;
 using Microsoft.Extensions.Logging;
-using StateLibrary;
-using System.Text;
 using System.Text.Json;
 
 namespace Gridiron.WebApi.Services;
 
 /// <summary>
-/// Service for running game simulations asynchronously
-/// DOES NOT access the database directly - uses repositories from DataAccessLayer
+/// Service for running game simulations using the Gridiron.Engine NuGet package.
+/// Handles the full simulation workflow: load teams, run simulation, persist results.
 /// </summary>
 public class GameSimulationService : IGameSimulationService
 {
     private readonly ITeamRepository _teamRepository;
     private readonly IGameRepository _gameRepository;
     private readonly IPlayByPlayRepository _playByPlayRepository;
-    private readonly ILogger<GameFlow> _gameLogger;
+    private readonly IEngineSimulationService _engineSimulationService;
     private readonly ILogger<GameSimulationService> _logger;
 
     public GameSimulationService(
         ITeamRepository teamRepository,
         IGameRepository gameRepository,
         IPlayByPlayRepository playByPlayRepository,
-        ILogger<GameFlow> _gameLogger,
+        IEngineSimulationService engineSimulationService,
         ILogger<GameSimulationService> logger)
     {
         _teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         _gameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
         _playByPlayRepository = playByPlayRepository ?? throw new ArgumentNullException(nameof(playByPlayRepository));
-        this._gameLogger = _gameLogger ?? throw new ArgumentNullException(nameof(_gameLogger));
+        _engineSimulationService = engineSimulationService ?? throw new ArgumentNullException(nameof(engineSimulationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -49,61 +48,48 @@ public class GameSimulationService : IGameSimulationService
         if (awayTeam == null)
             throw new ArgumentException($"Away team with ID {awayTeamId} not found", nameof(awayTeamId));
 
-        // Build depth charts for both teams using the Teams helper
-        // This is REQUIRED for the simulation to work - depth charts are used to select players
-        var teamsWithDepthCharts = new Teams(homeTeam, awayTeam);
-
-        // Create game
-        var game = new Game
-        {
-            HomeTeam = teamsWithDepthCharts.HomeTeam,
-            AwayTeam = teamsWithDepthCharts.VisitorTeam,
-            HomeTeamId = homeTeamId,
-            AwayTeamId = awayTeamId,
-            RandomSeed = randomSeed
-        };
-
-        // Create RNG (with seed if provided)
-        var rng = randomSeed.HasValue
-            ? new SeedableRandom(randomSeed.Value)
-            : new SeedableRandom();
-
         // Create a capture logger to collect play-by-play output during simulation
-        // This captures the SAME output that would normally go to console in GridironConsole
         var captureLogger = new StringCaptureLogger<GameFlow>();
 
-        // Run simulation on background thread to avoid blocking
-        await Task.Run(() =>
-        {
-            var gameFlow = new GameFlow(game, rng, captureLogger);
-            gameFlow.Execute();
-        });
+        // Run simulation using Gridiron.Engine (via EngineSimulationService)
+        var result = await Task.Run(() =>
+            _engineSimulationService.SimulateGame(homeTeam, awayTeam, randomSeed, captureLogger));
 
         _logger.LogInformation("Game simulation completed: {HomeTeam} {HomeScore} - {AwayScore} {AwayTeam}",
-            homeTeam.Name, game.HomeScore, game.AwayScore, awayTeam.Name);
+            homeTeam.Name, result.HomeScore, result.AwayScore, awayTeam.Name);
+
+        // Create Game entity for persistence
+        var game = new Game
+        {
+            HomeTeam = homeTeam,
+            AwayTeam = awayTeam,
+            HomeTeamId = homeTeamId,
+            AwayTeamId = awayTeamId,
+            HomeScore = result.HomeScore,
+            AwayScore = result.AwayScore,
+            RandomSeed = randomSeed
+        };
 
         // Save game through repository
         await _gameRepository.AddAsync(game);
 
-        // Create and save play-by-play data using the captured logger output
-        await SavePlayByPlayDataAsync(game, captureLogger);
+        // Create and save play-by-play data
+        await SavePlayByPlayDataAsync(game, result, captureLogger);
 
         return game;
     }
 
     /// <summary>
     /// Serializes and saves play-by-play data for a completed game
-    /// Uses the captured logger output as the play-by-play log (DRY - reuses what the game engine logged)
     /// </summary>
-    private async Task SavePlayByPlayDataAsync(Game game, StringCaptureLogger<GameFlow> captureLogger)
+    private async Task SavePlayByPlayDataAsync(Game game, EngineSimulationResult result, StringCaptureLogger<GameFlow> captureLogger)
     {
         try
         {
             // Serialize plays to JSON
-            var playsJson = SerializePlays(game.Plays);
+            var playsJson = SerializePlays(result.Plays);
 
             // Get the play-by-play log from the captured logger output
-            // This is the SAME text that GridironConsole sees - single source of truth!
             var playByPlayLog = captureLogger.GetCapturedLog();
 
             // Create PlayByPlay entity
@@ -119,7 +105,7 @@ public class GameSimulationService : IGameSimulationService
             await _playByPlayRepository.AddAsync(playByPlay);
 
             _logger.LogInformation("Play-by-play data saved for game {GameId}: {PlayCount} plays, {LogLength} chars",
-                game.Id, game.Plays.Count, playByPlayLog.Length);
+                game.Id, result.TotalPlays, playByPlayLog.Length);
         }
         catch (Exception ex)
         {
@@ -131,7 +117,7 @@ public class GameSimulationService : IGameSimulationService
     /// <summary>
     /// Serializes the plays list to JSON format
     /// </summary>
-    private string SerializePlays(List<IPlay> plays)
+    private string SerializePlays(IReadOnlyList<Gridiron.Engine.Domain.IPlay> plays)
     {
         try
         {
