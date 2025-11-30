@@ -79,6 +79,7 @@ public partial class GridironMapper
     [MapperIgnoreSource(nameof(DomainPlayer.DeletedAt))]
     [MapperIgnoreSource(nameof(DomainPlayer.DeletedBy))]
     [MapperIgnoreSource(nameof(DomainPlayer.DeletionReason))]
+    [MapperIgnoreSource(nameof(DomainPlayer.CurrentInjury))] // Avoid circular ref: Player -> Injury -> Player
     public partial EnginePlayer ToEnginePlayer(DomainPlayer entity);
 
     /// <summary>
@@ -90,6 +91,7 @@ public partial class GridironMapper
     [MapperIgnoreTarget(nameof(DomainPlayer.DeletedAt))]
     [MapperIgnoreTarget(nameof(DomainPlayer.DeletedBy))]
     [MapperIgnoreTarget(nameof(DomainPlayer.DeletionReason))]
+    [MapperIgnoreTarget(nameof(DomainPlayer.CurrentInjury))] // Avoid circular ref: Player -> Injury -> Player
     public partial DomainPlayer ToEntityPlayer(EnginePlayer enginePlayer);
 
     /// <summary>
@@ -101,6 +103,7 @@ public partial class GridironMapper
     [MapperIgnoreTarget(nameof(DomainPlayer.DeletedAt))]
     [MapperIgnoreTarget(nameof(DomainPlayer.DeletedBy))]
     [MapperIgnoreTarget(nameof(DomainPlayer.DeletionReason))]
+    [MapperIgnoreTarget(nameof(DomainPlayer.CurrentInjury))] // Avoid circular ref: Player -> Injury -> Player
     public partial void UpdatePlayerEntity(EnginePlayer source, DomainPlayer target);
 
     // ========================================
@@ -146,8 +149,9 @@ public partial class GridironMapper
     public partial EngineDepthChart ToEngineDepthChart(DomainDepthChart entity);
     public partial DomainDepthChart ToEntityDepthChart(EngineDepthChart engineDepthChart);
 
-    public partial EngineInjury ToEngineInjury(DomainInjury entity);
-    public partial DomainInjury ToEntityInjury(EngineInjury engineInjury);
+    // Injury mappings - these are not auto-mapped due to circular references
+    // Injuries during simulation are transient and don't need round-trip mapping
+    // Manual handling required if injury persistence is needed
 
     // ========================================
     // ENUM MAPPINGS

@@ -1,6 +1,9 @@
 using DataAccessLayer;
 using DataAccessLayer.Repositories;
 using DomainObjects;
+using GameManagement.Mapping;
+using GameManagement.Services;
+using Gridiron.Engine.Api;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +65,11 @@ public class DatabaseTestFixture : IDisposable
         // Register WebApi services
         services.AddScoped<Gridiron.WebApi.Services.IGameSimulationService, Gridiron.WebApi.Services.GameSimulationService>();
         services.AddScoped<Gridiron.WebApi.Services.IGridironAuthorizationService, Gridiron.WebApi.Services.GridironAuthorizationService>();
+
+        // Register Gridiron.Engine services (from NuGet package)
+        services.AddSingleton<IGameEngine, GameEngine>();
+        services.AddSingleton<GridironMapper>();
+        services.AddScoped<IEngineSimulationService, EngineSimulationService>();
 
         // Register logging
         services.AddLogging();
