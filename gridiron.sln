@@ -28,8 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		states.png = states.png
 	EndProjectSection
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "gridiron-web", "gridiron-web\gridiron-web.esproj", "{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diagram", "Diagram\Diagram.csproj", "{3258BCA3-7F00-4AEF-9CCB-C7B54B4557C6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gridiron.WebApi", "Gridiron.WebApi\Gridiron.WebApi.csproj", "{A1B2C3D4-AAAA-BBBB-CCCC-123456789ABC}"
@@ -78,18 +76,6 @@ Global
 		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Release|x64.Build.0 = Release|Any CPU
 		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Release|x86.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-5E6F-7890-ABCD-EF1234567890}.Release|x86.Build.0 = Release|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Debug|x64.Build.0 = Debug|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Debug|x86.Build.0 = Debug|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Release|x64.ActiveCfg = Release|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Release|x64.Build.0 = Release|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Release|x86.ActiveCfg = Release|Any CPU
-		{F1E2D3C4-5B6A-7890-1234-567890ABCDEF}.Release|x86.Build.0 = Release|Any CPU
 		{3258BCA3-7F00-4AEF-9CCB-C7B54B4557C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3258BCA3-7F00-4AEF-9CCB-C7B54B4557C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3258BCA3-7F00-4AEF-9CCB-C7B54B4557C6}.Debug|x64.ActiveCfg = Debug|Any CPU
