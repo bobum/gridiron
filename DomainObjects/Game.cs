@@ -11,6 +11,26 @@ namespace DomainObjects
         public PlayByPlay? PlayByPlay { get; set; }
         public int HomeScore { get; set; }
         public int AwayScore { get; set; }
+
+        /// <summary>
+        /// Foreign key to the season week this game belongs to (nullable for standalone games)
+        /// </summary>
+        public int? SeasonWeekId { get; set; }
+
+        /// <summary>
+        /// Navigation property to the season week
+        /// </summary>
+        public SeasonWeek? SeasonWeek { get; set; }
+
+        /// <summary>
+        /// Whether this game has been completed (score is final)
+        /// </summary>
+        public bool IsComplete { get; set; } = false;
+
+        /// <summary>
+        /// Date and time when the game was played
+        /// </summary>
+        public DateTime? PlayedAt { get; set; }
     }
 
     public enum Positions
