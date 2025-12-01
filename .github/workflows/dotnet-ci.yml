@@ -65,5 +65,28 @@ jobs:
       with:
         name: build-output
 
-    - name: Run tests
-      run: dotnet test gridiron.sln --no-build --configuration Release --verbosity normal
+    - name: Run unit tests (no database required)
+      run: |
+        dotnet test GameManagement.Tests/GameManagement.Tests.csproj --no-build --configuration Release --verbosity normal
+        dotnet test Gridiron.WebApi.Tests/Gridiron.WebApi.Tests.csproj --no-build --configuration Release --verbosity normal
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+
+    - name: Run integration tests (SQLite in-memory)
+      run: dotnet test Gridiron.IntegrationTests/Gridiron.IntegrationTests.csproj --no-build --configuration Release --verbosity normal
