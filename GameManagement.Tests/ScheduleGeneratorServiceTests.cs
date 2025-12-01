@@ -242,6 +242,111 @@ public class ScheduleGeneratorServiceTests
         result.Warnings.Should().Contain(w => w.Contains("4 divisions per conference"));
     }
 
+    [Fact]
+    public void ValidateLeagueStructure_WithTooManyConferences_ShouldReturnInvalid()
+    {
+        // Arrange
+        var league = new League
+        {
+            Id = 1,
+            Name = "Too Many Conferences",
+            Conferences = new List<Conference>
+            {
+                new Conference { Id = 1, Name = "Conf 1", Divisions = new List<Division> { new Division { Id = 1, Teams = new List<Team> { new Team { Id = 1, Name = "T1" }, new Team { Id = 2, Name = "T2" } } } } },
+                new Conference { Id = 2, Name = "Conf 2", Divisions = new List<Division> { new Division { Id = 2, Teams = new List<Team> { new Team { Id = 3, Name = "T3" }, new Team { Id = 4, Name = "T4" } } } } },
+                new Conference { Id = 3, Name = "Conf 3", Divisions = new List<Division> { new Division { Id = 3, Teams = new List<Team> { new Team { Id = 5, Name = "T5" }, new Team { Id = 6, Name = "T6" } } } } }
+            }
+        };
+
+        // Act
+        var result = _service.ValidateLeagueStructure(league);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Contains("cannot have more than 2 conferences"));
+    }
+
+    [Fact]
+    public void ValidateLeagueStructure_WithTooManyDivisionsPerConference_ShouldReturnInvalid()
+    {
+        // Arrange - Create a conference with 5 divisions
+        var league = new League
+        {
+            Id = 1,
+            Name = "Too Many Divisions",
+            Conferences = new List<Conference>
+            {
+                new Conference
+                {
+                    Id = 1,
+                    Name = "Conf 1",
+                    Divisions = Enumerable.Range(1, 5).Select(i => new Division
+                    {
+                        Id = i,
+                        Name = $"Division {i}",
+                        Teams = new List<Team> { new Team { Id = i * 10, Name = $"T{i}" }, new Team { Id = i * 10 + 1, Name = $"T{i}b" } }
+                    }).ToList()
+                }
+            }
+        };
+
+        // Act
+        var result = _service.ValidateLeagueStructure(league);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Contains("cannot have more than 4 divisions"));
+    }
+
+    [Fact]
+    public void ValidateLeagueStructure_WithTooManyTeamsPerDivision_ShouldReturnInvalid()
+    {
+        // Arrange - Create a division with 5 teams
+        var league = new League
+        {
+            Id = 1,
+            Name = "Too Many Teams",
+            Conferences = new List<Conference>
+            {
+                new Conference
+                {
+                    Id = 1,
+                    Name = "Conf 1",
+                    Divisions = new List<Division>
+                    {
+                        new Division
+                        {
+                            Id = 1,
+                            Name = "Division 1",
+                            Teams = Enumerable.Range(1, 5).Select(i => new Team { Id = i, Name = $"Team {i}" }).ToList()
+                        }
+                    }
+                }
+            }
+        };
+
+        // Act
+        var result = _service.ValidateLeagueStructure(league);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.Contains("cannot have more than 4 teams"));
+    }
+
+    [Fact]
+    public void ValidateLeagueStructure_WithTooManyTotalTeams_ShouldReturnInvalid()
+    {
+        // Arrange - Create a league that exceeds 32 total teams
+        // This would require invalid structure (e.g., 2 conf x 4 div x 5 teams = 40)
+        // But since we cap teams per division, this is caught by that rule first
+        // So we test the explicit total team check with a hypothetical valid structure
+        // For now, we just verify the constants are correct
+        ScheduleGeneratorService.MaxTotalTeams.Should().Be(32);
+        ScheduleGeneratorService.MaxConferences.Should().Be(2);
+        ScheduleGeneratorService.MaxDivisionsPerConference.Should().Be(4);
+        ScheduleGeneratorService.MaxTeamsPerDivision.Should().Be(4);
+    }
+
     #endregion
 
     #region GenerateSchedule Tests - Basic

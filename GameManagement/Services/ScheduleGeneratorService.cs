@@ -93,6 +93,12 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         return season;
     }
 
+    // NFL-style hard caps
+    public const int MaxConferences = 2;
+    public const int MaxDivisionsPerConference = 4;
+    public const int MaxTeamsPerDivision = 4;
+    public const int MaxTotalTeams = MaxConferences * MaxDivisionsPerConference * MaxTeamsPerDivision; // 32
+
     public ScheduleValidationResult ValidateLeagueStructure(League league)
     {
         if (league == null)
@@ -104,11 +110,25 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         var errors = new List<string>();
         var warnings = new List<string>();
 
+        // Hard cap: Maximum conferences
+        if (league.Conferences.Count > MaxConferences)
+        {
+            errors.Add($"League cannot have more than {MaxConferences} conferences. Found {league.Conferences.Count}.");
+        }
+
         // Check for consistent structure
         var conferenceDivisionCounts = league.Conferences.Select(c => c.Divisions?.Count ?? 0).Distinct().ToList();
         if (conferenceDivisionCounts.Count > 1)
         {
             errors.Add("All conferences must have the same number of divisions");
+        }
+
+        var divisionsPerConference = conferenceDivisionCounts.FirstOrDefault();
+
+        // Hard cap: Maximum divisions per conference
+        if (divisionsPerConference > MaxDivisionsPerConference)
+        {
+            errors.Add($"Each conference cannot have more than {MaxDivisionsPerConference} divisions. Found {divisionsPerConference}.");
         }
 
         var divisionTeamCounts = league.Conferences
@@ -123,27 +143,43 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         }
 
         var teamsPerDivision = divisionTeamCounts.FirstOrDefault();
+
+        // Hard cap: Maximum teams per division
+        if (teamsPerDivision > MaxTeamsPerDivision)
+        {
+            errors.Add($"Each division cannot have more than {MaxTeamsPerDivision} teams. Found {teamsPerDivision}.");
+        }
+
         if (teamsPerDivision < 2)
         {
             errors.Add("Each division must have at least 2 teams");
         }
 
-        // NFL-style scheduling works best with 2 conferences
-        if (league.Conferences.Count != 2)
+        // Total team count check
+        var totalTeams = league.Conferences
+            .SelectMany(c => c.Divisions ?? new List<Division>())
+            .SelectMany(d => d.Teams ?? new List<Team>())
+            .Count();
+
+        if (totalTeams > MaxTotalTeams)
         {
-            warnings.Add($"NFL-style scheduling is optimized for 2 conferences. League has {league.Conferences.Count}.");
+            errors.Add($"League cannot have more than {MaxTotalTeams} total teams. Found {totalTeams}.");
         }
 
-        // Ideal is 4 divisions per conference with 4 teams each
-        var divisionsPerConference = conferenceDivisionCounts.FirstOrDefault();
-        if (divisionsPerConference != 4)
+        // Warnings for non-optimal (but valid) configurations
+        if (league.Conferences.Count < MaxConferences)
         {
-            warnings.Add($"NFL-style scheduling is optimized for 4 divisions per conference. Found {divisionsPerConference}.");
+            warnings.Add($"NFL-style scheduling is optimized for {MaxConferences} conferences. League has {league.Conferences.Count}.");
         }
 
-        if (teamsPerDivision != 4)
+        if (divisionsPerConference > 0 && divisionsPerConference < MaxDivisionsPerConference)
         {
-            warnings.Add($"NFL-style scheduling is optimized for 4 teams per division. Found {teamsPerDivision}.");
+            warnings.Add($"NFL-style scheduling is optimized for {MaxDivisionsPerConference} divisions per conference. Found {divisionsPerConference}.");
+        }
+
+        if (teamsPerDivision > 0 && teamsPerDivision < MaxTeamsPerDivision)
+        {
+            warnings.Add($"NFL-style scheduling is optimized for {MaxTeamsPerDivision} teams per division. Found {teamsPerDivision}.");
         }
 
         return new ScheduleValidationResult
