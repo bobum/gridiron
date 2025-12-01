@@ -627,6 +627,310 @@ public class ScheduleGeneratorServiceTests
 
     #endregion
 
+    #region Varied League Formations Tests
+
+    /// <summary>
+    /// Creates a single conference league with specified divisions and teams per division
+    /// </summary>
+    private static League CreateSingleConferenceLeague(int divisions, int teamsPerDivision)
+    {
+        var league = new League
+        {
+            Id = 1,
+            Name = "Single Conference League",
+            Conferences = new List<Conference>()
+        };
+
+        var conference = new Conference
+        {
+            Id = 1,
+            Name = "Conference 1",
+            LeagueId = league.Id,
+            Divisions = new List<Division>()
+        };
+
+        var teamId = 1;
+        for (int div = 1; div <= divisions; div++)
+        {
+            var division = new Division
+            {
+                Id = div,
+                Name = $"Division {div}",
+                ConferenceId = conference.Id,
+                Teams = new List<Team>()
+            };
+
+            for (int team = 1; team <= teamsPerDivision; team++)
+            {
+                division.Teams.Add(new Team
+                {
+                    Id = teamId++,
+                    Name = $"Team {teamId - 1}",
+                    City = $"City {teamId - 1}",
+                    DivisionId = division.Id
+                });
+            }
+
+            conference.Divisions.Add(division);
+        }
+
+        league.Conferences.Add(conference);
+        return league;
+    }
+
+    [Fact]
+    public void GenerateSchedule_WithSingleConferenceLeague_ShouldGenerateValidSchedule()
+    {
+        // Arrange - 1 conference, 2 divisions, 4 teams each = 8 teams
+        var league = CreateSingleConferenceLeague(divisions: 2, teamsPerDivision: 4);
+        var season = CreateSeason(league);
+
+        // Act
+        var result = _service.GenerateSchedule(season, seed: 12345);
+
+        // Assert
+        result.Weeks.Should().NotBeEmpty();
+        var allGames = result.Weeks.SelectMany(w => w.Games).ToList();
+        var teamsWithGames = allGames
+            .SelectMany(g => new[] { g.HomeTeamId, g.AwayTeamId })
+            .Distinct()
+            .Count();
+
+        teamsWithGames.Should().Be(8, "All 8 teams should have games scheduled");
+
+        // Verify no team plays twice in same week
+        foreach (var week in result.Weeks)
+        {
+            var teamIdsInWeek = week.Games
+                .SelectMany(g => new[] { g.HomeTeamId, g.AwayTeamId })
+                .ToList();
+            teamIdsInWeek.Should().OnlyHaveUniqueItems();
+        }
+    }
+
+    [Fact]
+    public void GenerateSchedule_WithSmallDivisions_TwoTeamsPerDivision_ShouldGenerateValidSchedule()
+    {
+        // Arrange - 2 conferences, 2 divisions each, 2 teams per division = 8 teams
+        var league = new League
+        {
+            Id = 1,
+            Name = "Small Division League",
+            Conferences = new List<Conference>()
+        };
+
+        var teamId = 1;
+        for (int conf = 1; conf <= 2; conf++)
+        {
+            var conference = new Conference
+            {
+                Id = conf,
+                Name = $"Conference {conf}",
+                LeagueId = league.Id,
+                Divisions = new List<Division>()
+            };
+
+            for (int div = 1; div <= 2; div++)
+            {
+                var division = new Division
+                {
+                    Id = (conf - 1) * 2 + div,
+                    Name = $"Division {div}",
+                    ConferenceId = conference.Id,
+                    Teams = new List<Team>()
+                };
+
+                for (int team = 1; team <= 2; team++)
+                {
+                    division.Teams.Add(new Team
+                    {
+                        Id = teamId++,
+                        Name = $"Team {teamId - 1}",
+                        City = $"City {teamId - 1}",
+                        DivisionId = division.Id
+                    });
+                }
+
+                conference.Divisions.Add(division);
+            }
+
+            league.Conferences.Add(conference);
+        }
+
+        var season = CreateSeason(league, regularSeasonWeeks: 10);
+
+        // Act
+        var result = _service.GenerateSchedule(season, seed: 12345);
+
+        // Assert
+        result.Weeks.Should().NotBeEmpty();
+        var allGames = result.Weeks.SelectMany(w => w.Games).ToList();
+        allGames.Should().NotBeEmpty("Schedule should have games");
+
+        // All 8 teams should play
+        var teamsWithGames = allGames
+            .SelectMany(g => new[] { g.HomeTeamId, g.AwayTeamId })
+            .Distinct()
+            .Count();
+        teamsWithGames.Should().Be(8);
+
+        // Division rivals (only 1 rival each) should play each other
+        // With 2 teams per division, each team has 1 division rival
+        var team1Games = allGames.Count(g => g.HomeTeamId == 1 || g.AwayTeamId == 1);
+        team1Games.Should().BeGreaterThan(0, "Team 1 should have games scheduled");
+    }
+
+    [Fact]
+    public void GenerateSchedule_WithThreeTeamDivisions_ShouldGenerateValidSchedule()
+    {
+        // Arrange - 2 conferences, 2 divisions each, 3 teams per division = 12 teams
+        var league = new League
+        {
+            Id = 1,
+            Name = "Three Team Division League",
+            Conferences = new List<Conference>()
+        };
+
+        var teamId = 1;
+        for (int conf = 1; conf <= 2; conf++)
+        {
+            var conference = new Conference
+            {
+                Id = conf,
+                Name = $"Conference {conf}",
+                LeagueId = league.Id,
+                Divisions = new List<Division>()
+            };
+
+            for (int div = 1; div <= 2; div++)
+            {
+                var division = new Division
+                {
+                    Id = (conf - 1) * 2 + div,
+                    Name = $"Division {div}",
+                    ConferenceId = conference.Id,
+                    Teams = new List<Team>()
+                };
+
+                for (int team = 1; team <= 3; team++)
+                {
+                    division.Teams.Add(new Team
+                    {
+                        Id = teamId++,
+                        Name = $"Team {teamId - 1}",
+                        City = $"City {teamId - 1}",
+                        DivisionId = division.Id
+                    });
+                }
+
+                conference.Divisions.Add(division);
+            }
+
+            league.Conferences.Add(conference);
+        }
+
+        var season = CreateSeason(league, regularSeasonWeeks: 14);
+
+        // Act
+        var result = _service.GenerateSchedule(season, seed: 12345);
+
+        // Assert
+        result.Weeks.Should().NotBeEmpty();
+        var allGames = result.Weeks.SelectMany(w => w.Games).ToList();
+
+        // All 12 teams should play
+        var teamsWithGames = allGames
+            .SelectMany(g => new[] { g.HomeTeamId, g.AwayTeamId })
+            .Distinct()
+            .Count();
+        teamsWithGames.Should().Be(12, "All 12 teams should have games scheduled");
+
+        // Each team should have multiple games
+        for (int i = 1; i <= 12; i++)
+        {
+            var teamGames = allGames.Count(g => g.HomeTeamId == i || g.AwayTeamId == i);
+            teamGames.Should().BeGreaterThan(3, $"Team {i} should have substantial games scheduled");
+        }
+    }
+
+    [Fact]
+    public void GenerateSchedule_WithMinimumViableLeague_ShouldGenerateValidSchedule()
+    {
+        // Arrange - Minimum viable: 1 conference, 1 division, 2 teams
+        var league = CreateSingleConferenceLeague(divisions: 1, teamsPerDivision: 2);
+        var season = CreateSeason(league, regularSeasonWeeks: 4);
+
+        // Act
+        var result = _service.GenerateSchedule(season, seed: 12345);
+
+        // Assert
+        result.Weeks.Should().NotBeEmpty();
+        var allGames = result.Weeks.SelectMany(w => w.Games).ToList();
+
+        // Both teams should play each other (division rivals play twice)
+        allGames.Should().HaveCountGreaterOrEqualTo(1, "At least one game should be scheduled");
+
+        var teamsWithGames = allGames
+            .SelectMany(g => new[] { g.HomeTeamId, g.AwayTeamId })
+            .Distinct()
+            .Count();
+        teamsWithGames.Should().Be(2, "Both teams should have games scheduled");
+    }
+
+    [Fact]
+    public void GenerateSchedule_VerifyScheduleCompleteness_AllTeamsHaveReasonableGameCount()
+    {
+        // Arrange - Standard 16-team league
+        var league = CreateSimpleLeague();
+        var season = CreateSeason(league, regularSeasonWeeks: 17);
+
+        // Act
+        var result = _service.GenerateSchedule(season, seed: 12345);
+
+        // Assert - Each team should have a reasonable number of games (at least 50% of weeks)
+        var allGames = result.Weeks.SelectMany(w => w.Games).ToList();
+        var allTeams = league.Conferences
+            .SelectMany(c => c.Divisions)
+            .SelectMany(d => d.Teams)
+            .ToList();
+
+        var minExpectedGames = season.RegularSeasonWeeks / 2; // At least half the weeks
+
+        foreach (var team in allTeams)
+        {
+            var teamGames = allGames.Count(g => g.HomeTeamId == team.Id || g.AwayTeamId == team.Id);
+            teamGames.Should().BeGreaterOrEqualTo(minExpectedGames,
+                $"Team {team.Id} should have at least {minExpectedGames} games, but has {teamGames}");
+        }
+    }
+
+    [Fact]
+    public void GenerateSchedule_SingleConferenceWithFourDivisions_ShouldGenerateValidSchedule()
+    {
+        // Arrange - 1 conference, 4 divisions, 4 teams each = 16 teams (like one half of NFL)
+        var league = CreateSingleConferenceLeague(divisions: 4, teamsPerDivision: 4);
+        var season = CreateSeason(league);
+
+        // Act
+        var result = _service.GenerateSchedule(season, seed: 12345);
+
+        // Assert
+        result.Weeks.Should().NotBeEmpty();
+        var allGames = result.Weeks.SelectMany(w => w.Games).ToList();
+
+        // All 16 teams should play
+        var teamsWithGames = allGames
+            .SelectMany(g => new[] { g.HomeTeamId, g.AwayTeamId })
+            .Distinct()
+            .Count();
+        teamsWithGames.Should().Be(16, "All 16 teams should have games scheduled");
+
+        // Should have substantial games
+        allGames.Count.Should().BeGreaterOrEqualTo(50, "Should have many games for 16-team league");
+    }
+
+    #endregion
+
     #region Constructor Tests
 
     [Fact]
