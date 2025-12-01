@@ -173,14 +173,6 @@ namespace DataAccessLayer
                       .HasForeignKey(g => g.AwayTeamId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // Ignore runtime/state properties
-                entity.Ignore(g => g.CurrentPlay);
-                entity.Ignore(g => g.Plays);
-                entity.Ignore(g => g.Logger);
-                entity.Ignore(g => g.Halves);
-                entity.Ignore(g => g.CurrentQuarter);
-                entity.Ignore(g => g.CurrentHalf);
-                entity.Ignore(g => g.TimeRemaining);
 
                 // Soft delete query filter - exclude deleted games from queries
                 entity.HasQueryFilter(g => !g.IsDeleted);

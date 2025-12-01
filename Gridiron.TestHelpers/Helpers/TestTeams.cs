@@ -9,7 +9,7 @@ namespace Gridiron.TestHelpers.Helpers
 {
     /// <summary>
     /// Provides test data teams with full rosters for unit testing.
-    /// Loads team data from JSON files and builds depth charts.
+    /// Loads team data from JSON files.
     /// </summary>
     public static class TestTeams
     {
@@ -17,19 +17,6 @@ namespace Gridiron.TestHelpers.Helpers
             AppDomain.CurrentDomain.BaseDirectory,
             "TestData"
         );
-
-        /// <summary>
-        /// Creates a Teams object with Atlanta Falcons (home) and Philadelphia Eagles (visitor).
-        /// Loads player data from JSON files and builds all depth charts.
-        /// </summary>
-        public static DomainObjects.Helpers.Teams CreateTestTeams()
-        {
-            var homeTeam = LoadAtlantaFalcons();
-            var visitorTeam = LoadPhiladelphiaEagles();
-
-            // Use the parameterized constructor which builds all depth charts
-            return new DomainObjects.Helpers.Teams(homeTeam, visitorTeam);
-        }
 
         /// <summary>
         /// Loads the Atlanta Falcons team from JSON file
