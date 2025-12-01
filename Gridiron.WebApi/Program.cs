@@ -110,6 +110,7 @@ builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IPlayByPlayRepository, PlayByPlayRepository>();
 builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
 
 // ========================================
 // APPLICATION SERVICES
@@ -126,6 +127,7 @@ builder.Services.AddScoped<GameManagement.Services.IDivisionBuilderService, Game
 builder.Services.AddScoped<GameManagement.Services.ITeamBuilderService, GameManagement.Services.TeamBuilderService>();
 builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
 builder.Services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
+builder.Services.AddScoped<GameManagement.Services.IScheduleGeneratorService, GameManagement.Services.ScheduleGeneratorService>();
 
 // ========================================
 // GRIDIRON ENGINE SERVICES (from NuGet package)
