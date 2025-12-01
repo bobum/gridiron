@@ -1,0 +1,47 @@
+name: Deploy API to Azure
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Configure NuGet authentication
+      run: |
+        dotnet nuget update source github-merciless \
+          --username "github-actions" \
+          --password "$NUGET_TOKEN" \
+          --store-password-in-clear-text \
+          --configfile nuget.config
+      env:
+        NUGET_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
+
+    - name: Restore dependencies
+      run: dotnet restore Gridiron.WebApi/Gridiron.WebApi.csproj
+
+    - name: Build
+      run: dotnet build Gridiron.WebApi/Gridiron.WebApi.csproj --no-restore --configuration Release
+
+    - name: Publish
+      run: dotnet publish Gridiron.WebApi/Gridiron.WebApi.csproj --no-build --configuration Release --output ./publish
+
+    - name: Deploy to Azure App Service
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: app-gridiron-api-dev
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish
