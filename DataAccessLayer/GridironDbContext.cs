@@ -22,6 +22,8 @@ namespace DataAccessLayer
         public DbSet<Player> Players { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<PlayByPlay> PlayByPlays { get; set; }
+        public DbSet<Season> Seasons { get; set; }
+        public DbSet<SeasonWeek> SeasonWeeks { get; set; }
 
         // User and authorization
         public DbSet<User> Users { get; set; }
@@ -49,6 +51,18 @@ namespace DataAccessLayer
                       .WithOne()
                       .HasForeignKey(c => c.LeagueId)
                       .OnDelete(DeleteBehavior.Cascade);  // Delete conferences if league deleted
+
+                // League has many Seasons (one-to-many)
+                entity.HasMany(l => l.Seasons)
+                      .WithOne(s => s.League)
+                      .HasForeignKey(s => s.LeagueId)
+                      .OnDelete(DeleteBehavior.Cascade);  // Delete seasons if league deleted
+
+                // League optionally has a current season
+                entity.HasOne(l => l.CurrentSeason)
+                      .WithMany()
+                      .HasForeignKey(l => l.CurrentSeasonId)
+                      .OnDelete(DeleteBehavior.SetNull);  // Clear current season if season deleted
 
                 // Soft delete query filter - exclude deleted leagues from queries
                 entity.HasQueryFilter(l => !l.IsDeleted);
@@ -168,6 +182,12 @@ namespace DataAccessLayer
                       .HasForeignKey(g => g.HomeTeamId)
                       .OnDelete(DeleteBehavior.Restrict);  // Don't delete games if team is deleted
 
+                // Game optionally belongs to a SeasonWeek
+                entity.HasOne(g => g.SeasonWeek)
+                      .WithMany(sw => sw.Games)
+                      .HasForeignKey(g => g.SeasonWeekId)
+                      .OnDelete(DeleteBehavior.SetNull);  // Keep game if week deleted
+
                 entity.HasOne(g => g.AwayTeam)
                       .WithMany()
                       .HasForeignKey(g => g.AwayTeamId)
@@ -200,6 +220,60 @@ namespace DataAccessLayer
                 entity.HasQueryFilter(p => !p.IsDeleted);
             });
 
+            // ========================================
+            // SEASON CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<Season>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                // Season belongs to one League (many-to-one)
+                entity.HasOne(s => s.League)
+                      .WithMany(l => l.Seasons)
+                      .HasForeignKey(s => s.LeagueId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Season has many SeasonWeeks (one-to-many)
+                entity.HasMany(s => s.Weeks)
+                      .WithOne(sw => sw.Season)
+                      .HasForeignKey(sw => sw.SeasonId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Season optionally has a champion team
+                entity.HasOne(s => s.ChampionTeam)
+                      .WithMany()
+                      .HasForeignKey(s => s.ChampionTeamId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // Soft delete query filter
+                entity.HasQueryFilter(s => !s.IsDeleted);
+            });
+
+            // ========================================
+            // SEASONWEEK CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<SeasonWeek>(entity =>
+            {
+                entity.HasKey(sw => sw.Id);
+
+                // SeasonWeek belongs to one Season (many-to-one)
+                entity.HasOne(sw => sw.Season)
+                      .WithMany(s => s.Weeks)
+                      .HasForeignKey(sw => sw.SeasonId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // SeasonWeek has many Games (one-to-many)
+                entity.HasMany(sw => sw.Games)
+                      .WithOne(g => g.SeasonWeek)
+                      .HasForeignKey(g => g.SeasonWeekId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // Index for efficient queries by season and week number
+                entity.HasIndex(sw => new { sw.SeasonId, sw.WeekNumber });
+
+                // Soft delete query filter
+                entity.HasQueryFilter(sw => !sw.IsDeleted);
+            });
             // ========================================
             // PLAYER GENERATION DATA CONFIGURATION
             // ========================================
