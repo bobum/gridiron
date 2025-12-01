@@ -121,6 +121,10 @@ builder.Services.AddScoped<IGridironAuthorizationService, GridironAuthorizationS
 // ========================================
 // GAME MANAGEMENT SERVICES
 // ========================================
+// Configure schedule generator options from appsettings.json
+builder.Services.Configure<GameManagement.Configuration.ScheduleGeneratorOptions>(
+    builder.Configuration.GetSection(GameManagement.Configuration.ScheduleGeneratorOptions.SectionName));
+
 builder.Services.AddScoped<GameManagement.Services.ILeagueBuilderService, GameManagement.Services.LeagueBuilderService>();
 builder.Services.AddScoped<GameManagement.Services.IConferenceBuilderService, GameManagement.Services.ConferenceBuilderService>();
 builder.Services.AddScoped<GameManagement.Services.IDivisionBuilderService, GameManagement.Services.DivisionBuilderService>();
