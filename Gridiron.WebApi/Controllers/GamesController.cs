@@ -79,7 +79,7 @@ public class GamesController : ControllerBase
                 AwayScore = game.AwayScore,
                 RandomSeed = game.RandomSeed,
                 IsComplete = true,
-                TotalPlays = game.Plays?.Count ?? 0
+                TotalPlays = 0
             };
 
             return Ok(gameDto);
@@ -142,7 +142,7 @@ public class GamesController : ControllerBase
             AwayScore = g.AwayScore,
             RandomSeed = g.RandomSeed,
             IsComplete = true,
-            TotalPlays = g.Plays?.Count ?? 0
+            TotalPlays = 0
         }).ToList();
 
         return Ok(gameDtos);
@@ -194,7 +194,7 @@ public class GamesController : ControllerBase
             AwayScore = game.AwayScore,
             RandomSeed = game.RandomSeed,
             IsComplete = true,
-            TotalPlays = game.Plays?.Count ?? 0
+            TotalPlays = 0
         };
 
         return Ok(gameDto);
@@ -219,6 +219,7 @@ public class GamesController : ControllerBase
             return Unauthorized(new { error = "User identity not found in token" });
         }
 
+        // First check if game exists and user has access
         var game = await _simulationService.GetGameAsync(id);
 
         if (game == null)
@@ -235,53 +236,9 @@ public class GamesController : ControllerBase
             return Forbid();
         }
 
-        if (game.Plays == null || !game.Plays.Any())
-        {
-            return Ok(new List<PlayDto>());
-        }
+        // Get plays from PlayByPlay.PlaysJson (deserialized by the service)
+        var plays = await _simulationService.GetGamePlaysAsync(id);
 
-        var playDtos = game.Plays.Select(p => new PlayDto
-        {
-            PlayType = p.PlayType.ToString(),
-            Possession = p.Possession.ToString(),
-            Down = (int)p.Down,
-            YardsToGo = 0, // Will need to calculate from game state
-            StartFieldPosition = p.StartFieldPosition,
-            EndFieldPosition = p.EndFieldPosition,
-            YardsGained = p.YardsGained,
-            StartTime = p.StartTime,
-            StopTime = p.StopTime,
-            ElapsedTime = p.ElapsedTime,
-            IsTouchdown = p.IsTouchdown,
-            IsSafety = p.IsSafety,
-            Interception = p.Interception,
-            PossessionChange = p.PossessionChange,
-            Penalties = p.Penalties?.Select(pen => pen.ToString()).ToList() ?? new List<string>(),
-            Fumbles = p.Fumbles?.Select(f => f.ToString()).ToList() ?? new List<string>(),
-            Injuries = p.Injuries?.Select(i => i.ToString()).ToList() ?? new List<string>(),
-            Description = GeneratePlayDescription(p)
-        }).ToList();
-
-        return Ok(playDtos);
-    }
-
-    private string GeneratePlayDescription(DomainObjects.IPlay play)
-    {
-        // Basic play description - can be enhanced later
-        var desc = $"{play.PlayType} play: ";
-
-        if (play.IsTouchdown)
-            desc += "TOUCHDOWN! ";
-        else if (play.IsSafety)
-            desc += "SAFETY! ";
-        else if (play.Interception)
-            desc += "INTERCEPTION! ";
-
-        desc += $"{play.YardsGained} yards";
-
-        if (play.Penalties?.Any() == true)
-            desc += $" (Penalty: {play.Penalties.Count})";
-
-        return desc;
+        return Ok(plays ?? new List<PlayDto>());
     }
 }

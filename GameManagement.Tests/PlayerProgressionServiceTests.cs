@@ -265,7 +265,7 @@ public class PlayerProgressionServiceTests
         {
             Type = InjuryType.Knee,
             Severity = InjurySeverity.Minor,
-            InjuredPlayer = player
+            
         };
 
         var retiredCount = 0;
@@ -275,7 +275,7 @@ public class PlayerProgressionServiceTests
         for (int i = 0; i < totalTests; i++)
         {
             var playerCopy = CreateTestPlayer(Positions.RB, age: 35);
-            playerCopy.CurrentInjury = new Injury { Type = InjuryType.Knee, Severity = InjurySeverity.Minor, InjuredPlayer = playerCopy };
+            playerCopy.CurrentInjury = new Injury { Type = InjuryType.Knee, Severity = InjurySeverity.Minor};
             if (_service.ShouldRetire(playerCopy))
             {
                 retiredCount++;

@@ -1,4 +1,5 @@
 using DomainObjects;
+using Gridiron.WebApi.DTOs;
 
 namespace Gridiron.WebApi.Services;
 
@@ -25,4 +26,11 @@ public interface IGameSimulationService
     /// Gets all games
     /// </summary>
     Task<List<Game>> GetGamesAsync();
+
+    /// <summary>
+    /// Gets plays for a game by deserializing from PlayByPlay.PlaysJson
+    /// </summary>
+    /// <param name="gameId">ID of the game</param>
+    /// <returns>List of plays as DTOs, or null if game not found</returns>
+    Task<List<PlayDto>?> GetGamePlaysAsync(int gameId);
 }
