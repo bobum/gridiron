@@ -1,7 +1,6 @@
 using DomainObjects;
 using GameManagement.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace GameManagement.Services;
 
@@ -12,14 +11,10 @@ namespace GameManagement.Services;
 public class ScheduleGeneratorService : IScheduleGeneratorService
 {
     private readonly ILogger<ScheduleGeneratorService> _logger;
-    private readonly ScheduleGeneratorOptions _options;
 
-    public ScheduleGeneratorService(
-        ILogger<ScheduleGeneratorService> logger,
-        IOptions<ScheduleGeneratorOptions> options)
+    public ScheduleGeneratorService(ILogger<ScheduleGeneratorService> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     public Season GenerateSchedule(Season season, int? seed = null)
@@ -30,11 +25,11 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         if (season.League == null)
             throw new ArgumentException("Season must have League loaded with full structure", nameof(season));
 
-        // Validate regular season weeks against configured cap
-        if (season.RegularSeasonWeeks > _options.MaxRegularSeasonWeeks)
+        // Validate regular season weeks against cap
+        if (season.RegularSeasonWeeks > ScheduleConstants.MaxRegularSeasonWeeks)
         {
             throw new InvalidOperationException(
-                $"Season has {season.RegularSeasonWeeks} regular season weeks, but maximum allowed is {_options.MaxRegularSeasonWeeks}.");
+                $"Season has {season.RegularSeasonWeeks} regular season weeks, but maximum allowed is {ScheduleConstants.MaxRegularSeasonWeeks}.");
         }
 
         var validation = ValidateLeagueStructure(season.League);
@@ -118,9 +113,9 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         var warnings = new List<string>();
 
         // Hard cap: Maximum conferences
-        if (league.Conferences.Count > _options.MaxConferences)
+        if (league.Conferences.Count > ScheduleConstants.MaxConferences)
         {
-            errors.Add($"League cannot have more than {_options.MaxConferences} conferences. Found {league.Conferences.Count}.");
+            errors.Add($"League cannot have more than {ScheduleConstants.MaxConferences} conferences. Found {league.Conferences.Count}.");
         }
 
         // Check for consistent structure
@@ -133,9 +128,9 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         var divisionsPerConference = conferenceDivisionCounts.FirstOrDefault();
 
         // Hard cap: Maximum divisions per conference
-        if (divisionsPerConference > _options.MaxDivisionsPerConference)
+        if (divisionsPerConference > ScheduleConstants.MaxDivisionsPerConference)
         {
-            errors.Add($"Each conference cannot have more than {_options.MaxDivisionsPerConference} divisions. Found {divisionsPerConference}.");
+            errors.Add($"Each conference cannot have more than {ScheduleConstants.MaxDivisionsPerConference} divisions. Found {divisionsPerConference}.");
         }
 
         var divisionTeamCounts = league.Conferences
@@ -152,9 +147,9 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         var teamsPerDivision = divisionTeamCounts.FirstOrDefault();
 
         // Hard cap: Maximum teams per division
-        if (teamsPerDivision > _options.MaxTeamsPerDivision)
+        if (teamsPerDivision > ScheduleConstants.MaxTeamsPerDivision)
         {
-            errors.Add($"Each division cannot have more than {_options.MaxTeamsPerDivision} teams. Found {teamsPerDivision}.");
+            errors.Add($"Each division cannot have more than {ScheduleConstants.MaxTeamsPerDivision} teams. Found {teamsPerDivision}.");
         }
 
         if (teamsPerDivision < 2)
@@ -168,25 +163,25 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
             .SelectMany(d => d.Teams ?? new List<Team>())
             .Count();
 
-        if (totalTeams > _options.MaxTotalTeams)
+        if (totalTeams > ScheduleConstants.MaxTotalTeams)
         {
-            errors.Add($"League cannot have more than {_options.MaxTotalTeams} total teams. Found {totalTeams}.");
+            errors.Add($"League cannot have more than {ScheduleConstants.MaxTotalTeams} total teams. Found {totalTeams}.");
         }
 
         // Warnings for non-optimal (but valid) configurations
-        if (league.Conferences.Count < _options.MaxConferences)
+        if (league.Conferences.Count < ScheduleConstants.MaxConferences)
         {
-            warnings.Add($"NFL-style scheduling is optimized for {_options.MaxConferences} conferences. League has {league.Conferences.Count}.");
+            warnings.Add($"NFL-style scheduling is optimized for {ScheduleConstants.MaxConferences} conferences. League has {league.Conferences.Count}.");
         }
 
-        if (divisionsPerConference > 0 && divisionsPerConference < _options.MaxDivisionsPerConference)
+        if (divisionsPerConference > 0 && divisionsPerConference < ScheduleConstants.MaxDivisionsPerConference)
         {
-            warnings.Add($"NFL-style scheduling is optimized for {_options.MaxDivisionsPerConference} divisions per conference. Found {divisionsPerConference}.");
+            warnings.Add($"NFL-style scheduling is optimized for {ScheduleConstants.MaxDivisionsPerConference} divisions per conference. Found {divisionsPerConference}.");
         }
 
-        if (teamsPerDivision > 0 && teamsPerDivision < _options.MaxTeamsPerDivision)
+        if (teamsPerDivision > 0 && teamsPerDivision < ScheduleConstants.MaxTeamsPerDivision)
         {
-            warnings.Add($"NFL-style scheduling is optimized for {_options.MaxTeamsPerDivision} teams per division. Found {teamsPerDivision}.");
+            warnings.Add($"NFL-style scheduling is optimized for {ScheduleConstants.MaxTeamsPerDivision} teams per division. Found {teamsPerDivision}.");
         }
 
         return new ScheduleValidationResult

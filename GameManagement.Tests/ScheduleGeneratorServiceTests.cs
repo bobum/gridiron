@@ -3,7 +3,6 @@ using FluentAssertions;
 using GameManagement.Configuration;
 using GameManagement.Services;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -16,24 +15,12 @@ namespace GameManagement.Tests;
 public class ScheduleGeneratorServiceTests
 {
     private readonly Mock<ILogger<ScheduleGeneratorService>> _loggerMock;
-    private readonly ScheduleGeneratorOptions _defaultOptions;
     private readonly ScheduleGeneratorService _service;
 
     public ScheduleGeneratorServiceTests()
     {
         _loggerMock = new Mock<ILogger<ScheduleGeneratorService>>();
-        _defaultOptions = new ScheduleGeneratorOptions(); // Uses NFL defaults
-        _service = new ScheduleGeneratorService(
-            _loggerMock.Object,
-            Options.Create(_defaultOptions));
-    }
-
-    /// <summary>
-    /// Creates a service with custom options for testing cap validation
-    /// </summary>
-    private ScheduleGeneratorService CreateServiceWithOptions(ScheduleGeneratorOptions options)
-    {
-        return new ScheduleGeneratorService(_loggerMock.Object, Options.Create(options));
+        _service = new ScheduleGeneratorService(_loggerMock.Object);
     }
 
     #region Helper Methods
@@ -348,19 +335,15 @@ public class ScheduleGeneratorServiceTests
     }
 
     [Fact]
-    public void ValidateLeagueStructure_WithTooManyTotalTeams_ShouldReturnInvalid()
+    public void ScheduleConstants_ShouldHaveCorrectNflDefaults()
     {
-        // Arrange - Create a league that exceeds 32 total teams
-        // This would require invalid structure (e.g., 2 conf x 4 div x 5 teams = 40)
-        // But since we cap teams per division, this is caught by that rule first
-        // So we test the explicit total team check with a hypothetical valid structure
-        // For now, we just verify the default options are correct (NFL defaults)
-        _defaultOptions.MaxTotalTeams.Should().Be(32);
-        _defaultOptions.MaxConferences.Should().Be(2);
-        _defaultOptions.MaxDivisionsPerConference.Should().Be(4);
-        _defaultOptions.MaxTeamsPerDivision.Should().Be(4);
-        _defaultOptions.MaxRegularSeasonWeeks.Should().Be(18);
-        _defaultOptions.DefaultRegularSeasonWeeks.Should().Be(17);
+        // Verify the static constants are correct (NFL defaults)
+        ScheduleConstants.MaxTotalTeams.Should().Be(32);
+        ScheduleConstants.MaxConferences.Should().Be(2);
+        ScheduleConstants.MaxDivisionsPerConference.Should().Be(4);
+        ScheduleConstants.MaxTeamsPerDivision.Should().Be(4);
+        ScheduleConstants.MaxRegularSeasonWeeks.Should().Be(18);
+        ScheduleConstants.DefaultRegularSeasonWeeks.Should().Be(17);
     }
 
     #endregion
@@ -650,20 +633,10 @@ public class ScheduleGeneratorServiceTests
     public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
     {
         // Act
-        var act = () => new ScheduleGeneratorService(null!, Options.Create(_defaultOptions));
+        var act = () => new ScheduleGeneratorService(null!);
 
         // Assert
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
-    }
-
-    [Fact]
-    public void Constructor_WithNullOptions_ShouldThrowArgumentNullException()
-    {
-        // Act
-        var act = () => new ScheduleGeneratorService(_loggerMock.Object, null!);
-
-        // Assert
-        act.Should().Throw<ArgumentNullException>().WithParameterName("options");
     }
 
     #endregion
@@ -675,7 +648,7 @@ public class ScheduleGeneratorServiceTests
     {
         // Arrange
         var league = CreateSimpleLeague();
-        var season = CreateSeason(league, regularSeasonWeeks: 20); // Exceeds default cap of 18
+        var season = CreateSeason(league, regularSeasonWeeks: 20); // Exceeds cap of 18
 
         // Act
         var act = () => _service.GenerateSchedule(season, seed: 12345);
@@ -683,23 +656,6 @@ public class ScheduleGeneratorServiceTests
         // Assert
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*20*regular season weeks*maximum allowed is 18*");
-    }
-
-    [Fact]
-    public void GenerateSchedule_WithCustomMaxWeeks_ShouldEnforceCustomLimit()
-    {
-        // Arrange - Create service with lower max weeks
-        var customOptions = new ScheduleGeneratorOptions { MaxRegularSeasonWeeks = 10 };
-        var service = CreateServiceWithOptions(customOptions);
-        var league = CreateSimpleLeague();
-        var season = CreateSeason(league, regularSeasonWeeks: 12); // Exceeds custom cap of 10
-
-        // Act
-        var act = () => service.GenerateSchedule(season, seed: 12345);
-
-        // Assert
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*12*regular season weeks*maximum allowed is 10*");
     }
 
     [Fact]
