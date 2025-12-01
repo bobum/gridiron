@@ -2,6 +2,7 @@ using DataAccessLayer.Repositories;
 using DomainObjects;
 using GameManagement.Services;
 using Gridiron.Engine.Simulation;
+using Gridiron.WebApi.DTOs;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -161,5 +162,88 @@ public class GameSimulationService : IGameSimulationService
     public async Task<List<Game>> GetGamesAsync()
     {
         return await _gameRepository.GetAllAsync();
+    }
+
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true
+    };
+
+    public async Task<List<PlayDto>?> GetGamePlaysAsync(int gameId)
+    {
+        var game = await _gameRepository.GetByIdWithPlayByPlayAsync(gameId);
+        if (game == null) return null;
+
+        if (game.PlayByPlay == null || string.IsNullOrEmpty(game.PlayByPlay.PlaysJson))
+        {
+            _logger.LogWarning("No play-by-play data found for game {GameId}", gameId);
+            return new List<PlayDto>();
+        }
+
+        try
+        {
+            var plays = JsonSerializer.Deserialize<List<JsonElement>>(game.PlayByPlay.PlaysJson, _jsonOptions);
+            if (plays == null) return new List<PlayDto>();
+            return plays.Select(p => MapJsonToPlayDto(p)).ToList();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize plays JSON for game {GameId}", gameId);
+            return new List<PlayDto>();
+        }
+    }
+
+    private static PlayDto MapJsonToPlayDto(JsonElement play) => new PlayDto
+    {
+        PlayType = GetStr(play, "playType"),
+        Possession = GetStr(play, "possession"),
+        Down = GetInt(play, "down"),
+        YardsToGo = GetInt(play, "yardsToGo"),
+        StartFieldPosition = GetInt(play, "startFieldPosition"),
+        EndFieldPosition = GetInt(play, "endFieldPosition"),
+        YardsGained = GetInt(play, "yardsGained"),
+        StartTime = GetInt(play, "startTime"),
+        StopTime = GetInt(play, "stopTime"),
+        ElapsedTime = GetDbl(play, "elapsedTime"),
+        IsTouchdown = GetBool(play, "isTouchdown"),
+        IsSafety = GetBool(play, "isSafety"),
+        Interception = GetBool(play, "interception"),
+        PossessionChange = GetBool(play, "possessionChange"),
+        Penalties = GetStrList(play, "penalties"),
+        Fumbles = GetStrList(play, "fumbles"),
+        Injuries = GetStrList(play, "injuries"),
+        Description = GenDesc(play)
+    };
+
+    private static string GetStr(JsonElement e, string p) =>
+        e.TryGetProperty(p, out var v) ? (v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.ToString()) : "";
+
+    private static int GetInt(JsonElement e, string p) =>
+        e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Number ? v.GetInt32() : 0;
+
+    private static double GetDbl(JsonElement e, string p) =>
+        e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Number ? v.GetDouble() : 0;
+
+    private static bool GetBool(JsonElement e, string p) =>
+        e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.True;
+
+    private static List<string> GetStrList(JsonElement e, string p) =>
+        e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Array
+            ? v.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.String ? x.GetString() ?? "" : x.ToString()).ToList()
+            : new List<string>();
+
+    private static string GenDesc(JsonElement p)
+    {
+        var pt = GetStr(p, "playType");
+        var yg = GetInt(p, "yardsGained");
+        var td = GetBool(p, "isTouchdown");
+        var sf = GetBool(p, "isSafety");
+        var ic = GetBool(p, "interception");
+        var d = pt + " play: ";
+        if (td) d += "TOUCHDOWN! ";
+        else if (sf) d += "SAFETY! ";
+        else if (ic) d += "INTERCEPTION! ";
+        return d + yg + " yards";
     }
 }
