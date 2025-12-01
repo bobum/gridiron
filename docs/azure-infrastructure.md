@@ -123,16 +123,22 @@ Workflow file: `.github/workflows/deploy-api.yml`
 
 **Required GitHub Secret:**
 
-Add `AZURE_WEBAPP_PUBLISH_PROFILE` to the repository secrets. Get the publish profile with:
+Add `AZURE_CREDENTIALS` to the repository secrets. This uses a Service Principal for authentication.
+
+Create the Service Principal (one-time setup):
 
 ```bash
-az webapp deployment list-publishing-profiles \
-  --name app-gridiron-api-dev \
-  --resource-group GTG \
-  --xml
+az ad sp create-for-rbac --name "gridiron-github-actions" --skip-assignment --sdk-auth
 ```
 
-Copy the entire XML output and add it as the secret value.
+Then assign Contributor role to the GTG resource group:
+
+```powershell
+$scope = az group show --name GTG --query id -o tsv
+az role assignment create --assignee <clientId-from-above> --role contributor --scope $scope
+```
+
+Add the JSON output from the first command as the `AZURE_CREDENTIALS` secret value.
 
 **Trigger:** Push to master branch
 
