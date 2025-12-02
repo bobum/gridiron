@@ -535,6 +535,31 @@ External Identities → User flows → SignUpSignIn → Identity providers → C
 
 ---
 
+### Azure App Service Configuration (API)
+
+**CRITICAL:** Azure App Service Application Settings override `appsettings.json`. You must configure these correctly for CIAM.
+
+**Path:** Azure Portal → App Services → app-gridiron-api-dev → Configuration → Application settings
+
+| App Setting | Value | Notes |
+|-------------|-------|-------|
+| `AzureAd__Instance` | `https://gtggridiron.ciamlogin.com/` | Use tenant name, NOT `login.microsoftonline.com` |
+| `AzureAd__TenantId` | `8a101213-4cc7-4424-91f7-87fc81ef3a01` | CIAM tenant GUID |
+| `AzureAd__ClientId` | `29348959-a014-4550-b3c3-044585c83f0a` | App registration ID |
+| `AzureAd__Audience` | `29348959-a014-4550-b3c3-044585c83f0a` | Same as ClientId for CIAM |
+
+**Why these values?**
+- CIAM uses `{tenant-name}.ciamlogin.com` instead of `login.microsoftonline.com`
+- The token's `aud` (audience) claim is the ClientId, not a custom URI
+- Environment variables use `__` (double underscore) as section separator
+
+**After updating:**
+1. Click **Save**
+2. Click **Continue** to confirm restart
+3. Wait 30-60 seconds for the app to restart
+
+---
+
 ### Testing Checklist
 
 - [ ] **Test local accounts**
@@ -640,6 +665,34 @@ https://gtggridiron.ciamlogin.com/gtggridiron.onmicrosoft.com/federation/oauth2
 - Browser DevTools → Network tab → Look for `Authorization: Bearer <token>` header
 - Verify API has `app.UseAuthentication()` before `app.UseAuthorization()`
 - Check `appsettings.json` has correct `AzureAd` section
+
+#### Error: 401 with "The issuer '(null)' is invalid"
+
+**Cause:** Azure App Service environment variables are overriding `appsettings.json` with incorrect values.
+
+**Background:** In .NET, environment variables override `appsettings.json`. Azure App Service stores configuration as environment variables, so if these are wrong, the API won't validate tokens correctly—even if `appsettings.json` is correct.
+
+**Solution:** Check and correct the Azure App Service Application Settings:
+
+1. Go to **Azure Portal → App Services → your-api-app → Configuration → Application settings**
+2. Verify these settings match your CIAM tenant:
+
+| Setting | Correct Value for CIAM |
+|---------|------------------------|
+| `AzureAd__Instance` | `https://gtggridiron.ciamlogin.com/` |
+| `AzureAd__TenantId` | `8a101213-4cc7-4424-91f7-87fc81ef3a01` |
+| `AzureAd__ClientId` | `29348959-a014-4550-b3c3-044585c83f0a` |
+| `AzureAd__Audience` | `29348959-a014-4550-b3c3-044585c83f0a` |
+
+**Critical Notes:**
+- `Instance` must use `{tenant-name}.ciamlogin.com`, NOT `login.microsoftonline.com`
+- `Audience` should equal `ClientId` for CIAM (not a custom URI like `api://gridiron-api`)
+- After changing settings, click **Save** then **Continue** to restart the app
+- Wait 30-60 seconds for the restart to complete
+
+**Common Mistake:** Using standard Azure AD values instead of CIAM values:
+- ❌ `Instance: https://login.microsoftonline.com/` (wrong - this is for workforce tenants)
+- ✅ `Instance: https://gtggridiron.ciamlogin.com/` (correct - uses CIAM endpoint)
 
 #### Error: 403 Forbidden for specific endpoints
 
