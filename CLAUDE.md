@@ -12,6 +12,10 @@ A deep, authentic NFL front office experience where players act as General Manag
 - **gridiron**: https://github.com/merciless-creations/gridiron — C# Web API, data access, game management services
 - **gridiron-web**: https://github.com/merciless-creations/gridiron-web — React frontend
 
+## Project
+
+- https://github.com/orgs/merciless-creations/projects/2
+
 ## Tech Stack
 
 | Layer | Technology |
