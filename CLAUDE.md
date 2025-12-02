@@ -14,7 +14,7 @@ A deep, authentic NFL front office experience where players act as General Manag
 
 ## Project
 
-- https://github.com/orgs/merciless-creations/projects/2
+- https://github.com/orgs/merciless-creations/projects/1
 
 ## Tech Stack
 
