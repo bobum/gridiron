@@ -722,7 +722,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("DomainObjects.Season", "CurrentSeason")
                         .WithMany()
                         .HasForeignKey("CurrentSeasonId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("CurrentSeason");
                 });

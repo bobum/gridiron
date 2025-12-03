@@ -143,7 +143,7 @@ namespace DataAccessLayer.Migrations
                 column: "CurrentSeasonId",
                 principalTable: "Seasons",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                onDelete: ReferentialAction.NoAction);
         }
 
         /// <inheritdoc />

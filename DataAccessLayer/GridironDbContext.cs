@@ -62,7 +62,7 @@ namespace DataAccessLayer
                 entity.HasOne(l => l.CurrentSeason)
                       .WithMany()
                       .HasForeignKey(l => l.CurrentSeasonId)
-                      .OnDelete(DeleteBehavior.SetNull);  // Clear current season if season deleted
+                      .OnDelete(DeleteBehavior.NoAction);  // NoAction to avoid circular cascade path with Seasons.LeagueId
 
                 // Soft delete query filter - exclude deleted leagues from queries
                 entity.HasQueryFilter(l => !l.IsDeleted);
