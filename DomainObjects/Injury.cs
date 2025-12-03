@@ -7,7 +7,9 @@ namespace DomainObjects
     public class Injury
     {
         public InjuryType Type { get; set; }
+
         public InjurySeverity Severity { get; set; }
+
         public int PlaysUntilReturn { get; set; }
     }
 

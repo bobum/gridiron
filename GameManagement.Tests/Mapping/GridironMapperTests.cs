@@ -7,7 +7,7 @@ namespace GameManagement.Tests.Mapping;
 
 public class GridironMapperTests
 {
-    private readonly GridironMapper _mapper = new();
+    private readonly GridironMapper _mapper = new ();
 
     [Fact]
     public void ToEngineTeam_MapsBasicProperties()

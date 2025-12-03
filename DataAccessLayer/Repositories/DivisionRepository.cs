@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for Division data access
-/// ALL database access for divisions goes through this class
+/// ALL database access for divisions goes through this class.
 /// </summary>
 public class DivisionRepository : IDivisionRepository
 {
@@ -59,14 +59,18 @@ public class DivisionRepository : IDivisionRepository
     public async Task SoftDeleteAsync(int divisionId, string? deletedBy = null, string? reason = null)
     {
         var division = await _context.Divisions
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(d => d.Id == divisionId);
 
         if (division == null)
+        {
             throw new InvalidOperationException($"Division with ID {divisionId} not found");
+        }
 
         if (division.IsDeleted)
+        {
             throw new InvalidOperationException($"Division with ID {divisionId} is already deleted");
+        }
 
         division.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -75,14 +79,18 @@ public class DivisionRepository : IDivisionRepository
     public async Task RestoreAsync(int divisionId)
     {
         var division = await _context.Divisions
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(d => d.Id == divisionId);
 
         if (division == null)
+        {
             throw new InvalidOperationException($"Division with ID {divisionId} not found");
+        }
 
         if (!division.IsDeleted)
+        {
             throw new InvalidOperationException($"Division with ID {divisionId} is not deleted");
+        }
 
         division.Restore();
         await _context.SaveChangesAsync();
@@ -91,7 +99,7 @@ public class DivisionRepository : IDivisionRepository
     public async Task<List<Division>> GetDeletedAsync()
     {
         return await _context.Divisions
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .Where(d => d.IsDeleted)
             .ToListAsync();
     }

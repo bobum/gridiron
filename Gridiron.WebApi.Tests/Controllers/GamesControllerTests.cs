@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DomainObjects;
 using FluentAssertions;
 using Gridiron.WebApi.Controllers;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
@@ -15,7 +15,7 @@ namespace Gridiron.WebApi.Tests.Controllers;
 /// <summary>
 /// Unit tests for GamesController
 /// Tests the controller logic WITHOUT touching the database (mocked services)
-/// Note: TotalPlays is not populated from Game entity (plays are stored in PlayByPlay.PlaysJson)
+/// Note: TotalPlays is not populated from Game entity (plays are stored in PlayByPlay.PlaysJson).
 /// </summary>
 public class GamesControllerTests
 {
@@ -141,8 +141,7 @@ public class GamesControllerTests
         // Assert
         _mockSimulationService.Verify(
             s => s.SimulateGameAsync(5, 10, 99999),
-            Times.Once
-        );
+            Times.Once);
     }
 
     [Fact]
@@ -154,6 +153,7 @@ public class GamesControllerTests
         {
             HomeTeamId = 1,
             AwayTeamId = 2
+
             // No seed specified
         };
 
@@ -168,8 +168,7 @@ public class GamesControllerTests
         // Assert
         _mockSimulationService.Verify(
             s => s.SimulateGameAsync(1, 2, null),
-            Times.Once
-        );
+            Times.Once);
     }
 
     [Fact]
@@ -344,7 +343,7 @@ public class GamesControllerTests
 
     /// <summary>
     /// Creates a test game with basic data for testing
-    /// Note: Plays are stored in PlayByPlay.PlaysJson, not on the Game entity
+    /// Note: Plays are stored in PlayByPlay.PlaysJson, not on the Game entity.
     /// </summary>
     private Game CreateTestGame(int homeTeamId, int awayTeamId, int homeScore, int awayScore, int? seed = null)
     {

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using DataAccessLayer;
 using DataAccessLayer.Repositories;
 using DomainObjects;
@@ -7,7 +8,6 @@ using Gridiron.Engine.Api;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
 
 namespace Gridiron.IntegrationTests;
 
@@ -19,12 +19,14 @@ namespace Gridiron.IntegrationTests;
 /// - Transactions
 /// - Foreign keys and constraints
 /// - Much closer to production SQL Server behavior
-/// Seeds the database with FirstNames, LastNames, and Colleges data
+/// Seeds the database with FirstNames, LastNames, and Colleges data.
 /// </summary>
 public class DatabaseTestFixture : IDisposable
 {
     public ServiceProvider ServiceProvider { get; private set; }
+
     public GridironDbContext DbContext { get; private set; }
+
     private readonly SqliteConnection _connection;
 
     public DatabaseTestFixture()

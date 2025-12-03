@@ -2,10 +2,10 @@
 using DomainObjects;
 using FluentAssertions;
 using GameManagement.Services;
+using Gridiron.TestHelpers.Helpers;
 using Gridiron.WebApi.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Gridiron.TestHelpers.Helpers;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Services;
@@ -32,8 +32,7 @@ public class GameSimulationServiceTests
             _mockGameRepository.Object,
             _mockPlayByPlayRepository.Object,
             _mockEngineSimulationService.Object,
-            _mockLogger.Object
-        );
+            _mockLogger.Object);
     }
 
     [Fact]

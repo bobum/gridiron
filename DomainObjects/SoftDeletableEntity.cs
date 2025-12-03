@@ -8,26 +8,26 @@ namespace DomainObjects;
 public abstract class SoftDeletableEntity
 {
     /// <summary>
-    /// Indicates whether this entity has been soft deleted.
+    /// Gets or sets a value indicating whether indicates whether this entity has been soft deleted.
     /// Soft deleted entities are excluded from normal queries via EF Core query filters.
     /// </summary>
     public bool IsDeleted { get; set; } = false;
 
     /// <summary>
-    /// UTC timestamp when this entity was soft deleted.
+    /// Gets or sets uTC timestamp when this entity was soft deleted.
     /// Null if the entity has not been deleted.
     /// </summary>
     public DateTime? DeletedAt { get; set; }
 
     /// <summary>
-    /// Username or identifier of the user/system that soft deleted this entity.
+    /// Gets or sets username or identifier of the user/system that soft deleted this entity.
     /// Null if the entity has not been deleted.
     /// Useful for audit trails and determining who performed the deletion.
     /// </summary>
     public string? DeletedBy { get; set; }
 
     /// <summary>
-    /// Optional reason for why this entity was soft deleted.
+    /// Gets or sets optional reason for why this entity was soft deleted.
     /// Examples: "Week rollback", "Duplicate entry", "User request", etc.
     /// Null if no reason was provided or entity has not been deleted.
     /// </summary>
@@ -36,8 +36,8 @@ public abstract class SoftDeletableEntity
     /// <summary>
     /// Marks this entity as soft deleted with the current UTC timestamp.
     /// </summary>
-    /// <param name="deletedBy">Username or identifier of who is deleting this entity</param>
-    /// <param name="reason">Optional reason for the deletion</param>
+    /// <param name="deletedBy">Username or identifier of who is deleting this entity.</param>
+    /// <param name="reason">Optional reason for the deletion.</param>
     public void SoftDelete(string? deletedBy = null, string? reason = null)
     {
         IsDeleted = true;

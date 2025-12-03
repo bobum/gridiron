@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Production implementation of IPlayerDataRepository
-/// Queries FirstNames, LastNames, and Colleges tables from Azure SQL database
+/// Queries FirstNames, LastNames, and Colleges tables from Azure SQL database.
 /// </summary>
 public class DatabasePlayerDataRepository : IPlayerDataRepository
 {
@@ -21,8 +21,9 @@ public class DatabasePlayerDataRepository : IPlayerDataRepository
     }
 
     /// <summary>
-    /// Gets list of first names from database
+    /// Gets list of first names from database.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task<List<string>> GetFirstNamesAsync()
     {
         try
@@ -50,8 +51,9 @@ public class DatabasePlayerDataRepository : IPlayerDataRepository
     }
 
     /// <summary>
-    /// Gets list of last names from database
+    /// Gets list of last names from database.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task<List<string>> GetLastNamesAsync()
     {
         try
@@ -79,8 +81,9 @@ public class DatabasePlayerDataRepository : IPlayerDataRepository
     }
 
     /// <summary>
-    /// Gets list of colleges from database
+    /// Gets list of colleges from database.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task<List<string>> GetCollegesAsync()
     {
         try

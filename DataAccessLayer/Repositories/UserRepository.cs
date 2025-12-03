@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for User data access
-/// ALL database access for users goes through this class
+/// ALL database access for users goes through this class.
 /// </summary>
 public class UserRepository : IUserRepository
 {

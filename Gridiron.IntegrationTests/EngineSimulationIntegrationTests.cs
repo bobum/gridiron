@@ -50,8 +50,7 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
             leagueName: "Engine Integration Test League",
             numberOfConferences: 2,
             divisionsPerConference: 1,
-            teamsPerDivision: 2
-        );
+            teamsPerDivision: 2);
 
         // Persist league
         await leagueRepository.AddAsync(league);
@@ -125,7 +124,6 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // ==========================================
         // The EngineSimulationService should have updated the entity objects
         // via Mapperly's UpdateTeamEntity and UpdatePlayerEntity methods
-
         var homeQbAfterSim = loadedHomeTeam.Players.First(p => p.Position == Positions.QB);
         var awayQbAfterSim = loadedAwayTeam.Players.First(p => p.Position == Positions.QB);
 
@@ -154,8 +152,8 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Note: Player Stats dictionary is NOT persisted to DB by design (see GridironDbContext.cs)
         // The mapping DID work - we verified that above (totalPassingYards > 0)
         // The "saved changes" confirms EF tracked entity changes
-
-        totalPassingYards.Should().BeGreaterThan(0,
+        totalPassingYards.Should().BeGreaterThan(
+            0,
             "because the mapper should have updated player stats from engine results");
 
         _output.WriteLine("In-memory mapping verified: Stats were updated from engine results");
@@ -166,7 +164,6 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // ==========================================
         // Let's verify that regular mapped properties ARE persisted correctly
         // We'll update a player's Experience field and verify it round-trips
-
         var testPlayer = loadedHomeTeam.Players.First();
         var originalExp = testPlayer.Exp;
         testPlayer.Exp = originalExp + 100; // Modify a field that IS persisted
@@ -187,7 +184,8 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
 
         _output.WriteLine($"RELOADED {reloadedTestPlayer.FirstName}'s Exp: {reloadedTestPlayer.Exp}");
 
-        reloadedTestPlayer.Exp.Should().Be(originalExp + 100,
+        reloadedTestPlayer.Exp.Should().Be(
+            originalExp + 100,
             "because EF should persist changes to entity fields that ARE mapped to DB columns");
 
         // ==========================================
@@ -206,7 +204,8 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Scores should be deterministic (same seed = same game)
         // Note: We're starting with different initial stats now (post first game),
         // but the game simulation itself should produce same play-by-play
-        result2.TotalPlays.Should().Be(result.TotalPlays,
+        result2.TotalPlays.Should().Be(
+            result.TotalPlays,
             "because same seed should produce same number of plays");
 
         _output.WriteLine($"Second simulation: {result2.HomeScore} - {result2.AwayScore} ({result2.TotalPlays} plays)");
@@ -215,7 +214,7 @@ public class EngineSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // ==========================================
         // TEST COMPLETE - Full Round-Trip Verified
         // ==========================================
-        _output.WriteLine("");
+        _output.WriteLine(string.Empty);
         _output.WriteLine("=== ENGINE INTEGRATION TEST PASSED ===");
         _output.WriteLine("Verified:");
         _output.WriteLine("  [x] Teams created and persisted to database");

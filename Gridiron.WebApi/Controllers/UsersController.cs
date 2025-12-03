@@ -11,7 +11,7 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for user management
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
-/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -45,9 +45,9 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Gets the current user's information
+    /// Gets the current user's information.
     /// </summary>
-    /// <returns>Current user details with their league roles</returns>
+    /// <returns>Current user details with their league roles.</returns>
     [HttpGet("me")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -70,11 +70,12 @@ public class UsersController : ControllerBase
             user = await _authorizationService.GetOrCreateUserFromClaimsAsync(
                 azureAdObjectId,
                 "e2e-test@gridiron.test",
-                "E2E Test User"
-            );
+                "E2E Test User");
+
             // Make the test user a global admin for full access
             user.IsGlobalAdmin = true;
             await _userRepository.UpdateAsync(user);
+
             // Reload with roles
             user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         }
@@ -89,10 +90,10 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all users in a specific league (requires league access)
+    /// Gets all users in a specific league (requires league access).
     /// </summary>
-    /// <param name="leagueId">League ID</param>
-    /// <returns>List of users with roles in the league</returns>
+    /// <param name="leagueId">League ID.</param>
+    /// <returns>List of users with roles in the league.</returns>
     [HttpGet("league/{leagueId}")]
     [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -133,11 +134,11 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Assigns a role to a user in a league (Commissioner or GM)
-    /// Only global admins or league commissioners can assign roles
+    /// Only global admins or league commissioners can assign roles.
     /// </summary>
-    /// <param name="userId">User ID</param>
-    /// <param name="request">Role assignment details</param>
-    /// <returns>Updated user information</returns>
+    /// <param name="userId">User ID.</param>
+    /// <param name="request">Role assignment details.</param>
+    /// <returns>Updated user information.</returns>
     [HttpPost("{userId}/league-roles")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -240,11 +241,11 @@ public class UsersController : ControllerBase
 
     /// <summary>
     /// Removes a role from a user in a league
-    /// Only global admins or league commissioners can remove roles
+    /// Only global admins or league commissioners can remove roles.
     /// </summary>
-    /// <param name="userId">User ID</param>
-    /// <param name="roleId">League role ID to remove</param>
-    /// <returns>Updated user information</returns>
+    /// <param name="userId">User ID.</param>
+    /// <param name="roleId">League role ID to remove.</param>
+    /// <returns>Updated user information.</returns>
     [HttpDelete("{userId}/league-roles/{roleId}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

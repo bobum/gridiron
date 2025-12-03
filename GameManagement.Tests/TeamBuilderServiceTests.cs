@@ -8,7 +8,7 @@ using Xunit;
 namespace GameManagement.Tests;
 
 /// <summary>
-/// Comprehensive tests for TeamBuilderService
+/// Comprehensive tests for TeamBuilderService.
 /// </summary>
 public class TeamBuilderServiceTests
 {
@@ -101,7 +101,7 @@ public class TeamBuilderServiceTests
     [InlineData("", "Seahawks", 200_000_000)]
     [InlineData(null, "Seahawks", 200_000_000)]
     [InlineData("   ", "Seahawks", 200_000_000)]
-    public void CreateTeam_WithEmptyCity_ShouldThrowArgumentException(string city, string name, decimal budget)
+    public void CreateTeam_WithEmptyCity_ShouldThrowArgumentException(string? city, string name, decimal budget)
     {
         // Act & Assert
         var act = () => _service.CreateTeam(city, name, budget);
@@ -112,7 +112,7 @@ public class TeamBuilderServiceTests
     [InlineData("Seattle", "", 200_000_000)]
     [InlineData("Seattle", null, 200_000_000)]
     [InlineData("Seattle", "   ", 200_000_000)]
-    public void CreateTeam_WithEmptyName_ShouldThrowArgumentException(string city, string name, decimal budget)
+    public void CreateTeam_WithEmptyName_ShouldThrowArgumentException(string city, string? name, decimal budget)
     {
         // Act & Assert
         var act = () => _service.CreateTeam(city, name, budget);
@@ -659,6 +659,7 @@ public class TeamBuilderServiceTests
 
         // Assert
         seedsReceived.Should().HaveCount(53);
+
         // Seeds should increment from baseSeed + 0 to baseSeed + 52
         for (int i = 0; i < 53; i++)
         {

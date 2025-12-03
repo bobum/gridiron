@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for Player data access
-/// ALL database access for players goes through this class
+/// ALL database access for players goes through this class.
 /// </summary>
 public class PlayerRepository : IPlayerRepository
 {

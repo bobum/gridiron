@@ -10,7 +10,7 @@ namespace GameManagement.Tests;
 
 /// <summary>
 /// Unit tests for ScheduleGeneratorService
-/// Tests NFL-style schedule generation algorithm
+/// Tests NFL-style schedule generation algorithm.
 /// </summary>
 public class ScheduleGeneratorServiceTests
 {
@@ -26,7 +26,7 @@ public class ScheduleGeneratorServiceTests
     #region Helper Methods
 
     /// <summary>
-    /// Creates an NFL-style league structure (2 conferences, 4 divisions each, 4 teams each = 32 teams)
+    /// Creates an NFL-style league structure (2 conferences, 4 divisions each, 4 teams each = 32 teams).
     /// </summary>
     private static League CreateNflStyleLeague()
     {
@@ -52,7 +52,7 @@ public class ScheduleGeneratorServiceTests
             {
                 var division = new Division
                 {
-                    Id = (conf - 1) * 4 + div,
+                    Id = ((conf - 1) * 4) + div,
                     Name = $"Division {div}",
                     ConferenceId = conference.Id,
                     Teams = new List<Team>()
@@ -79,7 +79,7 @@ public class ScheduleGeneratorServiceTests
     }
 
     /// <summary>
-    /// Creates a simple 2x2x4 league structure for basic testing
+    /// Creates a simple 2x2x4 league structure for basic testing.
     /// </summary>
     private static League CreateSimpleLeague()
     {
@@ -105,7 +105,7 @@ public class ScheduleGeneratorServiceTests
             {
                 var division = new Division
                 {
-                    Id = (conf - 1) * 2 + div,
+                    Id = ((conf - 1) * 2) + div,
                     Name = $"Division {div}",
                     ConferenceId = conference.Id,
                     Teams = new List<Team>()
@@ -285,7 +285,7 @@ public class ScheduleGeneratorServiceTests
                     {
                         Id = i,
                         Name = $"Division {i}",
-                        Teams = new List<Team> { new Team { Id = i * 10, Name = $"T{i}" }, new Team { Id = i * 10 + 1, Name = $"T{i}b" } }
+                        Teams = new List<Team> { new Team { Id = i * 10, Name = $"T{i}" }, new Team { Id = (i * 10) + 1, Name = $"T{i}b" } }
                     }).ToList()
                 }
             }
@@ -479,7 +479,8 @@ public class ScheduleGeneratorServiceTests
             var homeGames = allGames.Count(g => g.HomeTeamId == team.Id);
             var awayGames = allGames.Count(g => g.AwayTeamId == team.Id);
 
-            Math.Abs(homeGames - awayGames).Should().BeLessOrEqualTo(2,
+            Math.Abs(homeGames - awayGames).Should().BeLessOrEqualTo(
+                2,
                 $"Team {team.Id} should have balanced home ({homeGames}) and away ({awayGames}) games");
         }
     }
@@ -538,7 +539,8 @@ public class ScheduleGeneratorServiceTests
 
             // With a simple league structure, we may not hit exactly 17,
             // but should be within a reasonable range
-            totalGames.Should().BeGreaterOrEqualTo(10,
+            totalGames.Should().BeGreaterOrEqualTo(
+                10,
                 $"Team {team.Id} should have a reasonable number of games");
         }
     }
@@ -599,9 +601,11 @@ public class ScheduleGeneratorServiceTests
 
         // The algorithm may not fit all matchups due to week conflicts and bye weeks.
         // Allow a larger variance (approximately 86-87% of optimal is acceptable).
-        totalGames.Should().BeGreaterOrEqualTo(200,
+        totalGames.Should().BeGreaterOrEqualTo(
+            200,
             "Total games should be substantial for 32-team league");
-        totalGames.Should().BeLessThanOrEqualTo(expectedGames,
+        totalGames.Should().BeLessThanOrEqualTo(
+            expectedGames,
             $"Total games should not exceed theoretical maximum of {expectedGames}");
     }
 
@@ -630,7 +634,7 @@ public class ScheduleGeneratorServiceTests
     #region Varied League Formations Tests
 
     /// <summary>
-    /// Creates a single conference league with specified divisions and teams per division
+    /// Creates a single conference league with specified divisions and teams per division.
     /// </summary>
     private static League CreateSingleConferenceLeague(int divisions, int teamsPerDivision)
     {
@@ -734,7 +738,7 @@ public class ScheduleGeneratorServiceTests
             {
                 var division = new Division
                 {
-                    Id = (conf - 1) * 2 + div,
+                    Id = ((conf - 1) * 2) + div,
                     Name = $"Division {div}",
                     ConferenceId = conference.Id,
                     Teams = new List<Team>()
@@ -806,7 +810,7 @@ public class ScheduleGeneratorServiceTests
             {
                 var division = new Division
                 {
-                    Id = (conf - 1) * 2 + div,
+                    Id = ((conf - 1) * 2) + div,
                     Name = $"Division {div}",
                     ConferenceId = conference.Id,
                     Teams = new List<Team>()
@@ -899,7 +903,8 @@ public class ScheduleGeneratorServiceTests
         foreach (var team in allTeams)
         {
             var teamGames = allGames.Count(g => g.HomeTeamId == team.Id || g.AwayTeamId == team.Id);
-            teamGames.Should().BeGreaterOrEqualTo(minExpectedGames,
+            teamGames.Should().BeGreaterOrEqualTo(
+                minExpectedGames,
                 $"Team {team.Id} should have at least {minExpectedGames} games, but has {teamGames}");
         }
     }

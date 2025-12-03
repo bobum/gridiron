@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace GameManagement.Services;
 
 /// <summary>
-/// Service for building and managing teams
+/// Service for building and managing teams.
 /// </summary>
 public class TeamBuilderService : ITeamBuilderService
 {
@@ -24,13 +24,19 @@ public class TeamBuilderService : ITeamBuilderService
     public Team CreateTeam(string city, string name, decimal budget)
     {
         if (string.IsNullOrWhiteSpace(city))
+        {
             throw new ArgumentException("City cannot be empty", nameof(city));
+        }
 
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentException("Name cannot be empty", nameof(name));
+        }
 
         if (budget < 0)
+        {
             throw new ArgumentException("Budget cannot be negative", nameof(budget));
+        }
 
         var team = new Team
         {
@@ -77,7 +83,8 @@ public class TeamBuilderService : ITeamBuilderService
             TeamStats = new Dictionary<string, int>()
         };
 
-        _logger.LogInformation("Created new team: {City} {Name} with budget ${Budget:N0}",
+        _logger.LogInformation(
+            "Created new team: {City} {Name} with budget ${Budget:N0}",
             city, name, budget);
 
         return team;
@@ -86,15 +93,20 @@ public class TeamBuilderService : ITeamBuilderService
     public bool AddPlayerToTeam(Team team, Player player)
     {
         if (team == null)
+        {
             throw new ArgumentNullException(nameof(team));
+        }
 
         if (player == null)
+        {
             throw new ArgumentNullException(nameof(player));
+        }
 
         // Check roster limit
         if (team.Players.Count >= MaxRosterSize)
         {
-            _logger.LogWarning("Cannot add player {FirstName} {LastName} to {City} {Name}: Roster is full ({Count}/{Max})",
+            _logger.LogWarning(
+                "Cannot add player {FirstName} {LastName} to {City} {Name}: Roster is full ({Count}/{Max})",
                 player.FirstName, player.LastName, team.City, team.Name, team.Players.Count, MaxRosterSize);
             return false;
         }
@@ -103,7 +115,8 @@ public class TeamBuilderService : ITeamBuilderService
         player.TeamId = team.Id;
         team.Players.Add(player);
 
-        _logger.LogInformation("Added player {FirstName} {LastName} ({Position}) to {City} {Name}. Roster: {Count}/{Max}",
+        _logger.LogInformation(
+            "Added player {FirstName} {LastName} ({Position}) to {City} {Name}. Roster: {Count}/{Max}",
             player.FirstName, player.LastName, player.Position, team.City, team.Name, team.Players.Count, MaxRosterSize);
 
         return true;
@@ -112,11 +125,14 @@ public class TeamBuilderService : ITeamBuilderService
     public void AssignDepthCharts(Team team)
     {
         if (team == null)
+        {
             throw new ArgumentNullException(nameof(team));
+        }
 
         if (team.Players == null || team.Players.Count == 0)
         {
-            _logger.LogWarning("Cannot assign depth charts for {City} {Name}: No players on roster",
+            _logger.LogWarning(
+                "Cannot assign depth charts for {City} {Name}: No players on roster",
                 team.City, team.Name);
             return;
         }
@@ -125,14 +141,17 @@ public class TeamBuilderService : ITeamBuilderService
         // Same logic used by game simulation engine
         DepthChartBuilder.AssignAllDepthCharts(team);
 
-        _logger.LogInformation("Assigned depth charts for {City} {Name} with {PlayerCount} players",
+        _logger.LogInformation(
+            "Assigned depth charts for {City} {Name} with {PlayerCount} players",
             team.City, team.Name, team.Players.Count);
     }
 
     public bool ValidateRoster(Team team)
     {
         if (team == null)
+        {
             throw new ArgumentNullException(nameof(team));
+        }
 
         var issues = new List<string>();
 
@@ -178,12 +197,14 @@ public class TeamBuilderService : ITeamBuilderService
         // Log validation results
         if (issues.Any())
         {
-            _logger.LogWarning("Roster validation failed for {City} {Name}:\n{Issues}",
+            _logger.LogWarning(
+                "Roster validation failed for {City} {Name}:\n{Issues}",
                 team.City, team.Name, string.Join("\n", issues.Select(i => $"  - {i}")));
             return false;
         }
 
-        _logger.LogInformation("Roster validation passed for {City} {Name} with {PlayerCount} players",
+        _logger.LogInformation(
+            "Roster validation passed for {City} {Name} with {PlayerCount} players",
             team.City, team.Name, team.Players.Count);
         return true;
     }
@@ -191,9 +212,12 @@ public class TeamBuilderService : ITeamBuilderService
     public Team PopulateTeamRoster(Team team, int? seed = null)
     {
         if (team == null)
+        {
             throw new ArgumentNullException(nameof(team));
+        }
 
-        _logger.LogInformation("Populating roster for {City} {Name} (seed: {Seed})",
+        _logger.LogInformation(
+            "Populating roster for {City} {Name} (seed: {Seed})",
             team.City, team.Name, seed?.ToString() ?? "random");
 
         // Clear existing players
@@ -241,7 +265,8 @@ public class TeamBuilderService : ITeamBuilderService
             }
         }
 
-        _logger.LogInformation("Successfully populated roster for {City} {Name} with {Count} players",
+        _logger.LogInformation(
+            "Successfully populated roster for {City} {Name} with {Count} players",
             team.City, team.Name, team.Players.Count);
 
         // Assign depth charts after roster is populated
@@ -255,7 +280,9 @@ public class TeamBuilderService : ITeamBuilderService
         int? newFanSupport, int? newChemistry)
     {
         if (team == null)
+        {
             throw new ArgumentNullException(nameof(team));
+        }
 
         // Update name if provided and not empty
         if (!string.IsNullOrWhiteSpace(newName))
@@ -281,7 +308,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newBudget.HasValue)
         {
             if (newBudget.Value < 0)
+            {
                 throw new ArgumentException("Budget cannot be negative", nameof(newBudget));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} budget from {OldBudget} to {NewBudget}",
@@ -294,7 +323,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newChampionships.HasValue)
         {
             if (newChampionships.Value < 0)
+            {
                 throw new ArgumentException("Championships cannot be negative", nameof(newChampionships));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} championships from {OldChampionships} to {NewChampionships}",
@@ -307,7 +338,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newWins.HasValue)
         {
             if (newWins.Value < 0)
+            {
                 throw new ArgumentException("Wins cannot be negative", nameof(newWins));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} wins from {OldWins} to {NewWins}",
@@ -320,7 +353,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newLosses.HasValue)
         {
             if (newLosses.Value < 0)
+            {
                 throw new ArgumentException("Losses cannot be negative", nameof(newLosses));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} losses from {OldLosses} to {NewLosses}",
@@ -333,7 +368,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newTies.HasValue)
         {
             if (newTies.Value < 0)
+            {
                 throw new ArgumentException("Ties cannot be negative", nameof(newTies));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} ties from {OldTies} to {NewTies}",
@@ -346,7 +383,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newFanSupport.HasValue)
         {
             if (newFanSupport.Value < 0 || newFanSupport.Value > 100)
+            {
                 throw new ArgumentException("Fan support must be between 0 and 100", nameof(newFanSupport));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} fan support from {OldFanSupport} to {NewFanSupport}",
@@ -359,7 +398,9 @@ public class TeamBuilderService : ITeamBuilderService
         if (newChemistry.HasValue)
         {
             if (newChemistry.Value < 0 || newChemistry.Value > 100)
+            {
                 throw new ArgumentException("Chemistry must be between 0 and 100", nameof(newChemistry));
+            }
 
             _logger.LogInformation(
                 "Updating team {TeamId} chemistry from {OldChemistry} to {NewChemistry}",

@@ -8,7 +8,7 @@ using Xunit;
 namespace GameManagement.Tests;
 
 /// <summary>
-/// Comprehensive tests for LeagueBuilderService
+/// Comprehensive tests for LeagueBuilderService.
 /// </summary>
 public class LeagueBuilderServiceTests
 {
@@ -44,6 +44,7 @@ public class LeagueBuilderServiceTests
                 KickoffDefenseDepthChart = new DepthChart(),
                 PuntOffenseDepthChart = new DepthChart(),
                 PuntDefenseDepthChart = new DepthChart(),
+
                 // Staff positions are nullable - not set in this mock
                 AssistantCoaches = new List<Coach>(),
                 CollegeScouts = new List<Scout>(),
@@ -213,6 +214,7 @@ public class LeagueBuilderServiceTests
 
         // Assert
         var team = league.Conferences[0].Divisions[0].Teams[0];
+
         // Staff positions are nullable - TeamBuilderService creates them, but our mock doesn't
         // The lists should still be initialized even if individual positions are null
         team.AssistantCoaches.Should().NotBeNull();
@@ -221,9 +223,9 @@ public class LeagueBuilderServiceTests
     }
 
     [Theory]
-    [InlineData(2, 4, 4, 32)]  // NFL structure
-    [InlineData(1, 1, 1, 1)]   // Minimal league
-    [InlineData(4, 2, 3, 24)]  // Custom structure
+    [InlineData(2, 4, 4, 32)] // NFL structure
+    [InlineData(1, 1, 1, 1)] // Minimal league
+    [InlineData(4, 2, 3, 24)] // Custom structure
     public void CreateLeague_ShouldCreateCorrectTotalNumberOfTeams(
         int conferences, int divisions, int teams, int expectedTotal)
     {
@@ -248,7 +250,7 @@ public class LeagueBuilderServiceTests
     [InlineData(null, 2, 4, 4)]
     [InlineData("   ", 2, 4, 4)]
     public void CreateLeague_WithEmptyLeagueName_ShouldThrowArgumentException(
-        string leagueName, int conferences, int divisions, int teams)
+        string? leagueName, int conferences, int divisions, int teams)
     {
         // Act & Assert
         var act = () => _service.CreateLeague(leagueName, conferences, divisions, teams);
@@ -467,9 +469,9 @@ public class LeagueBuilderServiceTests
     }
 
     [Theory]
-    [InlineData(2, 4, 4, 32)]  // NFL structure - 32 teams
-    [InlineData(1, 1, 1, 1)]   // Minimal league - 1 team
-    [InlineData(2, 2, 3, 12)]  // Custom structure - 12 teams
+    [InlineData(2, 4, 4, 32)] // NFL structure - 32 teams
+    [InlineData(1, 1, 1, 1)] // Minimal league - 1 team
+    [InlineData(2, 2, 3, 12)] // Custom structure - 12 teams
     public void PopulateLeagueRosters_ShouldPopulateCorrectNumberOfTeams(
         int conferences, int divisions, int teams, int expectedTeams)
     {
@@ -538,10 +540,15 @@ public class LeagueBuilderServiceTests
                 if (team.Name == "Team 1" || team.Name == "Team 2")
                 {
                     if (seeds1.Count < 2)
+                    {
                         seeds1.Add(seed);
+                    }
                     else
+                    {
                         seeds2.Add(seed);
+                    }
                 }
+
                 return team;
             });
 
@@ -652,8 +659,8 @@ public class LeagueBuilderServiceTests
     }
 
     [Theory]
-    [InlineData(1899)]  // Too old
-    [InlineData(2040)]  // Too far in future (current year + 6 or more)
+    [InlineData(1899)] // Too old
+    [InlineData(2040)] // Too far in future (current year + 6 or more)
     public void UpdateLeague_WithInvalidSeason_ShouldThrowArgumentException(int invalidSeason)
     {
         // Arrange
@@ -667,8 +674,8 @@ public class LeagueBuilderServiceTests
     }
 
     [Theory]
-    [InlineData(1900)]  // Minimum valid
-    [InlineData(2025)]  // Current/recent
+    [InlineData(1900)] // Minimum valid
+    [InlineData(2025)] // Current/recent
     public void UpdateLeague_WithValidSeasonRange_ShouldUpdate(int validSeason)
     {
         // Arrange

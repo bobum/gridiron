@@ -11,7 +11,7 @@ namespace Gridiron.WebApi.Controllers;
 
 /// <summary>
 /// Controller for season management operations (creation, schedule generation, advancement)
-/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token.
 /// </summary>
 [ApiController]
 [Route("api/seasons")]
@@ -39,10 +39,10 @@ public class SeasonsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific season by ID
+    /// Gets a specific season by ID.
     /// </summary>
-    /// <param name="id">Season ID</param>
-    /// <returns>Season details</returns>
+    /// <param name="id">Season ID.</param>
+    /// <returns>Season details.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(SeasonDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -80,10 +80,10 @@ public class SeasonsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all seasons for a league
+    /// Gets all seasons for a league.
     /// </summary>
-    /// <param name="leagueId">League ID</param>
-    /// <returns>List of seasons</returns>
+    /// <param name="leagueId">League ID.</param>
+    /// <returns>List of seasons.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<SeasonDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -117,11 +117,11 @@ public class SeasonsController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new season for a league
+    /// Creates a new season for a league.
     /// </summary>
-    /// <param name="leagueId">League ID</param>
-    /// <param name="request">Season creation request</param>
-    /// <returns>Created season</returns>
+    /// <param name="leagueId">League ID.</param>
+    /// <param name="request">Season creation request.</param>
+    /// <returns>Created season.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(SeasonDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -180,11 +180,11 @@ public class SeasonsController : ControllerBase
     }
 
     /// <summary>
-    /// Generates an NFL-style schedule for a season
+    /// Generates an NFL-style schedule for a season.
     /// </summary>
-    /// <param name="id">Season ID</param>
-    /// <param name="request">Schedule generation request with optional seed</param>
-    /// <returns>Generated schedule details</returns>
+    /// <param name="id">Season ID.</param>
+    /// <param name="request">Schedule generation request with optional seed.</param>
+    /// <returns>Generated schedule details.</returns>
     [HttpPost("{id}/generate-schedule")]
     [ProducesResponseType(typeof(GenerateScheduleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -289,10 +289,10 @@ public class SeasonsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets the schedule for a season (all weeks with games)
+    /// Gets the schedule for a season (all weeks with games).
     /// </summary>
-    /// <param name="id">Season ID</param>
-    /// <returns>Schedule with all weeks and games</returns>
+    /// <param name="id">Season ID.</param>
+    /// <returns>Schedule with all weeks and games.</returns>
     [HttpGet("{id}/schedule")]
     [ProducesResponseType(typeof(List<SeasonWeekDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

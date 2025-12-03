@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -8,14 +9,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
 
 /// <summary>
 /// Unit tests for TeamsController
-/// Tests the controller logic WITHOUT touching the database (mocked repositories)
+/// Tests the controller logic WITHOUT touching the database (mocked repositories).
 /// </summary>
 public class TeamsControllerTests
 {

@@ -8,7 +8,7 @@ using Xunit;
 namespace GameManagement.Tests;
 
 /// <summary>
-/// Comprehensive tests for PlayerProgressionService
+/// Comprehensive tests for PlayerProgressionService.
 /// </summary>
 public class PlayerProgressionServiceTests
 {
@@ -265,7 +265,6 @@ public class PlayerProgressionServiceTests
         {
             Type = InjuryType.Knee,
             Severity = InjurySeverity.Minor,
-            
         };
 
         var retiredCount = 0;
@@ -275,7 +274,7 @@ public class PlayerProgressionServiceTests
         for (int i = 0; i < totalTests; i++)
         {
             var playerCopy = CreateTestPlayer(Positions.RB, age: 35);
-            playerCopy.CurrentInjury = new Injury { Type = InjuryType.Knee, Severity = InjurySeverity.Minor};
+            playerCopy.CurrentInjury = new Injury { Type = InjuryType.Knee, Severity = InjurySeverity.Minor };
             if (_service.ShouldRetire(playerCopy))
             {
                 retiredCount++;
@@ -312,6 +311,7 @@ public class PlayerProgressionServiceTests
 
         // Assert
         overall.Should().BeGreaterThan(70);
+
         // QB formula: Passing * 0.5 + Awareness * 0.3 + Agility * 0.2
         // = 90 * 0.5 + 80 * 0.3 + 70 * 0.2 = 45 + 24 + 14 = 83
         overall.Should().Be(83);
@@ -332,6 +332,7 @@ public class PlayerProgressionServiceTests
 
         // Assert
         overall.Should().BeGreaterThan(75);
+
         // RB formula: Rushing * 0.4 + Speed * 0.25 + Agility * 0.2 + Catching * 0.15
         // = 90 * 0.4 + 88 * 0.25 + 85 * 0.2 + 70 * 0.15 = 36 + 22 + 17 + 10.5 = 85.5 = 85
         overall.Should().Be(85);
@@ -351,6 +352,7 @@ public class PlayerProgressionServiceTests
 
         // Assert
         overall.Should().BeGreaterThan(80);
+
         // WR formula: Catching * 0.5 + Speed * 0.3 + Agility * 0.2
         // = 92 * 0.5 + 90 * 0.3 + 88 * 0.2 = 46 + 27 + 17.6 = 90.6 = 90
         overall.Should().Be(90);
@@ -455,7 +457,10 @@ public class PlayerProgressionServiceTests
             ratings.Add(_service.CalculateOverallRating(player));
 
             // Safety check - stop after 30 years
-            if (ages.Count > 30) break;
+            if (ages.Count > 30)
+            {
+                break;
+            }
         }
 
         // Assert

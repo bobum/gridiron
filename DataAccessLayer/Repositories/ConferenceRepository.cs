@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for Conference data access
-/// ALL database access for conferences goes through this class
+/// ALL database access for conferences goes through this class.
 /// </summary>
 public class ConferenceRepository : IConferenceRepository
 {
@@ -60,14 +60,18 @@ public class ConferenceRepository : IConferenceRepository
     public async Task SoftDeleteAsync(int conferenceId, string? deletedBy = null, string? reason = null)
     {
         var conference = await _context.Conferences
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(c => c.Id == conferenceId);
 
         if (conference == null)
+        {
             throw new InvalidOperationException($"Conference with ID {conferenceId} not found");
+        }
 
         if (conference.IsDeleted)
+        {
             throw new InvalidOperationException($"Conference with ID {conferenceId} is already deleted");
+        }
 
         conference.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -76,14 +80,18 @@ public class ConferenceRepository : IConferenceRepository
     public async Task RestoreAsync(int conferenceId)
     {
         var conference = await _context.Conferences
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(c => c.Id == conferenceId);
 
         if (conference == null)
+        {
             throw new InvalidOperationException($"Conference with ID {conferenceId} not found");
+        }
 
         if (!conference.IsDeleted)
+        {
             throw new InvalidOperationException($"Conference with ID {conferenceId} is not deleted");
+        }
 
         conference.Restore();
         await _context.SaveChangesAsync();
@@ -92,7 +100,7 @@ public class ConferenceRepository : IConferenceRepository
     public async Task<List<Conference>> GetDeletedAsync()
     {
         return await _context.Conferences
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .Where(c => c.IsDeleted)
             .ToListAsync();
     }

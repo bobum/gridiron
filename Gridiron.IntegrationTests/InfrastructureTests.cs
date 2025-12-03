@@ -56,6 +56,7 @@ public class InfrastructureTests : IDisposable
     /// This test validates that the seeding process works correctly, which is valuable as we
     /// build out more seeders.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous unit test.</placeholder></returns>
     [Fact]
     public async Task SeedingPipeline_CreateSchemaAndSeedAllData_DatabaseReadyForUse()
     {
@@ -64,7 +65,6 @@ public class InfrastructureTests : IDisposable
         // ============================================================
         // This generates schema from entity classes (provider-agnostic)
         // NOTE: Migrations are tested separately via PowerShell script on SQL Server
-
         await _dbContext.Database.EnsureCreatedAsync();
 
         // Verify schema includes soft delete infrastructure
@@ -78,7 +78,6 @@ public class InfrastructureTests : IDisposable
         // STEP 2: Seed Player Generation Data
         // ============================================================
         // This tests the same process as: PlayerDataSeeder.SeedAllAsync()
-
         var playerDataSeeder = new PlayerDataSeeder(_dbContext, _loggerFactory.CreateLogger<PlayerDataSeeder>());
 
         // Seed data files are in the test project's SeedData directory
@@ -98,7 +97,6 @@ public class InfrastructureTests : IDisposable
         // STEP 3: Seed Teams
         // ============================================================
         // This tests the same process as: TeamSeeder.SeedTeamsAsync()
-
         await TeamSeeder.SeedTeamsAsync(_dbContext);
 
         // Verify teams were created
@@ -142,7 +140,6 @@ public class InfrastructureTests : IDisposable
         // STEP 5: Verify Final State
         // ============================================================
         // Database should match what we expect after running reset-database.ps1
-
         var totalPlayers = await _dbContext.Players.CountAsync();
         var falconsPlayersCount = await _dbContext.Players.CountAsync(p => p.TeamId == falcons.Id);
         var eaglesPlayersCount = await _dbContext.Players.CountAsync(p => p.TeamId == eagles.Id);
@@ -160,6 +157,7 @@ public class InfrastructureTests : IDisposable
         samplePlayer.FirstName.Should().NotBeNullOrEmpty("because all players must have first names");
         samplePlayer.LastName.Should().NotBeNullOrEmpty("because all players must have last names");
         samplePlayer.TeamId.Should().BeGreaterThan(0, "because all players must be assigned to a team");
+
         // Note: Position QB has value 0, so we can't use NotBe(default) - but if players exist, they have valid positions
 
         // ============================================================

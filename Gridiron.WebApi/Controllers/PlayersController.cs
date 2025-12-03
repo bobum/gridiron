@@ -12,7 +12,7 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for player information
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
-/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -37,9 +37,9 @@ public class PlayersController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all players (filtered to only players on teams user has access to)
+    /// Gets all players (filtered to only players on teams user has access to).
     /// </summary>
-    /// <returns>List of accessible players</returns>
+    /// <returns>List of accessible players.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<PlayerDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -114,10 +114,10 @@ public class PlayersController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific player by ID (must be on a team the user can access)
+    /// Gets a specific player by ID (must be on a team the user can access).
     /// </summary>
-    /// <param name="id">Player ID</param>
-    /// <returns>Player details with stats</returns>
+    /// <param name="id">Player ID.</param>
+    /// <returns>Player details with stats.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(PlayerDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -201,10 +201,10 @@ public class PlayersController : ControllerBase
     }
 
     /// <summary>
-    /// Generates a random player with position-specific attributes (Global admins only, or anyone can generate for scouting purposes)
+    /// Generates a random player with position-specific attributes (Global admins only, or anyone can generate for scouting purposes).
     /// </summary>
-    /// <param name="request">Generation request with position and optional seed</param>
-    /// <returns>Generated player</returns>
+    /// <param name="request">Generation request with position and optional seed.</param>
+    /// <returns>Generated player.</returns>
     [HttpPost("generate")]
     [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -225,7 +225,6 @@ public class PlayersController : ControllerBase
 
         // Note: Player generation is allowed for all authenticated users (for scouting/draft purposes)
         // The generated players are not persisted to database unless added to a team roster
-
         if (!Enum.TryParse<Positions>(request.Position, true, out var position))
         {
             return BadRequest(new { error = $"Invalid position: {request.Position}" });
@@ -265,7 +264,8 @@ public class PlayersController : ControllerBase
                 IsInjured = player.IsInjured
             };
 
-            _logger.LogInformation("Generated player: {FirstName} {LastName} ({Position})",
+            _logger.LogInformation(
+                "Generated player: {FirstName} {LastName} ({Position})",
                 player.FirstName, player.LastName, player.Position);
 
             return Ok(playerDto);
@@ -278,10 +278,10 @@ public class PlayersController : ControllerBase
     }
 
     /// <summary>
-    /// Generates a complete draft class with multiple rounds (All authenticated users can generate draft classes for scouting)
+    /// Generates a complete draft class with multiple rounds (All authenticated users can generate draft classes for scouting).
     /// </summary>
-    /// <param name="request">Draft class request with year and rounds</param>
-    /// <returns>List of generated draft prospects</returns>
+    /// <param name="request">Draft class request with year and rounds.</param>
+    /// <returns>List of generated draft prospects.</returns>
     [HttpPost("draft-class")]
     [ProducesResponseType(typeof(IEnumerable<PlayerDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -302,7 +302,6 @@ public class PlayersController : ControllerBase
 
         // Note: Draft class generation is allowed for all authenticated users
         // These are hypothetical players for scouting/draft purposes
-
         if (request.Year < 2000 || request.Year > 2100)
         {
             return BadRequest(new { error = "Year must be between 2000 and 2100" });
@@ -347,7 +346,8 @@ public class PlayersController : ControllerBase
                 IsInjured = player.IsInjured
             }).ToList();
 
-            _logger.LogInformation("Generated draft class: {Year} with {Count} prospects ({Rounds} rounds)",
+            _logger.LogInformation(
+                "Generated draft class: {Year} with {Count} prospects ({Rounds} rounds)",
                 request.Year, playerDtos.Count, request.Rounds);
 
             return Ok(playerDtos);
@@ -364,11 +364,13 @@ public class PlayersController : ControllerBase
 public class GeneratePlayerRequest
 {
     public string Position { get; set; } = string.Empty;
+
     public int? Seed { get; set; }
 }
 
 public class GenerateDraftClassRequest
 {
     public int Year { get; set; }
+
     public int Rounds { get; set; } = 7;
 }

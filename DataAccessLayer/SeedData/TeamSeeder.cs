@@ -3,7 +3,7 @@ using DomainObjects;
 namespace DataAccessLayer.SeedData
 {
     /// <summary>
-    /// Seeds the two teams (without players)
+    /// Seeds the two teams (without players).
     /// </summary>
     public static class TeamSeeder
     {

@@ -1,21 +1,21 @@
 using Riok.Mapperly.Abstractions;
-using EngineTeam = Gridiron.Engine.Domain.Team;
-using EnginePlayer = Gridiron.Engine.Domain.Player;
-using EngineGame = Gridiron.Engine.Domain.Game;
-using EngineCoach = Gridiron.Engine.Domain.Coach;
-using EngineTrainer = Gridiron.Engine.Domain.Trainer;
-using EngineScout = Gridiron.Engine.Domain.Scout;
-using EngineDepthChart = Gridiron.Engine.Domain.DepthChart;
-using EngineInjury = Gridiron.Engine.Domain.Injury;
-using EnginePositions = Gridiron.Engine.Domain.Positions;
-using DomainTeam = Team;
-using DomainPlayer = DomainObjects.Player;
 using DomainCoach = DomainObjects.Coach;
-using DomainTrainer = DomainObjects.Trainer;
-using DomainScout = DomainObjects.Scout;
 using DomainDepthChart = DomainObjects.DepthChart;
 using DomainInjury = DomainObjects.Injury;
+using DomainPlayer = DomainObjects.Player;
 using DomainPositions = DomainObjects.Positions;
+using DomainScout = DomainObjects.Scout;
+using DomainTeam = Team;
+using DomainTrainer = DomainObjects.Trainer;
+using EngineCoach = Gridiron.Engine.Domain.Coach;
+using EngineDepthChart = Gridiron.Engine.Domain.DepthChart;
+using EngineGame = Gridiron.Engine.Domain.Game;
+using EngineInjury = Gridiron.Engine.Domain.Injury;
+using EnginePlayer = Gridiron.Engine.Domain.Player;
+using EnginePositions = Gridiron.Engine.Domain.Positions;
+using EngineScout = Gridiron.Engine.Domain.Scout;
+using EngineTeam = Gridiron.Engine.Domain.Team;
+using EngineTrainer = Gridiron.Engine.Domain.Trainer;
 
 namespace GameManagement.Mapping;
 
@@ -109,7 +109,6 @@ public partial class GridironMapper
     // ========================================
     // SUPPORTING TYPE MAPPINGS
     // ========================================
-
     [MapperIgnoreSource(nameof(DomainCoach.IsDeleted))]
     [MapperIgnoreSource(nameof(DomainCoach.DeletedAt))]
     [MapperIgnoreSource(nameof(DomainCoach.DeletedBy))]
@@ -147,6 +146,7 @@ public partial class GridironMapper
     public partial DomainScout ToEntityScout(EngineScout engineScout);
 
     public partial EngineDepthChart ToEngineDepthChart(DomainDepthChart entity);
+
     public partial DomainDepthChart ToEntityDepthChart(EngineDepthChart engineDepthChart);
 
     // Injury mappings - these are not auto-mapped due to circular references
@@ -156,14 +156,13 @@ public partial class GridironMapper
     // ========================================
     // ENUM MAPPINGS
     // ========================================
-
     public partial EnginePositions ToEnginePosition(DomainPositions position);
+
     public partial DomainPositions ToEntityPosition(EnginePositions position);
 
     // ========================================
     // COLLECTION HELPERS
     // ========================================
-
     public List<EnginePlayer> ToEnginePlayers(List<DomainPlayer> entities)
         => entities.Select(ToEnginePlayer).ToList();
 

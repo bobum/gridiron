@@ -9,7 +9,7 @@ namespace Gridiron.IntegrationTests;
 /// <summary>
 /// Integration tests for TeamRepository
 /// Tests the full stack: Repository → Database
-/// Uses SQLite in-memory database to properly test EF Core behavior
+/// Uses SQLite in-memory database to properly test EF Core behavior.
 /// </summary>
 [Trait("Category", "Integration")]
 public class TeamRepositoryTests : IClassFixture<DatabaseTestFixture>

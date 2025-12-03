@@ -2,98 +2,98 @@ namespace Gridiron.WebApi.DTOs;
 
 /// <summary>
 /// Request DTO for updating a league
-/// All properties are optional - only provided values will be updated
+/// All properties are optional - only provided values will be updated.
 /// </summary>
 public class UpdateLeagueRequest
 {
     /// <summary>
-    /// New name for the league
+    /// Gets or sets new name for the league.
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// New season for the league (must be between 1900 and current year + 5)
+    /// Gets or sets new season for the league (must be between 1900 and current year + 5).
     /// </summary>
     public int? Season { get; set; }
 
     /// <summary>
-    /// New active status for the league
+    /// Gets or sets new active status for the league.
     /// </summary>
     public bool? IsActive { get; set; }
 }
 
 /// <summary>
 /// Request DTO for updating a conference
-/// All properties are optional - only provided values will be updated
+/// All properties are optional - only provided values will be updated.
 /// </summary>
 public class UpdateConferenceRequest
 {
     /// <summary>
-    /// New name for the conference
+    /// Gets or sets new name for the conference.
     /// </summary>
     public string? Name { get; set; }
 }
 
 /// <summary>
 /// Request DTO for updating a division
-/// All properties are optional - only provided values will be updated
+/// All properties are optional - only provided values will be updated.
 /// </summary>
 public class UpdateDivisionRequest
 {
     /// <summary>
-    /// New name for the division
+    /// Gets or sets new name for the division.
     /// </summary>
     public string? Name { get; set; }
 }
 
 /// <summary>
 /// Request DTO for updating a team
-/// All properties are optional - only provided values will be updated
+/// All properties are optional - only provided values will be updated.
 /// </summary>
 public class UpdateTeamRequest
 {
     /// <summary>
-    /// New name for the team
+    /// Gets or sets new name for the team.
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// New city for the team
+    /// Gets or sets new city for the team.
     /// </summary>
     public string? City { get; set; }
 
     /// <summary>
-    /// New budget for the team
+    /// Gets or sets new budget for the team.
     /// </summary>
     public int? Budget { get; set; }
 
     /// <summary>
-    /// New championships count
+    /// Gets or sets new championships count.
     /// </summary>
     public int? Championships { get; set; }
 
     /// <summary>
-    /// New wins count
+    /// Gets or sets new wins count.
     /// </summary>
     public int? Wins { get; set; }
 
     /// <summary>
-    /// New losses count
+    /// Gets or sets new losses count.
     /// </summary>
     public int? Losses { get; set; }
 
     /// <summary>
-    /// New ties count
+    /// Gets or sets new ties count.
     /// </summary>
     public int? Ties { get; set; }
 
     /// <summary>
-    /// New fan support (0-100)
+    /// Gets or sets new fan support (0-100).
     /// </summary>
     public int? FanSupport { get; set; }
 
     /// <summary>
-    /// New chemistry (0-100)
+    /// Gets or sets new chemistry (0-100).
     /// </summary>
     public int? Chemistry { get; set; }
 }

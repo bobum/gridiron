@@ -1,0 +1,44 @@
+<Project>
+  <!-- Centralized build settings for all projects in the solution -->
+
+  <PropertyGroup>
+    <!-- Enable latest C# language features -->
+    <LangVersion>latest</LangVersion>
+
+    <!-- Enable nullable reference types -->
+    <Nullable>enable</Nullable>
+
+    <!-- Enable implicit usings -->
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Enable .NET analyzers -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <AnalysisMode>Recommended</AnalysisMode>
+
+    <!-- Treat warnings as warnings (not errors) for now -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <!-- Generate documentation file for better analyzer support -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Suppress specific warnings that are too noisy -->
+    <NoWarn>$(NoWarn);1591</NoWarn> <!-- Missing XML comments - too noisy initially -->
+  </PropertyGroup>
+
+  <!-- Analyzer packages applied to all projects -->
+  <ItemGroup>
+    <!-- StyleCop for code style consistency -->
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- Roslynator for additional code quality rules -->
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

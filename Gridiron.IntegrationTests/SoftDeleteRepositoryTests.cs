@@ -11,7 +11,7 @@ namespace Gridiron.IntegrationTests;
 /// Integration tests for soft delete functionality across repositories
 /// Uses SQLite in-memory database to properly test EF Core query filters
 /// (EF Core InMemory provider doesn't support query filters)
-/// All tests verify soft-deleted entities are excluded from normal queries
+/// All tests verify soft-deleted entities are excluded from normal queries.
 /// </summary>
 public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
 {
@@ -25,7 +25,6 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // LEAGUE REPOSITORY SOFT DELETE TESTS
     // ==========================================
-
     [Fact]
     public async Task LeagueRepository_SoftDelete_MarksLeagueAsDeleted()
     {
@@ -138,7 +137,6 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // TEAM REPOSITORY SOFT DELETE TESTS
     // ==========================================
-
     [Fact]
     public async Task TeamRepository_SoftDelete_MarksTeamAsDeleted()
     {
@@ -191,7 +189,6 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // GAME REPOSITORY SOFT DELETE TESTS
     // ==========================================
-
     [Fact]
     public async Task GameRepository_SoftDelete_MarksGameAsDeleted()
     {
@@ -304,7 +301,6 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // PLAYBYPLAY REPOSITORY SOFT DELETE TESTS
     // ==========================================
-
     [Fact]
     public async Task PlayByPlayRepository_SoftDelete_MarksPlayByPlayAsDeleted()
     {
@@ -353,7 +349,6 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // These tests verify soft-deleted entities are properly excluded from normal queries
     // Note: Repository GetByIdAsync methods use FirstOrDefaultAsync (not FindAsync)
     // because FindAsync bypasses EF Core query filters
-
     [Fact]
     public async Task QueryFilters_ExcludeSoftDeletedEntitiesFromNormalQueries()
     {
@@ -402,7 +397,6 @@ public class SoftDeleteRepositoryTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // SOFT DELETE WITHOUT METADATA TESTS
     // ==========================================
-
     [Fact]
     public async Task SoftDelete_WorksWithoutOptionalMetadata()
     {

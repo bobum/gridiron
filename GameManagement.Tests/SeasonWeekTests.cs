@@ -6,7 +6,7 @@ namespace GameManagement.Tests;
 
 /// <summary>
 /// Unit tests for SeasonWeek entity business logic
-/// Tests DisplayName computed property and IsComplete property
+/// Tests DisplayName computed property and IsComplete property.
 /// </summary>
 public class SeasonWeekTests
 {

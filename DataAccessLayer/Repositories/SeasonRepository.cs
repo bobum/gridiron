@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for Season data access
-/// ALL database access for seasons goes through this class
+/// ALL database access for seasons goes through this class.
 /// </summary>
 public class SeasonRepository : ISeasonRepository
 {
@@ -103,10 +103,14 @@ public class SeasonRepository : ISeasonRepository
             .FirstOrDefaultAsync(s => s.Id == seasonId);
 
         if (season == null)
+        {
             throw new InvalidOperationException($"Season with ID {seasonId} not found");
+        }
 
         if (season.IsDeleted)
+        {
             throw new InvalidOperationException($"Season with ID {seasonId} is already deleted");
+        }
 
         season.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -119,10 +123,14 @@ public class SeasonRepository : ISeasonRepository
             .FirstOrDefaultAsync(s => s.Id == seasonId);
 
         if (season == null)
+        {
             throw new InvalidOperationException($"Season with ID {seasonId} not found");
+        }
 
         if (!season.IsDeleted)
+        {
             throw new InvalidOperationException($"Season with ID {seasonId} is not deleted");
+        }
 
         season.Restore();
         await _context.SaveChangesAsync();

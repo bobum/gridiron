@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -9,14 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
 
 /// <summary>
 /// Unit tests for DivisionsManagementController
-/// Tests the controller logic WITHOUT touching the database (mocked repositories)
+/// Tests the controller logic WITHOUT touching the database (mocked repositories).
 /// </summary>
 public class DivisionsManagementControllerTests
 {
@@ -579,7 +579,7 @@ public class DivisionsManagementControllerTests
         // Arrange
         var division = CreateTestDivision(1, "NFC East", 1);
         var conference = CreateTestConference(1, "NFC", 1);
-        var request = new UpdateDivisionRequest { Name = "" };
+        var request = new UpdateDivisionRequest { Name = string.Empty };
 
         _mockDivisionRepository
             .Setup(r => r.GetByIdAsync(1))

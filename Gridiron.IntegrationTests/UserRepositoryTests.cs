@@ -10,7 +10,7 @@ namespace Gridiron.IntegrationTests;
 /// Integration tests for UserRepository
 /// Tests the full stack: Repository → Database
 /// Uses SQLite in-memory database to properly test EF Core behavior
-/// CRITICAL: These tests verify authorization security boundaries
+/// CRITICAL: These tests verify authorization security boundaries.
 /// </summary>
 public class UserRepositoryTests : IClassFixture<DatabaseTestFixture>
 {

@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for PlayByPlay data access
-/// ALL database access for play-by-play data goes through this class
+/// ALL database access for play-by-play data goes through this class.
 /// </summary>
 public class PlayByPlayRepository : IPlayByPlayRepository
 {
@@ -56,14 +56,18 @@ public class PlayByPlayRepository : IPlayByPlayRepository
     public async Task SoftDeleteAsync(int id, string? deletedBy = null, string? reason = null)
     {
         var playByPlay = await _context.PlayByPlays
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (playByPlay == null)
+        {
             throw new InvalidOperationException($"PlayByPlay with ID {id} not found");
+        }
 
         if (playByPlay.IsDeleted)
+        {
             throw new InvalidOperationException($"PlayByPlay with ID {id} is already deleted");
+        }
 
         playByPlay.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -72,14 +76,18 @@ public class PlayByPlayRepository : IPlayByPlayRepository
     public async Task RestoreAsync(int id)
     {
         var playByPlay = await _context.PlayByPlays
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (playByPlay == null)
+        {
             throw new InvalidOperationException($"PlayByPlay with ID {id} not found");
+        }
 
         if (!playByPlay.IsDeleted)
+        {
             throw new InvalidOperationException($"PlayByPlay with ID {id} is not deleted");
+        }
 
         playByPlay.Restore();
         await _context.SaveChangesAsync();
@@ -88,7 +96,7 @@ public class PlayByPlayRepository : IPlayByPlayRepository
     public async Task<List<PlayByPlay>> GetDeletedAsync()
     {
         return await _context.PlayByPlays
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .Where(p => p.IsDeleted)
             .OrderByDescending(p => p.DeletedAt)
             .ToListAsync();

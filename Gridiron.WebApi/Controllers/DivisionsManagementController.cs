@@ -12,7 +12,7 @@ namespace Gridiron.WebApi.Controllers;
 /// Controller for division management operations
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
 /// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
-/// AUTHORIZATION: Only Commissioners of the league can manage divisions
+/// AUTHORIZATION: Only Commissioners of the league can manage divisions.
 /// </summary>
 [ApiController]
 [Route("api/divisions-management")]
@@ -40,10 +40,10 @@ public class DivisionsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific division by ID (cascades from league authorization via conference)
+    /// Gets a specific division by ID (cascades from league authorization via conference).
     /// </summary>
-    /// <param name="id">Division ID</param>
-    /// <returns>Division details</returns>
+    /// <param name="id">Division ID.</param>
+    /// <returns>Division details.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(DivisionDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -110,9 +110,9 @@ public class DivisionsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all divisions (filtered to divisions in leagues user has access to)
+    /// Gets all divisions (filtered to divisions in leagues user has access to).
     /// </summary>
-    /// <returns>List of accessible divisions</returns>
+    /// <returns>List of accessible divisions.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<DivisionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -145,15 +145,15 @@ public class DivisionsManagementController : ControllerBase
                 var conferenceDict = conferences.ToDictionary(c => c.Id, c => c.LeagueId);
                 filteredDivisions = divisions.Where(d =>
                     conferenceDict.ContainsKey(d.ConferenceId) &&
-                    accessibleLeagueIds.Contains(conferenceDict[d.ConferenceId])
-                ).ToList();
+                    accessibleLeagueIds.Contains(conferenceDict[d.ConferenceId]))
+                .ToList();
             }
 
             var divisionDtos = filteredDivisions.Select(d => new DivisionDto
             {
                 Id = d.Id,
                 Name = d.Name,
-                Teams = new List<TeamDto>()  // Not loaded for list view
+                Teams = new List<TeamDto>() // Not loaded for list view
             }).ToList();
 
             return Ok(divisionDtos);
@@ -166,11 +166,11 @@ public class DivisionsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Updates an existing division (Only Commissioners can update divisions in their league)
+    /// Updates an existing division (Only Commissioners can update divisions in their league).
     /// </summary>
-    /// <param name="id">Division ID</param>
-    /// <param name="request">Update request with optional fields</param>
-    /// <returns>Updated division</returns>
+    /// <param name="id">Division ID.</param>
+    /// <param name="request">Update request with optional fields.</param>
+    /// <returns>Updated division.</returns>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(DivisionDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -227,7 +227,7 @@ public class DivisionsManagementController : ControllerBase
             {
                 Id = division.Id,
                 Name = division.Name,
-                Teams = new List<TeamDto>()  // Not loaded for update response
+                Teams = new List<TeamDto>() // Not loaded for update response
             };
 
             _logger.LogInformation(

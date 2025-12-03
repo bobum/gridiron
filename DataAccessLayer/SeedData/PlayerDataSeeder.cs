@@ -7,7 +7,7 @@ namespace DataAccessLayer.SeedData;
 
 /// <summary>
 /// Seeds FirstNames, LastNames, and Colleges tables from JSON files
-/// Can be used during database initialization or for re-seeding data
+/// Can be used during database initialization or for re-seeding data.
 /// </summary>
 public class PlayerDataSeeder
 {
@@ -21,17 +21,22 @@ public class PlayerDataSeeder
     }
 
     /// <summary>
-    /// Seeds all player generation data from JSON files
+    /// Seeds all player generation data from JSON files.
     /// </summary>
-    /// <param name="dataDirectory">Directory containing FirstNames.json, LastNames.json, and Colleges.json</param>
-    /// <param name="clearExisting">If true, deletes existing data before seeding</param>
+    /// <param name="dataDirectory">Directory containing FirstNames.json, LastNames.json, and Colleges.json.</param>
+    /// <param name="clearExisting">If true, deletes existing data before seeding.</param>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task SeedAllAsync(string dataDirectory, bool clearExisting = false)
     {
         if (string.IsNullOrEmpty(dataDirectory))
+        {
             throw new ArgumentNullException(nameof(dataDirectory));
+        }
 
         if (!Directory.Exists(dataDirectory))
+        {
             throw new DirectoryNotFoundException($"Data directory not found: {dataDirectory}");
+        }
 
         _logger.LogInformation("Starting player data seeding from: {DataDirectory}", dataDirectory);
 
@@ -51,12 +56,15 @@ public class PlayerDataSeeder
     }
 
     /// <summary>
-    /// Seeds FirstNames table from JSON file
+    /// Seeds FirstNames table from JSON file.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task SeedFirstNamesAsync(string jsonFilePath, bool clearExisting = false)
     {
         if (!File.Exists(jsonFilePath))
+        {
             throw new FileNotFoundException($"FirstNames.json not found at: {jsonFilePath}");
+        }
 
         _logger.LogInformation("Seeding FirstNames from: {FilePath}", jsonFilePath);
 
@@ -78,7 +86,9 @@ public class PlayerDataSeeder
         var names = JsonSerializer.Deserialize<List<string>>(json);
 
         if (names == null || names.Count == 0)
+        {
             throw new InvalidOperationException($"No names found in {jsonFilePath}");
+        }
 
         var entities = names.Select(name => new FirstName { Name = name }).ToList();
         await _context.FirstNames.AddRangeAsync(entities);
@@ -88,12 +98,15 @@ public class PlayerDataSeeder
     }
 
     /// <summary>
-    /// Seeds LastNames table from JSON file
+    /// Seeds LastNames table from JSON file.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task SeedLastNamesAsync(string jsonFilePath, bool clearExisting = false)
     {
         if (!File.Exists(jsonFilePath))
+        {
             throw new FileNotFoundException($"LastNames.json not found at: {jsonFilePath}");
+        }
 
         _logger.LogInformation("Seeding LastNames from: {FilePath}", jsonFilePath);
 
@@ -115,7 +128,9 @@ public class PlayerDataSeeder
         var names = JsonSerializer.Deserialize<List<string>>(json);
 
         if (names == null || names.Count == 0)
+        {
             throw new InvalidOperationException($"No names found in {jsonFilePath}");
+        }
 
         var entities = names.Select(name => new LastName { Name = name }).ToList();
         await _context.LastNames.AddRangeAsync(entities);
@@ -125,12 +140,15 @@ public class PlayerDataSeeder
     }
 
     /// <summary>
-    /// Seeds Colleges table from JSON file
+    /// Seeds Colleges table from JSON file.
     /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
     public async Task SeedCollegesAsync(string jsonFilePath, bool clearExisting = false)
     {
         if (!File.Exists(jsonFilePath))
+        {
             throw new FileNotFoundException($"Colleges.json not found at: {jsonFilePath}");
+        }
 
         _logger.LogInformation("Seeding Colleges from: {FilePath}", jsonFilePath);
 
@@ -152,7 +170,9 @@ public class PlayerDataSeeder
         var colleges = JsonSerializer.Deserialize<List<string>>(json);
 
         if (colleges == null || colleges.Count == 0)
+        {
             throw new InvalidOperationException($"No colleges found in {jsonFilePath}");
+        }
 
         var entities = colleges.Select(college => new College { Name = college }).ToList();
         await _context.Colleges.AddRangeAsync(entities);

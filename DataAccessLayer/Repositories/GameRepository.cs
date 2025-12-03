@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for Game data access
-/// ALL database access for games goes through this class
+/// ALL database access for games goes through this class.
 /// </summary>
 public class GameRepository : IGameRepository
 {
@@ -73,14 +73,18 @@ public class GameRepository : IGameRepository
     public async Task SoftDeleteAsync(int gameId, string? deletedBy = null, string? reason = null)
     {
         var game = await _context.Games
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(g => g.Id == gameId);
 
         if (game == null)
+        {
             throw new InvalidOperationException($"Game with ID {gameId} not found");
+        }
 
         if (game.IsDeleted)
+        {
             throw new InvalidOperationException($"Game with ID {gameId} is already deleted");
+        }
 
         game.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -89,14 +93,18 @@ public class GameRepository : IGameRepository
     public async Task RestoreAsync(int gameId)
     {
         var game = await _context.Games
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(g => g.Id == gameId);
 
         if (game == null)
+        {
             throw new InvalidOperationException($"Game with ID {gameId} not found");
+        }
 
         if (!game.IsDeleted)
+        {
             throw new InvalidOperationException($"Game with ID {gameId} is not deleted");
+        }
 
         game.Restore();
         await _context.SaveChangesAsync();
@@ -105,7 +113,7 @@ public class GameRepository : IGameRepository
     public async Task<List<Game>> GetDeletedAsync()
     {
         return await _context.Games
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .Where(g => g.IsDeleted)
             .OrderByDescending(g => g.DeletedAt)
             .ToListAsync();

@@ -8,7 +8,7 @@ using Xunit;
 namespace GameManagement.Tests;
 
 /// <summary>
-/// Comprehensive tests for DivisionBuilderService
+/// Comprehensive tests for DivisionBuilderService.
 /// </summary>
 public class DivisionBuilderServiceTests
 {

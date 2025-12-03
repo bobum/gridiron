@@ -13,6 +13,7 @@ namespace DataAccessLayer.SeedData
         /// Seeds the God user if not already present in the database.
         /// This is idempotent - safe to run multiple times.
         /// </summary>
+        /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         public static async Task SeedGodUserAsync(GridironDbContext db)
         {
             const string godUserAzureAdObjectId = "d01a7f27-fed3-4e5b-b6b6-f9de730e9fb5";
@@ -34,6 +35,7 @@ namespace DataAccessLayer.SeedData
                 {
                     Console.WriteLine("  - God user already exists");
                 }
+
                 return;
             }
 

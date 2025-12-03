@@ -6,7 +6,7 @@ namespace DataAccessLayer
 {
     /// <summary>
     /// Design-time factory for creating GridironDbContext instances during migrations
-    /// This allows EF Core tools to create the DbContext without running the application
+    /// This allows EF Core tools to create the DbContext without running the application.
     /// </summary>
     public class GridironDbContextFactory : IDesignTimeDbContextFactory<GridironDbContext>
     {
@@ -16,7 +16,7 @@ namespace DataAccessLayer
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true)
-                .AddUserSecrets<GridironDbContextFactory>(optional: true)  // For local development
+                .AddUserSecrets<GridironDbContextFactory>(optional: true) // For local development
                 .AddEnvironmentVariables()
                 .Build();
 
@@ -27,8 +27,7 @@ namespace DataAccessLayer
             {
                 throw new InvalidOperationException(
                     "Connection string 'GridironDb' not found. " +
-                    "Please configure it in appsettings.json, user secrets, or environment variables."
-                );
+                    "Please configure it in appsettings.json, user secrets, or environment variables.");
             }
 
             // Create DbContext options

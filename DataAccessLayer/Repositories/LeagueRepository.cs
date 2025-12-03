@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for League data access
-/// ALL database access for leagues goes through this class
+/// ALL database access for leagues goes through this class.
 /// </summary>
 public class LeagueRepository : ILeagueRepository
 {
@@ -67,14 +67,18 @@ public class LeagueRepository : ILeagueRepository
     public async Task SoftDeleteAsync(int leagueId, string? deletedBy = null, string? reason = null)
     {
         var league = await _context.Leagues
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(l => l.Id == leagueId);
 
         if (league == null)
+        {
             throw new InvalidOperationException($"League with ID {leagueId} not found");
+        }
 
         if (league.IsDeleted)
+        {
             throw new InvalidOperationException($"League with ID {leagueId} is already deleted");
+        }
 
         league.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -83,14 +87,18 @@ public class LeagueRepository : ILeagueRepository
     public async Task RestoreAsync(int leagueId)
     {
         var league = await _context.Leagues
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(l => l.Id == leagueId);
 
         if (league == null)
+        {
             throw new InvalidOperationException($"League with ID {leagueId} not found");
+        }
 
         if (!league.IsDeleted)
+        {
             throw new InvalidOperationException($"League with ID {leagueId} is not deleted");
+        }
 
         league.Restore();
         await _context.SaveChangesAsync();
@@ -99,7 +107,7 @@ public class LeagueRepository : ILeagueRepository
     public async Task<List<League>> GetDeletedAsync()
     {
         return await _context.Leagues
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .Where(l => l.IsDeleted)
             .ToListAsync();
     }
@@ -339,11 +347,19 @@ public class LeagueRepository : ILeagueRepository
                 var deletedTeams = league.Conferences.SelectMany(c => c.Divisions).SelectMany(d => d.Teams).Count(t => t.IsDeleted);
 
                 if (deletedConferences > 0)
+                {
                     result.Warnings.Add($"{deletedConferences} conferences remain soft-deleted");
+                }
+
                 if (deletedDivisions > 0)
+                {
                     result.Warnings.Add($"{deletedDivisions} divisions remain soft-deleted");
+                }
+
                 if (deletedTeams > 0)
+                {
                     result.Warnings.Add($"{deletedTeams} teams remain soft-deleted");
+                }
             }
 
             // Save changes
@@ -354,17 +370,55 @@ public class LeagueRepository : ILeagueRepository
 
             // Populate result
             result.TotalEntitiesRestored = leagueCount + conferenceCount + divisionCount + teamCount + playerCount;
-            if (leagueCount > 0) result.RestoredByType["Leagues"] = leagueCount;
-            if (conferenceCount > 0) result.RestoredByType["Conferences"] = conferenceCount;
-            if (divisionCount > 0) result.RestoredByType["Divisions"] = divisionCount;
-            if (teamCount > 0) result.RestoredByType["Teams"] = teamCount;
-            if (playerCount > 0) result.RestoredByType["Players"] = playerCount;
+            if (leagueCount > 0)
+            {
+                result.RestoredByType["Leagues"] = leagueCount;
+            }
 
-            if (leagueIds.Any()) result.RestoredIds["Leagues"] = leagueIds;
-            if (conferenceIds.Any()) result.RestoredIds["Conferences"] = conferenceIds;
-            if (divisionIds.Any()) result.RestoredIds["Divisions"] = divisionIds;
-            if (teamIds.Any()) result.RestoredIds["Teams"] = teamIds;
-            if (playerIds.Any()) result.RestoredIds["Players"] = playerIds;
+            if (conferenceCount > 0)
+            {
+                result.RestoredByType["Conferences"] = conferenceCount;
+            }
+
+            if (divisionCount > 0)
+            {
+                result.RestoredByType["Divisions"] = divisionCount;
+            }
+
+            if (teamCount > 0)
+            {
+                result.RestoredByType["Teams"] = teamCount;
+            }
+
+            if (playerCount > 0)
+            {
+                result.RestoredByType["Players"] = playerCount;
+            }
+
+            if (leagueIds.Any())
+            {
+                result.RestoredIds["Leagues"] = leagueIds;
+            }
+
+            if (conferenceIds.Any())
+            {
+                result.RestoredIds["Conferences"] = conferenceIds;
+            }
+
+            if (divisionIds.Any())
+            {
+                result.RestoredIds["Divisions"] = divisionIds;
+            }
+
+            if (teamIds.Any())
+            {
+                result.RestoredIds["Teams"] = teamIds;
+            }
+
+            if (playerIds.Any())
+            {
+                result.RestoredIds["Players"] = playerIds;
+            }
 
             result.Success = true;
             return result;
@@ -413,11 +467,19 @@ public class LeagueRepository : ILeagueRepository
         var deletedTeams = league.Conferences.SelectMany(c => c.Divisions).SelectMany(d => d.Teams).Count(t => t.IsDeleted);
 
         if (deletedConferences > 0)
+        {
             result.OrphanedChildren["Conferences"] = deletedConferences;
+        }
+
         if (deletedDivisions > 0)
+        {
             result.OrphanedChildren["Divisions"] = deletedDivisions;
+        }
+
         if (deletedTeams > 0)
+        {
             result.OrphanedChildren["Teams"] = deletedTeams;
+        }
 
         if (result.OrphanedChildren.Any())
         {

@@ -1,7 +1,7 @@
 namespace DomainObjects;
 
 /// <summary>
-/// Defines the roles a user can have within a league
+/// Defines the roles a user can have within a league.
 /// </summary>
 public enum UserRole
 {

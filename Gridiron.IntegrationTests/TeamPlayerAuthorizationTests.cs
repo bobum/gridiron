@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.IntegrationTests;
@@ -33,7 +33,7 @@ namespace Gridiron.IntegrationTests;
 /// - Joe CANNOT access Don's team in Bob's League
 /// - Don CANNOT access Joe's team in Mack's League
 /// - Mack CANNOT access any teams in Bob's League
-/// - Bob (as GM in Mack's League) CANNOT access Joe's or Don's teams in Mack's League
+/// - Bob (as GM in Mack's League) CANNOT access Joe's or Don's teams in Mack's League.
 /// </summary>
 public class TeamPlayerAuthorizationTests : IClassFixture<DatabaseTestFixture>
 {
@@ -540,7 +540,7 @@ public class TeamPlayerAuthorizationTests : IClassFixture<DatabaseTestFixture>
             TeamsPerDivision = 3
         });
 
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
         _bobsLeagueId = createdLeague.Id;
         _bobsLeagueJoeTeamId = createdLeague.Conferences[0].Divisions[0].Teams[0].Id;
         _bobsLeagueDonTeamId = createdLeague.Conferences[0].Divisions[0].Teams[1].Id;
@@ -560,7 +560,7 @@ public class TeamPlayerAuthorizationTests : IClassFixture<DatabaseTestFixture>
             TeamsPerDivision = 4
         });
 
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
         _macksLeagueId = createdLeague.Id;
         _macksLeagueBobTeamId = createdLeague.Conferences[0].Divisions[0].Teams[0].Id;
         _macksLeagueJoeTeamId = createdLeague.Conferences[0].Divisions[0].Teams[1].Id;

@@ -10,7 +10,7 @@ namespace Gridiron.IntegrationTests;
 
 /// <summary>
 /// Integration tests for cascade soft delete functionality
-/// Tests the complete cascade chain: League → Conference → Division → Team → Player
+/// Tests the complete cascade chain: League → Conference → Division → Team → Player.
 /// </summary>
 public class CascadeSoftDeleteTests : IClassFixture<DatabaseTestFixture>
 {
@@ -24,7 +24,6 @@ public class CascadeSoftDeleteTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // CASCADE SOFT DELETE TESTS
     // ==========================================
-
     [Fact]
     public async Task CascadeDelete_League_SoftDeletesAllChildEntities()
     {
@@ -180,7 +179,6 @@ public class CascadeSoftDeleteTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // CASCADE RESTORE TESTS
     // ==========================================
-
     [Fact]
     public async Task CascadeRestore_LeagueOnly_RestoresOnlyLeague()
     {
@@ -287,7 +285,6 @@ public class CascadeSoftDeleteTests : IClassFixture<DatabaseTestFixture>
     // ==========================================
     // RESTORE VALIDATION TESTS
     // ==========================================
-
     [Fact]
     public async Task ValidateRestore_DeletedLeague_WithNoOrphans_CanRestore()
     {

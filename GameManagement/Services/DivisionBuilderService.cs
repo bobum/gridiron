@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace GameManagement.Services;
 
 /// <summary>
-/// Service for building and managing divisions
+/// Service for building and managing divisions.
 /// </summary>
 public class DivisionBuilderService : IDivisionBuilderService
 {
@@ -18,7 +18,9 @@ public class DivisionBuilderService : IDivisionBuilderService
     public void UpdateDivision(Division division, string? newName)
     {
         if (division == null)
+        {
             throw new ArgumentNullException(nameof(division));
+        }
 
         // Update name if provided and not empty
         if (!string.IsNullOrWhiteSpace(newName))

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.IntegrationTests;
@@ -34,7 +34,7 @@ namespace Gridiron.IntegrationTests;
 /// - Mack CANNOT see Bob's League (not in it)
 /// - Bob CANNOT see Mack's League (only GM, not Commissioner)
 /// - Joe CANNOT see Don's teams
-/// - Don CANNOT see Joe's teams
+/// - Don CANNOT see Joe's teams.
 /// </summary>
 public class ComprehensiveAuthorizationTests : IClassFixture<DatabaseTestFixture>
 {
@@ -456,10 +456,10 @@ public class ComprehensiveAuthorizationTests : IClassFixture<DatabaseTestFixture
     public async Task Joe_CannotSeeDonsTeams_InBobsLeague()
     {
         await CreateTestScenario();
+
         // This test verifies that Joe (GM of Team 1) cannot see Don's team (Team 2)
         // At the league level, both can see the league, but team-level auth will prevent access
         // This will be more relevant when we add team-specific endpoints
-
         var authService = _fixture.ServiceProvider.GetRequiredService<IGridironAuthorizationService>();
 
         // Joe can access his team
@@ -570,7 +570,7 @@ public class ComprehensiveAuthorizationTests : IClassFixture<DatabaseTestFixture
             TeamsPerDivision = 3 // Team 1 for Joe, Team 2 for Don, Team 3 unassigned
         });
 
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
         _bobsLeagueId = createdLeague.Id;
         _bobsLeagueJoeTeamId = createdLeague.Conferences[0].Divisions[0].Teams[0].Id;
         _bobsLeagueDonTeamId = createdLeague.Conferences[0].Divisions[0].Teams[1].Id;
@@ -588,7 +588,7 @@ public class ComprehensiveAuthorizationTests : IClassFixture<DatabaseTestFixture
             TeamsPerDivision = 4 // Team 1 for Bob, Team 2 for Joe, Team 3 for Don, Team 4 unassigned
         });
 
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
         _macksLeagueId = createdLeague.Id;
         _macksLeagueBobTeamId = createdLeague.Conferences[0].Divisions[0].Teams[0].Id;
         _macksLeagueJoeTeamId = createdLeague.Conferences[0].Divisions[0].Teams[1].Id;
