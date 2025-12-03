@@ -7,6 +7,24 @@ on:
     branches: [ master ]
 
 jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Check code formatting
+      run: dotnet format gridiron.sln --verify-no-changes --verbosity diagnostic
+
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -90,3 +108,75 @@ jobs:
 
     - name: Run integration tests (SQLite in-memory)
       run: dotnet test Gridiron.IntegrationTests/Gridiron.IntegrationTests.csproj --no-build --configuration Release --verbosity normal
+
+  code-coverage:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Configure NuGet authentication
+      run: |
+        dotnet nuget update source github-merciless \
+          --username "github-actions" \
+          --password "$NUGET_TOKEN" \
+          --store-password-in-clear-text \
+          --configfile nuget.config
+      env:
+        NUGET_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
+
+    - name: Restore dependencies
+      run: dotnet restore gridiron.sln
+
+    - name: Run tests with coverage
+      run: |
+        dotnet test gridiron.sln \
+          --configuration Release \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./coverage \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      run: |
+        reportgenerator \
+          -reports:./coverage/**/coverage.cobertura.xml \
+          -targetdir:./coverage/report \
+          -reporttypes:"Html;MarkdownSummaryGithub;Badges"
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: ./coverage/report
+        retention-days: 7
+
+    - name: Add coverage summary to job
+      run: cat ./coverage/report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
+    - name: Check coverage threshold
+      run: |
+        # Extract line coverage percentage from the cobertura report
+        COVERAGE=$(grep -oP 'line-rate="\K[^"]+' ./coverage/**/coverage.cobertura.xml | head -1)
+        COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.1f")
+        echo "Code coverage: $COVERAGE_PCT%"
+
+        # Check if coverage meets minimum threshold (60%)
+        THRESHOLD=60
+        if (( $(echo "$COVERAGE_PCT < $THRESHOLD" | bc -l) )); then
+          echo "::error::Code coverage ($COVERAGE_PCT%) is below the minimum threshold ($THRESHOLD%)"
+          exit 1
+        else
+          echo "::notice::Code coverage ($COVERAGE_PCT%) meets the minimum threshold ($THRESHOLD%)"
+        fi
