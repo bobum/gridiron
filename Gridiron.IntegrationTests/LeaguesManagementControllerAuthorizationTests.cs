@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.IntegrationTests;
@@ -16,7 +16,7 @@ namespace Gridiron.IntegrationTests;
 /// <summary>
 /// Integration tests for LeaguesManagementController Authorization
 /// CRITICAL: These tests verify that users can only access their own resources
-/// Tests the FULL STACK: Controller → Service → Repository → Database
+/// Tests the FULL STACK: Controller → Service → Repository → Database.
 /// </summary>
 public class LeaguesManagementControllerAuthorizationTests : IClassFixture<DatabaseTestFixture>
 {
@@ -80,7 +80,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Act - Joe tries to access his own league
         var getResult = await joeController.GetLeague(createdLeague.Id);
@@ -105,7 +105,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Act - Bob tries to access Joe's league
         var (bobController, _, _) = CreateControllerWithAuth("bob-oid", "bob@example.com", "Bob User");
@@ -127,7 +127,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Arrange - Make God a global admin
         var userRepo = _fixture.ServiceProvider.GetRequiredService<IUserRepository>();
@@ -163,7 +163,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
         var teamId = createdLeague.Conferences[0].Divisions[0].Teams[0].Id;
 
         // Arrange - Assign GM to a team in the league
@@ -316,7 +316,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Act - Joe updates his league
         var updateRequest = new UpdateLeagueRequest
@@ -347,7 +347,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Act - Bob tries to update Joe's league
         var (bobController, _, _) = CreateControllerWithAuth("bob-update-oid", "bob-update@example.com", "Bob Update");
@@ -379,7 +379,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
         var teamId = createdLeague.Conferences[0].Divisions[0].Teams[0].Id;
 
         // Arrange - Assign GM to a team
@@ -432,7 +432,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Act - Joe deletes his league
         var deleteResult = await joeController.DeleteLeague(createdLeague.Id, "Joe", "Testing deletion");
@@ -456,7 +456,7 @@ public class LeaguesManagementControllerAuthorizationTests : IClassFixture<Datab
             DivisionsPerConference = 1,
             TeamsPerDivision = 2
         });
-        var createdLeague = ((createResult.Result as CreatedAtActionResult)!.Value as LeagueDetailDto)!;
+        var createdLeague = ((createResult.Result as CreatedAtActionResult) !.Value as LeagueDetailDto) !;
 
         // Act - Bob tries to delete Joe's league
         var (bobController, _, _) = CreateControllerWithAuth("bob-delete-oid", "bob-delete@example.com", "Bob Delete");

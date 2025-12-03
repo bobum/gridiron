@@ -1,6 +1,6 @@
+using GameManagement.Mapping;
 using Gridiron.Engine.Api;
 using Gridiron.Engine.Domain;
-using GameManagement.Mapping;
 using Microsoft.Extensions.Logging;
 
 namespace GameManagement.Services;
@@ -28,10 +28,10 @@ public class EngineSimulationService : IEngineSimulationService
     /// <summary>
     /// Simulates a game between two teams.
     /// </summary>
-    /// <param name="homeTeam">Home team EF entity</param>
-    /// <param name="awayTeam">Away team EF entity</param>
-    /// <param name="randomSeed">Optional seed for deterministic simulation</param>
-    /// <returns>Simulation result with updated team data</returns>
+    /// <param name="homeTeam">Home team EF entity.</param>
+    /// <param name="awayTeam">Away team EF entity.</param>
+    /// <param name="randomSeed">Optional seed for deterministic simulation.</param>
+    /// <returns>Simulation result with updated team data.</returns>
     public EngineSimulationResult SimulateGame(Team homeTeam, Team awayTeam, int? randomSeed = null)
     {
         _logger.LogInformation(
@@ -59,6 +59,7 @@ public class EngineSimulationService : IEngineSimulationService
         {
             _mapper.UpdatePlayerEntity(result.HomeTeam.Players[i], homeTeam.Players[i]);
         }
+
         for (int i = 0; i < awayTeam.Players.Count && i < result.AwayTeam.Players.Count; i++)
         {
             _mapper.UpdatePlayerEntity(result.AwayTeam.Players[i], awayTeam.Players[i]);
@@ -81,6 +82,7 @@ public class EngineSimulationService : IEngineSimulationService
     /// <summary>
     /// Simulates a game with a custom logger for capturing play-by-play output.
     /// </summary>
+    /// <returns></returns>
     public EngineSimulationResult SimulateGame(Team homeTeam, Team awayTeam, int? randomSeed, ILogger? playByPlayLogger)
     {
         _logger.LogInformation(
@@ -92,8 +94,8 @@ public class EngineSimulationService : IEngineSimulationService
         var engineAwayTeam = _mapper.ToEngineTeam(awayTeam);
 
         // Run simulation with custom logger for play-by-play capture
-        var options = new SimulationOptions 
-        { 
+        var options = new SimulationOptions
+        {
             RandomSeed = randomSeed,
             Logger = playByPlayLogger
         };
@@ -112,6 +114,7 @@ public class EngineSimulationService : IEngineSimulationService
         {
             _mapper.UpdatePlayerEntity(result.HomeTeam.Players[i], homeTeam.Players[i]);
         }
+
         for (int i = 0; i < awayTeam.Players.Count && i < result.AwayTeam.Players.Count; i++)
         {
             _mapper.UpdatePlayerEntity(result.AwayTeam.Players[i], awayTeam.Players[i]);
@@ -139,10 +142,11 @@ public class EngineSimulationService : IEngineSimulationService
 public interface IEngineSimulationService
 {
     EngineSimulationResult SimulateGame(Team homeTeam, Team awayTeam, int? randomSeed = null);
-    
+
     /// <summary>
     /// Simulates a game with a custom logger for capturing play-by-play output.
     /// </summary>
+    /// <returns></returns>
     EngineSimulationResult SimulateGame(Team homeTeam, Team awayTeam, int? randomSeed, ILogger? playByPlayLogger);
 }
 
@@ -152,16 +156,23 @@ public interface IEngineSimulationService
 public class EngineSimulationResult
 {
     public required Team HomeTeam { get; init; }
+
     public required Team AwayTeam { get; init; }
+
     public int HomeScore { get; init; }
+
     public int AwayScore { get; init; }
+
     public int TotalPlays { get; init; }
+
     public bool IsTie { get; init; }
+
     public Team? WinningTeam { get; init; }
+
     public int? RandomSeed { get; init; }
-    
+
     /// <summary>
-    /// All plays from the simulated game (for play-by-play serialization).
+    /// Gets all plays from the simulated game (for play-by-play serialization).
     /// </summary>
     public IReadOnlyList<IPlay> Plays { get; init; } = Array.Empty<IPlay>();
 }

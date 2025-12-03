@@ -6,7 +6,7 @@ namespace GameManagement.Tests;
 
 /// <summary>
 /// Unit tests for Season entity business logic
-/// Tests AdvanceWeek and AdvancePhase methods
+/// Tests AdvanceWeek and AdvancePhase methods.
 /// </summary>
 public class SeasonTests
 {
@@ -366,6 +366,7 @@ public class SeasonTests
         {
             season.AdvanceWeek().Should().BeTrue();
         }
+
         season.AdvanceWeek().Should().BeFalse(); // Can't advance past week 4
         season.CurrentWeek.Should().Be(4);
 
@@ -379,6 +380,7 @@ public class SeasonTests
         {
             season.AdvanceWeek().Should().BeTrue();
         }
+
         season.AdvanceWeek().Should().BeFalse();
         season.CurrentWeek.Should().Be(17);
 
@@ -392,6 +394,7 @@ public class SeasonTests
         {
             season.AdvanceWeek().Should().BeTrue();
         }
+
         season.AdvanceWeek().Should().BeFalse();
         season.CurrentWeek.Should().Be(4);
 

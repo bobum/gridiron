@@ -12,7 +12,7 @@ namespace Gridiron.WebApi.Controllers;
 /// Controller for conference management operations
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
 /// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
-/// AUTHORIZATION: Only Commissioners of the league can manage conferences
+/// AUTHORIZATION: Only Commissioners of the league can manage conferences.
 /// </summary>
 [ApiController]
 [Route("api/conferences-management")]
@@ -37,10 +37,10 @@ public class ConferencesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific conference by ID (cascades from league authorization)
+    /// Gets a specific conference by ID (cascades from league authorization).
     /// </summary>
-    /// <param name="id">Conference ID</param>
-    /// <returns>Conference details</returns>
+    /// <param name="id">Conference ID.</param>
+    /// <returns>Conference details.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ConferenceDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -105,9 +105,9 @@ public class ConferencesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all conferences (filtered to only conferences in leagues user has access to)
+    /// Gets all conferences (filtered to only conferences in leagues user has access to).
     /// </summary>
-    /// <returns>List of accessible conferences</returns>
+    /// <returns>List of accessible conferences.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<ConferenceDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -142,7 +142,7 @@ public class ConferencesManagementController : ControllerBase
             {
                 Id = c.Id,
                 Name = c.Name,
-                Divisions = new List<DivisionDto>()  // Not loaded for list view
+                Divisions = new List<DivisionDto>() // Not loaded for list view
             }).ToList();
 
             return Ok(conferenceDtos);
@@ -155,11 +155,11 @@ public class ConferencesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Updates an existing conference (Only Commissioners can update conferences in their league)
+    /// Updates an existing conference (Only Commissioners can update conferences in their league).
     /// </summary>
-    /// <param name="id">Conference ID</param>
-    /// <param name="request">Update request with optional fields</param>
-    /// <returns>Updated conference</returns>
+    /// <param name="id">Conference ID.</param>
+    /// <param name="request">Update request with optional fields.</param>
+    /// <returns>Updated conference.</returns>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ConferenceDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -209,7 +209,7 @@ public class ConferencesManagementController : ControllerBase
             {
                 Id = conference.Id,
                 Name = conference.Name,
-                Divisions = new List<DivisionDto>()  // Not loaded for update response
+                Divisions = new List<DivisionDto>() // Not loaded for update response
             };
 
             _logger.LogInformation(

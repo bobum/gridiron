@@ -11,22 +11,29 @@ namespace DomainObjects.Helpers
     /// Examples with Home=Buffalo, Away=Kansas City:
     /// - Position 20, any possession → "Buffalo 20" (in Buffalo's territory)
     /// - Position 80, any possession → "Kansas City 20" (in Kansas City's territory)
-    /// - Position 50 → "50" (midfield)
+    /// - Position 50 → "50" (midfield).
     /// </summary>
     public static class FieldPositionHelper
     {
         /// <summary>
-        /// Converts absolute field position to NFL-style yard line string
+        /// Converts absolute field position to NFL-style yard line string.
         /// </summary>
-        /// <param name="fieldPosition">Absolute position (0-100, where 0=Home goal, 100=Away goal)</param>
-        /// <param name="homeTeam">Home team</param>
-        /// <param name="awayTeam">Away team</param>
-        /// <returns>NFL-style field position string</returns>
+        /// <param name="fieldPosition">Absolute position (0-100, where 0=Home goal, 100=Away goal).</param>
+        /// <param name="homeTeam">Home team.</param>
+        /// <param name="awayTeam">Away team.</param>
+        /// <returns>NFL-style field position string.</returns>
         public static string FormatFieldPosition(int fieldPosition, Team? homeTeam, Team? awayTeam)
         {
             // Clamp to valid range
-            if (fieldPosition < 0) fieldPosition = 0;
-            if (fieldPosition > 100) fieldPosition = 100;
+            if (fieldPosition < 0)
+            {
+                fieldPosition = 0;
+            }
+
+            if (fieldPosition > 100)
+            {
+                fieldPosition = 100;
+            }
 
             // Midfield is always "50"
             if (fieldPosition == 50)
@@ -46,6 +53,7 @@ namespace DomainObjects.Helpers
                     return $"{fieldPosition}";
                 }
             }
+
             // Position 51-100: In Away team's territory
             else
             {
@@ -63,8 +71,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Gets a short description of field position with "yard line" suffix
+        /// Gets a short description of field position with "yard line" suffix.
         /// </summary>
+        /// <returns></returns>
         public static string FormatFieldPositionWithYardLine(int fieldPosition, Team? homeTeam, Team? awayTeam)
         {
             string position = FormatFieldPosition(fieldPosition, homeTeam, awayTeam);
@@ -78,18 +87,28 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Gets which side of the field the ball is on
+        /// Gets which side of the field the ball is on.
         /// </summary>
+        /// <returns></returns>
         public static string GetFieldSide(int fieldPosition)
         {
-            if (fieldPosition < 50) return "Own";
-            if (fieldPosition > 50) return "Opponent";
+            if (fieldPosition < 50)
+            {
+                return "Own";
+            }
+
+            if (fieldPosition > 50)
+            {
+                return "Opponent";
+            }
+
             return "Midfield";
         }
 
         /// <summary>
-        /// Gets the yard line number only (no team name)
+        /// Gets the yard line number only (no team name).
         /// </summary>
+        /// <returns></returns>
         public static int GetYardLine(int fieldPosition)
         {
             if (fieldPosition <= 50)
@@ -103,19 +122,20 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Checks if position is in the red zone (opponent's 20 or closer)
+        /// Checks if position is in the red zone (opponent's 20 or closer).
         /// </summary>
+        /// <returns></returns>
         public static bool IsInRedZone(int fieldPosition)
         {
             return fieldPosition >= 80; // 80-100 is opponent's 20-0
         }
 
         /// <summary>
-        /// Checks if position is in goal-to-go situation (when the first down marker would be in the end zone)
+        /// Checks if position is in goal-to-go situation (when the first down marker would be in the end zone).
         /// </summary>
-        /// <param name="fieldPosition">Current field position (0-100)</param>
-        /// <param name="yardsToGo">Yards needed for first down</param>
-        /// <returns>True if first down marker would be at or beyond the goal line</returns>
+        /// <param name="fieldPosition">Current field position (0-100).</param>
+        /// <param name="yardsToGo">Yards needed for first down.</param>
+        /// <returns>True if first down marker would be at or beyond the goal line.</returns>
         public static bool IsGoalToGo(int fieldPosition, int yardsToGo)
         {
             // Calculate where the first down marker would be
@@ -127,8 +147,9 @@ namespace DomainObjects.Helpers
 
         /// <summary>
         /// Checks if position is in goal-to-go situation based on position alone (opponent's 10 or closer)
-        /// This is a simpler check that assumes standard 10 yards to go
+        /// This is a simpler check that assumes standard 10 yards to go.
         /// </summary>
+        /// <returns></returns>
         public static bool IsGoalToGo(int fieldPosition)
         {
             return IsGoalToGo(fieldPosition, 10);

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -8,14 +9,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
 
 /// <summary>
 /// Unit tests for UsersController
-/// Tests the controller logic WITHOUT touching the database (mocked repositories)
+/// Tests the controller logic WITHOUT touching the database (mocked repositories).
 /// </summary>
 public class UsersControllerTests
 {
@@ -547,9 +547,9 @@ public class UsersControllerTests
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        _mockUserRepository.Verify(repo => repo.UpdateAsync(It.Is<User>(u =>
-            u.LeagueRoles.Any(lr => lr.Role == UserRole.Commissioner && lr.LeagueId == 1)
-        )), Times.Once);
+        _mockUserRepository.Verify(
+            repo => repo.UpdateAsync(It.Is<User>(u =>
+            u.LeagueRoles.Any(lr => lr.Role == UserRole.Commissioner && lr.LeagueId == 1))), Times.Once);
     }
 
     [Fact]
@@ -599,9 +599,9 @@ public class UsersControllerTests
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        _mockUserRepository.Verify(repo => repo.UpdateAsync(It.Is<User>(u =>
-            u.LeagueRoles.Any(lr => lr.Role == UserRole.GeneralManager && lr.TeamId == 1)
-        )), Times.Once);
+        _mockUserRepository.Verify(
+            repo => repo.UpdateAsync(It.Is<User>(u =>
+            u.LeagueRoles.Any(lr => lr.Role == UserRole.GeneralManager && lr.TeamId == 1))), Times.Once);
     }
 
     #endregion
@@ -701,9 +701,9 @@ public class UsersControllerTests
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        _mockUserRepository.Verify(repo => repo.UpdateAsync(It.Is<User>(u =>
-            u.LeagueRoles.First(lr => lr.Id == 1).IsDeleted == true
-        )), Times.Once);
+        _mockUserRepository.Verify(
+            repo => repo.UpdateAsync(It.Is<User>(u =>
+            u.LeagueRoles.First(lr => lr.Id == 1).IsDeleted == true)), Times.Once);
     }
 
     [Fact]
@@ -739,9 +739,9 @@ public class UsersControllerTests
 
         // Assert
         result.Result.Should().BeOfType<OkObjectResult>();
-        _mockUserRepository.Verify(repo => repo.UpdateAsync(It.Is<User>(u =>
-            u.LeagueRoles.First(lr => lr.Id == 1).IsDeleted == true
-        )), Times.Once);
+        _mockUserRepository.Verify(
+            repo => repo.UpdateAsync(It.Is<User>(u =>
+            u.LeagueRoles.First(lr => lr.Id == 1).IsDeleted == true)), Times.Once);
     }
 
     #endregion

@@ -10,7 +10,7 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for team and roster management
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
-/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -32,9 +32,9 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all teams (filtered to only teams user has access to)
+    /// Gets all teams (filtered to only teams user has access to).
     /// </summary>
-    /// <returns>List of accessible teams</returns>
+    /// <returns>List of accessible teams.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<TeamDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -83,10 +83,10 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific team by ID
+    /// Gets a specific team by ID.
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <returns>Team details</returns>
+    /// <param name="id">Team ID.</param>
+    /// <returns>Team details.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -133,10 +133,10 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a team's roster
+    /// Gets a team's roster.
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <returns>Team roster with all players</returns>
+    /// <param name="id">Team ID.</param>
+    /// <returns>Team roster with all players.</returns>
     [HttpGet("{id}/roster")]
     [ProducesResponseType(typeof(TeamDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -210,7 +210,8 @@ public class TeamsController : ControllerBase
             {
                 FirstName = team.HeadCoach.FirstName,
                 LastName = team.HeadCoach.LastName
-            } : null
+            }
+            : null
         };
 
         return Ok(teamDetailDto);

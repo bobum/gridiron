@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace GameManagement.Services;
 
 /// <summary>
-/// Service for building and managing conferences
+/// Service for building and managing conferences.
 /// </summary>
 public class ConferenceBuilderService : IConferenceBuilderService
 {
@@ -18,7 +18,9 @@ public class ConferenceBuilderService : IConferenceBuilderService
     public void UpdateConference(Conference conference, string? newName)
     {
         if (conference == null)
+        {
             throw new ArgumentNullException(nameof(conference));
+        }
 
         // Update name if provided and not empty
         if (!string.IsNullOrWhiteSpace(newName))

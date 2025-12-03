@@ -25,6 +25,7 @@ var isE2ETestMode = builder.Configuration.GetValue<bool>("E2ETestMode", false) |
 if (isE2ETestMode)
 {
     Console.WriteLine("[E2E Test Mode] Running with authentication DISABLED for E2E tests");
+
     // In E2E test mode, add authentication/authorization services but configure them to allow anonymous access
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
@@ -93,6 +94,7 @@ builder.Services.AddDbContext<GridironDbContext>(options =>
     {
         throw new InvalidOperationException("Database connection string 'GridironDb' not found");
     }
+
     options.UseSqlServer(connectionString);
 });
 
@@ -174,6 +176,6 @@ app.MapControllers();
 // Display startup information
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Gridiron Football Simulation API started");
-logger.LogInformation("Swagger UI available at: {BaseUrl}", app.Environment.IsDevelopment() ? "http://localhost:5000/swagger" : "");
+logger.LogInformation("Swagger UI available at: {BaseUrl}", app.Environment.IsDevelopment() ? "http://localhost:5000/swagger" : string.Empty);
 
 app.Run();

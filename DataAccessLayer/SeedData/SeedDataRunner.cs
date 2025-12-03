@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace DataAccessLayer.SeedData
 {
     /// <summary>
-    /// Coordinates the execution of all seed data scripts
+    /// Coordinates the execution of all seed data scripts.
     /// </summary>
     public static class SeedDataRunner
     {

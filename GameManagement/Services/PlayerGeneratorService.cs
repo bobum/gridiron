@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace GameManagement.Services;
 
 /// <summary>
-/// Service for generating random players with realistic attributes
+/// Service for generating random players with realistic attributes.
 /// </summary>
 public class PlayerGeneratorService : IPlayerGeneratorService
 {
@@ -21,7 +21,9 @@ public class PlayerGeneratorService : IPlayerGeneratorService
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         if (playerDataRepository == null)
+        {
             throw new ArgumentNullException(nameof(playerDataRepository));
+        }
 
         try
         {
@@ -30,7 +32,8 @@ public class PlayerGeneratorService : IPlayerGeneratorService
             _lastNames = playerDataRepository.GetLastNamesAsync().GetAwaiter().GetResult();
             _colleges = playerDataRepository.GetCollegesAsync().GetAwaiter().GetResult();
 
-            _logger.LogInformation("Loaded player generation data: {FirstNameCount} first names, {LastNameCount} last names, {CollegeCount} colleges",
+            _logger.LogInformation(
+                "Loaded player generation data: {FirstNameCount} first names, {LastNameCount} last names, {CollegeCount} colleges",
                 _firstNames.Count, _lastNames.Count, _colleges.Count);
         }
         catch (Exception ex)
@@ -56,13 +59,13 @@ public class PlayerGeneratorService : IPlayerGeneratorService
             Age = random.Next(22, 31),  // Veterans: 22-30 years old
             Exp = random.Next(0, 12),   // 0-11 years experience
             ContractYears = random.Next(3, 6),  // 3-5 year contracts
-            
+
             // General attributes (60-95 for veterans)
             Speed = GenerateAttributeForPosition(position, "Speed", random, 60, 95),
             Strength = GenerateAttributeForPosition(position, "Strength", random, 60, 95),
             Agility = GenerateAttributeForPosition(position, "Agility", random, 60, 95),
             Awareness = GenerateAttributeForPosition(position, "Awareness", random, 60, 95),
-            
+
             // Position-specific skills
             Passing = GenerateAttributeForPosition(position, "Passing", random, 60, 95),
             Catching = GenerateAttributeForPosition(position, "Catching", random, 60, 95),
@@ -71,7 +74,7 @@ public class PlayerGeneratorService : IPlayerGeneratorService
             Tackling = GenerateAttributeForPosition(position, "Tackling", random, 60, 95),
             Coverage = GenerateAttributeForPosition(position, "Coverage", random, 60, 95),
             Kicking = GenerateAttributeForPosition(position, "Kicking", random, 60, 95),
-            
+
             // Default values
             Potential = random.Next(60, 90),
             Progression = random.Next(50, 85),
@@ -95,7 +98,8 @@ public class PlayerGeneratorService : IPlayerGeneratorService
         int playersPerRound = 32;  // NFL has 32 teams
         int totalPicks = rounds * playersPerRound;
 
-        _logger.LogInformation("Generating draft class for year {Year} with {Rounds} rounds ({TotalPicks} players)", 
+        _logger.LogInformation(
+            "Generating draft class for year {Year} with {Rounds} rounds ({TotalPicks} players)",
             year, rounds, totalPicks);
 
         // Generate players across all positions
@@ -145,7 +149,6 @@ public class PlayerGeneratorService : IPlayerGeneratorService
     }
 
     // Private helper methods
-
     private Player GenerateDraftProspect(Positions position, int year, Random random)
     {
         var player = new Player
@@ -161,13 +164,13 @@ public class PlayerGeneratorService : IPlayerGeneratorService
             Exp = 0,  // Rookies have no experience
             ContractYears = 0,  // Contract assigned at draft
             Salary = 0,  // Salary assigned at draft
-            
+
             // Lower skills for rookies (40-85 range)
             Speed = GenerateAttributeForPosition(position, "Speed", random, 40, 85),
             Strength = GenerateAttributeForPosition(position, "Strength", random, 40, 85),
             Agility = GenerateAttributeForPosition(position, "Agility", random, 40, 85),
             Awareness = GenerateAttributeForPosition(position, "Awareness", random, 40, 85),
-            
+
             // Position-specific skills
             Passing = GenerateAttributeForPosition(position, "Passing", random, 40, 85),
             Catching = GenerateAttributeForPosition(position, "Catching", random, 40, 85),
@@ -176,7 +179,7 @@ public class PlayerGeneratorService : IPlayerGeneratorService
             Tackling = GenerateAttributeForPosition(position, "Tackling", random, 40, 85),
             Coverage = GenerateAttributeForPosition(position, "Coverage", random, 40, 85),
             Kicking = GenerateAttributeForPosition(position, "Kicking", random, 40, 85),
-            
+
             // Higher potential for rookies
             Potential = random.Next(70, 99),
             Progression = random.Next(60, 95),
@@ -199,45 +202,45 @@ public class PlayerGeneratorService : IPlayerGeneratorService
             (Positions.QB, "Awareness") => random.Next(Math.Max(min, 65), max),
             (Positions.QB, "Agility") => random.Next(min, Math.Min(max, 80)),
             (Positions.QB, "Speed") => random.Next(min, Math.Min(max, 75)),
-            
+
             // Running Backs
             (Positions.RB, "Rushing") => random.Next(Math.Max(min, 70), max),
             (Positions.RB, "Speed") => random.Next(Math.Max(min, 70), max),
             (Positions.RB, "Agility") => random.Next(Math.Max(min, 70), max),
             (Positions.RB, "Catching") => random.Next(min, Math.Min(max, 85)),
-            
+
             // Wide Receivers
             (Positions.WR, "Catching") => random.Next(Math.Max(min, 70), max),
             (Positions.WR, "Speed") => random.Next(Math.Max(min, 75), max),
             (Positions.WR, "Agility") => random.Next(Math.Max(min, 70), max),
-            
+
             // Tight Ends
             (Positions.TE, "Catching") => random.Next(Math.Max(min, 65), max),
             (Positions.TE, "Blocking") => random.Next(Math.Max(min, 65), max),
-            
+
             // Offensive Line
             (Positions.C or Positions.G or Positions.T, "Blocking") => random.Next(Math.Max(min, 70), max),
             (Positions.C or Positions.G or Positions.T, "Strength") => random.Next(Math.Max(min, 70), max),
-            
+
             // Defensive Line
             (Positions.DE or Positions.DT, "Tackling") => random.Next(Math.Max(min, 70), max),
             (Positions.DE or Positions.DT, "Strength") => random.Next(Math.Max(min, 70), max),
-            
+
             // Linebackers
             (Positions.LB or Positions.OLB, "Tackling") => random.Next(Math.Max(min, 70), max),
             (Positions.LB or Positions.OLB, "Coverage") => random.Next(Math.Max(min, 60), max),
-            
+
             // Cornerbacks
             (Positions.CB, "Coverage") => random.Next(Math.Max(min, 75), max),
             (Positions.CB, "Speed") => random.Next(Math.Max(min, 75), max),
-            
+
             // Safeties
             (Positions.S or Positions.FS, "Coverage") => random.Next(Math.Max(min, 70), max),
             (Positions.S or Positions.FS, "Tackling") => random.Next(Math.Max(min, 65), max),
-            
+
             // Kickers/Punters
             (Positions.K or Positions.P, "Kicking") => random.Next(Math.Max(min, 70), max),
-            
+
             // Default: use min-max range
             _ => random.Next(min, max)
         };

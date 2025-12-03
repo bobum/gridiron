@@ -11,7 +11,7 @@ namespace Gridiron.IntegrationTests;
 
 /// <summary>
 /// Comprehensive end-to-end integration test for the entire PlayByPlay feature
-/// Tests the complete workflow from league creation through game simulation to PlayByPlay retrieval
+/// Tests the complete workflow from league creation through game simulation to PlayByPlay retrieval.
 /// </summary>
 [Trait("Category", "Integration")]
 public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
@@ -49,8 +49,7 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
             leagueName: "Test Football League",
             numberOfConferences: 2,
             divisionsPerConference: 4,
-            teamsPerDivision: 4
-        );
+            teamsPerDivision: 4);
 
         league.Should().NotBeNull();
         league.Conferences.Should().HaveCount(2);
@@ -95,7 +94,8 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         {
             var teamWithPlayers = await teamRepository.GetByIdWithPlayersAsync(team.Id);
             teamWithPlayers.Should().NotBeNull();
-            teamWithPlayers!.Players.Should().HaveCount(53,
+            teamWithPlayers!.Players.Should().HaveCount(
+                53,
                 $"because team '{teamWithPlayers.City} {teamWithPlayers.Name}' should have 53 players");
         }
 
@@ -120,8 +120,7 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         var simulatedGame = await gameSimulationService.SimulateGameAsync(
             homeTeamId: homeTeamId,
             awayTeamId: awayTeamId,
-            randomSeed: 99999 // Reproducible game
-        );
+            randomSeed: 99999); // Reproducible game
 
         simulatedGame.Should().NotBeNull();
         simulatedGame.Id.Should().BeGreaterThan(0, "because game should be persisted with an ID");
@@ -185,15 +184,18 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         retrievedPlayByPlay.PlayByPlayLog.Should().NotBeNullOrEmpty("because play-by-play log should be captured");
 
         // Log should be comprehensive (full game commentary)
-        retrievedPlayByPlay.PlayByPlayLog.Length.Should().BeGreaterThan(1000,
+        retrievedPlayByPlay.PlayByPlayLog.Length.Should().BeGreaterThan(
+            1000,
             "because a full game generates extensive play-by-play commentary");
 
         // Verify play-by-play content (actual game commentary)
-        retrievedPlayByPlay.PlayByPlayLog.Should().Contain("Good snap",
+        retrievedPlayByPlay.PlayByPlayLog.Should().Contain(
+            "Good snap",
             "because game engine logs snap events");
 
         // Verify down and distance patterns (e.g., "1st & 10", "2nd & 5")
-        retrievedPlayByPlay.PlayByPlayLog.Should().MatchRegex(@"\d+(st|nd|rd|th) & \d+",
+        retrievedPlayByPlay.PlayByPlayLog.Should().MatchRegex(
+            @"\d+(st|nd|rd|th) & \d+",
             "because game logs down and distance");
 
         // Verify scoring events if game had touchdowns
@@ -258,7 +260,8 @@ public class PlayByPlayIntegrationTests : IClassFixture<DatabaseTestFixture>
         // ==========================================
         // STEP 11: Verify State Transitions Filtered Out
         // ==========================================
-        retrievedPlayByPlay.PlayByPlayLog.Should().NotContain("State transition:",
+        retrievedPlayByPlay.PlayByPlayLog.Should().NotContain(
+            "State transition:",
             "because diagnostic state transition messages should be filtered from play-by-play log");
 
         // ==========================================

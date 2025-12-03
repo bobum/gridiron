@@ -20,10 +20,14 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     public Season GenerateSchedule(Season season, int? seed = null)
     {
         if (season == null)
+        {
             throw new ArgumentNullException(nameof(season));
+        }
 
         if (season.League == null)
+        {
             throw new ArgumentException("Season must have League loaded with full structure", nameof(season));
+        }
 
         // Validate regular season weeks against cap
         if (season.RegularSeasonWeeks > ScheduleConstants.MaxRegularSeasonWeeks)
@@ -104,10 +108,14 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     public ScheduleValidationResult ValidateLeagueStructure(League league)
     {
         if (league == null)
+        {
             return ScheduleValidationResult.Failure("League cannot be null");
+        }
 
         if (league.Conferences == null || league.Conferences.Count == 0)
+        {
             return ScheduleValidationResult.Failure("League must have at least one conference");
+        }
 
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -193,7 +201,7 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Generate division matchups - each team plays division rivals twice (home and away)
+    /// Generate division matchups - each team plays division rivals twice (home and away).
     /// </summary>
     private List<ScheduledMatchup> GenerateDivisionMatchups(List<Conference> conferences)
     {
@@ -230,7 +238,7 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Generate conference cross-division matchups (4 games vs another division in same conference)
+    /// Generate conference cross-division matchups (4 games vs another division in same conference).
     /// </summary>
     private List<ScheduledMatchup> GenerateConferenceCrossDivisionMatchups(
         List<Conference> conferences, int year, Random random)
@@ -240,7 +248,10 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
         foreach (var conference in conferences)
         {
             var divisions = conference.Divisions;
-            if (divisions.Count < 2) continue;
+            if (divisions.Count < 2)
+            {
+                continue;
+            }
 
             // Rotate which divisions play each other based on year
             var divisionPairings = GetRotatingDivisionPairings(divisions.Count, year);
@@ -271,14 +282,17 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Generate inter-conference matchups (4 games vs a division in the other conference)
+    /// Generate inter-conference matchups (4 games vs a division in the other conference).
     /// </summary>
     private List<ScheduledMatchup> GenerateInterConferenceMatchups(
         List<Conference> conferences, int year, Random random)
     {
         var matchups = new List<ScheduledMatchup>();
 
-        if (conferences.Count < 2) return matchups;
+        if (conferences.Count < 2)
+        {
+            return matchups;
+        }
 
         // For simplicity, pair divisions by index (can be enhanced with rotation)
         var conf1 = conferences[0];
@@ -314,7 +328,7 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Generate remaining matchups to fill the schedule to the required games per team
+    /// Generate remaining matchups to fill the schedule to the required games per team.
     /// </summary>
     private List<ScheduledMatchup> GenerateRemainingMatchups(
         List<Conference> conferences, List<ScheduledMatchup> existingMatchups, int gamesPerTeam, Random random)
@@ -364,7 +378,10 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
                 var potentialGames = gamesCount.GetValueOrDefault(potential.Id, 0);
 
                 // Don't exceed game limit
-                if (potentialGames >= gamesPerTeam) continue;
+                if (potentialGames >= gamesPerTeam)
+                {
+                    continue;
+                }
 
                 // Don't create duplicate matchup (check both directions)
                 var alreadyPlaying = existingMatchups.Concat(matchups).Any(m =>
@@ -410,7 +427,7 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Assign matchups to weeks, ensuring no team plays twice in a week and handling bye weeks
+    /// Assign matchups to weeks, ensuring no team plays twice in a week and handling bye weeks.
     /// </summary>
     private void AssignMatchupsToWeeks(Season season, List<ScheduledMatchup> matchups, List<Team> allTeams, Random random)
     {
@@ -457,12 +474,16 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
 
                 // Check if either team already plays this week
                 if (teamsInWeek.Contains(matchup.HomeTeamId) || teamsInWeek.Contains(matchup.AwayTeamId))
+                {
                     continue;
+                }
 
                 // Check if either team has bye this week
                 if (teamByeWeeks.GetValueOrDefault(matchup.HomeTeamId) == weekNum ||
                     teamByeWeeks.GetValueOrDefault(matchup.AwayTeamId) == weekNum)
+                {
                     continue;
+                }
 
                 // Assign the game
                 week.Games.Add(new Game
@@ -489,7 +510,7 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Balance home/away games to achieve 8-9 or 9-8 split
+    /// Balance home/away games to achieve 8-9 or 9-8 split.
     /// </summary>
     private void BalanceHomeAway(Season season, List<Team> allTeams)
     {
@@ -546,20 +567,24 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Get rotating division pairings based on year
+    /// Get rotating division pairings based on year.
     /// </summary>
     private List<(int, int)> GetRotatingDivisionPairings(int divisionCount, int year)
     {
         var pairings = new List<(int, int)>();
 
         // Simple rotation - each division plays one other division
-        var offset = year % (divisionCount - 1) + 1;
+        var offset = (year % (divisionCount - 1)) + 1;
 
         for (int i = 0; i < divisionCount / 2; i++)
         {
             var div1 = i;
             var div2 = (i + offset) % divisionCount;
-            if (div2 == div1) div2 = (div2 + 1) % divisionCount;
+            if (div2 == div1)
+            {
+                div2 = (div2 + 1) % divisionCount;
+            }
+
             pairings.Add((div1, div2));
         }
 
@@ -567,12 +592,14 @@ public class ScheduleGeneratorService : IScheduleGeneratorService
     }
 
     /// <summary>
-    /// Internal class to represent a scheduled matchup before week assignment
+    /// Internal class to represent a scheduled matchup before week assignment.
     /// </summary>
     private class ScheduledMatchup
     {
         public int HomeTeamId { get; set; }
+
         public int AwayTeamId { get; set; }
+
         public MatchupType MatchupType { get; set; }
     }
 

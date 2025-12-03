@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace GameManagement.Services;
 
 /// <summary>
-/// Service for building and managing leagues
+/// Service for building and managing leagues.
 /// </summary>
 public class LeagueBuilderService : ILeagueBuilderService
 {
@@ -23,16 +23,24 @@ public class LeagueBuilderService : ILeagueBuilderService
     {
         // Validate inputs
         if (string.IsNullOrWhiteSpace(leagueName))
+        {
             throw new ArgumentException("League name cannot be empty", nameof(leagueName));
+        }
 
         if (numberOfConferences <= 0)
+        {
             throw new ArgumentException("Number of conferences must be greater than 0", nameof(numberOfConferences));
+        }
 
         if (divisionsPerConference <= 0)
+        {
             throw new ArgumentException("Divisions per conference must be greater than 0", nameof(divisionsPerConference));
+        }
 
         if (teamsPerDivision <= 0)
+        {
             throw new ArgumentException("Teams per division must be greater than 0", nameof(teamsPerDivision));
+        }
 
         _logger.LogInformation(
             "Creating league '{LeagueName}' with {Conferences} conferences, {Divisions} divisions per conference, {Teams} teams per division",
@@ -90,7 +98,9 @@ public class LeagueBuilderService : ILeagueBuilderService
     public League PopulateLeagueRosters(League league, int? seed = null)
     {
         if (league == null)
+        {
             throw new ArgumentNullException(nameof(league));
+        }
 
         _logger.LogInformation(
             "Populating rosters for all teams in league '{LeagueName}' (seed: {Seed})",
@@ -126,7 +136,9 @@ public class LeagueBuilderService : ILeagueBuilderService
     public void UpdateLeague(League league, string? newName, int? newSeason, bool? newIsActive)
     {
         if (league == null)
+        {
             throw new ArgumentNullException(nameof(league));
+        }
 
         // Update name if provided and not empty
         if (!string.IsNullOrWhiteSpace(newName))

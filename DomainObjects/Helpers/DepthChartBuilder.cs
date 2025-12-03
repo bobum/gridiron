@@ -10,12 +10,15 @@ namespace DomainObjects.Helpers
     public static class DepthChartBuilder
     {
         /// <summary>
-        /// Assigns all 8 depth charts to a team based on their roster
+        /// Assigns all 8 depth charts to a team based on their roster.
         /// </summary>
-        /// <param name="team">Team to assign depth charts for</param>
+        /// <param name="team">Team to assign depth charts for.</param>
         public static void AssignAllDepthCharts(Team team)
         {
-            if (team?.Players == null) return;
+            if (team?.Players == null)
+            {
+                return;
+            }
 
             team.OffenseDepthChart = BuildOffenseDepthChart(team.Players);
             team.DefenseDepthChart = BuildDefenseDepthChart(team.Players);
@@ -28,8 +31,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds standard offense depth chart (11 positions)
+        /// Builds standard offense depth chart (11 positions).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildOffenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -45,8 +49,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds standard defense depth chart (11 positions)
+        /// Builds standard defense depth chart (11 positions).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildDefenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -61,8 +66,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds field goal offense depth chart (kicker, holder, protection)
+        /// Builds field goal offense depth chart (kicker, holder, protection).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildFieldGoalOffenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -77,8 +83,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds field goal defense depth chart (block attempt)
+        /// Builds field goal defense depth chart (block attempt).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildFieldGoalDefenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -91,8 +98,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds kickoff offense depth chart (kicking team)
+        /// Builds kickoff offense depth chart (kicking team).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildKickoffOffenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -107,8 +115,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds kickoff defense depth chart (return team)
+        /// Builds kickoff defense depth chart (return team).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildKickoffDefenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -124,8 +133,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds punt offense depth chart (punting team)
+        /// Builds punt offense depth chart (punting team).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildPuntOffenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -141,8 +151,9 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Builds punt defense depth chart (return team)
+        /// Builds punt defense depth chart (return team).
         /// </summary>
+        /// <returns></returns>
         public static DepthChart BuildPuntDefenseDepthChart(List<Player> players)
         {
             var chart = new DepthChart();
@@ -160,7 +171,7 @@ namespace DomainObjects.Helpers
         // Private helper methods
 
         /// <summary>
-        /// Gets the most relevant skill for a player at a given position
+        /// Gets the most relevant skill for a player at a given position.
         /// </summary>
         private static int GetPositionSkill(Player p, Positions pos)
         {
@@ -188,7 +199,7 @@ namespace DomainObjects.Helpers
         }
 
         /// <summary>
-        /// Gets the top players at a position, ordered by skill
+        /// Gets the top players at a position, ordered by skill.
         /// </summary>
         private static List<Player> GetDepth(List<Player> players, Positions pos, int depth = 1)
         {

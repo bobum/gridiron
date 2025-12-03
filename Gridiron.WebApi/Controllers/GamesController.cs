@@ -9,7 +9,7 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for game simulation and results
 /// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
-/// Games are viewable by anyone in the league (both teams' GMs + Commissioner)
+/// Games are viewable by anyone in the league (both teams' GMs + Commissioner).
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -31,10 +31,10 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Simulates a new game (User must have access to at least one of the teams involved)
+    /// Simulates a new game (User must have access to at least one of the teams involved).
     /// </summary>
-    /// <param name="request">Game simulation request</param>
-    /// <returns>Completed game result</returns>
+    /// <param name="request">Game simulation request.</param>
+    /// <returns>Completed game result.</returns>
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(GameDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,7 +60,8 @@ public class GamesController : ControllerBase
                 return Forbid();
             }
 
-            _logger.LogInformation("Simulating game: Home={HomeTeamId}, Away={AwayTeamId}",
+            _logger.LogInformation(
+                "Simulating game: Home={HomeTeamId}, Away={AwayTeamId}",
                 request.HomeTeamId, request.AwayTeamId);
 
             var game = await _simulationService.SimulateGameAsync(
@@ -97,9 +98,9 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all simulated games (filtered to games involving teams user has access to)
+    /// Gets all simulated games (filtered to games involving teams user has access to).
     /// </summary>
-    /// <returns>List of accessible games</returns>
+    /// <returns>List of accessible games.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GameDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -127,8 +128,8 @@ public class GamesController : ControllerBase
         {
             filteredGames = games.Where(g =>
                 accessibleTeamIds.Contains(g.HomeTeamId) ||
-                accessibleTeamIds.Contains(g.AwayTeamId)
-            ).ToList();
+                accessibleTeamIds.Contains(g.AwayTeamId))
+            .ToList();
         }
 
         var gameDtos = filteredGames.Select(g => new GameDto
@@ -149,10 +150,10 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific game by ID (User must have access to at least one of the teams)
+    /// Gets a specific game by ID (User must have access to at least one of the teams).
     /// </summary>
-    /// <param name="id">Game ID</param>
-    /// <returns>Game details</returns>
+    /// <param name="id">Game ID.</param>
+    /// <returns>Game details.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(GameDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -201,10 +202,10 @@ public class GamesController : ControllerBase
     }
 
     /// <summary>
-    /// Gets play-by-play data for a game (User must have access to at least one of the teams)
+    /// Gets play-by-play data for a game (User must have access to at least one of the teams).
     /// </summary>
-    /// <param name="id">Game ID</param>
-    /// <returns>List of plays</returns>
+    /// <param name="id">Game ID.</param>
+    /// <returns>List of plays.</returns>
     [HttpGet("{id}/plays")]
     [ProducesResponseType(typeof(IEnumerable<PlayDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

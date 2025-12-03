@@ -11,7 +11,7 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for team management operations (creation, roster management, depth charts)
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
-/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token.
 /// </summary>
 [ApiController]
 [Route("api/teams-management")]
@@ -48,10 +48,10 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new team (Only Commissioners can create teams in their league)
+    /// Creates a new team (Only Commissioners can create teams in their league).
     /// </summary>
-    /// <param name="request">Team creation request</param>
-    /// <returns>Created team</returns>
+    /// <param name="request">Team creation request.</param>
+    /// <returns>Created team.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -137,7 +137,8 @@ public class TeamsManagementController : ControllerBase
                 Chemistry = team.Chemistry
             };
 
-            _logger.LogInformation("Created team: {City} {Name} (ID: {Id})",
+            _logger.LogInformation(
+                "Created team: {City} {Name} (ID: {Id})",
                 team.City, team.Name, team.Id);
 
             return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, teamDto);
@@ -150,10 +151,10 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific team by ID
+    /// Gets a specific team by ID.
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <returns>Team details</returns>
+    /// <param name="id">Team ID.</param>
+    /// <returns>Team details.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -200,11 +201,11 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Adds a player to a team's roster (GM can modify their own roster, Commissioner can modify any team in their league)
+    /// Adds a player to a team's roster (GM can modify their own roster, Commissioner can modify any team in their league).
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <param name="request">Add player request</param>
-    /// <returns>Updated team</returns>
+    /// <param name="id">Team ID.</param>
+    /// <param name="request">Add player request.</param>
+    /// <returns>Updated team.</returns>
     [HttpPut("{id}/roster")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -272,17 +273,18 @@ public class TeamsManagementController : ControllerBase
             Chemistry = team.Chemistry
         };
 
-        _logger.LogInformation("Added player {PlayerId} to team {TeamId} roster",
+        _logger.LogInformation(
+            "Added player {PlayerId} to team {TeamId} roster",
             request.PlayerId, id);
 
         return Ok(teamDto);
     }
 
     /// <summary>
-    /// Builds depth charts for all units (offense, defense, special teams)
+    /// Builds depth charts for all units (offense, defense, special teams).
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <returns>Updated team</returns>
+    /// <param name="id">Team ID.</param>
+    /// <returns>Updated team.</returns>
     [HttpPost("{id}/depth-charts")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -339,7 +341,8 @@ public class TeamsManagementController : ControllerBase
                 Chemistry = team.Chemistry
             };
 
-            _logger.LogInformation("Built depth charts for team {TeamId} with {PlayerCount} players",
+            _logger.LogInformation(
+                "Built depth charts for team {TeamId} with {PlayerCount} players",
                 id, team.Players.Count);
 
             return Ok(teamDto);
@@ -352,10 +355,10 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Validates a team's roster meets NFL requirements
+    /// Validates a team's roster meets NFL requirements.
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <returns>Validation result</returns>
+    /// <param name="id">Team ID.</param>
+    /// <returns>Validation result.</returns>
     [HttpGet("{id}/validate-roster")]
     [ProducesResponseType(typeof(RosterValidationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -406,11 +409,11 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Populates a team's roster with 53 randomly generated players following NFL roster composition
+    /// Populates a team's roster with 53 randomly generated players following NFL roster composition.
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <param name="seed">Optional seed for reproducible generation</param>
-    /// <returns>Updated team with populated roster</returns>
+    /// <param name="id">Team ID.</param>
+    /// <param name="seed">Optional seed for reproducible generation.</param>
+    /// <returns>Updated team with populated roster.</returns>
     [HttpPost("{id}/populate-roster")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -461,7 +464,8 @@ public class TeamsManagementController : ControllerBase
                 Chemistry = team.Chemistry
             };
 
-            _logger.LogInformation("Populated roster for team {TeamId} with 53 players (seed: {Seed})",
+            _logger.LogInformation(
+                "Populated roster for team {TeamId} with 53 players (seed: {Seed})",
                 id, seed?.ToString() ?? "random");
 
             return Ok(teamDto);
@@ -474,11 +478,11 @@ public class TeamsManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Updates an existing team
+    /// Updates an existing team.
     /// </summary>
-    /// <param name="id">Team ID</param>
-    /// <param name="request">Update request with optional fields</param>
-    /// <returns>Updated team</returns>
+    /// <param name="id">Team ID.</param>
+    /// <param name="request">Update request with optional fields.</param>
+    /// <returns>Updated team.</returns>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(TeamDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -558,12 +562,14 @@ public class TeamsManagementController : ControllerBase
 }
 
 // DTOs for team management endpoints
-
 public class CreateTeamRequest
 {
     public string City { get; set; } = string.Empty;
+
     public string Name { get; set; } = string.Empty;
+
     public decimal Budget { get; set; }
+
     public int DivisionId { get; set; }
 }
 
@@ -575,7 +581,10 @@ public class AddPlayerToRosterRequest
 public class RosterValidationResult
 {
     public int TeamId { get; set; }
+
     public string TeamName { get; set; } = string.Empty;
+
     public bool IsValid { get; set; }
+
     public int PlayerCount { get; set; }
 }

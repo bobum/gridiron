@@ -11,7 +11,7 @@ namespace Gridiron.IntegrationTests;
 /// <summary>
 /// Integration tests for UPDATE endpoints (PUT operations)
 /// Tests the full stack: Controller logic simulation → Service → Repository → Database
-/// Uses SQLite in-memory database to properly test EF Core behavior
+/// Uses SQLite in-memory database to properly test EF Core behavior.
 /// </summary>
 public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture>
 {
@@ -25,7 +25,6 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
     // ==========================================
     // LEAGUE UPDATE ENDPOINT TESTS
     // ==========================================
-
     [Fact]
     public async Task UpdateLeague_WithValidName_UpdatesNameInDatabase()
     {
@@ -143,7 +142,6 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
     // ==========================================
     // CONFERENCE UPDATE ENDPOINT TESTS
     // ==========================================
-
     [Fact]
     public async Task UpdateConference_WithValidName_UpdatesNameInDatabase()
     {
@@ -196,7 +194,6 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
     // ==========================================
     // DIVISION UPDATE ENDPOINT TESTS
     // ==========================================
-
     [Fact]
     public async Task UpdateDivision_WithValidName_UpdatesNameInDatabase()
     {
@@ -249,7 +246,6 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
     // ==========================================
     // TEAM UPDATE ENDPOINT TESTS
     // ==========================================
-
     [Fact]
     public async Task UpdateTeam_WithValidName_UpdatesNameInDatabase()
     {
@@ -405,8 +401,7 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
             3, // Losses
             1, // Ties
             95, // FanSupport
-            88  // Chemistry
-        );
+            88);  // Chemistry
         await teamRepo.UpdateAsync(fetchedTeam!);
 
         // Assert
@@ -447,7 +442,6 @@ public class UpdateEndpointsIntegrationTests : IClassFixture<DatabaseTestFixture
     // ==========================================
     // CASCADE DELETE MANAGEMENT ENDPOINT TESTS
     // ==========================================
-
     [Fact]
     public async Task GetDeletedLeagues_ReturnsOnlySoftDeletedLeagues()
     {

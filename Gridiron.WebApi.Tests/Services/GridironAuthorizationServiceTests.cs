@@ -10,7 +10,7 @@ namespace Gridiron.WebApi.Tests.Services;
 /// <summary>
 /// Unit tests for GridironAuthorizationService
 /// CRITICAL SECURITY: These tests verify authorization boundaries
-/// Tests use mocked repositories to isolate authorization logic
+/// Tests use mocked repositories to isolate authorization logic.
 /// </summary>
 public class GridironAuthorizationServiceTests
 {
@@ -42,7 +42,8 @@ public class GridironAuthorizationServiceTests
         _mockUserRepo.Setup(r => r.GetByAzureAdObjectIdAsync("new-oid"))
             .ReturnsAsync((User?)null);
         _mockUserRepo.Setup(r => r.AddAsync(It.IsAny<User>()))
-            .ReturnsAsync((User u) => { u.Id = 1; return u; });
+            .ReturnsAsync((User u) => { u.Id = 1;
+                return u; });
 
         // Act
         var result = await _service.GetOrCreateUserFromClaimsAsync("new-oid", "new@example.com", "New User");

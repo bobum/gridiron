@@ -3,13 +3,14 @@ using DomainObjects;
 namespace GameManagement.Helpers;
 
 /// <summary>
-/// Helper class for calculating player overall ratings based on position
+/// Helper class for calculating player overall ratings based on position.
 /// </summary>
 public static class OverallRatingCalculator
 {
     /// <summary>
-    /// Calculates overall rating based on position-relevant attributes
+    /// Calculates overall rating based on position-relevant attributes.
     /// </summary>
+    /// <returns></returns>
     public static int Calculate(Player player)
     {
         return player.Position switch
@@ -30,22 +31,22 @@ public static class OverallRatingCalculator
             Positions.TE => (int)((player.Catching * 0.4) + (player.Blocking * 0.35) + (player.Strength * 0.25)),
 
             // Offensive Line (C, G, T): Blocking, Strength, Awareness
-            Positions.C or Positions.G or Positions.T => 
+            Positions.C or Positions.G or Positions.T =>
                 (int)((player.Blocking * 0.5) + (player.Strength * 0.3) + (player.Awareness * 0.2)),
 
             // Defensive Line (DE, DT): Tackling, Strength, Speed
-            Positions.DE or Positions.DT => 
+            Positions.DE or Positions.DT =>
                 (int)((player.Tackling * 0.4) + (player.Strength * 0.35) + (player.Speed * 0.25)),
 
             // Linebacker: Tackling, Coverage, Awareness
-            Positions.LB or Positions.OLB => 
+            Positions.LB or Positions.OLB =>
                 (int)((player.Tackling * 0.4) + (player.Coverage * 0.3) + (player.Awareness * 0.3)),
 
             // Cornerback: Coverage, Speed, Agility
             Positions.CB => (int)((player.Coverage * 0.5) + (player.Speed * 0.3) + (player.Agility * 0.2)),
 
             // Safety: Coverage, Tackling, Awareness
-            Positions.S or Positions.FS => 
+            Positions.S or Positions.FS =>
                 (int)((player.Coverage * 0.4) + (player.Tackling * 0.3) + (player.Awareness * 0.3)),
 
             // Kicker/Punter: Kicking primarily
@@ -63,8 +64,9 @@ public static class OverallRatingCalculator
     }
 
     /// <summary>
-    /// Calculates salary based on overall rating and position market value
+    /// Calculates salary based on overall rating and position market value.
     /// </summary>
+    /// <returns></returns>
     public static int CalculateSalary(Player player, int overallRating)
     {
         // Base salary by position (in thousands)
@@ -81,7 +83,7 @@ public static class OverallRatingCalculator
 
         // Multiply by overall rating factor (60 rating = 0.6x, 90 rating = 1.5x)
         double ratingMultiplier = overallRating / 60.0;
-        
+
         return (int)(positionBaseSalary * ratingMultiplier);
     }
 }

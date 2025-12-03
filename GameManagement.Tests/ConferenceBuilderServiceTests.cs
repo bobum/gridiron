@@ -8,7 +8,7 @@ using Xunit;
 namespace GameManagement.Tests;
 
 /// <summary>
-/// Comprehensive tests for ConferenceBuilderService
+/// Comprehensive tests for ConferenceBuilderService.
 /// </summary>
 public class ConferenceBuilderServiceTests
 {

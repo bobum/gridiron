@@ -4,7 +4,7 @@ using static DomainObjects.StatTypes;
 namespace DataAccessLayer.SeedData
 {
     /// <summary>
-    /// Seeds Philadelphia Eagles linebackers
+    /// Seeds Philadelphia Eagles linebackers.
     /// </summary>
     public static class EaglesLBSeeder
     {

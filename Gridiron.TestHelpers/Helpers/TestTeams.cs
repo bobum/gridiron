@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using DomainObjects;
+using Newtonsoft.Json;
 
 namespace Gridiron.TestHelpers.Helpers
 {
@@ -15,12 +15,12 @@ namespace Gridiron.TestHelpers.Helpers
     {
         private static readonly string TestDataPath = Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory,
-            "TestData"
-        );
+            "TestData");
 
         /// <summary>
-        /// Loads the Atlanta Falcons team from JSON file
+        /// Loads the Atlanta Falcons team from JSON file.
         /// </summary>
+        /// <returns></returns>
         public static Team LoadAtlantaFalcons()
         {
             string jsonPath = Path.Combine(TestDataPath, "AtlantaFalcons.json");
@@ -29,8 +29,7 @@ namespace Gridiron.TestHelpers.Helpers
             {
                 throw new FileNotFoundException(
                     $"Atlanta Falcons test data not found at: {jsonPath}. " +
-                    $"Ensure AtlantaFalcons.json exists in the TestData folder and is set to 'Copy to Output Directory'."
-                );
+                    $"Ensure AtlantaFalcons.json exists in the TestData folder and is set to 'Copy to Output Directory'.");
             }
 
             string json = File.ReadAllText(jsonPath);
@@ -45,8 +44,9 @@ namespace Gridiron.TestHelpers.Helpers
         }
 
         /// <summary>
-        /// Loads the Philadelphia Eagles team from JSON file
+        /// Loads the Philadelphia Eagles team from JSON file.
         /// </summary>
+        /// <returns></returns>
         public static Team LoadPhiladelphiaEagles()
         {
             string jsonPath = Path.Combine(TestDataPath, "PhiladelphiaEagles.json");
@@ -55,8 +55,7 @@ namespace Gridiron.TestHelpers.Helpers
             {
                 throw new FileNotFoundException(
                     $"Philadelphia Eagles test data not found at: {jsonPath}. " +
-                    $"Ensure PhiladelphiaEagles.json exists in the TestData folder and is set to 'Copy to Output Directory'."
-                );
+                    $"Ensure PhiladelphiaEagles.json exists in the TestData folder and is set to 'Copy to Output Directory'.");
             }
 
             string json = File.ReadAllText(jsonPath);
@@ -71,8 +70,9 @@ namespace Gridiron.TestHelpers.Helpers
         }
 
         /// <summary>
-        /// Creates a minimal team with just a few players for lightweight testing
+        /// Creates a minimal team with just a few players for lightweight testing.
         /// </summary>
+        /// <returns></returns>
         public static Team CreateMinimalTeam(string city, string name)
         {
             return new Team

@@ -3,7 +3,7 @@ using System.Security.Claims;
 namespace Gridiron.WebApi.Extensions;
 
 /// <summary>
-/// Extension methods for HttpContext to extract user information from JWT claims
+/// Extension methods for HttpContext to extract user information from JWT claims.
 /// </summary>
 public static class HttpContextExtensions
 {
@@ -12,8 +12,8 @@ public static class HttpContextExtensions
     /// This is the unique identifier for the user in Azure Entra ID.
     /// In E2E test mode, returns a special test user ID to bypass authentication.
     /// </summary>
-    /// <param name="context">The HTTP context</param>
-    /// <returns>Azure AD Object ID, or null if not authenticated or claim not found</returns>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>Azure AD Object ID, or null if not authenticated or claim not found.</returns>
     public static string? GetAzureAdObjectId(this HttpContext context)
     {
         // Check if we're in E2E test mode
@@ -38,10 +38,10 @@ public static class HttpContextExtensions
     }
 
     /// <summary>
-    /// Gets the user's email from JWT claims
+    /// Gets the user's email from JWT claims.
     /// </summary>
-    /// <param name="context">The HTTP context</param>
-    /// <returns>Email address, or null if not found</returns>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>Email address, or null if not found.</returns>
     public static string? GetUserEmail(this HttpContext context)
     {
         return context.User?.FindFirst("email")?.Value
@@ -49,10 +49,10 @@ public static class HttpContextExtensions
     }
 
     /// <summary>
-    /// Gets the user's display name from JWT claims
+    /// Gets the user's display name from JWT claims.
     /// </summary>
-    /// <param name="context">The HTTP context</param>
-    /// <returns>Display name, or null if not found</returns>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>Display name, or null if not found.</returns>
     public static string? GetUserDisplayName(this HttpContext context)
     {
         return context.User?.FindFirst("name")?.Value
@@ -60,10 +60,10 @@ public static class HttpContextExtensions
     }
 
     /// <summary>
-    /// Checks if the user is authenticated
+    /// Checks if the user is authenticated.
     /// </summary>
-    /// <param name="context">The HTTP context</param>
-    /// <returns>True if authenticated, false otherwise</returns>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>True if authenticated, false otherwise.</returns>
     public static bool IsAuthenticated(this HttpContext context)
     {
         return context.User?.Identity?.IsAuthenticated ?? false;

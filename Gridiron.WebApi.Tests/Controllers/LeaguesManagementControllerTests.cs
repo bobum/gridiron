@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
@@ -9,14 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Security.Claims;
 using Xunit;
 
 namespace Gridiron.WebApi.Tests.Controllers;
 
 /// <summary>
 /// Unit tests for LeaguesManagementController
-/// Tests the controller logic WITHOUT touching the database (mocked repositories)
+/// Tests the controller logic WITHOUT touching the database (mocked repositories).
 /// </summary>
 public class LeaguesManagementControllerTests
 {
@@ -349,7 +349,7 @@ public class LeaguesManagementControllerTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData(null)]
-    public async Task CreateLeague_WithEmptyName_ReturnsBadRequest(string name)
+    public async Task CreateLeague_WithEmptyName_ReturnsBadRequest(string? name)
     {
         // Arrange
         var request = new CreateLeagueRequest
@@ -780,7 +780,7 @@ public class LeaguesManagementControllerTests
             {
                 var division = new Division
                 {
-                    Id = (c - 1) * divisionsPerConf + d,
+                    Id = ((c - 1) * divisionsPerConf) + d,
                     Name = $"Division {d}",
                     ConferenceId = c,
                     Teams = new List<Team>()

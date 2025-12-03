@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Gridiron.WebApi.Services;
 
 /// <summary>
-/// Implementation of authorization service for hierarchical role-based access control
+/// Implementation of authorization service for hierarchical role-based access control.
 /// </summary>
 public class GridironAuthorizationService : IGridironAuthorizationService
 {
@@ -70,12 +70,16 @@ public class GridironAuthorizationService : IGridironAuthorizationService
     {
         // Global admins can access everything
         if (await IsGlobalAdminAsync(azureAdObjectId))
+        {
             return true;
+        }
 
         // Check if user has any role in this league
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         if (user == null)
+        {
             return false;
+        }
 
         return user.LeagueRoles.Any(ulr => ulr.LeagueId == leagueId);
     }
@@ -84,25 +88,35 @@ public class GridironAuthorizationService : IGridironAuthorizationService
     {
         // Global admins can access everything
         if (await IsGlobalAdminAsync(azureAdObjectId))
+        {
             return true;
+        }
 
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         if (user == null)
+        {
             return false;
+        }
 
         // Get the team and navigate to its league
         // Team → Division → Conference → League
         var team = await _teamRepository.GetByIdAsync(teamId);
         if (team == null || team.DivisionId == null)
+        {
             return false;
+        }
 
         var division = await _divisionRepository.GetByIdAsync(team.DivisionId.Value);
         if (division == null)
+        {
             return false;
+        }
 
         var conference = await _conferenceRepository.GetByIdAsync(division.ConferenceId);
         if (conference == null)
+        {
             return false;
+        }
 
         var leagueId = conference.LeagueId;
 
@@ -110,11 +124,15 @@ public class GridironAuthorizationService : IGridironAuthorizationService
         {
             // If user is commissioner of the league this team belongs to, they can access it
             if (role.LeagueId == leagueId && role.Role == UserRole.Commissioner)
+            {
                 return true;
+            }
 
             // If user is GM of this specific team, they can access it
             if (role.TeamId == teamId && role.Role == UserRole.GeneralManager)
+            {
                 return true;
+            }
         }
 
         return false;
@@ -124,11 +142,15 @@ public class GridironAuthorizationService : IGridironAuthorizationService
     {
         // Global admins are effectively commissioners of all leagues
         if (await IsGlobalAdminAsync(azureAdObjectId))
+        {
             return true;
+        }
 
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         if (user == null)
+        {
             return false;
+        }
 
         return user.LeagueRoles.Any(ulr =>
             ulr.LeagueId == leagueId &&
@@ -139,7 +161,9 @@ public class GridironAuthorizationService : IGridironAuthorizationService
     {
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         if (user == null)
+        {
             return false;
+        }
 
         return user.LeagueRoles.Any(ulr =>
             ulr.TeamId == teamId &&
@@ -158,7 +182,9 @@ public class GridironAuthorizationService : IGridironAuthorizationService
 
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         if (user == null)
+        {
             return new List<int>();
+        }
 
         return user.LeagueRoles
             .Select(ulr => ulr.LeagueId)
@@ -176,7 +202,9 @@ public class GridironAuthorizationService : IGridironAuthorizationService
 
         var user = await _userRepository.GetByAzureAdObjectIdWithRolesAsync(azureAdObjectId);
         if (user == null)
+        {
             return new List<int>();
+        }
 
         var accessibleTeamIds = new HashSet<int>();
 

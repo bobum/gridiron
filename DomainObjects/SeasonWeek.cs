@@ -6,52 +6,52 @@ namespace DomainObjects;
 public class SeasonWeek : SoftDeletableEntity
 {
     /// <summary>
-    /// Primary key
+    /// Gets or sets primary key.
     /// </summary>
     public int Id { get; set; }
 
     /// <summary>
-    /// Foreign key to the season this week belongs to
+    /// Gets or sets foreign key to the season this week belongs to.
     /// </summary>
     public int SeasonId { get; set; }
 
     /// <summary>
-    /// Navigation property to the season
+    /// Gets or sets navigation property to the season.
     /// </summary>
     public Season Season { get; set; } = null!;
 
     /// <summary>
-    /// Week number within the phase (1-based)
+    /// Gets or sets week number within the phase (1-based).
     /// </summary>
     public int WeekNumber { get; set; }
 
     /// <summary>
-    /// Which phase of the season this week belongs to
+    /// Gets or sets which phase of the season this week belongs to.
     /// </summary>
     public SeasonPhase Phase { get; set; }
 
     /// <summary>
-    /// Status of this week
+    /// Gets or sets status of this week.
     /// </summary>
     public WeekStatus Status { get; set; } = WeekStatus.Scheduled;
 
     /// <summary>
-    /// Scheduled start date for this week's games
+    /// Gets or sets scheduled start date for this week's games.
     /// </summary>
     public DateTime? StartDate { get; set; }
 
     /// <summary>
-    /// Date when all games in this week were completed
+    /// Gets or sets date when all games in this week were completed.
     /// </summary>
     public DateTime? CompletedDate { get; set; }
 
     /// <summary>
-    /// Games scheduled for this week
+    /// Gets or sets games scheduled for this week.
     /// </summary>
-    public List<Game> Games { get; set; } = new();
+    public List<Game> Games { get; set; } = new ();
 
     /// <summary>
-    /// Display name for the week (e.g., "Week 1", "Wild Card Round", "Super Bowl")
+    /// Gets display name for the week (e.g., "Week 1", "Wild Card Round", "Super Bowl").
     /// </summary>
     public string DisplayName
     {
@@ -76,13 +76,13 @@ public class SeasonWeek : SoftDeletableEntity
     }
 
     /// <summary>
-    /// Whether all games in this week have been completed
+    /// Gets a value indicating whether whether all games in this week have been completed.
     /// </summary>
     public bool IsComplete => Status == WeekStatus.Completed;
 }
 
 /// <summary>
-/// Status of a season week
+/// Status of a season week.
 /// </summary>
 public enum WeekStatus
 {

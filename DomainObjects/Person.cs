@@ -11,6 +11,7 @@ namespace DomainObjects
         private static int _personCounter = 0;
 
         public string FirstName { get; set; }
+
         public string LastName { get; set; }
 
         public Person()

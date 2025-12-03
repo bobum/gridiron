@@ -1,10 +1,10 @@
+using System.Text.Json;
 using DataAccessLayer.Repositories;
 using DomainObjects;
 using GameManagement.Services;
 using Gridiron.Engine.Simulation;
 using Gridiron.WebApi.DTOs;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace Gridiron.WebApi.Services;
 
@@ -36,7 +36,8 @@ public class GameSimulationService : IGameSimulationService
 
     public async Task<Game> SimulateGameAsync(int homeTeamId, int awayTeamId, int? randomSeed = null)
     {
-        _logger.LogInformation("Starting game simulation: Home={HomeTeamId}, Away={AwayTeamId}, Seed={Seed}",
+        _logger.LogInformation(
+            "Starting game simulation: Home={HomeTeamId}, Away={AwayTeamId}, Seed={Seed}",
             homeTeamId, awayTeamId, randomSeed);
 
         // Load teams from repository (with all players)
@@ -44,10 +45,14 @@ public class GameSimulationService : IGameSimulationService
         var awayTeam = await _teamRepository.GetByIdWithPlayersAsync(awayTeamId);
 
         if (homeTeam == null)
+        {
             throw new ArgumentException($"Home team with ID {homeTeamId} not found", nameof(homeTeamId));
+        }
 
         if (awayTeam == null)
+        {
             throw new ArgumentException($"Away team with ID {awayTeamId} not found", nameof(awayTeamId));
+        }
 
         // Create a capture logger to collect play-by-play output during simulation
         var captureLogger = new StringCaptureLogger<GameFlow>();
@@ -56,7 +61,8 @@ public class GameSimulationService : IGameSimulationService
         var result = await Task.Run(() =>
             _engineSimulationService.SimulateGame(homeTeam, awayTeam, randomSeed, captureLogger));
 
-        _logger.LogInformation("Game simulation completed: {HomeTeam} {HomeScore} - {AwayScore} {AwayTeam}",
+        _logger.LogInformation(
+            "Game simulation completed: {HomeTeam} {HomeScore} - {AwayScore} {AwayTeam}",
             homeTeam.Name, result.HomeScore, result.AwayScore, awayTeam.Name);
 
         // Create Game entity for persistence
@@ -81,7 +87,7 @@ public class GameSimulationService : IGameSimulationService
     }
 
     /// <summary>
-    /// Serializes and saves play-by-play data for a completed game
+    /// Serializes and saves play-by-play data for a completed game.
     /// </summary>
     private async Task SavePlayByPlayDataAsync(Game game, EngineSimulationResult result, StringCaptureLogger<GameFlow> captureLogger)
     {
@@ -105,18 +111,20 @@ public class GameSimulationService : IGameSimulationService
             // Save to database
             await _playByPlayRepository.AddAsync(playByPlay);
 
-            _logger.LogInformation("Play-by-play data saved for game {GameId}: {PlayCount} plays, {LogLength} chars",
+            _logger.LogInformation(
+                "Play-by-play data saved for game {GameId}: {PlayCount} plays, {LogLength} chars",
                 game.Id, result.TotalPlays, playByPlayLog.Length);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to save play-by-play data for game {GameId}", game.Id);
+
             // Don't throw - game is already saved, this is supplementary data
         }
     }
 
     /// <summary>
-    /// Serializes the plays list to JSON format
+    /// Serializes the plays list to JSON format.
     /// </summary>
     private string SerializePlays(IReadOnlyList<Gridiron.Engine.Domain.IPlay> plays)
     {
@@ -164,7 +172,7 @@ public class GameSimulationService : IGameSimulationService
         return await _gameRepository.GetAllAsync();
     }
 
-    private static readonly JsonSerializerOptions _jsonOptions = new()
+    private static readonly JsonSerializerOptions _jsonOptions = new ()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true
@@ -173,7 +181,10 @@ public class GameSimulationService : IGameSimulationService
     public async Task<List<PlayDto>?> GetGamePlaysAsync(int gameId)
     {
         var game = await _gameRepository.GetByIdWithPlayByPlayAsync(gameId);
-        if (game == null) return null;
+        if (game == null)
+        {
+            return null;
+        }
 
         if (game.PlayByPlay == null || string.IsNullOrEmpty(game.PlayByPlay.PlaysJson))
         {
@@ -184,7 +195,11 @@ public class GameSimulationService : IGameSimulationService
         try
         {
             var plays = JsonSerializer.Deserialize<List<JsonElement>>(game.PlayByPlay.PlaysJson, _jsonOptions);
-            if (plays == null) return new List<PlayDto>();
+            if (plays == null)
+            {
+                return new List<PlayDto>();
+            }
+
             return plays.Select(p => MapJsonToPlayDto(p)).ToList();
         }
         catch (JsonException ex)
@@ -217,7 +232,7 @@ public class GameSimulationService : IGameSimulationService
     };
 
     private static string GetStr(JsonElement e, string p) =>
-        e.TryGetProperty(p, out var v) ? (v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : v.ToString()) : "";
+        e.TryGetProperty(p, out var v) ? (v.ValueKind == JsonValueKind.String ? v.GetString() ?? string.Empty : v.ToString()) : string.Empty;
 
     private static int GetInt(JsonElement e, string p) =>
         e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Number ? v.GetInt32() : 0;
@@ -230,7 +245,7 @@ public class GameSimulationService : IGameSimulationService
 
     private static List<string> GetStrList(JsonElement e, string p) =>
         e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Array
-            ? v.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.String ? x.GetString() ?? "" : x.ToString()).ToList()
+            ? v.EnumerateArray().Select(x => x.ValueKind == JsonValueKind.String ? x.GetString() ?? string.Empty : x.ToString()).ToList()
             : new List<string>();
 
     private static string GenDesc(JsonElement p)
@@ -241,9 +256,19 @@ public class GameSimulationService : IGameSimulationService
         var sf = GetBool(p, "isSafety");
         var ic = GetBool(p, "interception");
         var d = pt + " play: ";
-        if (td) d += "TOUCHDOWN! ";
-        else if (sf) d += "SAFETY! ";
-        else if (ic) d += "INTERCEPTION! ";
+        if (td)
+        {
+            d += "TOUCHDOWN! ";
+        }
+        else if (sf)
+        {
+            d += "SAFETY! ";
+        }
+        else if (ic)
+        {
+            d += "INTERCEPTION! ";
+        }
+
         return d + yg + " yards";
     }
 }

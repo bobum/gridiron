@@ -5,7 +5,7 @@ namespace DataAccessLayer
 {
     /// <summary>
     /// Entity Framework Core DbContext for Gridiron football simulation
-    /// Handles persistence of teams, players, games, and play-by-play data to Azure SQL
+    /// Handles persistence of teams, players, games, and play-by-play data to Azure SQL.
     /// </summary>
     public class GridironDbContext : DbContext
     {
@@ -16,22 +16,33 @@ namespace DataAccessLayer
 
         // Entity sets
         public DbSet<League> Leagues { get; set; }
+
         public DbSet<Conference> Conferences { get; set; }
+
         public DbSet<Division> Divisions { get; set; }
+
         public DbSet<Team> Teams { get; set; }
+
         public DbSet<Player> Players { get; set; }
+
         public DbSet<Game> Games { get; set; }
+
         public DbSet<PlayByPlay> PlayByPlays { get; set; }
+
         public DbSet<Season> Seasons { get; set; }
+
         public DbSet<SeasonWeek> SeasonWeeks { get; set; }
 
         // User and authorization
         public DbSet<User> Users { get; set; }
+
         public DbSet<UserLeagueRole> UserLeagueRoles { get; set; }
 
         // Player generation data
         public DbSet<FirstName> FirstNames { get; set; }
+
         public DbSet<LastName> LastNames { get; set; }
+
         public DbSet<College> Colleges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -160,7 +171,7 @@ namespace DataAccessLayer
                 entity.Ignore(p => p.Stats);
                 entity.Ignore(p => p.SeasonStats);
                 entity.Ignore(p => p.CareerStats);
-                
+
                 // Ignore injury tracking (runtime only)
                 entity.Ignore(p => p.CurrentInjury);
                 entity.Ignore(p => p.IsInjured);
@@ -192,7 +203,6 @@ namespace DataAccessLayer
                       .WithMany()
                       .HasForeignKey(g => g.AwayTeamId)
                       .OnDelete(DeleteBehavior.Restrict);
-
 
                 // Soft delete query filter - exclude deleted games from queries
                 entity.HasQueryFilter(g => !g.IsDeleted);
@@ -274,6 +284,7 @@ namespace DataAccessLayer
                 // Soft delete query filter
                 entity.HasQueryFilter(sw => !sw.IsDeleted);
             });
+
             // ========================================
             // PLAYER GENERATION DATA CONFIGURATION
             // ========================================

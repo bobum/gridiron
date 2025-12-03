@@ -5,7 +5,7 @@ namespace DataAccessLayer.Repositories;
 
 /// <summary>
 /// Repository implementation for Team data access
-/// ALL database access for teams goes through this class
+/// ALL database access for teams goes through this class.
 /// </summary>
 public class TeamRepository : ITeamRepository
 {
@@ -46,7 +46,8 @@ public class TeamRepository : ITeamRepository
         // We need to join through the hierarchy
         var teams = await _context.Divisions
             .Where(d => d.ConferenceId != null)
-            .Join(_context.Conferences,
+            .Join(
+                _context.Conferences,
                 division => division.ConferenceId,
                 conference => conference.Id,
                 (division, conference) => new { Division = division, Conference = conference })
@@ -83,14 +84,18 @@ public class TeamRepository : ITeamRepository
     public async Task SoftDeleteAsync(int teamId, string? deletedBy = null, string? reason = null)
     {
         var team = await _context.Teams
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(t => t.Id == teamId);
 
         if (team == null)
+        {
             throw new InvalidOperationException($"Team with ID {teamId} not found");
+        }
 
         if (team.IsDeleted)
+        {
             throw new InvalidOperationException($"Team with ID {teamId} is already deleted");
+        }
 
         team.SoftDelete(deletedBy, reason);
         await _context.SaveChangesAsync();
@@ -99,14 +104,18 @@ public class TeamRepository : ITeamRepository
     public async Task RestoreAsync(int teamId)
     {
         var team = await _context.Teams
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .FirstOrDefaultAsync(t => t.Id == teamId);
 
         if (team == null)
+        {
             throw new InvalidOperationException($"Team with ID {teamId} not found");
+        }
 
         if (!team.IsDeleted)
+        {
             throw new InvalidOperationException($"Team with ID {teamId} is not deleted");
+        }
 
         team.Restore();
         await _context.SaveChangesAsync();
@@ -115,7 +124,7 @@ public class TeamRepository : ITeamRepository
     public async Task<List<Team>> GetDeletedAsync()
     {
         return await _context.Teams
-            .IgnoreQueryFilters()  // Include soft-deleted entities
+            .IgnoreQueryFilters() // Include soft-deleted entities
             .Where(t => t.IsDeleted)
             .ToListAsync();
     }

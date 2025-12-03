@@ -12,7 +12,7 @@ namespace Gridiron.WebApi.Controllers;
 /// <summary>
 /// Controller for league management operations (creation, structure management)
 /// DOES NOT access the database directly - uses repositories from DataAccessLayer
-/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token
+/// REQUIRES AUTHENTICATION: All endpoints require valid Azure AD JWT token.
 /// </summary>
 [ApiController]
 [Route("api/leagues-management")]
@@ -37,10 +37,10 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new league with specified structure
+    /// Creates a new league with specified structure.
     /// </summary>
-    /// <param name="request">League creation request</param>
-    /// <returns>Created league with full structure</returns>
+    /// <param name="request">League creation request.</param>
+    /// <returns>Created league with full structure.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(LeagueDetailDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -166,10 +166,10 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a specific league by ID with full structure
+    /// Gets a specific league by ID with full structure.
     /// </summary>
-    /// <param name="id">League ID</param>
-    /// <returns>League with full structure</returns>
+    /// <param name="id">League ID.</param>
+    /// <returns>League with full structure.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(LeagueDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -244,9 +244,9 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all leagues (without full structure) that the current user has access to
+    /// Gets all leagues (without full structure) that the current user has access to.
     /// </summary>
-    /// <returns>List of accessible leagues</returns>
+    /// <returns>List of accessible leagues.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(List<LeagueDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<LeagueDto>>> GetAllLeagues()
@@ -283,7 +283,7 @@ public class LeaguesManagementController : ControllerBase
                 Season = l.Season,
                 IsActive = l.IsActive,
                 TotalConferences = 0,  // Not loaded for list view
-                TotalTeams = 0         // Not loaded for list view
+                TotalTeams = 0 // Not loaded for list view
             }).ToList();
 
             return Ok(leagueDtos);
@@ -296,11 +296,11 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Populates rosters for all teams in a league with 53 randomly generated players each
+    /// Populates rosters for all teams in a league with 53 randomly generated players each.
     /// </summary>
-    /// <param name="id">League ID</param>
-    /// <param name="seed">Optional seed for reproducible generation</param>
-    /// <returns>Updated league with all teams populated</returns>
+    /// <param name="id">League ID.</param>
+    /// <param name="seed">Optional seed for reproducible generation.</param>
+    /// <returns>Updated league with all teams populated.</returns>
     [HttpPost("{id}/populate-rosters")]
     [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -364,11 +364,11 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Updates an existing league
+    /// Updates an existing league.
     /// </summary>
-    /// <param name="id">League ID</param>
-    /// <param name="request">Update request with optional fields</param>
-    /// <returns>Updated league</returns>
+    /// <param name="id">League ID.</param>
+    /// <param name="request">Update request with optional fields.</param>
+    /// <returns>Updated league.</returns>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(LeagueDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -419,7 +419,7 @@ public class LeaguesManagementController : ControllerBase
                 Season = league.Season,
                 IsActive = league.IsActive,
                 TotalConferences = 0,  // Not loaded for update response
-                TotalTeams = 0         // Not loaded for update response
+                TotalTeams = 0 // Not loaded for update response
             };
 
             _logger.LogInformation(
@@ -441,12 +441,12 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Soft deletes a league with cascade to all child entities
+    /// Soft deletes a league with cascade to all child entities.
     /// </summary>
-    /// <param name="id">League ID</param>
-    /// <param name="deletedBy">Who is deleting the league</param>
-    /// <param name="reason">Reason for deletion</param>
-    /// <returns>Cascade delete result with statistics</returns>
+    /// <param name="id">League ID.</param>
+    /// <param name="deletedBy">Who is deleting the league.</param>
+    /// <param name="reason">Reason for deletion.</param>
+    /// <returns>Cascade delete result with statistics.</returns>
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(DomainObjects.CascadeDeleteResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -495,11 +495,11 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Restores a soft-deleted league with optional cascade to child entities
+    /// Restores a soft-deleted league with optional cascade to child entities.
     /// </summary>
-    /// <param name="id">League ID</param>
-    /// <param name="cascade">Whether to cascade restore to all child entities</param>
-    /// <returns>Cascade restore result with statistics</returns>
+    /// <param name="id">League ID.</param>
+    /// <param name="cascade">Whether to cascade restore to all child entities.</param>
+    /// <returns>Cascade restore result with statistics.</returns>
     [HttpPost("{id}/restore")]
     [ProducesResponseType(typeof(DomainObjects.CascadeRestoreResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -531,10 +531,10 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Validates whether a league can be restored
+    /// Validates whether a league can be restored.
     /// </summary>
-    /// <param name="id">League ID</param>
-    /// <returns>Validation result</returns>
+    /// <param name="id">League ID.</param>
+    /// <returns>Validation result.</returns>
     [HttpGet("{id}/validate-restore")]
     [ProducesResponseType(typeof(DomainObjects.RestoreValidationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<DomainObjects.RestoreValidationResult>> ValidateRestore(int id)
@@ -552,10 +552,10 @@ public class LeaguesManagementController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all soft-deleted leagues
+    /// Gets all soft-deleted leagues.
     /// </summary>
-    /// <param name="season">Optional filter by season</param>
-    /// <returns>List of soft-deleted leagues</returns>
+    /// <param name="season">Optional filter by season.</param>
+    /// <returns>List of soft-deleted leagues.</returns>
     [HttpGet("deleted")]
     [ProducesResponseType(typeof(List<LeagueDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<LeagueDto>>> GetDeletedLeagues([FromQuery] int? season = null)
@@ -577,7 +577,7 @@ public class LeaguesManagementController : ControllerBase
                 Season = l.Season,
                 IsActive = l.IsActive,
                 TotalConferences = 0,  // Not loaded for list view
-                TotalTeams = 0         // Not loaded for list view
+                TotalTeams = 0 // Not loaded for list view
             }).ToList();
 
             return Ok(leagueDtos);

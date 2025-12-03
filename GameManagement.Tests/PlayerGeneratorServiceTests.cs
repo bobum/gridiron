@@ -10,7 +10,7 @@ using Xunit;
 namespace GameManagement.Tests;
 
 /// <summary>
-/// Comprehensive tests for PlayerGeneratorService
+/// Comprehensive tests for PlayerGeneratorService.
 /// </summary>
 public class PlayerGeneratorServiceTests
 {
@@ -348,6 +348,7 @@ public class PlayerGeneratorServiceTests
 
         // Assert
         player.Salary.Should().BeGreaterThan(0);
+
         // QBs should have higher base salary
         player.Salary.Should().BeGreaterThan(1000); // Minimum salary threshold
     }
