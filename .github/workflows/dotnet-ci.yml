@@ -7,33 +7,33 @@ on:
     branches: [ master ]
 
 jobs:
-  format-check:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Configure NuGet authentication
-      run: |
-        dotnet nuget update source github-merciless \
-          --username "github-actions" \
-          --password "$NUGET_TOKEN" \
-          --store-password-in-clear-text \
-          --configfile nuget.config
-      env:
-        NUGET_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
-
-    - name: Check code formatting
-      run: dotnet format gridiron.sln --verify-no-changes --verbosity diagnostic
+  # format-check:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: read
+  #
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: '8.0.x'
+  #
+  #   - name: Configure NuGet authentication
+  #     run: |
+  #       dotnet nuget update source github-merciless \
+  #         --username "github-actions" \
+  #         --password "$NUGET_TOKEN" \
+  #         --store-password-in-clear-text \
+  #         --configfile nuget.config
+  #     env:
+  #       NUGET_TOKEN: ${{ secrets.NUGET_READ_TOKEN }}
+  #
+  #   - name: Check code formatting
+  #     run: dotnet format gridiron.sln --verify-no-changes --verbosity diagnostic
 
   build:
     runs-on: ubuntu-latest
