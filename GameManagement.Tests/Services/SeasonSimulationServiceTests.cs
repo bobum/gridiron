@@ -86,7 +86,7 @@ public class SeasonSimulationServiceTests
         _mockSeasonRepository.Setup(r => r.GetByIdWithWeeksAndGamesAsync(seasonId))
             .ReturnsAsync(season);
 
-        _mockGameRepository.Setup(r => r.GetByIdWithTeamsAsync(game.Id))
+        _mockGameRepository.Setup(r => r.GetByIdWithTeamsAndPlayersAsync(game.Id))
             .ReturnsAsync(fullGame);
 
         _mockEngineSimulationService.Setup(s => s.SimulateGame(It.IsAny<Team>(), It.IsAny<Team>(), null))

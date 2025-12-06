@@ -82,7 +82,7 @@ public class SeasonSimulationService : ISeasonSimulationService
             foreach (var game in unplayedGames)
             {
                 // We need to load full team data for simulation
-                var fullGame = await _gameRepository.GetByIdWithTeamsAsync(game.Id);
+                var fullGame = await _gameRepository.GetByIdWithTeamsAndPlayersAsync(game.Id);
                 if (fullGame == null || fullGame.HomeTeam == null || fullGame.AwayTeam == null)
                 {
                     _logger.LogWarning("Skipping game {GameId}: Team data missing", game.Id);
