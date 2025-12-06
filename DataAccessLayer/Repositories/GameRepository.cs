@@ -34,7 +34,9 @@ public class GameRepository : IGameRepository
     {
         return await _context.Games
             .Include(g => g.HomeTeam)
+                .ThenInclude(t => t.Players)
             .Include(g => g.AwayTeam)
+                .ThenInclude(t => t.Players)
             .FirstOrDefaultAsync(g => g.Id == gameId);
     }
 
