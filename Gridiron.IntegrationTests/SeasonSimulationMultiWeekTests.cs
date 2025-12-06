@@ -152,6 +152,17 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         s1.CurrentWeek.Should().Be(2, "Should be in Week 2");
         s1.Weeks.First(w => w.WeekNumber == 1).Status.Should().Be(WeekStatus.Completed);
 
+        // Verify Team Stats Updated
+        var t1AfterWeek1 = await teamRepo.GetByIdAsync(team1.Id);
+        var t2AfterWeek1 = await teamRepo.GetByIdAsync(team2.Id);
+        
+        // One team should have a win, one a loss (or both a tie)
+        var totalGamesPlayed = t1AfterWeek1.Wins + t1AfterWeek1.Losses + t1AfterWeek1.Ties;
+        totalGamesPlayed.Should().Be(1, "Team 1 should have played 1 game");
+        
+        var totalGamesPlayed2 = t2AfterWeek1.Wins + t2AfterWeek1.Losses + t2AfterWeek1.Ties;
+        totalGamesPlayed2.Should().Be(1, "Team 2 should have played 1 game");
+
         // 2. Advance Week 2 -> 3
         var result2 = await seasonController.AdvanceWeek(season.Id);
         

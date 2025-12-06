@@ -99,11 +99,37 @@ public class SeasonSimulationService : ISeasonSimulationService
                 fullGame.PlayedAt = DateTime.UtcNow;
                 fullGame.RandomSeed = simResult.RandomSeed;
                 
+                // Update Team Stats (Wins/Losses/Ties)
+                if (simResult.HomeScore > simResult.AwayScore)
+                {
+                    fullGame.HomeTeam.Wins++;
+                    fullGame.AwayTeam.Losses++;
+                }
+                else if (simResult.AwayScore > simResult.HomeScore)
+                {
+                    fullGame.AwayTeam.Wins++;
+                    fullGame.HomeTeam.Losses++;
+                }
+                else
+                {
+                    fullGame.HomeTeam.Ties++;
+                    fullGame.AwayTeam.Ties++;
+                }
+
                 // Note: PlayByPlay is typically large, we might want to store it separately or compressed
                 // For now, we'll assume the repository handles it or we map it if needed
                 // fullGame.PlayByPlay = ... (Engine result needs to be mapped to Domain PlayByPlay if we want to save it)
 
                 await _gameRepository.UpdateAsync(fullGame);
+                
+                // We also need to save the team updates
+                // Since fullGame.HomeTeam and fullGame.AwayTeam are tracked entities (loaded via GetByIdWithTeamsAndPlayersAsync),
+                // saving the game might not automatically save the team changes if the repository uses a new context or detaches entities.
+                // However, typically in EF Core, if they are part of the same context, SaveChanges on the context would handle it.
+                // But _gameRepository.UpdateAsync might only look at the game entity.
+                // Let's explicitly update the teams to be safe and ensure persistence.
+                await _teamRepository.UpdateAsync(fullGame.HomeTeam);
+                await _teamRepository.UpdateAsync(fullGame.AwayTeam);
 
                 results.Add(new GameSimulationResult
                 {
