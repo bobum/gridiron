@@ -2,6 +2,10 @@ using DataAccessLayer.Repositories;
 using DomainObjects;
 using Microsoft.Extensions.Logging;
 
+using GameManagement.Logging;
+using System.Text;
+using System.Text.Json;
+
 namespace GameManagement.Services;
 
 public class SeasonSimulationService : ISeasonSimulationService
@@ -9,6 +13,7 @@ public class SeasonSimulationService : ISeasonSimulationService
     private readonly ISeasonRepository _seasonRepository;
     private readonly IGameRepository _gameRepository;
     private readonly ITeamRepository _teamRepository;
+    private readonly IPlayByPlayRepository _playByPlayRepository;
     private readonly IEngineSimulationService _engineSimulationService;
     private readonly ILogger<SeasonSimulationService> _logger;
 
@@ -16,12 +21,14 @@ public class SeasonSimulationService : ISeasonSimulationService
         ISeasonRepository seasonRepository,
         IGameRepository gameRepository,
         ITeamRepository teamRepository,
+        IPlayByPlayRepository playByPlayRepository,
         IEngineSimulationService engineSimulationService,
         ILogger<SeasonSimulationService> logger)
     {
         _seasonRepository = seasonRepository;
         _gameRepository = gameRepository;
         _teamRepository = teamRepository;
+        _playByPlayRepository = playByPlayRepository;
         _engineSimulationService = engineSimulationService;
         _logger = logger;
     }
@@ -90,7 +97,9 @@ public class SeasonSimulationService : ISeasonSimulationService
                 }
 
                 // Run simulation
-                var simResult = _engineSimulationService.SimulateGame(fullGame.HomeTeam, fullGame.AwayTeam);
+                var sb = new StringBuilder();
+                var playLogger = new StringLogger(sb);
+                var simResult = _engineSimulationService.SimulateGame(fullGame.HomeTeam, fullGame.AwayTeam, null, playLogger);
 
                 // Update game record
                 fullGame.HomeScore = simResult.HomeScore;
@@ -99,9 +108,18 @@ public class SeasonSimulationService : ISeasonSimulationService
                 fullGame.PlayedAt = DateTime.UtcNow;
                 fullGame.RandomSeed = simResult.RandomSeed;
                 
-                // Note: PlayByPlay is typically large, we might want to store it separately or compressed
-                // For now, we'll assume the repository handles it or we map it if needed
-                // fullGame.PlayByPlay = ... (Engine result needs to be mapped to Domain PlayByPlay if we want to save it)
+                // Save PlayByPlay
+                var playByPlay = new PlayByPlay
+                {
+                    GameId = fullGame.Id,
+                    Game = fullGame,
+                    PlaysJson = JsonSerializer.Serialize(simResult.Plays, new JsonSerializerOptions 
+                    { 
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles 
+                    }),
+                    PlayByPlayLog = sb.ToString()
+                };
+                await _playByPlayRepository.AddAsync(playByPlay);
 
                 await _gameRepository.UpdateAsync(fullGame);
 
