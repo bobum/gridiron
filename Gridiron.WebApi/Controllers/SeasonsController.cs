@@ -120,6 +120,81 @@ public class SeasonsController : ControllerBase
     }
 
     /// <summary>
+    /// Gets the current week for a season.
+    /// </summary>
+    /// <param name="id">Season ID.</param>
+    /// <returns>Current week details.</returns>
+    [HttpGet("{id}/current-week")]
+    [ProducesResponseType(typeof(CurrentWeekDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<CurrentWeekDto>> GetCurrentWeek(int id)
+    {
+        try
+        {
+            var season = await _seasonRepository.GetByIdWithFullDataAsync(id);
+            if (season == null)
+            {
+                return NotFound(new { error = $"Season with ID {id} not found" });
+            }
+
+            // Check authorization
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var hasAccess = await _authorizationService.CanAccessLeagueAsync(azureAdObjectId, season.LeagueId);
+            if (!hasAccess)
+            {
+                return Forbid();
+            }
+
+            var currentWeek = season.Weeks.FirstOrDefault(w => w.WeekNumber == season.CurrentWeek);
+            
+            // Handle case where season is complete (CurrentWeek might be > TotalWeeks)
+            if (currentWeek == null && season.IsComplete)
+            {
+                // If season is complete, show the last week
+                currentWeek = season.Weeks.OrderByDescending(w => w.WeekNumber).FirstOrDefault();
+            }
+
+            if (currentWeek == null)
+            {
+                return NotFound(new { error = $"Current week {season.CurrentWeek} not found in season {id}" });
+            }
+
+            var dto = new CurrentWeekDto
+            {
+                WeekNumber = currentWeek.WeekNumber,
+                Status = currentWeek.Status.ToString(),
+                Phase = currentWeek.Phase.ToString(),
+                Games = currentWeek.Games.Select(g => new GameDto
+                {
+                    Id = g.Id,
+                    HomeTeamId = g.HomeTeamId,
+                    AwayTeamId = g.AwayTeamId,
+                    HomeTeamName = g.HomeTeam?.Name ?? "Unknown",
+                    AwayTeamName = g.AwayTeam?.Name ?? "Unknown",
+                    HomeScore = g.HomeScore,
+                    AwayScore = g.AwayScore,
+                    IsComplete = g.IsComplete,
+                    RandomSeed = g.RandomSeed,
+                    TotalPlays = 0
+                }).ToList()
+            };
+
+            return Ok(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving current week for season {SeasonId}", id);
+            return StatusCode(500, new { error = "Failed to retrieve current week" });
+        }
+    }
+
+    /// <summary>
     /// Creates a new season for a league.
     /// </summary>
     /// <param name="leagueId">League ID.</param>
