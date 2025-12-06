@@ -157,8 +157,8 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var playByPlay = await playByPlayRepo.GetByGameIdAsync(updatedWeek1.Games.First().Id);
         playByPlay.Should().NotBeNull("PlayByPlay record should be created");
         playByPlay!.PlaysJson.Should().NotBeNullOrEmpty();
-        // Log might be empty depending on engine verbosity (e.g. if no logs were written)
-        // We allow empty string, but not null (though StringBuilder.ToString() never returns null)
+        // Log is currently empty because Gridiron.Engine v0.1.0 does not write to the passed ILogger.
+        // We assert NotBeNull to ensure the property is present, but allow empty string until engine is updated.
         playByPlay.PlayByPlayLog.Should().NotBeNull(); 
 
         // Act 2: Revert Week
