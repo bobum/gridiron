@@ -11,6 +11,7 @@ public class SeasonSimulationServiceTests
 {
     private Mock<ISeasonRepository> _mockSeasonRepository;
     private Mock<IGameRepository> _mockGameRepository;
+    private Mock<ITeamRepository> _mockTeamRepository;
     private Mock<IEngineSimulationService> _mockEngineSimulationService;
     private Mock<ILogger<SeasonSimulationService>> _mockLogger;
     private SeasonSimulationService _service;
@@ -19,12 +20,14 @@ public class SeasonSimulationServiceTests
     {
         _mockSeasonRepository = new Mock<ISeasonRepository>();
         _mockGameRepository = new Mock<IGameRepository>();
+        _mockTeamRepository = new Mock<ITeamRepository>();
         _mockEngineSimulationService = new Mock<IEngineSimulationService>();
         _mockLogger = new Mock<ILogger<SeasonSimulationService>>();
 
         _service = new SeasonSimulationService(
             _mockSeasonRepository.Object,
             _mockGameRepository.Object,
+            _mockTeamRepository.Object,
             _mockEngineSimulationService.Object,
             _mockLogger.Object);
     }

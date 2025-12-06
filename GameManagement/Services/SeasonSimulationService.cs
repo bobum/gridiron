@@ -8,17 +8,20 @@ public class SeasonSimulationService : ISeasonSimulationService
 {
     private readonly ISeasonRepository _seasonRepository;
     private readonly IGameRepository _gameRepository;
+    private readonly ITeamRepository _teamRepository;
     private readonly IEngineSimulationService _engineSimulationService;
     private readonly ILogger<SeasonSimulationService> _logger;
 
     public SeasonSimulationService(
         ISeasonRepository seasonRepository,
         IGameRepository gameRepository,
+        ITeamRepository teamRepository,
         IEngineSimulationService engineSimulationService,
         ILogger<SeasonSimulationService> logger)
     {
         _seasonRepository = seasonRepository;
         _gameRepository = gameRepository;
+        _teamRepository = teamRepository;
         _engineSimulationService = engineSimulationService;
         _logger = logger;
     }
@@ -208,6 +211,35 @@ public class SeasonSimulationService : ISeasonSimulationService
             // Reset games
             foreach (var game in weekToRevert.Games)
             {
+                // Revert Team Stats (Wins/Losses/Ties)
+                if (game.IsComplete)
+                {
+                    var homeTeam = await _teamRepository.GetByIdAsync(game.HomeTeamId);
+                    var awayTeam = await _teamRepository.GetByIdAsync(game.AwayTeamId);
+
+                    if (homeTeam != null && awayTeam != null)
+                    {
+                        if (game.HomeScore > game.AwayScore)
+                        {
+                            homeTeam.Wins = Math.Max(0, homeTeam.Wins - 1);
+                            awayTeam.Losses = Math.Max(0, awayTeam.Losses - 1);
+                        }
+                        else if (game.AwayScore > game.HomeScore)
+                        {
+                            awayTeam.Wins = Math.Max(0, awayTeam.Wins - 1);
+                            homeTeam.Losses = Math.Max(0, homeTeam.Losses - 1);
+                        }
+                        else // Tie
+                        {
+                            homeTeam.Ties = Math.Max(0, homeTeam.Ties - 1);
+                            awayTeam.Ties = Math.Max(0, awayTeam.Ties - 1);
+                        }
+                        
+                        await _teamRepository.UpdateAsync(homeTeam);
+                        await _teamRepository.UpdateAsync(awayTeam);
+                    }
+                }
+
                 game.IsComplete = false;
                 game.HomeScore = 0;
                 game.AwayScore = 0;
