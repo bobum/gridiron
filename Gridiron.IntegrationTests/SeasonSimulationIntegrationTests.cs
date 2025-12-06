@@ -157,7 +157,9 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var playByPlay = await playByPlayRepo.GetByGameIdAsync(updatedWeek1.Games.First().Id);
         playByPlay.Should().NotBeNull("PlayByPlay record should be created");
         playByPlay!.PlaysJson.Should().NotBeNullOrEmpty();
-        playByPlay.PlayByPlayLog.Should().NotBeNull(); // Log might be empty depending on engine verbosity
+        // Log might be empty depending on engine verbosity (e.g. if no logs were written)
+        // We allow empty string, but not null (though StringBuilder.ToString() never returns null)
+        playByPlay.PlayByPlayLog.Should().NotBeNull(); 
 
         // Act 2: Revert Week
         var revertResult = await seasonController.RevertWeek(season.Id);
