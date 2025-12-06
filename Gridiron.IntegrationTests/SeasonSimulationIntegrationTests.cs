@@ -180,5 +180,9 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         revertedGame.HomeScore.Should().Be(0);
         revertedGame.AwayScore.Should().Be(0);
         revertedGame.PlayedAt.Should().BeNull();
+
+        // Verify PlayByPlay was deleted
+        var deletedPlayByPlay = await playByPlayRepo.GetByGameIdAsync(revertedGame.Id);
+        deletedPlayByPlay.Should().BeNull("PlayByPlay record should be deleted after revert");
     }
 }

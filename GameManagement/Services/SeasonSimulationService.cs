@@ -263,7 +263,13 @@ public class SeasonSimulationService : ISeasonSimulationService
                 game.AwayScore = 0;
                 game.PlayedAt = null;
                 game.RandomSeed = null;
-                // Note: We might want to clear PlayByPlay data here if it was stored
+                
+                // Delete PlayByPlay data
+                var playByPlay = await _playByPlayRepository.GetByGameIdAsync(game.Id);
+                if (playByPlay != null)
+                {
+                    await _playByPlayRepository.DeleteAsync(playByPlay.Id);
+                }
                 
                 await _gameRepository.UpdateAsync(game);
             }
