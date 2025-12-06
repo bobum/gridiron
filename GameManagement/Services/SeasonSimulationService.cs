@@ -1,4 +1,5 @@
 using DataAccessLayer.Repositories;
+using Microsoft.EntityFrameworkCore;
 using DomainObjects;
 using Microsoft.Extensions.Logging;
 
@@ -134,6 +135,11 @@ public class SeasonSimulationService : ISeasonSimulationService
                 GameResults = results,
                 SeasonCompleted = seasonEnded
             };
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _logger.LogWarning("Concurrency conflict simulating week for season {SeasonId}", seasonId);
+            return new SeasonSimulationResult { Error = "Simulation failed due to concurrent modification. Please try again." };
         }
         catch (Exception ex)
         {

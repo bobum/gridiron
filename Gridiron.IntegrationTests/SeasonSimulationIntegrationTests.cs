@@ -172,4 +172,112 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         revertedGame.AwayScore.Should().Be(0);
         revertedGame.PlayedAt.Should().BeNull();
     }
+
+    [Fact]
+    public async Task SimulateWeek_ShouldFail_WhenConcurrentModificationOccurs()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+        
+        // 1. Create League and Season
+        var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
+        var league = new League { Name = "Concurrency Test League", IsActive = true };
+        await leagueRepo.AddAsync(league);
+
+        var seasonRepo = serviceProvider.GetRequiredService<ISeasonRepository>();
+        var season = new Season { LeagueId = league.Id, Year = 2025, CurrentWeek = 1, Phase = SeasonPhase.RegularSeason };
+        await seasonRepo.AddAsync(season);
+
+        // 2. Create User and Assign Commissioner Role
+        var userRepo = serviceProvider.GetRequiredService<IUserRepository>();
+        var commissionerId = "commish-conc-id";
+        var user = new User 
+        { 
+            AzureAdObjectId = commissionerId,
+            Email = "commish3@example.com",
+            DisplayName = "Commissioner 3",
+            LeagueRoles = new List<UserLeagueRole> { new UserLeagueRole { LeagueId = league.Id, Role = UserRole.Commissioner } }
+        };
+        await userRepo.AddAsync(user);
+
+        // 3. Setup Controller
+        var seasonController = new SeasonsController(
+            serviceProvider.GetRequiredService<ISeasonRepository>(),
+            serviceProvider.GetRequiredService<ILeagueRepository>(),
+            serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
+            new SeasonSimulationService(
+                serviceProvider.GetRequiredService<ISeasonRepository>(),
+                serviceProvider.GetRequiredService<IGameRepository>(),
+                serviceProvider.GetRequiredService<ITeamRepository>(),
+                serviceProvider.GetRequiredService<IEngineSimulationService>(),
+                serviceProvider.GetRequiredService<ILogger<SeasonSimulationService>>()
+            ),
+            serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
+            serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
+        );
+
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", commissionerId),
+            new Claim("oid", commissionerId)
+        }, "mock"));
+
+        seasonController.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = claimsPrincipal }
+        };
+
+        // 4. Create Teams and Schedule
+        var teamRepo = serviceProvider.GetRequiredService<ITeamRepository>();
+        var teamBuilder = serviceProvider.GetRequiredService<ITeamBuilderService>();
+        var divisionRepo = serviceProvider.GetRequiredService<IDivisionRepository>();
+        var conferenceRepo = serviceProvider.GetRequiredService<IConferenceRepository>();
+
+        var conf = new Conference { Name = "C", LeagueId = league.Id };
+        await conferenceRepo.AddAsync(conf);
+        var div = new Division { Name = "D", ConferenceId = conf.Id };
+        await divisionRepo.AddAsync(div);
+
+        var t1 = new Team { Name = "T1", DivisionId = div.Id };
+        var t2 = new Team { Name = "T2", DivisionId = div.Id };
+        await teamRepo.AddAsync(t1);
+        await teamRepo.AddAsync(t2);
+        
+        t1 = teamBuilder.PopulateTeamRoster(t1, 1);
+        t2 = teamBuilder.PopulateTeamRoster(t2, 2);
+        await teamRepo.UpdateAsync(t1);
+        await teamRepo.UpdateAsync(t2);
+        await serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>().SaveChangesAsync();
+
+        var week = new SeasonWeek { SeasonId = season.Id, WeekNumber = 1, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
+        season.Weeks.Add(week);
+        // Add next week so we can advance
+        season.Weeks.Add(new SeasonWeek { SeasonId = season.Id, WeekNumber = 2, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason });
+        
+        var game = new Game { HomeTeamId = t1.Id, AwayTeamId = t2.Id, SeasonWeek = week, IsComplete = false };
+        week.Games.Add(game);
+        await seasonRepo.UpdateAsync(season);
+
+        // 5. Verify Concurrency Token works
+        // Get the season to have a tracked instance
+        var seasonV1 = await seasonRepo.GetByIdAsync(season.Id);
+        
+        // Modify the season in the database BEHIND THE SCENES
+        using (var scope2 = _fixture.ServiceProvider.CreateScope())
+        {
+            var repo2 = scope2.ServiceProvider.GetRequiredService<ISeasonRepository>();
+            var seasonV2 = await repo2.GetByIdAsync(season.Id);
+            seasonV2!.Phase = SeasonPhase.Playoffs; // Change something
+            await repo2.UpdateAsync(seasonV2); // This updates RowVersion in DB
+        }
+
+        // Act & Assert: Try to update seasonV1 which has old RowVersion
+        seasonV1!.Phase = SeasonPhase.Offseason;
+        
+        await Assert.ThrowsAsync<Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException>(async () => 
+        {
+            await seasonRepo.UpdateAsync(seasonV1);
+        });
+    }
 }

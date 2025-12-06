@@ -45,6 +45,22 @@ namespace DataAccessLayer
 
         public DbSet<College> Colleges { get; set; }
 
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // Handle SQLite concurrency token update
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                foreach (var entry in ChangeTracker.Entries<Season>())
+                {
+                    if (entry.State == EntityState.Modified)
+                    {
+                        entry.Entity.RowVersion = Guid.NewGuid().ToByteArray();
+                    }
+                }
+            }
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -257,6 +273,13 @@ namespace DataAccessLayer
 
                 // Soft delete query filter
                 entity.HasQueryFilter(s => !s.IsDeleted);
+
+                // SQLite specific configuration for RowVersion
+                if (this.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+                {
+                    entity.Property(s => s.RowVersion)
+                          .ValueGeneratedNever();
+                }
             });
 
             // ========================================
