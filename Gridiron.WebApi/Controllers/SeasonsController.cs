@@ -21,6 +21,7 @@ public class SeasonsController : ControllerBase
     private readonly ISeasonRepository _seasonRepository;
     private readonly ILeagueRepository _leagueRepository;
     private readonly IScheduleGeneratorService _scheduleGeneratorService;
+    private readonly ISeasonSimulationService _seasonSimulationService;
     private readonly IGridironAuthorizationService _authorizationService;
     private readonly ILogger<SeasonsController> _logger;
 
@@ -28,12 +29,14 @@ public class SeasonsController : ControllerBase
         ISeasonRepository seasonRepository,
         ILeagueRepository leagueRepository,
         IScheduleGeneratorService scheduleGeneratorService,
+        ISeasonSimulationService seasonSimulationService,
         IGridironAuthorizationService authorizationService,
         ILogger<SeasonsController> logger)
     {
         _seasonRepository = seasonRepository ?? throw new ArgumentNullException(nameof(seasonRepository));
         _leagueRepository = leagueRepository ?? throw new ArgumentNullException(nameof(leagueRepository));
         _scheduleGeneratorService = scheduleGeneratorService ?? throw new ArgumentNullException(nameof(scheduleGeneratorService));
+        _seasonSimulationService = seasonSimulationService ?? throw new ArgumentNullException(nameof(seasonSimulationService));
         _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -331,6 +334,61 @@ public class SeasonsController : ControllerBase
         {
             _logger.LogError(ex, "Error retrieving schedule for season {SeasonId}", id);
             return StatusCode(500, new { error = "Failed to retrieve schedule" });
+        }
+    }
+
+    /// <summary>
+    /// Advances the season by simulating all unplayed games in the current week.
+    /// </summary>
+    /// <param name="id">Season ID.</param>
+    /// <returns>Simulation results for the week.</returns>
+    [HttpPost("{id}/advance-week")]
+    [ProducesResponseType(typeof(SeasonSimulationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<SeasonSimulationResult>> AdvanceWeek(int id)
+    {
+        try
+        {
+            var season = await _seasonRepository.GetByIdAsync(id);
+            if (season == null)
+            {
+                return NotFound(new { error = $"Season with ID {id} not found" });
+            }
+
+            // Check authorization - must be Commissioner
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var isCommissioner = await _authorizationService.IsCommissionerOfLeagueAsync(azureAdObjectId, season.LeagueId);
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+            if (!isCommissioner && !isGlobalAdmin)
+            {
+                return Forbid();
+            }
+
+            var result = await _seasonSimulationService.SimulateCurrentWeekAsync(id);
+
+            if (!result.Success)
+            {
+                return BadRequest(new { error = result.Error });
+            }
+
+            _logger.LogInformation(
+                "Advanced season {SeasonId} to week {WeekNumber}. Simulated {GameCount} games.",
+                id, result.WeekNumber, result.GamesSimulated);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error advancing week for season {SeasonId}", id);
+            return StatusCode(500, new { error = "Failed to advance week" });
         }
     }
 
