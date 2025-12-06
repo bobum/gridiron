@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -ExecutionPolicy Bypass -File .deploy-database.ps1 -ConnectionString \"Data Source=tcp:gtg-gridiron.database.windows.net,1433;Initial Catalog=gtg-gridiron;User ID=gtg-admin;Password=Jeg4ewam!;Pooling=False;Connect Timeout=30;Encrypt=True;Trust Server Certificate=False;Authentication=SqlPassword;Application Name=vscode-mssql;Connect Retry Count=1;Connect Retry Interval=10;Command Timeout=30\" -SkipSeedData)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\projects\\GoalToGoFootball\\gridiron\\deploy-database.ps1\" -ConnectionString \"Data Source=tcp:gtg-gridiron.database.windows.net,1433;Initial Catalog=gtg-gridiron;User ID=gtg-admin;Password=Jeg4ewam!;Pooling=False;Connect Timeout=30;Encrypt=True;Trust Server Certificate=False;Authentication=SqlPassword;Application Name=vscode-mssql;Connect Retry Count=1;Connect Retry Interval=10;Command Timeout=30\" -SkipSeedData)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet ef migrations list:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
