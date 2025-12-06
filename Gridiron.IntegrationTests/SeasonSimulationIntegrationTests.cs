@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Xunit;
+using DataAccessLayer;
 using DataAccessLayer.Repositories;
 
 namespace Gridiron.IntegrationTests;
@@ -63,7 +64,14 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
             serviceProvider.GetRequiredService<ISeasonRepository>(),
             serviceProvider.GetRequiredService<ILeagueRepository>(),
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
-            serviceProvider.GetRequiredService<ISeasonSimulationService>(),
+            new SeasonSimulationService(
+                serviceProvider.GetRequiredService<ISeasonRepository>(),
+                serviceProvider.GetRequiredService<IGameRepository>(),
+                serviceProvider.GetRequiredService<ITeamRepository>(),
+                serviceProvider.GetRequiredService<IEngineSimulationService>(),
+                serviceProvider.GetRequiredService<ITransactionManager>(),
+                serviceProvider.GetRequiredService<ILogger<SeasonSimulationService>>()
+            ),
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
             serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
         );

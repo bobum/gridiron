@@ -1,9 +1,11 @@
+using Xunit;
+using DataAccessLayer;
 using DomainObjects;
 using GameManagement.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 using DataAccessLayer.Repositories;
-using Xunit;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameManagement.Tests.Services;
 
@@ -13,6 +15,7 @@ public class SeasonSimulationServiceTests
     private Mock<IGameRepository> _mockGameRepository;
     private Mock<ITeamRepository> _mockTeamRepository;
     private Mock<IEngineSimulationService> _mockEngineSimulationService;
+    private Mock<ITransactionManager> _mockTransactionManager;
     private Mock<ILogger<SeasonSimulationService>> _mockLogger;
     private SeasonSimulationService _service;
 
@@ -22,13 +25,20 @@ public class SeasonSimulationServiceTests
         _mockGameRepository = new Mock<IGameRepository>();
         _mockTeamRepository = new Mock<ITeamRepository>();
         _mockEngineSimulationService = new Mock<IEngineSimulationService>();
+        _mockTransactionManager = new Mock<ITransactionManager>();
         _mockLogger = new Mock<ILogger<SeasonSimulationService>>();
+
+        // Setup transaction mock
+        var mockTransaction = new Mock<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction>();
+        _mockTransactionManager.Setup(m => m.BeginTransactionAsync())
+            .ReturnsAsync(mockTransaction.Object);
 
         _service = new SeasonSimulationService(
             _mockSeasonRepository.Object,
             _mockGameRepository.Object,
             _mockTeamRepository.Object,
             _mockEngineSimulationService.Object,
+            _mockTransactionManager.Object,
             _mockLogger.Object);
     }
 
@@ -104,6 +114,7 @@ public class SeasonSimulationServiceTests
         
         _mockGameRepository.Verify(r => r.UpdateAsync(It.Is<Game>(g => g.IsComplete && g.HomeScore == 24)), Times.Once);
         _mockSeasonRepository.Verify(r => r.UpdateAsync(season), Times.AtLeastOnce);
+        _mockTransactionManager.Verify(m => m.BeginTransactionAsync(), Times.Once);
     }
 
     [Fact]
@@ -176,5 +187,11 @@ public class SeasonSimulationServiceTests
         Assert.True(result.Success);
         Assert.True(result.SeasonCompleted);
         Assert.True(season.IsComplete);
+    }
+
+    [Fact]
+    public void Test()
+    {
+        // Placeholder removed
     }
 }
