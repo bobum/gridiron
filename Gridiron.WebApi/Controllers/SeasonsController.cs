@@ -392,6 +392,61 @@ public class SeasonsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Reverts the last completed week, resetting game results and moving the season pointer back.
+    /// </summary>
+    /// <param name="id">Season ID.</param>
+    /// <returns>Result of the revert operation.</returns>
+    [HttpPost("{id}/revert-week")]
+    [ProducesResponseType(typeof(SeasonSimulationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<SeasonSimulationResult>> RevertWeek(int id)
+    {
+        try
+        {
+            var season = await _seasonRepository.GetByIdAsync(id);
+            if (season == null)
+            {
+                return NotFound(new { error = $"Season with ID {id} not found" });
+            }
+
+            // Check authorization - must be Commissioner
+            var azureAdObjectId = HttpContext.GetAzureAdObjectId();
+            if (string.IsNullOrEmpty(azureAdObjectId))
+            {
+                return Unauthorized(new { error = "User identity not found in token" });
+            }
+
+            var isCommissioner = await _authorizationService.IsCommissionerOfLeagueAsync(azureAdObjectId, season.LeagueId);
+            var isGlobalAdmin = await _authorizationService.IsGlobalAdminAsync(azureAdObjectId);
+
+            if (!isCommissioner && !isGlobalAdmin)
+            {
+                return Forbid();
+            }
+
+            var result = await _seasonSimulationService.RevertLastWeekAsync(id);
+
+            if (!result.Success)
+            {
+                return BadRequest(new { error = result.Error });
+            }
+
+            _logger.LogInformation(
+                "Reverted season {SeasonId} to week {WeekNumber}.",
+                id, result.WeekNumber);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reverting week for season {SeasonId}", id);
+            return StatusCode(500, new { error = "Failed to revert week" });
+        }
+    }
+
     #region Mapping Methods
 
     private static SeasonDto MapToSeasonDto(Season season)

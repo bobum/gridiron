@@ -13,6 +13,13 @@ public interface ISeasonSimulationService
     /// <param name="seasonId">The ID of the season to simulate.</param>
     /// <returns>A result object containing details about the simulation.</returns>
     Task<SeasonSimulationResult> SimulateCurrentWeekAsync(int seasonId);
+
+    /// <summary>
+    /// Reverts the last completed week, resetting game results and moving the season pointer back.
+    /// </summary>
+    /// <param name="seasonId">The ID of the season to revert.</param>
+    /// <returns>A result object indicating success or failure.</returns>
+    Task<SeasonSimulationResult> RevertLastWeekAsync(int seasonId);
 }
 
 /// <summary>

@@ -161,4 +161,87 @@ public class SeasonSimulationService : ISeasonSimulationService
             return false;
         }
     }
+
+    public async Task<SeasonSimulationResult> RevertLastWeekAsync(int seasonId)
+    {
+        try
+        {
+            var season = await _seasonRepository.GetByIdWithWeeksAndGamesAsync(seasonId);
+            if (season == null)
+            {
+                return new SeasonSimulationResult { Error = $"Season {seasonId} not found" };
+            }
+
+            // Determine which week to revert
+            // If season is complete, we revert the last week
+            // If season is in progress, we revert CurrentWeek - 1
+            int weekToRevertNum;
+            
+            if (season.IsComplete)
+            {
+                // Find the last week number
+                weekToRevertNum = season.Weeks.Max(w => w.WeekNumber);
+            }
+            else
+            {
+                weekToRevertNum = season.CurrentWeek - 1;
+            }
+
+            if (weekToRevertNum < 1)
+            {
+                return new SeasonSimulationResult { Error = "Cannot revert: No previous weeks to revert to." };
+            }
+
+            var weekToRevert = season.Weeks.FirstOrDefault(w => w.WeekNumber == weekToRevertNum);
+            if (weekToRevert == null)
+            {
+                return new SeasonSimulationResult { Error = $"Week {weekToRevertNum} not found." };
+            }
+
+            if (weekToRevert.Status != WeekStatus.Completed)
+            {
+                return new SeasonSimulationResult { Error = $"Week {weekToRevertNum} is not completed, cannot revert." };
+            }
+
+            _logger.LogInformation("Reverting Season {SeasonId} Week {Week}", seasonId, weekToRevertNum);
+
+            // Reset games
+            foreach (var game in weekToRevert.Games)
+            {
+                game.IsComplete = false;
+                game.HomeScore = 0;
+                game.AwayScore = 0;
+                game.PlayedAt = null;
+                game.RandomSeed = null;
+                // Note: We might want to clear PlayByPlay data here if it was stored
+                
+                await _gameRepository.UpdateAsync(game);
+            }
+
+            // Reset week status
+            weekToRevert.Status = WeekStatus.Scheduled;
+            weekToRevert.CompletedDate = null;
+
+            // Move season pointer back
+            season.CurrentWeek = weekToRevertNum;
+            season.IsComplete = false;
+            season.Phase = weekToRevert.Phase;
+
+            await _seasonRepository.UpdateAsync(season);
+            await _seasonRepository.SaveChangesAsync();
+
+            return new SeasonSimulationResult
+            {
+                SeasonId = seasonId,
+                WeekNumber = weekToRevertNum,
+                GamesSimulated = 0,
+                SeasonCompleted = false
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reverting week for season {SeasonId}", seasonId);
+            return new SeasonSimulationResult { Error = $"Revert failed: {ex.Message}" };
+        }
+    }
 }
