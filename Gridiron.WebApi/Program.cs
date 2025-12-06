@@ -130,6 +130,7 @@ builder.Services.AddScoped<GameManagement.Services.ITeamBuilderService, GameMana
 builder.Services.AddScoped<GameManagement.Services.IPlayerGeneratorService, GameManagement.Services.PlayerGeneratorService>();
 builder.Services.AddScoped<GameManagement.Services.IPlayerProgressionService, GameManagement.Services.PlayerProgressionService>();
 builder.Services.AddScoped<GameManagement.Services.IScheduleGeneratorService, GameManagement.Services.ScheduleGeneratorService>();
+builder.Services.AddScoped<GameManagement.Services.ISeasonSimulationService, GameManagement.Services.SeasonSimulationService>();
 
 // ========================================
 // GRIDIRON ENGINE SERVICES (from NuGet package)

@@ -27,6 +27,12 @@ public interface IGameRepository
     Task<Game?> GetByIdWithTeamsAsync(int gameId);
 
     /// <summary>
+    /// Gets a game by ID with teams and players loaded.
+    /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    Task<Game?> GetByIdWithTeamsAndPlayersAsync(int gameId);
+
+    /// <summary>
     /// Gets a game by ID with teams and play-by-play data loaded.
     /// </summary>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>

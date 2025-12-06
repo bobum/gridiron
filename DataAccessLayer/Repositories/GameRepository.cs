@@ -38,6 +38,16 @@ public class GameRepository : IGameRepository
             .FirstOrDefaultAsync(g => g.Id == gameId);
     }
 
+    public async Task<Game?> GetByIdWithTeamsAndPlayersAsync(int gameId)
+    {
+        return await _context.Games
+            .Include(g => g.HomeTeam)
+                .ThenInclude(t => t.Players)
+            .Include(g => g.AwayTeam)
+                .ThenInclude(t => t.Players)
+            .FirstOrDefaultAsync(g => g.Id == gameId);
+    }
+
     public async Task<Game?> GetByIdWithPlayByPlayAsync(int gameId)
     {
         return await _context.Games
