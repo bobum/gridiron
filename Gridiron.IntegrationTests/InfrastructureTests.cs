@@ -56,7 +56,7 @@ public class InfrastructureTests : IDisposable
     /// This test validates that the seeding process works correctly, which is valuable as we
     /// build out more seeders.
     /// </summary>
-    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous unit test.</placeholder></returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
     [Fact]
     public async Task SeedingPipeline_CreateSchemaAndSeedAllData_DatabaseReadyForUse()
     {

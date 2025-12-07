@@ -116,3 +116,9 @@ This applies to ALL changes, no matter how small—even single-line fixes.
 ## When Uncertain
 
 Ask Scott. He is precise in his requirements—do not assume or estimate. If a requirement is ambiguous, clarify before implementing.
+
+## Interaction Protocol
+- **WAIT FOR EXPLICIT APPROVAL**: Do not write code or implement changes until the user explicitly says "Go ahead", "Proceed", or "Green light".
+- **PLAN FIRST**: When presented with a task, analyze the architecture and propose a plan in the issue or chat.
+- **DOCUMENT BEFORE CODING**: Ensure the "HOW" is documented and agreed upon before writing the "WHAT".
+- **ONE STEP AT A TIME**: Do not chain multiple large tasks or assumptions together without checking in.

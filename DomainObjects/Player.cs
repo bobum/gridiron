@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using static DomainObjects.StatTypes;
 
 namespace DomainObjects
@@ -24,9 +26,24 @@ namespace DomainObjects
 
         public string? College { get; set; }
 
-        public Dictionary<PlayerStatType, int> Stats { get; set; } = new ();
+        // JSON backing fields
+        public string StatsJson { get; set; } = "{}";
+        public string SeasonStatsJson { get; set; } = "{}";
+        public string CareerStatsJson { get; set; } = "{}";
 
-        public Dictionary<PlayerStatType, int> SeasonStats { get; set; } = new ();
+        [NotMapped]
+        public Dictionary<PlayerStatType, int> Stats 
+        { 
+            get => DeserializeStats(StatsJson);
+            set => StatsJson = SerializeStats(value);
+        }
+
+        [NotMapped]
+        public Dictionary<PlayerStatType, int> SeasonStats 
+        { 
+            get => DeserializeStats(SeasonStatsJson);
+            set => SeasonStatsJson = SerializeStats(value);
+        }
 
         // Realistic attributes
         public int Speed { get; set; } // 0-100
@@ -59,7 +76,12 @@ namespace DomainObjects
         public int Kicking { get; set; } // K, P
 
         // Career stats
-        public Dictionary<PlayerStatType, int> CareerStats { get; set; } = new ();
+        [NotMapped]
+        public Dictionary<PlayerStatType, int> CareerStats 
+        { 
+            get => DeserializeStats(CareerStatsJson);
+            set => CareerStatsJson = SerializeStats(value);
+        }
 
         public bool IsRetired { get; set; }
 
@@ -84,5 +106,38 @@ namespace DomainObjects
         /// Gets a value indicating whether whether the player is currently injured and unavailable.
         /// </summary>
         public bool IsInjured => CurrentInjury != null;
+
+        private Dictionary<PlayerStatType, int> DeserializeStats(string json)
+        {
+            if (string.IsNullOrEmpty(json)) return new Dictionary<PlayerStatType, int>();
+            try 
+            {
+                var stringDict = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+                var result = new Dictionary<PlayerStatType, int>();
+                if (stringDict != null)
+                {
+                    foreach (var kvp in stringDict)
+                    {
+                        if (Enum.TryParse<PlayerStatType>(kvp.Key, out var statType))
+                        {
+                            result[statType] = kvp.Value;
+                        }
+                    }
+                }
+                return result;
+            }
+            catch { return new Dictionary<PlayerStatType, int>(); }
+        }
+
+        private string SerializeStats(Dictionary<PlayerStatType, int> stats)
+        {
+            if (stats == null) return "{}";
+            var stringDict = new Dictionary<string, int>();
+            foreach (var kvp in stats)
+            {
+                stringDict[kvp.Key.ToString()] = kvp.Value;
+            }
+            return JsonSerializer.Serialize(stringDict);
+        }
     }
 }

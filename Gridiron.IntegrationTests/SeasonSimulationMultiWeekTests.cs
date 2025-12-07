@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using DataAccessLayer;
+using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
 using GameManagement.Services;
@@ -7,10 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using Xunit;
-using DataAccessLayer;
-using DataAccessLayer.Repositories;
 
 namespace Gridiron.IntegrationTests;
 
@@ -30,7 +30,7 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var serviceProvider = scope.ServiceProvider;
-        
+
         // 1. Setup League Hierarchy
         var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
         var league = new League { Name = "Multi-Week Test League", IsActive = true };
@@ -47,8 +47,8 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         // 2. Setup Teams
         var teamRepo = serviceProvider.GetRequiredService<ITeamRepository>();
         var teamBuilder = serviceProvider.GetRequiredService<ITeamBuilderService>();
-        
-        var team1 = new Team { Name = "Team One", DivisionId = division.Id }; 
+
+        var team1 = new Team { Name = "Team One", DivisionId = division.Id };
         var team2 = new Team { Name = "Team Two", DivisionId = division.Id };
         await teamRepo.AddAsync(team1);
         await teamRepo.AddAsync(team2);
@@ -59,14 +59,13 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         // Using different seeds to ensure different player stats
         team1 = teamBuilder.PopulateTeamRoster(team1, seed: 111);
         team2 = teamBuilder.PopulateTeamRoster(team2, seed: 222);
-        
+
         // Ensure depth charts are valid and saved
         // The PopulateTeamRoster method already calls AssignDepthCharts, but we need to make sure
         // the players are actually saved to the context so the engine can retrieve them.
         // The issue might be that PopulateTeamRoster adds players to the team.Players list,
         // but they aren't tracked by the context yet if we just call UpdateAsync on the team.
         // We need to make sure the players are added to the context.
-        
         await teamRepo.UpdateAsync(team1);
         await teamRepo.UpdateAsync(team2);
         await serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>().SaveChangesAsync();
@@ -76,7 +75,7 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         var teamRepoCheck = serviceProvider.GetRequiredService<ITeamRepository>();
         var t1Check = await teamRepoCheck.GetByIdWithPlayersAsync(team1.Id);
         var t2Check = await teamRepoCheck.GetByIdWithPlayersAsync(team2.Id);
-        
+
         // Re-assign depth charts just in case
         teamBuilder.AssignDepthCharts(t1Check);
         teamBuilder.AssignDepthCharts(t2Check);
@@ -110,8 +109,8 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         // 4. Setup Controller
         var userRepo = serviceProvider.GetRequiredService<IUserRepository>();
         var commissionerId = "commish-multi-id";
-        var user = new User 
-        { 
+        var user = new User
+        {
             AzureAdObjectId = commissionerId,
             Email = "commish2@example.com",
             DisplayName = "Commissioner 2",
@@ -128,10 +127,10 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
             seasonSimulationService,
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
-            serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
-        );
+            serviceProvider.GetRequiredService<ILogger<SeasonsController>>());
 
-        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+            new Claim[]
         {
             new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", commissionerId),
             new Claim("oid", commissionerId)
@@ -150,7 +149,7 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         var result1 = await seasonController.AdvanceWeek(season.Id);
         var ok1 = result1.Result as OkObjectResult;
         ok1.Should().NotBeNull("Week 1 advance should succeed");
-        
+
         dbContext.ChangeTracker.Clear();
         var s1 = await seasonRepo.GetByIdWithWeeksAndGamesAsync(season.Id);
         s1.CurrentWeek.Should().Be(2, "Should be in Week 2");
@@ -166,7 +165,7 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
 
         // 2. Advance Week 2 -> 3
         var result2 = await seasonController.AdvanceWeek(season.Id);
-        
+
         if (result2.Result is not OkObjectResult)
         {
             var errorResult = result2.Result as ObjectResult;

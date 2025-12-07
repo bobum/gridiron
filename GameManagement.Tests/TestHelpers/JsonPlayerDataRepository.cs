@@ -54,7 +54,7 @@ public class JsonPlayerDataRepository : IPlayerDataRepository
     /// <summary>
     /// Gets list of first names from JSON file.
     /// </summary>
-    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<List<string>> GetFirstNamesAsync()
     {
         try
@@ -78,7 +78,7 @@ public class JsonPlayerDataRepository : IPlayerDataRepository
     /// <summary>
     /// Gets list of last names from JSON file.
     /// </summary>
-    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<List<string>> GetLastNamesAsync()
     {
         try
@@ -102,7 +102,7 @@ public class JsonPlayerDataRepository : IPlayerDataRepository
     /// <summary>
     /// Gets list of colleges from JSON file.
     /// </summary>
-    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task<List<string>> GetCollegesAsync()
     {
         try
