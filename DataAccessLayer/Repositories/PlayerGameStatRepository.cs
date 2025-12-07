@@ -18,11 +18,13 @@ namespace DataAccessLayer.Repositories
         public async Task AddAsync(PlayerGameStat stat)
         {
             await _context.PlayerGameStats.AddAsync(stat);
+            await _context.SaveChangesAsync();
         }
 
         public async Task AddRangeAsync(IEnumerable<PlayerGameStat> stats)
         {
             await _context.PlayerGameStats.AddRangeAsync(stats);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<PlayerGameStat>> GetByGameIdAsync(int gameId)
@@ -40,7 +42,12 @@ namespace DataAccessLayer.Repositories
 
             if (stats.Any())
             {
-                _context.PlayerGameStats.RemoveRange(stats);
+                foreach (var stat in stats)
+                {
+                    stat.IsDeleted = true;
+                    stat.DeletedAt = System.DateTime.UtcNow;
+                }
+                await _context.SaveChangesAsync();
             }
         }
     }
