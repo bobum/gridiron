@@ -74,12 +74,12 @@ public class SeasonSimulationService : ISeasonSimulationService
                 }
             }
 
-            currentWeek.Status = WeekStatus.InProgress;
-            await _seasonRepository.UpdateAsync(season); // Save status change
-
             using var transaction = await _transactionManager.BeginTransactionAsync();
             try
             {
+                currentWeek.Status = WeekStatus.InProgress;
+                await _seasonRepository.UpdateAsync(season); // Save status change
+
                 var results = new List<GameSimulationResult>();
                 var unplayedGames = currentWeek.Games.Where(g => !g.IsComplete).ToList();
 

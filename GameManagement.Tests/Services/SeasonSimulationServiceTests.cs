@@ -188,10 +188,4 @@ public class SeasonSimulationServiceTests
         Assert.True(result.SeasonCompleted);
         Assert.True(season.IsComplete);
     }
-
-    [Fact]
-    public void Test()
-    {
-        // Placeholder removed
-    }
 }

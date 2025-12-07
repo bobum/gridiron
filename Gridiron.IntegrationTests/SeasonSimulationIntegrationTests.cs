@@ -64,14 +64,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
             serviceProvider.GetRequiredService<ISeasonRepository>(),
             serviceProvider.GetRequiredService<ILeagueRepository>(),
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
-            new SeasonSimulationService(
-                serviceProvider.GetRequiredService<ISeasonRepository>(),
-                serviceProvider.GetRequiredService<IGameRepository>(),
-                serviceProvider.GetRequiredService<ITeamRepository>(),
-                serviceProvider.GetRequiredService<IEngineSimulationService>(),
-                serviceProvider.GetRequiredService<ITransactionManager>(),
-                serviceProvider.GetRequiredService<ILogger<SeasonSimulationService>>()
-            ),
+            serviceProvider.GetRequiredService<ISeasonSimulationService>(),
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
             serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
         );
