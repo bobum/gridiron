@@ -22,9 +22,8 @@ public class GameDto
     public int? RandomSeed { get; set; }
 
     public bool IsComplete { get; set; }
-
-    public int TotalPlays { get; set; }
 }
+
 
 /// <summary>
 /// Detailed game response with full play-by-play.

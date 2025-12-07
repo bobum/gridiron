@@ -73,16 +73,11 @@ public class SeasonsControllerTests
             }
         };
 
-        _mockSeasonRepository.Setup(r => r.GetByIdWithFullDataAsync(seasonId))
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
             .ReturnsAsync(season);
 
         // Mock Auth
-        var claims = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity(new[]
-        {
-            new System.Security.Claims.Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", userId)
-        }));
-        _controller.ControllerContext.HttpContext.User = claims;
-
+        SetupUser(userId);
         _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
             .ReturnsAsync(true);
 
@@ -95,5 +90,121 @@ public class SeasonsControllerTests
         Assert.Equal(1, dto.WeekNumber);
         Assert.Single(dto.Games);
         Assert.Equal("Home", dto.Games[0].HomeTeamName);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturn404_WhenSeasonNotFound()
+    {
+        // Arrange
+        var seasonId = 999;
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync((Season?)null);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturn403_WhenUserLacksAccess()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+        
+        var season = new Season { Id = seasonId, LeagueId = leagueId };
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturn404_WhenCurrentWeekNotFound()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+        
+        var season = new Season 
+        { 
+            Id = seasonId, 
+            LeagueId = leagueId, 
+            CurrentWeek = 2, // Current week is 2
+            Weeks = new List<SeasonWeek>
+            {
+                new SeasonWeek { WeekNumber = 1 } // But only week 1 is loaded/exists
+            }
+        };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturnLastWeek_WhenSeasonIsComplete()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+        
+        var season = new Season 
+        { 
+            Id = seasonId, 
+            LeagueId = leagueId, 
+            CurrentWeek = 18, // Past last week
+            IsComplete = true,
+            Weeks = new List<SeasonWeek>
+            {
+                new SeasonWeek { WeekNumber = 17, Status = WeekStatus.Completed }
+            }
+        };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var dto = Assert.IsType<CurrentWeekDto>(okResult.Value);
+        Assert.Equal(17, dto.WeekNumber); // Should return week 17
+    }
+
+    private void SetupUser(string userId)
+    {
+        var claims = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity(new[]
+        {
+            new System.Security.Claims.Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", userId)
+        }));
+        _controller.ControllerContext.HttpContext.User = claims;
     }
 }

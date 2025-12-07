@@ -55,6 +55,27 @@ public class SeasonRepository : ISeasonRepository
             .FirstOrDefaultAsync(s => s.Id == seasonId);
     }
 
+    public async Task<Season?> GetByIdWithCurrentWeekAsync(int seasonId)
+    {
+        // First get the season to know the current week
+        var season = await _context.Seasons.FirstOrDefaultAsync(s => s.Id == seasonId);
+        if (season == null) return null;
+
+        // Load the current week
+        await _context.Entry(season)
+            .Collection(s => s.Weeks)
+            .Query()
+            .Where(w => w.WeekNumber == season.CurrentWeek)
+            .Include(w => w.Games)
+                .ThenInclude(g => g.HomeTeam)
+            .Include(w => w.Games)
+                .ThenInclude(g => g.AwayTeam)
+            .LoadAsync();
+
+        return season;
+    }
+
+
     public async Task<List<Season>> GetByLeagueIdAsync(int leagueId)
     {
         return await _context.Seasons

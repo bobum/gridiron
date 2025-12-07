@@ -132,7 +132,7 @@ public class SeasonsController : ControllerBase
     {
         try
         {
-            var season = await _seasonRepository.GetByIdWithFullDataAsync(id);
+            var season = await _seasonRepository.GetByIdWithCurrentWeekAsync(id);
             if (season == null)
             {
                 return NotFound(new { error = $"Season with ID {id} not found" });
@@ -180,8 +180,7 @@ public class SeasonsController : ControllerBase
                     HomeScore = g.HomeScore,
                     AwayScore = g.AwayScore,
                     IsComplete = g.IsComplete,
-                    RandomSeed = g.RandomSeed,
-                    TotalPlays = 0
+                    RandomSeed = g.RandomSeed
                 }).ToList()
             };
 
