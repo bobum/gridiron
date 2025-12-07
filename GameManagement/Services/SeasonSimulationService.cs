@@ -1,7 +1,7 @@
 using DataAccessLayer.Repositories;
+using DataAccessLayer;
 using DomainObjects;
 using Microsoft.Extensions.Logging;
-
 using GameManagement.Logging;
 using System.Text;
 using System.Text.Json;
@@ -15,6 +15,7 @@ public class SeasonSimulationService : ISeasonSimulationService
     private readonly ITeamRepository _teamRepository;
     private readonly IPlayByPlayRepository _playByPlayRepository;
     private readonly IEngineSimulationService _engineSimulationService;
+    private readonly ITransactionManager _transactionManager;
     private readonly ILogger<SeasonSimulationService> _logger;
 
     public SeasonSimulationService(
@@ -23,6 +24,7 @@ public class SeasonSimulationService : ISeasonSimulationService
         ITeamRepository teamRepository,
         IPlayByPlayRepository playByPlayRepository,
         IEngineSimulationService engineSimulationService,
+        ITransactionManager transactionManager,
         ILogger<SeasonSimulationService> logger)
     {
         _seasonRepository = seasonRepository;
@@ -30,6 +32,7 @@ public class SeasonSimulationService : ISeasonSimulationService
         _teamRepository = teamRepository;
         _playByPlayRepository = playByPlayRepository;
         _engineSimulationService = engineSimulationService;
+        _transactionManager = transactionManager;
         _logger = logger;
     }
 
@@ -60,15 +63,15 @@ public class SeasonSimulationService : ISeasonSimulationService
                 // This handles cases where simulation might have been interrupted or manually advanced
                 if (!AdvanceToNextWeek(season))
                 {
-                    return new SeasonSimulationResult 
-                    { 
+                    return new SeasonSimulationResult
+                    {
                         SeasonId = seasonId,
                         WeekNumber = season.CurrentWeek,
                         SeasonCompleted = true,
                         Error = "Season is complete (no more weeks)"
                     };
                 }
-                
+
                 // Get the new current week
                 currentWeek = season.Weeks.FirstOrDefault(w => w.WeekNumber == season.CurrentWeek);
                 if (currentWeek == null)
@@ -77,83 +80,114 @@ public class SeasonSimulationService : ISeasonSimulationService
                 }
             }
 
-            currentWeek.Status = WeekStatus.InProgress;
-            await _seasonRepository.UpdateAsync(season); // Save status change
-
-            var results = new List<GameSimulationResult>();
-            var unplayedGames = currentWeek.Games.Where(g => !g.IsComplete).ToList();
-
-            _logger.LogInformation("Simulating {Count} games for Season {SeasonId} Week {Week}", 
-                unplayedGames.Count, seasonId, season.CurrentWeek);
-
-            foreach (var game in unplayedGames)
+            using var transaction = await _transactionManager.BeginTransactionAsync();
+            try
             {
-                // We need to load full team data for simulation
-                var fullGame = await _gameRepository.GetByIdWithTeamsAndPlayersAsync(game.Id);
-                if (fullGame == null || fullGame.HomeTeam == null || fullGame.AwayTeam == null)
+                currentWeek.Status = WeekStatus.InProgress;
+                await _seasonRepository.UpdateAsync(season); // Save status change
+
+                var results = new List<GameSimulationResult>();
+                var unplayedGames = currentWeek.Games.Where(g => !g.IsComplete).ToList();
+
+                _logger.LogInformation("Simulating {Count} games for Season {SeasonId} Week {Week}",
+                    unplayedGames.Count, seasonId, season.CurrentWeek);
+
+                foreach (var game in unplayedGames)
                 {
-                    _logger.LogWarning("Skipping game {GameId}: Team data missing", game.Id);
-                    continue;
+                    // We need to load full team data for simulation
+                    var fullGame = await _gameRepository.GetByIdWithTeamsAndPlayersAsync(game.Id);
+                    if (fullGame == null || fullGame.HomeTeam == null || fullGame.AwayTeam == null)
+                    {
+                        _logger.LogWarning("Skipping game {GameId}: Team data missing", game.Id);
+                        continue;
+                    }
+
+                    // Run simulation with PlayByPlay logging
+                    var sb = new StringBuilder();
+                    var playLogger = new StringLogger(sb);
+                    var simResult = _engineSimulationService.SimulateGame(fullGame.HomeTeam, fullGame.AwayTeam, null, playLogger);
+
+                    // Update game record
+                    fullGame.HomeScore = simResult.HomeScore;
+                    fullGame.AwayScore = simResult.AwayScore;
+                    fullGame.IsComplete = true;
+                    fullGame.PlayedAt = DateTime.UtcNow;
+                    fullGame.RandomSeed = simResult.RandomSeed;
+
+                    // Update team stats
+                    if (fullGame.HomeScore > fullGame.AwayScore)
+                    {
+                        fullGame.HomeTeam.Wins++;
+                        fullGame.AwayTeam.Losses++;
+                    }
+                    else if (fullGame.AwayScore > fullGame.HomeScore)
+                    {
+                        fullGame.AwayTeam.Wins++;
+                        fullGame.HomeTeam.Losses++;
+                    }
+                    else
+                    {
+                        fullGame.HomeTeam.Ties++;
+                        fullGame.AwayTeam.Ties++;
+                    }
+
+                    await _teamRepository.UpdateAsync(fullGame.HomeTeam);
+                    await _teamRepository.UpdateAsync(fullGame.AwayTeam);
+
+                    // Save PlayByPlay
+                    var playByPlay = new PlayByPlay
+                    {
+                        GameId = fullGame.Id,
+                        Game = fullGame,
+                        PlaysJson = simResult.Plays != null
+                            ? JsonSerializer.Serialize(simResult.Plays, new JsonSerializerOptions
+                            {
+                                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+                            })
+                            : "[]",
+                        PlayByPlayLog = sb.ToString()
+                    };
+                    await _playByPlayRepository.AddAsync(playByPlay);
+
+                    await _gameRepository.UpdateAsync(fullGame);
+
+                    results.Add(new GameSimulationResult
+                    {
+                        GameId = fullGame.Id,
+                        HomeTeam = fullGame.HomeTeam.Name,
+                        AwayTeam = fullGame.AwayTeam.Name,
+                        HomeScore = fullGame.HomeScore,
+                        AwayScore = fullGame.AwayScore,
+                        IsTie = simResult.IsTie
+                    });
                 }
 
-                // Run simulation
-                var sb = new StringBuilder();
-                var playLogger = new StringLogger(sb);
-                var simResult = _engineSimulationService.SimulateGame(fullGame.HomeTeam, fullGame.AwayTeam, null, playLogger);
+                // Mark week as complete
+                currentWeek.Status = WeekStatus.Completed;
+                currentWeek.CompletedDate = DateTime.UtcNow;
 
-                // Update game record
-                fullGame.HomeScore = simResult.HomeScore;
-                fullGame.AwayScore = simResult.AwayScore;
-                fullGame.IsComplete = true;
-                fullGame.PlayedAt = DateTime.UtcNow;
-                fullGame.RandomSeed = simResult.RandomSeed;
-                
-                // Save PlayByPlay
-                var playByPlay = new PlayByPlay
+                // Advance season pointer
+                bool seasonEnded = !AdvanceToNextWeek(season);
+
+                await _seasonRepository.UpdateAsync(season);
+                await _seasonRepository.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new SeasonSimulationResult
                 {
-                    GameId = fullGame.Id,
-                    Game = fullGame,
-                    PlaysJson = simResult.Plays != null 
-                        ? JsonSerializer.Serialize(simResult.Plays, new JsonSerializerOptions 
-                        { 
-                            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles 
-                        }) 
-                        : "[]",
-                    PlayByPlayLog = sb.ToString()
+                    SeasonId = seasonId,
+                    WeekNumber = currentWeek.WeekNumber,
+                    GamesSimulated = results.Count,
+                    GameResults = results,
+                    SeasonCompleted = seasonEnded
                 };
-                await _playByPlayRepository.AddAsync(playByPlay);
-
-                await _gameRepository.UpdateAsync(fullGame);
-
-                results.Add(new GameSimulationResult
-                {
-                    GameId = fullGame.Id,
-                    HomeTeam = fullGame.HomeTeam.Name,
-                    AwayTeam = fullGame.AwayTeam.Name,
-                    HomeScore = fullGame.HomeScore,
-                    AwayScore = fullGame.AwayScore,
-                    IsTie = simResult.IsTie
-                });
             }
-
-            // Mark week as complete
-            currentWeek.Status = WeekStatus.Completed;
-            currentWeek.CompletedDate = DateTime.UtcNow;
-
-            // Advance season pointer
-            bool seasonEnded = !AdvanceToNextWeek(season);
-            
-            await _seasonRepository.UpdateAsync(season);
-            await _seasonRepository.SaveChangesAsync();
-
-            return new SeasonSimulationResult
+            catch (Exception)
             {
-                SeasonId = seasonId,
-                WeekNumber = currentWeek.WeekNumber,
-                GamesSimulated = results.Count,
-                GameResults = results,
-                SeasonCompleted = seasonEnded
-            };
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         catch (Exception ex)
         {
@@ -199,7 +233,7 @@ public class SeasonSimulationService : ISeasonSimulationService
             // If season is complete, we revert the last week
             // If season is in progress, we revert CurrentWeek - 1
             int weekToRevertNum;
-            
+
             if (season.IsComplete)
             {
                 // Find the last week number
@@ -254,7 +288,7 @@ public class SeasonSimulationService : ISeasonSimulationService
                             homeTeam.Ties = Math.Max(0, homeTeam.Ties - 1);
                             awayTeam.Ties = Math.Max(0, awayTeam.Ties - 1);
                         }
-                        
+
                         await _teamRepository.UpdateAsync(homeTeam);
                         await _teamRepository.UpdateAsync(awayTeam);
                     }
@@ -265,14 +299,14 @@ public class SeasonSimulationService : ISeasonSimulationService
                 game.AwayScore = 0;
                 game.PlayedAt = null;
                 game.RandomSeed = null;
-                
+
                 // Delete PlayByPlay data
                 var playByPlay = await _playByPlayRepository.GetByGameIdAsync(game.Id);
                 if (playByPlay != null)
                 {
                     await _playByPlayRepository.DeleteAsync(playByPlay.Id);
                 }
-                
+
                 await _gameRepository.UpdateAsync(game);
             }
 

@@ -66,6 +66,7 @@ public class DatabaseTestFixture : IDisposable
         services.AddScoped<GameManagement.Services.IScheduleGeneratorService, GameManagement.Services.ScheduleGeneratorService>();
         services.AddScoped<GameManagement.Services.ISeasonSimulationService, GameManagement.Services.SeasonSimulationService>();
         services.AddScoped<DataAccessLayer.Repositories.ISeasonRepository, DataAccessLayer.Repositories.SeasonRepository>();
+        services.AddScoped<ITransactionManager, GridironTransactionManager>();
 
         // Register WebApi services
         services.AddScoped<Gridiron.WebApi.Services.IGameSimulationService, Gridiron.WebApi.Services.GameSimulationService>();

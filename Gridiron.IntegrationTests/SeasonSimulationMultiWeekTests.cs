@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Xunit;
+using DataAccessLayer;
 using DataAccessLayer.Repositories;
 
 namespace Gridiron.IntegrationTests;
@@ -118,11 +119,14 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         };
         await userRepo.AddAsync(user);
 
+        // Use real service
+        var seasonSimulationService = serviceProvider.GetRequiredService<ISeasonSimulationService>();
+
         var seasonController = new SeasonsController(
             serviceProvider.GetRequiredService<ISeasonRepository>(),
             serviceProvider.GetRequiredService<ILeagueRepository>(),
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
-            serviceProvider.GetRequiredService<ISeasonSimulationService>(),
+            seasonSimulationService,
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
             serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
         );
@@ -151,6 +155,14 @@ public class SeasonSimulationMultiWeekTests : IClassFixture<DatabaseTestFixture>
         var s1 = await seasonRepo.GetByIdWithWeeksAndGamesAsync(season.Id);
         s1.CurrentWeek.Should().Be(2, "Should be in Week 2");
         s1.Weeks.First(w => w.WeekNumber == 1).Status.Should().Be(WeekStatus.Completed);
+
+        // Verify Team Stats Updated
+        var t1AfterWeek1 = await teamRepo.GetByIdAsync(team1.Id);
+        var t2AfterWeek1 = await teamRepo.GetByIdAsync(team2.Id);
+
+        // Verify stats updated (non-deterministic result)
+        (t1AfterWeek1.Wins + t1AfterWeek1.Losses + t1AfterWeek1.Ties).Should().Be(1, "Team 1 should have played 1 game");
+        (t2AfterWeek1.Wins + t2AfterWeek1.Losses + t2AfterWeek1.Ties).Should().Be(1, "Team 2 should have played 1 game");
 
         // 2. Advance Week 2 -> 3
         var result2 = await seasonController.AdvanceWeek(season.Id);
