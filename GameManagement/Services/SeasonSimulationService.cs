@@ -151,6 +151,10 @@ public class SeasonSimulationService : ISeasonSimulationService
                             };
                             await _playerGameStatRepository.AddAsync(playerGameStat);
                         }
+
+                        // Restore player stats to pre-game state to avoid persisting cumulative stats on the Player object
+                        // This ensures that stats are only stored in PlayerGameStat and aggregated at runtime/end-of-season
+                        player.Stats = oldStats;
                     }
 
                     // Save PlayByPlay
@@ -323,28 +327,9 @@ public class SeasonSimulationService : ISeasonSimulationService
                         await _teamRepository.UpdateAsync(awayTeam);
 
                         // Revert Player Stats
-                        var playerGameStats = await _playerGameStatRepository.GetByGameIdAsync(game.Id);
-                        if (playerGameStats.Any())
-                        {
-                            var playersMap = homeTeam.Players.Concat(awayTeam.Players)
-                                .ToDictionary(p => p.Id);
-
-                            foreach (var pgs in playerGameStats)
-                            {
-                                if (playersMap.TryGetValue(pgs.PlayerId, out var player))
-                                {
-                                    foreach (var kvp in pgs.Stats)
-                                    {
-                                        if (player.Stats.ContainsKey(kvp.Key))
-                                        {
-                                            player.Stats[kvp.Key] -= kvp.Value;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            await _playerGameStatRepository.DeleteByGameIdAsync(game.Id);
-                        }
+                        // Since we don't persist cumulative stats to the Player object during simulation (we restore them),
+                        // we only need to delete the PlayerGameStat records.
+                        await _playerGameStatRepository.DeleteByGameIdAsync(game.Id);
                     }
                 }
 

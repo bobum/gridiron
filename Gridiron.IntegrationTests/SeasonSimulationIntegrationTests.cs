@@ -300,6 +300,92 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
     }
 
     [Fact]
+    public async Task SimulateWeek_ShouldCreatePlayerGameStats_And_NotUpdatePlayerStats()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+
+        var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
+        var league = new League { Name = "Player Stats Test League", IsActive = true };
+        await leagueRepo.AddAsync(league);
+
+        var seasonRepo = serviceProvider.GetRequiredService<ISeasonRepository>();
+        var season = new Season { LeagueId = league.Id, Year = 2025, CurrentWeek = 1, Phase = SeasonPhase.RegularSeason };
+        await seasonRepo.AddAsync(season);
+
+        var teamRepo = serviceProvider.GetRequiredService<ITeamRepository>();
+        var teamBuilder = serviceProvider.GetRequiredService<ITeamBuilderService>();
+        var divisionRepo = serviceProvider.GetRequiredService<IDivisionRepository>();
+        var conferenceRepo = serviceProvider.GetRequiredService<IConferenceRepository>();
+
+        var conf = new Conference { Name = "C", LeagueId = league.Id };
+        await conferenceRepo.AddAsync(conf);
+        var div = new Division { Name = "D", ConferenceId = conf.Id };
+        await divisionRepo.AddAsync(div);
+
+        var t1 = new Team { Name = "T1", DivisionId = div.Id };
+        var t2 = new Team { Name = "T2", DivisionId = div.Id };
+        await teamRepo.AddAsync(t1);
+        await teamRepo.AddAsync(t2);
+
+        t1 = teamBuilder.PopulateTeamRoster(t1, 1);
+        t2 = teamBuilder.PopulateTeamRoster(t2, 2);
+        await teamRepo.UpdateAsync(t1);
+        await teamRepo.UpdateAsync(t2);
+        await serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>().SaveChangesAsync();
+
+        var week = new SeasonWeek { SeasonId = season.Id, WeekNumber = 1, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
+        season.Weeks.Add(week);
+        season.Weeks.Add(new SeasonWeek { SeasonId = season.Id, WeekNumber = 2, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason });
+
+        var game = new Game { HomeTeamId = t1.Id, AwayTeamId = t2.Id, SeasonWeek = week, IsComplete = false };
+        week.Games.Add(game);
+        await seasonRepo.UpdateAsync(season);
+
+        var seasonSimulationService = serviceProvider.GetRequiredService<ISeasonSimulationService>();
+        var playerGameStatRepo = serviceProvider.GetRequiredService<IPlayerGameStatRepository>();
+        var playerRepo = serviceProvider.GetRequiredService<IPlayerRepository>();
+
+        // Act - Simulate
+        var result = await seasonSimulationService.SimulateCurrentWeekAsync(season.Id);
+
+        // Assert - Simulation
+        result.Error.Should().BeNull();
+        result.GamesSimulated.Should().Be(1);
+
+        var dbContext = serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>();
+        dbContext.ChangeTracker.Clear();
+
+        // Verify PlayerGameStats created
+        var stats = await playerGameStatRepo.GetByGameIdAsync(game.Id);
+        stats.Should().NotBeEmpty();
+        stats.Count.Should().BeGreaterThan(0);
+
+        // Verify Player.Stats NOT updated (should be empty)
+        var player = await playerRepo.GetByIdAsync(stats.First().PlayerId);
+        player.Should().NotBeNull();
+        player!.Stats.Should().BeEmpty("Player.Stats should not be updated during simulation");
+
+        // Act - Revert
+        var revertResult = await seasonSimulationService.RevertLastWeekAsync(season.Id);
+
+        // Assert - Revert
+        revertResult.Error.Should().BeNull();
+        revertResult.WeekNumber.Should().Be(1);
+
+        dbContext.ChangeTracker.Clear();
+
+        // Verify PlayerGameStats deleted
+        var revertedStats = await playerGameStatRepo.GetByGameIdAsync(game.Id);
+        revertedStats.Should().BeEmpty();
+
+        // Verify Player.Stats still empty
+        var revertedPlayer = await playerRepo.GetByIdAsync(player.Id);
+        revertedPlayer!.Stats.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task SimulateWeek_ShouldFail_WhenConcurrentModificationOccurs()
     {
         // Arrange
