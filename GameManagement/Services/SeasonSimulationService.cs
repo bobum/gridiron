@@ -1,4 +1,5 @@
 using DataAccessLayer.Repositories;
+using DataAccessLayer;
 using DomainObjects;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,7 @@ public class SeasonSimulationService : ISeasonSimulationService
     private readonly IGameRepository _gameRepository;
     private readonly ITeamRepository _teamRepository;
     private readonly IEngineSimulationService _engineSimulationService;
+    private readonly ITransactionManager _transactionManager;
     private readonly ILogger<SeasonSimulationService> _logger;
 
     public SeasonSimulationService(
@@ -17,12 +19,14 @@ public class SeasonSimulationService : ISeasonSimulationService
         IGameRepository gameRepository,
         ITeamRepository teamRepository,
         IEngineSimulationService engineSimulationService,
+        ITransactionManager transactionManager,
         ILogger<SeasonSimulationService> logger)
     {
         _seasonRepository = seasonRepository;
         _gameRepository = gameRepository;
         _teamRepository = teamRepository;
         _engineSimulationService = engineSimulationService;
+        _transactionManager = transactionManager;
         _logger = logger;
     }
 
@@ -70,90 +74,101 @@ public class SeasonSimulationService : ISeasonSimulationService
                 }
             }
 
-            currentWeek.Status = WeekStatus.InProgress;
-            await _seasonRepository.UpdateAsync(season); // Save status change
-
-            var results = new List<GameSimulationResult>();
-            var unplayedGames = currentWeek.Games.Where(g => !g.IsComplete).ToList();
-
-            _logger.LogInformation("Simulating {Count} games for Season {SeasonId} Week {Week}", 
-                unplayedGames.Count, seasonId, season.CurrentWeek);
-
-            foreach (var game in unplayedGames)
+            using var transaction = await _transactionManager.BeginTransactionAsync();
+            try
             {
-                // We need to load full team data for simulation
-                var fullGame = await _gameRepository.GetByIdWithTeamsAndPlayersAsync(game.Id);
-                if (fullGame == null || fullGame.HomeTeam == null || fullGame.AwayTeam == null)
+                currentWeek.Status = WeekStatus.InProgress;
+                await _seasonRepository.UpdateAsync(season); // Save status change
+
+                var results = new List<GameSimulationResult>();
+                var unplayedGames = currentWeek.Games.Where(g => !g.IsComplete).ToList();
+
+                _logger.LogInformation("Simulating {Count} games for Season {SeasonId} Week {Week}", 
+                    unplayedGames.Count, seasonId, season.CurrentWeek);
+
+                foreach (var game in unplayedGames)
                 {
-                    _logger.LogWarning("Skipping game {GameId}: Team data missing", game.Id);
-                    continue;
+                    // We need to load full team data for simulation
+                    var fullGame = await _gameRepository.GetByIdWithTeamsAndPlayersAsync(game.Id);
+                    if (fullGame == null || fullGame.HomeTeam == null || fullGame.AwayTeam == null)
+                    {
+                        _logger.LogWarning("Skipping game {GameId}: Team data missing", game.Id);
+                        continue;
+                    }
+
+                    // Run simulation
+                    var simResult = _engineSimulationService.SimulateGame(fullGame.HomeTeam, fullGame.AwayTeam);
+
+                    // Update game record
+                    fullGame.HomeScore = simResult.HomeScore;
+                    fullGame.AwayScore = simResult.AwayScore;
+                    fullGame.IsComplete = true;
+                    fullGame.PlayedAt = DateTime.UtcNow;
+                    fullGame.RandomSeed = simResult.RandomSeed;
+                    
+                    // Update team stats
+                    if (fullGame.HomeScore > fullGame.AwayScore)
+                    {
+                        fullGame.HomeTeam.Wins++;
+                        fullGame.AwayTeam.Losses++;
+                    }
+                    else if (fullGame.AwayScore > fullGame.HomeScore)
+                    {
+                        fullGame.AwayTeam.Wins++;
+                        fullGame.HomeTeam.Losses++;
+                    }
+                    else
+                    {
+                        fullGame.HomeTeam.Ties++;
+                        fullGame.AwayTeam.Ties++;
+                    }
+
+                    await _teamRepository.UpdateAsync(fullGame.HomeTeam);
+                    await _teamRepository.UpdateAsync(fullGame.AwayTeam);
+
+                    // Note: PlayByPlay is typically large, we might want to store it separately or compressed
+                    // For now, we'll assume the repository handles it or we map it if needed
+                    // fullGame.PlayByPlay = ... (Engine result needs to be mapped to Domain PlayByPlay if we want to save it)
+
+                    await _gameRepository.UpdateAsync(fullGame);
+
+                    results.Add(new GameSimulationResult
+                    {
+                        GameId = fullGame.Id,
+                        HomeTeam = fullGame.HomeTeam.Name,
+                        AwayTeam = fullGame.AwayTeam.Name,
+                        HomeScore = fullGame.HomeScore,
+                        AwayScore = fullGame.AwayScore,
+                        IsTie = simResult.IsTie
+                    });
                 }
 
-                // Run simulation
-                var simResult = _engineSimulationService.SimulateGame(fullGame.HomeTeam, fullGame.AwayTeam);
+                // Mark week as complete
+                currentWeek.Status = WeekStatus.Completed;
+                currentWeek.CompletedDate = DateTime.UtcNow;
 
-                // Update game record
-                fullGame.HomeScore = simResult.HomeScore;
-                fullGame.AwayScore = simResult.AwayScore;
-                fullGame.IsComplete = true;
-                fullGame.PlayedAt = DateTime.UtcNow;
-                fullGame.RandomSeed = simResult.RandomSeed;
-                
-                // Update team stats
-                if (fullGame.HomeScore > fullGame.AwayScore)
-                {
-                    fullGame.HomeTeam.Wins++;
-                    fullGame.AwayTeam.Losses++;
-                }
-                else if (fullGame.AwayScore > fullGame.HomeScore)
-                {
-                    fullGame.AwayTeam.Wins++;
-                    fullGame.HomeTeam.Losses++;
-                }
-                else
-                {
-                    fullGame.HomeTeam.Ties++;
-                    fullGame.AwayTeam.Ties++;
-                }
+                // Advance season pointer
+                bool seasonEnded = !AdvanceToNextWeek(season);
 
-                await _teamRepository.UpdateAsync(fullGame.HomeTeam);
-                await _teamRepository.UpdateAsync(fullGame.AwayTeam);
-                
-                // Note: PlayByPlay is typically large, we might want to store it separately or compressed
-                // For now, we'll assume the repository handles it or we map it if needed
-                // fullGame.PlayByPlay = ... (Engine result needs to be mapped to Domain PlayByPlay if we want to save it)
+                await _seasonRepository.UpdateAsync(season);
+                await _seasonRepository.SaveChangesAsync();
 
-                await _gameRepository.UpdateAsync(fullGame);
+                await transaction.CommitAsync();
 
-                results.Add(new GameSimulationResult
+                return new SeasonSimulationResult
                 {
-                    GameId = fullGame.Id,
-                    HomeTeam = fullGame.HomeTeam.Name,
-                    AwayTeam = fullGame.AwayTeam.Name,
-                    HomeScore = fullGame.HomeScore,
-                    AwayScore = fullGame.AwayScore,
-                    IsTie = simResult.IsTie
-                });
+                    SeasonId = seasonId,
+                    WeekNumber = currentWeek.WeekNumber,
+                    GamesSimulated = results.Count,
+                    GameResults = results,
+                    SeasonCompleted = seasonEnded
+                };
             }
-
-            // Mark week as complete
-            currentWeek.Status = WeekStatus.Completed;
-            currentWeek.CompletedDate = DateTime.UtcNow;
-
-            // Advance season pointer
-            bool seasonEnded = !AdvanceToNextWeek(season);
-            
-            await _seasonRepository.UpdateAsync(season);
-            await _seasonRepository.SaveChangesAsync();
-
-            return new SeasonSimulationResult
+            catch (Exception)
             {
-                SeasonId = seasonId,
-                WeekNumber = currentWeek.WeekNumber,
-                GamesSimulated = results.Count,
-                GameResults = results,
-                SeasonCompleted = seasonEnded
-            };
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         catch (Exception ex)
         {

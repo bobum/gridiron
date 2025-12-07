@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GameManagement\GameManagement.csproj" />
     <ProjectReference Include="..\DomainObjects\DomainObjects.csproj" />
+    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
   </ItemGroup>
 
 </Project>
