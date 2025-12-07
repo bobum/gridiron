@@ -164,6 +164,11 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // See Issue #142 for details.
         playByPlay.PlayByPlayLog.Should().NotBeNull();
 
+        // Verify PlayerGameStats were created
+        var playerGameStatRepo = serviceProvider.GetRequiredService<IPlayerGameStatRepository>();
+        var playerGameStats = await playerGameStatRepo.GetByGameIdAsync(updatedWeek1.Games.First().Id);
+        playerGameStats.Should().NotBeEmpty("PlayerGameStats should be created");
+
         // Act 2: Revert Week
         var revertResult = await seasonController.RevertWeek(season.Id);
 
@@ -187,6 +192,10 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Verify PlayByPlay was deleted
         var deletedPlayByPlay = await playByPlayRepo.GetByGameIdAsync(revertedGame.Id);
         deletedPlayByPlay.Should().BeNull("PlayByPlay record should be deleted after revert");
+
+        // Verify PlayerGameStats were deleted
+        var deletedPlayerGameStats = await playerGameStatRepo.GetByGameIdAsync(revertedGame.Id);
+        deletedPlayerGameStats.Should().BeEmpty("PlayerGameStats should be deleted after revert");
     }
 
     [Fact]

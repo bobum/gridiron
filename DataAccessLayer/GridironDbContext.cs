@@ -29,6 +29,8 @@ namespace DataAccessLayer
 
         public DbSet<PlayByPlay> PlayByPlays { get; set; }
 
+        public DbSet<PlayerGameStat> PlayerGameStats { get; set; }
+
         public DbSet<Season> Seasons { get; set; }
 
         public DbSet<SeasonWeek> SeasonWeeks { get; set; }
@@ -183,11 +185,6 @@ namespace DataAccessLayer
                 entity.Property(p => p.College).HasMaxLength(100);
                 entity.Property(p => p.Height).HasMaxLength(10);
 
-                // Ignore stat dictionaries for now (can add JSON serialization later if needed)
-                entity.Ignore(p => p.Stats);
-                entity.Ignore(p => p.SeasonStats);
-                entity.Ignore(p => p.CareerStats);
-
                 // Ignore injury tracking (runtime only)
                 entity.Ignore(p => p.CurrentInjury);
                 entity.Ignore(p => p.IsInjured);
@@ -244,6 +241,29 @@ namespace DataAccessLayer
 
                 // Soft delete query filter - exclude deleted play-by-plays from queries
                 entity.HasQueryFilter(p => !p.IsDeleted);
+            });
+
+            // ========================================
+            // PLAYER GAME STAT CONFIGURATION
+            // ========================================
+            modelBuilder.Entity<PlayerGameStat>(entity =>
+            {
+                entity.HasKey(pgs => pgs.Id);
+
+                // PlayerGameStat belongs to one Player (many-to-one)
+                entity.HasOne(pgs => pgs.Player)
+                      .WithMany()
+                      .HasForeignKey(pgs => pgs.PlayerId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // PlayerGameStat belongs to one Game (many-to-one)
+                entity.HasOne(pgs => pgs.Game)
+                      .WithMany()
+                      .HasForeignKey(pgs => pgs.GameId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Soft delete query filter
+                entity.HasQueryFilter(pgs => !pgs.IsDeleted);
             });
 
             // ========================================

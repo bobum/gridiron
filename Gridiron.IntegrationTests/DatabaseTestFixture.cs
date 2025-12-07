@@ -53,6 +53,7 @@ public class DatabaseTestFixture : IDisposable
         services.AddScoped<IPlayerRepository, PlayerRepository>();
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IPlayByPlayRepository, PlayByPlayRepository>();
+        services.AddScoped<IPlayerGameStatRepository, PlayerGameStatRepository>();
         services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 

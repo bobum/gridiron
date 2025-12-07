@@ -15,6 +15,7 @@ public class SeasonSimulationServiceTests
     private Mock<IGameRepository> _mockGameRepository;
     private Mock<ITeamRepository> _mockTeamRepository;
     private Mock<IPlayByPlayRepository> _mockPlayByPlayRepository;
+    private Mock<IPlayerGameStatRepository> _mockPlayerGameStatRepository;
     private Mock<IEngineSimulationService> _mockEngineSimulationService;
     private Mock<ITransactionManager> _mockTransactionManager;
     private Mock<ILogger<SeasonSimulationService>> _mockLogger;
@@ -26,6 +27,7 @@ public class SeasonSimulationServiceTests
         _mockGameRepository = new Mock<IGameRepository>();
         _mockTeamRepository = new Mock<ITeamRepository>();
         _mockPlayByPlayRepository = new Mock<IPlayByPlayRepository>();
+        _mockPlayerGameStatRepository = new Mock<IPlayerGameStatRepository>();
         _mockEngineSimulationService = new Mock<IEngineSimulationService>();
         _mockTransactionManager = new Mock<ITransactionManager>();
         _mockLogger = new Mock<ILogger<SeasonSimulationService>>();
@@ -40,6 +42,7 @@ public class SeasonSimulationServiceTests
             _mockGameRepository.Object,
             _mockTeamRepository.Object,
             _mockPlayByPlayRepository.Object,
+            _mockPlayerGameStatRepository.Object,
             _mockEngineSimulationService.Object,
             _mockTransactionManager.Object,
             _mockLogger.Object);

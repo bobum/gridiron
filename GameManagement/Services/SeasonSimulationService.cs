@@ -16,6 +16,7 @@ public class SeasonSimulationService : ISeasonSimulationService
     private readonly IGameRepository _gameRepository;
     private readonly ITeamRepository _teamRepository;
     private readonly IPlayByPlayRepository _playByPlayRepository;
+    private readonly IPlayerGameStatRepository _playerGameStatRepository;
     private readonly IEngineSimulationService _engineSimulationService;
     private readonly ITransactionManager _transactionManager;
     private readonly ILogger<SeasonSimulationService> _logger;
@@ -25,6 +26,7 @@ public class SeasonSimulationService : ISeasonSimulationService
         IGameRepository gameRepository,
         ITeamRepository teamRepository,
         IPlayByPlayRepository playByPlayRepository,
+        IPlayerGameStatRepository playerGameStatRepository,
         IEngineSimulationService engineSimulationService,
         ITransactionManager transactionManager,
         ILogger<SeasonSimulationService> logger)
@@ -33,6 +35,7 @@ public class SeasonSimulationService : ISeasonSimulationService
         _gameRepository = gameRepository;
         _teamRepository = teamRepository;
         _playByPlayRepository = playByPlayRepository;
+        _playerGameStatRepository = playerGameStatRepository;
         _engineSimulationService = engineSimulationService;
         _transactionManager = transactionManager;
         _logger = logger;
@@ -82,6 +85,13 @@ public class SeasonSimulationService : ISeasonSimulationService
                         continue;
                     }
 
+                    // Capture pre-game stats
+                    var preGameStats = new Dictionary<int, Dictionary<DomainObjects.StatTypes.PlayerStatType, int>>();
+                    foreach (var player in fullGame.HomeTeam.Players.Concat(fullGame.AwayTeam.Players))
+                    {
+                        preGameStats[player.Id] = new Dictionary<DomainObjects.StatTypes.PlayerStatType, int>(player.Stats);
+                    }
+
                     // Run simulation with PlayByPlay logging
                     var sb = new StringBuilder();
                     var playLogger = new StringLogger(sb);
@@ -113,6 +123,35 @@ public class SeasonSimulationService : ISeasonSimulationService
 
                     await _teamRepository.UpdateAsync(fullGame.HomeTeam);
                     await _teamRepository.UpdateAsync(fullGame.AwayTeam);
+
+                    // Calculate and save player game stats
+                    foreach (var player in fullGame.HomeTeam.Players.Concat(fullGame.AwayTeam.Players))
+                    {
+                        var oldStats = preGameStats.ContainsKey(player.Id) ? preGameStats[player.Id] : new Dictionary<DomainObjects.StatTypes.PlayerStatType, int>();
+                        var newStats = player.Stats;
+                        
+                        var gameStats = new Dictionary<DomainObjects.StatTypes.PlayerStatType, int>();
+                        foreach (var kvp in newStats)
+                        {
+                            var oldValue = oldStats.ContainsKey(kvp.Key) ? oldStats[kvp.Key] : 0;
+                            var delta = kvp.Value - oldValue;
+                            if (delta != 0)
+                            {
+                                gameStats[kvp.Key] = delta;
+                            }
+                        }
+                        
+                        if (gameStats.Any())
+                        {
+                            var playerGameStat = new PlayerGameStat
+                            {
+                                PlayerId = player.Id,
+                                GameId = fullGame.Id,
+                                Stats = gameStats
+                            };
+                            await _playerGameStatRepository.AddAsync(playerGameStat);
+                        }
+                    }
 
                     // Save PlayByPlay
                     var playByPlay = new PlayByPlay
@@ -257,11 +296,13 @@ public class SeasonSimulationService : ISeasonSimulationService
                 // Revert Team Stats (Wins/Losses/Ties)
                 if (game.IsComplete)
                 {
-                    var homeTeam = await _teamRepository.GetByIdAsync(game.HomeTeamId);
-                    var awayTeam = await _teamRepository.GetByIdAsync(game.AwayTeamId);
-
-                    if (homeTeam != null && awayTeam != null)
+                    // Load full game with players to revert stats
+                    var fullGame = await _gameRepository.GetByIdWithTeamsAndPlayersAsync(game.Id);
+                    if (fullGame != null && fullGame.HomeTeam != null && fullGame.AwayTeam != null)
                     {
+                        var homeTeam = fullGame.HomeTeam;
+                        var awayTeam = fullGame.AwayTeam;
+
                         if (game.HomeScore > game.AwayScore)
                         {
                             homeTeam.Wins = Math.Max(0, homeTeam.Wins - 1);
@@ -280,6 +321,30 @@ public class SeasonSimulationService : ISeasonSimulationService
 
                         await _teamRepository.UpdateAsync(homeTeam);
                         await _teamRepository.UpdateAsync(awayTeam);
+
+                        // Revert Player Stats
+                        var playerGameStats = await _playerGameStatRepository.GetByGameIdAsync(game.Id);
+                        if (playerGameStats.Any())
+                        {
+                            var playersMap = homeTeam.Players.Concat(awayTeam.Players)
+                                .ToDictionary(p => p.Id);
+
+                            foreach (var pgs in playerGameStats)
+                            {
+                                if (playersMap.TryGetValue(pgs.PlayerId, out var player))
+                                {
+                                    foreach (var kvp in pgs.Stats)
+                                    {
+                                        if (player.Stats.ContainsKey(kvp.Key))
+                                        {
+                                            player.Stats[kvp.Key] -= kvp.Value;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            await _playerGameStatRepository.DeleteByGameIdAsync(game.Id);
+                        }
                     }
                 }
 
