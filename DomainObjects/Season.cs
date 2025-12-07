@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DomainObjects;
 
 /// <summary>
@@ -9,6 +11,12 @@ public class Season : SoftDeletableEntity
     /// Gets or sets primary key.
     /// </summary>
     public int Id { get; set; }
+
+    /// <summary>
+    /// Concurrency token for optimistic locking.
+    /// </summary>
+    [Timestamp]
+    public byte[]? RowVersion { get; set; }
 
     /// <summary>
     /// Gets or sets foreign key to the league this season belongs to.

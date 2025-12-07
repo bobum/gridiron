@@ -1,8 +1,10 @@
-using DataAccessLayer.Repositories;
 using DataAccessLayer;
+using DataAccessLayer.Repositories;
 using DomainObjects;
-using Microsoft.Extensions.Logging;
 using GameManagement.Logging;
+using Gridiron.Engine;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 
@@ -40,57 +42,35 @@ public class SeasonSimulationService : ISeasonSimulationService
     {
         try
         {
-            var season = await _seasonRepository.GetByIdWithWeeksAndGamesAsync(seasonId);
-            if (season == null)
-            {
-                return new SeasonSimulationResult { Error = $"Season {seasonId} not found" };
-            }
-
-            if (season.IsComplete)
-            {
-                return new SeasonSimulationResult { Error = "Season is already complete" };
-            }
-
-            var currentWeek = season.Weeks.FirstOrDefault(w => w.WeekNumber == season.CurrentWeek);
-            if (currentWeek == null)
-            {
-                return new SeasonSimulationResult { Error = $"Week {season.CurrentWeek} not found in season {seasonId}" };
-            }
-
-            if (currentWeek.Status == WeekStatus.Completed)
-            {
-                // If current week is already marked complete, try to advance to next week
-                // This handles cases where simulation might have been interrupted or manually advanced
-                if (!AdvanceToNextWeek(season))
-                {
-                    return new SeasonSimulationResult
-                    {
-                        SeasonId = seasonId,
-                        WeekNumber = season.CurrentWeek,
-                        SeasonCompleted = true,
-                        Error = "Season is complete (no more weeks)"
-                    };
-                }
-
-                // Get the new current week
-                currentWeek = season.Weeks.FirstOrDefault(w => w.WeekNumber == season.CurrentWeek);
-                if (currentWeek == null)
-                {
-                    return new SeasonSimulationResult { Error = $"Next week {season.CurrentWeek} not found" };
-                }
-            }
-
             using var transaction = await _transactionManager.BeginTransactionAsync();
             try
             {
-                currentWeek.Status = WeekStatus.InProgress;
-                await _seasonRepository.UpdateAsync(season); // Save status change
+                var season = await _seasonRepository.GetByIdWithWeeksAndGamesAsync(seasonId);
+                if (season == null)
+                {
+                    return new SeasonSimulationResult { Error = $"Season {seasonId} not found" };
+                }
 
-                var results = new List<GameSimulationResult>();
+                if (season.IsComplete)
+                {
+                    return new SeasonSimulationResult { Error = "Season is already complete." };
+                }
+
+                var currentWeek = season.Weeks.FirstOrDefault(w => w.WeekNumber == season.CurrentWeek);
+                if (currentWeek == null)
+                {
+                    return new SeasonSimulationResult { Error = $"Week {season.CurrentWeek} not found." };
+                }
+
+                if (currentWeek.Status == WeekStatus.Completed)
+                {
+                    return new SeasonSimulationResult { Error = $"Week {season.CurrentWeek} is already completed." };
+                }
+
                 var unplayedGames = currentWeek.Games.Where(g => !g.IsComplete).ToList();
+                var results = new List<GameSimulationResult>();
 
-                _logger.LogInformation("Simulating {Count} games for Season {SeasonId} Week {Week}",
-                    unplayedGames.Count, seasonId, season.CurrentWeek);
+                _logger.LogInformation("Simulating Season {SeasonId} Week {Week}", seasonId, season.CurrentWeek);
 
                 foreach (var game in unplayedGames)
                 {
@@ -188,6 +168,15 @@ public class SeasonSimulationService : ISeasonSimulationService
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _logger.LogWarning("Concurrency conflict simulating week for season {SeasonId}", seasonId);
+            return new SeasonSimulationResult
+            {
+                Error = "Simulation failed due to concurrent modification. Please try again.",
+                IsConcurrencyError = true
+            };
         }
         catch (Exception ex)
         {

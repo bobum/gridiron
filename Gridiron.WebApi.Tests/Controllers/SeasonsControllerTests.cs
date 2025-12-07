@@ -47,23 +47,51 @@ public class SeasonsControllerTests
     }
 
     [Fact]
+    public async Task AdvanceWeek_ShouldReturnConflict_WhenConcurrencyErrorOccurs()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+
+        var season = new Season { Id = seasonId, LeagueId = leagueId };
+        _mockSeasonRepository.Setup(r => r.GetByIdAsync(seasonId)).ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.IsCommissionerOfLeagueAsync(userId, leagueId)).ReturnsAsync(true);
+
+        _mockSeasonSimulationService.Setup(s => s.SimulateCurrentWeekAsync(seasonId))
+            .ReturnsAsync(new SeasonSimulationResult
+            {
+                Error = "Concurrency error",
+                IsConcurrencyError = true
+            });
+
+        // Act
+        var result = await _controller.AdvanceWeek(seasonId);
+
+        // Assert
+        Assert.IsType<ConflictObjectResult>(result.Result);
+    }
+
+    [Fact]
     public async Task GetCurrentWeek_ShouldReturnOk_WhenSeasonExistsAndAuthorized()
     {
         // Arrange
         var seasonId = 1;
         var leagueId = 10;
         var userId = "user-id";
-        
-        var season = new Season 
-        { 
-            Id = seasonId, 
-            LeagueId = leagueId, 
+
+        var season = new Season
+        {
+            Id = seasonId,
+            LeagueId = leagueId,
             CurrentWeek = 1,
             Weeks = new List<SeasonWeek>
             {
-                new SeasonWeek 
-                { 
-                    WeekNumber = 1, 
+                new SeasonWeek
+                {
+                    WeekNumber = 1,
                     Status = WeekStatus.Scheduled,
                     Games = new List<Game>
                     {
@@ -114,7 +142,7 @@ public class SeasonsControllerTests
         var seasonId = 1;
         var leagueId = 10;
         var userId = "user-id";
-        
+
         var season = new Season { Id = seasonId, LeagueId = leagueId };
         _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
             .ReturnsAsync(season);
@@ -137,11 +165,11 @@ public class SeasonsControllerTests
         var seasonId = 1;
         var leagueId = 10;
         var userId = "user-id";
-        
-        var season = new Season 
-        { 
-            Id = seasonId, 
-            LeagueId = leagueId, 
+
+        var season = new Season
+        {
+            Id = seasonId,
+            LeagueId = leagueId,
             CurrentWeek = 2, // Current week is 2
             Weeks = new List<SeasonWeek>
             {
@@ -170,11 +198,11 @@ public class SeasonsControllerTests
         var seasonId = 1;
         var leagueId = 10;
         var userId = "user-id";
-        
-        var season = new Season 
-        { 
-            Id = seasonId, 
-            LeagueId = leagueId, 
+
+        var season = new Season
+        {
+            Id = seasonId,
+            LeagueId = leagueId,
             CurrentWeek = 18, // Past last week
             IsComplete = true,
             Weeks = new List<SeasonWeek>

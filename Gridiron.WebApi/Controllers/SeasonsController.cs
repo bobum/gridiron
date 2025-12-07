@@ -450,6 +450,10 @@ public class SeasonsController : ControllerBase
 
             if (!result.Success)
             {
+                if (result.IsConcurrencyError)
+                {
+                    return Conflict(new { error = result.Error });
+                }
                 return BadRequest(new { error = result.Error });
             }
 
