@@ -46,6 +46,7 @@ namespace DataAccessLayer.Repositories
                 {
                     stat.IsDeleted = true;
                     stat.DeletedAt = System.DateTime.UtcNow;
+                    stat.DeletedBy = "system";
                 }
                 await _context.SaveChangesAsync();
             }

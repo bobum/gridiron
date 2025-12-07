@@ -264,6 +264,9 @@ namespace DataAccessLayer
 
                 // Soft delete query filter
                 entity.HasQueryFilter(pgs => !pgs.IsDeleted);
+
+                // Unique index on (PlayerId, GameId)
+                entity.HasIndex(pgs => new { pgs.PlayerId, pgs.GameId }).IsUnique();
             });
 
             // ========================================

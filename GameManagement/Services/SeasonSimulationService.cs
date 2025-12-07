@@ -121,10 +121,8 @@ public class SeasonSimulationService : ISeasonSimulationService
                         fullGame.AwayTeam.Ties++;
                     }
 
-                    await _teamRepository.UpdateAsync(fullGame.HomeTeam);
-                    await _teamRepository.UpdateAsync(fullGame.AwayTeam);
-
                     // Calculate and save player game stats
+                    var playerGameStatsToSave = new List<PlayerGameStat>();
                     foreach (var player in fullGame.HomeTeam.Players.Concat(fullGame.AwayTeam.Players))
                     {
                         var oldStats = preGameStats.ContainsKey(player.Id) ? preGameStats[player.Id] : new Dictionary<DomainObjects.StatTypes.PlayerStatType, int>();
@@ -143,19 +141,28 @@ public class SeasonSimulationService : ISeasonSimulationService
                         
                         if (gameStats.Any())
                         {
-                            var playerGameStat = new PlayerGameStat
+                            playerGameStatsToSave.Add(new PlayerGameStat
                             {
                                 PlayerId = player.Id,
+                                Player = player,
                                 GameId = fullGame.Id,
+                                Game = fullGame,
                                 Stats = gameStats
-                            };
-                            await _playerGameStatRepository.AddAsync(playerGameStat);
+                            });
                         }
 
                         // Restore player stats to pre-game state to avoid persisting cumulative stats on the Player object
                         // This ensures that stats are only stored in PlayerGameStat and aggregated at runtime/end-of-season
                         player.Stats = oldStats;
                     }
+
+                    if (playerGameStatsToSave.Any())
+                    {
+                        await _playerGameStatRepository.AddRangeAsync(playerGameStatsToSave);
+                    }
+
+                    await _teamRepository.UpdateAsync(fullGame.HomeTeam);
+                    await _teamRepository.UpdateAsync(fullGame.AwayTeam);
 
                     // Save PlayByPlay
                     var playByPlay = new PlayByPlay
