@@ -106,6 +106,26 @@ public class SeasonSimulationService : ISeasonSimulationService
                     fullGame.PlayedAt = DateTime.UtcNow;
                     fullGame.RandomSeed = simResult.RandomSeed;
                     
+                    // Update team stats
+                    if (fullGame.HomeScore > fullGame.AwayScore)
+                    {
+                        fullGame.HomeTeam.Wins++;
+                        fullGame.AwayTeam.Losses++;
+                    }
+                    else if (fullGame.AwayScore > fullGame.HomeScore)
+                    {
+                        fullGame.AwayTeam.Wins++;
+                        fullGame.HomeTeam.Losses++;
+                    }
+                    else
+                    {
+                        fullGame.HomeTeam.Ties++;
+                        fullGame.AwayTeam.Ties++;
+                    }
+
+                    await _teamRepository.UpdateAsync(fullGame.HomeTeam);
+                    await _teamRepository.UpdateAsync(fullGame.AwayTeam);
+
                     // Note: PlayByPlay is typically large, we might want to store it separately or compressed
                     // For now, we'll assume the repository handles it or we map it if needed
                     // fullGame.PlayByPlay = ... (Engine result needs to be mapped to Domain PlayByPlay if we want to save it)
@@ -129,7 +149,7 @@ public class SeasonSimulationService : ISeasonSimulationService
 
                 // Advance season pointer
                 bool seasonEnded = !AdvanceToNextWeek(season);
-                
+
                 await _seasonRepository.UpdateAsync(season);
                 await _seasonRepository.SaveChangesAsync();
 
