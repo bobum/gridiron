@@ -100,12 +100,12 @@ public class SeasonSimulationService : ISeasonSimulationService
                 fullGame.RandomSeed = simResult.RandomSeed;
                 
                 // Update team stats
-                if (simResult.HomeScore > simResult.AwayScore)
+                if (fullGame.HomeScore > fullGame.AwayScore)
                 {
                     fullGame.HomeTeam.Wins++;
                     fullGame.AwayTeam.Losses++;
                 }
-                else if (simResult.AwayScore > simResult.HomeScore)
+                else if (fullGame.AwayScore > fullGame.HomeScore)
                 {
                     fullGame.AwayTeam.Wins++;
                     fullGame.HomeTeam.Losses++;
