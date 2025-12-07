@@ -3,7 +3,7 @@ using DomainObjects;
 namespace DataAccessLayer.Repositories;
 
 /// <summary>
-/// Repository interface for PlayByPlay data access
+/// Repository interface for PlayByPlay data access.
 /// Manages play-by-play game logs and serialized play data.
 /// </summary>
 public interface IPlayByPlayRepository

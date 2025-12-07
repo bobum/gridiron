@@ -14,6 +14,7 @@ public class SeasonSimulationServiceTests
     private Mock<ISeasonRepository> _mockSeasonRepository;
     private Mock<IGameRepository> _mockGameRepository;
     private Mock<ITeamRepository> _mockTeamRepository;
+    private Mock<IPlayByPlayRepository> _mockPlayByPlayRepository;
     private Mock<IEngineSimulationService> _mockEngineSimulationService;
     private Mock<ITransactionManager> _mockTransactionManager;
     private Mock<ILogger<SeasonSimulationService>> _mockLogger;
@@ -24,6 +25,7 @@ public class SeasonSimulationServiceTests
         _mockSeasonRepository = new Mock<ISeasonRepository>();
         _mockGameRepository = new Mock<IGameRepository>();
         _mockTeamRepository = new Mock<ITeamRepository>();
+        _mockPlayByPlayRepository = new Mock<IPlayByPlayRepository>();
         _mockEngineSimulationService = new Mock<IEngineSimulationService>();
         _mockTransactionManager = new Mock<ITransactionManager>();
         _mockLogger = new Mock<ILogger<SeasonSimulationService>>();
@@ -37,6 +39,7 @@ public class SeasonSimulationServiceTests
             _mockSeasonRepository.Object,
             _mockGameRepository.Object,
             _mockTeamRepository.Object,
+            _mockPlayByPlayRepository.Object,
             _mockEngineSimulationService.Object,
             _mockTransactionManager.Object,
             _mockLogger.Object);
@@ -99,7 +102,7 @@ public class SeasonSimulationServiceTests
         _mockGameRepository.Setup(r => r.GetByIdWithTeamsAndPlayersAsync(game.Id))
             .ReturnsAsync(fullGame);
 
-        _mockEngineSimulationService.Setup(s => s.SimulateGame(It.IsAny<Team>(), It.IsAny<Team>(), null))
+        _mockEngineSimulationService.Setup(s => s.SimulateGame(It.IsAny<Team>(), It.IsAny<Team>(), null, It.IsAny<ILogger>()))
             .Returns(simResult);
 
         // Act

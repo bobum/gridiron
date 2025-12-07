@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DataAccessLayer.Repositories;
 
 /// <summary>
-/// Repository implementation for PlayByPlay data access
+/// Repository implementation for PlayByPlay data access.
 /// ALL database access for play-by-play data goes through this class.
 /// </summary>
 public class PlayByPlayRepository : IPlayByPlayRepository

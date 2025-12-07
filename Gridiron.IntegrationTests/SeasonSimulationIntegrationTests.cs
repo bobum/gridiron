@@ -153,6 +153,17 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         updatedWeek1.Status.Should().Be(WeekStatus.Completed);
         updatedWeek1.Games.First().IsComplete.Should().BeTrue();
         
+        // Verify PlayByPlay was created
+        var playByPlayRepo = serviceProvider.GetRequiredService<IPlayByPlayRepository>();
+        var playByPlay = await playByPlayRepo.GetByGameIdAsync(updatedWeek1.Games.First().Id);
+        playByPlay.Should().NotBeNull("PlayByPlay record should be created");
+        playByPlay!.PlaysJson.Should().NotBeNullOrEmpty();
+        // Log is currently empty because Gridiron.Engine v0.1.0 does not write to the passed ILogger.
+        // We assert NotBeNull to ensure the property is present, but allow empty string until engine is updated.
+        // TODO: Update this assertion to check for non-empty log once Gridiron.Engine supports logging.
+        // See Issue #142 for details.
+        playByPlay.PlayByPlayLog.Should().NotBeNull();
+
         // Act 2: Revert Week
         var revertResult = await seasonController.RevertWeek(season.Id);
 
@@ -172,6 +183,10 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         revertedGame.HomeScore.Should().Be(0);
         revertedGame.AwayScore.Should().Be(0);
         revertedGame.PlayedAt.Should().BeNull();
+
+        // Verify PlayByPlay was deleted
+        var deletedPlayByPlay = await playByPlayRepo.GetByGameIdAsync(revertedGame.Id);
+        deletedPlayByPlay.Should().BeNull("PlayByPlay record should be deleted after revert");
     }
 
     [Fact]
