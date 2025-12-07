@@ -172,4 +172,105 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         revertedGame.AwayScore.Should().Be(0);
         revertedGame.PlayedAt.Should().BeNull();
     }
+
+    [Fact]
+    public async Task SimulateWeek_ShouldUpdateTeamStats()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var serviceProvider = scope.ServiceProvider;
+        
+        var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
+        var league = new League { Name = "Stats Test League", IsActive = true };
+        await leagueRepo.AddAsync(league);
+
+        var seasonRepo = serviceProvider.GetRequiredService<ISeasonRepository>();
+        var season = new Season { LeagueId = league.Id, Year = 2025, CurrentWeek = 1, Phase = SeasonPhase.RegularSeason };
+        await seasonRepo.AddAsync(season);
+
+        var teamRepo = serviceProvider.GetRequiredService<ITeamRepository>();
+        var teamBuilder = serviceProvider.GetRequiredService<ITeamBuilderService>();
+        var divisionRepo = serviceProvider.GetRequiredService<IDivisionRepository>();
+        var conferenceRepo = serviceProvider.GetRequiredService<IConferenceRepository>();
+
+        var conf = new Conference { Name = "C", LeagueId = league.Id };
+        await conferenceRepo.AddAsync(conf);
+        var div = new Division { Name = "D", ConferenceId = conf.Id };
+        await divisionRepo.AddAsync(div);
+
+        var t1 = new Team { Name = "T1", DivisionId = div.Id, Wins = 0, Losses = 0, Ties = 0 };
+        var t2 = new Team { Name = "T2", DivisionId = div.Id, Wins = 0, Losses = 0, Ties = 0 };
+        await teamRepo.AddAsync(t1);
+        await teamRepo.AddAsync(t2);
+        
+        t1 = teamBuilder.PopulateTeamRoster(t1, 1);
+        t2 = teamBuilder.PopulateTeamRoster(t2, 2);
+        await teamRepo.UpdateAsync(t1);
+        await teamRepo.UpdateAsync(t2);
+        await serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>().SaveChangesAsync();
+
+        var week = new SeasonWeek { SeasonId = season.Id, WeekNumber = 1, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
+        season.Weeks.Add(week);
+        // Add next week so we can advance
+        season.Weeks.Add(new SeasonWeek { SeasonId = season.Id, WeekNumber = 2, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason });
+        
+        var game = new Game { HomeTeamId = t1.Id, AwayTeamId = t2.Id, SeasonWeek = week, IsComplete = false };
+        week.Games.Add(game);
+        await seasonRepo.UpdateAsync(season);
+
+        // Use real service
+        var seasonSimulationService = serviceProvider.GetRequiredService<ISeasonSimulationService>();
+
+        var seasonController = new SeasonsController(
+            serviceProvider.GetRequiredService<ISeasonRepository>(),
+            serviceProvider.GetRequiredService<ILeagueRepository>(),
+            serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
+            seasonSimulationService,
+            serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
+            serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
+        );
+
+        var userRepo = serviceProvider.GetRequiredService<IUserRepository>();
+        var commissionerId = "commish-stats-id";
+        var user = new User 
+        { 
+            AzureAdObjectId = commissionerId,
+            Email = "commish4@example.com",
+            DisplayName = "Commissioner 4",
+            LeagueRoles = new List<UserLeagueRole> { new UserLeagueRole { LeagueId = league.Id, Role = UserRole.Commissioner } }
+        };
+        await userRepo.AddAsync(user);
+
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+            new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", commissionerId),
+            new Claim("oid", commissionerId)
+        }, "mock"));
+
+        seasonController.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = claimsPrincipal }
+        };
+
+        // Act
+        var result = await seasonController.AdvanceWeek(season.Id);
+
+        // Assert
+        var okResult = result.Result as OkObjectResult;
+        okResult.Should().NotBeNull();
+
+        var dbContext = serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>();
+        dbContext.ChangeTracker.Clear();
+
+        var t1Updated = await teamRepo.GetByIdAsync(t1.Id);
+        var t2Updated = await teamRepo.GetByIdAsync(t2.Id);
+        var gameUpdated = await serviceProvider.GetRequiredService<IGameRepository>().GetByIdAsync(game.Id);
+
+        // Verify stats updated (non-deterministic result)
+        gameUpdated!.IsComplete.Should().BeTrue();
+        (gameUpdated.HomeScore + gameUpdated.AwayScore).Should().BeGreaterThanOrEqualTo(0);
+        
+        (t1Updated!.Wins + t1Updated.Losses + t1Updated.Ties).Should().Be(1);
+        (t2Updated!.Wins + t2Updated.Losses + t2Updated.Ties).Should().Be(1);
+    }
 }
