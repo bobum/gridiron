@@ -383,6 +383,57 @@ public class SeasonSimulationServiceTests
     }
 
     [Fact]
+    public async Task SimulateCurrentWeekAsync_ShouldSkipGame_WhenTeamDataMissing()
+    {
+        // Arrange
+        var seasonId = 1;
+        var currentWeek = 1;
+        var game = new Game { Id = 100, IsComplete = false };
+        var week = new SeasonWeek { WeekNumber = currentWeek, Status = WeekStatus.Scheduled, Games = new List<Game> { game } };
+        var season = new Season { Id = seasonId, CurrentWeek = currentWeek, Weeks = new List<SeasonWeek> { week } };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithWeeksAndGamesAsync(seasonId)).ReturnsAsync(season);
+
+        // Return null for full game to simulate missing data
+        _mockGameRepository.Setup(r => r.GetByIdWithTeamsAndPlayersAsync(game.Id)).ReturnsAsync((Game?)null);
+
+        // Act
+        var result = await _service.SimulateCurrentWeekAsync(seasonId);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal(0, result.GamesSimulated); // Should be 0 because game was skipped
+        _mockEngineSimulationService.Verify(s => s.SimulateGame(It.IsAny<Team>(), It.IsAny<Team>(), null, It.IsAny<ILogger>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task RevertLastWeekAsync_ShouldSkipStatsRevert_WhenTeamDataMissing()
+    {
+        // Arrange
+        var seasonId = 1;
+        var weekNum = 1;
+        var game = new Game { Id = 100, IsComplete = true, HomeScore = 24, AwayScore = 17 };
+        var week = new SeasonWeek { WeekNumber = weekNum, Status = WeekStatus.Completed, Games = new List<Game> { game } };
+        var season = new Season { Id = seasonId, CurrentWeek = 2, Weeks = new List<SeasonWeek> { week } };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithWeeksAndGamesAsync(seasonId)).ReturnsAsync(season);
+
+        // Return null for full game to simulate missing data
+        _mockGameRepository.Setup(r => r.GetByIdWithTeamsAndPlayersAsync(game.Id)).ReturnsAsync((Game?)null);
+
+        // Act
+        var result = await _service.RevertLastWeekAsync(seasonId);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.False(game.IsComplete); // Game should still be reset
+        Assert.Equal(0, game.HomeScore);
+
+        // Verify Team Stats NOT Reverted (because team data was missing)
+        _mockTeamRepository.Verify(r => r.UpdateAsync(It.IsAny<Team>()), Times.Never);
+    }
+
+    [Fact]
     public async Task RevertLastWeekAsync_ShouldRevertTie()
     {
         // Arrange
