@@ -79,8 +79,7 @@ public class GamesController : ControllerBase
                 HomeScore = game.HomeScore,
                 AwayScore = game.AwayScore,
                 RandomSeed = game.RandomSeed,
-                IsComplete = true,
-                TotalPlays = 0
+                IsComplete = true
             };
 
             return Ok(gameDto);
@@ -142,8 +141,7 @@ public class GamesController : ControllerBase
             HomeScore = g.HomeScore,
             AwayScore = g.AwayScore,
             RandomSeed = g.RandomSeed,
-            IsComplete = true,
-            TotalPlays = 0
+            IsComplete = true
         }).ToList();
 
         return Ok(gameDtos);
@@ -194,8 +192,7 @@ public class GamesController : ControllerBase
             HomeScore = game.HomeScore,
             AwayScore = game.AwayScore,
             RandomSeed = game.RandomSeed,
-            IsComplete = true,
-            TotalPlays = 0
+            IsComplete = true
         };
 
         return Ok(gameDto);

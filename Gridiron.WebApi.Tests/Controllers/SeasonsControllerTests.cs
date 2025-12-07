@@ -53,7 +53,7 @@ public class SeasonsControllerTests
         var seasonId = 1;
         var leagueId = 10;
         var userId = "user-id";
-        
+
         var season = new Season { Id = seasonId, LeagueId = leagueId };
         _mockSeasonRepository.Setup(r => r.GetByIdAsync(seasonId)).ReturnsAsync(season);
 
@@ -61,10 +61,10 @@ public class SeasonsControllerTests
         _mockAuthorizationService.Setup(a => a.IsCommissionerOfLeagueAsync(userId, leagueId)).ReturnsAsync(true);
 
         _mockSeasonSimulationService.Setup(s => s.SimulateCurrentWeekAsync(seasonId))
-            .ReturnsAsync(new SeasonSimulationResult 
-            { 
-                Error = "Concurrency error", 
-                IsConcurrencyError = true 
+            .ReturnsAsync(new SeasonSimulationResult
+            {
+                Error = "Concurrency error",
+                IsConcurrencyError = true
             });
 
         // Act
@@ -72,6 +72,159 @@ public class SeasonsControllerTests
 
         // Assert
         Assert.IsType<ConflictObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturnOk_WhenSeasonExistsAndAuthorized()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+
+        var season = new Season
+        {
+            Id = seasonId,
+            LeagueId = leagueId,
+            CurrentWeek = 1,
+            Weeks = new List<SeasonWeek>
+            {
+                new SeasonWeek
+                {
+                    WeekNumber = 1,
+                    Status = WeekStatus.Scheduled,
+                    Games = new List<Game>
+                    {
+                        new Game { Id = 100, HomeTeam = new Team { Name = "Home" }, AwayTeam = new Team { Name = "Away" } }
+                    }
+                }
+            }
+        };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        // Mock Auth
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var dto = Assert.IsType<CurrentWeekDto>(okResult.Value);
+        Assert.Equal(1, dto.WeekNumber);
+        Assert.Single(dto.Games);
+        Assert.Equal("Home", dto.Games[0].HomeTeamName);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturn404_WhenSeasonNotFound()
+    {
+        // Arrange
+        var seasonId = 999;
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync((Season?)null);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturn403_WhenUserLacksAccess()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+
+        var season = new Season { Id = seasonId, LeagueId = leagueId };
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        Assert.IsType<ForbidResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturn404_WhenCurrentWeekNotFound()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+
+        var season = new Season
+        {
+            Id = seasonId,
+            LeagueId = leagueId,
+            CurrentWeek = 2, // Current week is 2
+            Weeks = new List<SeasonWeek>
+            {
+                new SeasonWeek { WeekNumber = 1 } // But only week 1 is loaded/exists
+            }
+        };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetCurrentWeek_ShouldReturnLastWeek_WhenSeasonIsComplete()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+
+        var season = new Season
+        {
+            Id = seasonId,
+            LeagueId = leagueId,
+            CurrentWeek = 18, // Past last week
+            IsComplete = true,
+            Weeks = new List<SeasonWeek>
+            {
+                new SeasonWeek { WeekNumber = 17, Status = WeekStatus.Completed }
+            }
+        };
+
+        _mockSeasonRepository.Setup(r => r.GetByIdWithCurrentWeekAsync(seasonId))
+            .ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.CanAccessLeagueAsync(userId, leagueId))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _controller.GetCurrentWeek(seasonId);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var dto = Assert.IsType<CurrentWeekDto>(okResult.Value);
+        Assert.Equal(17, dto.WeekNumber); // Should return week 17
     }
 
     private void SetupUser(string userId)

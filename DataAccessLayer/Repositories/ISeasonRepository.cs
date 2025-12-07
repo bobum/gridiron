@@ -39,6 +39,13 @@ public interface ISeasonRepository
     Task<Season?> GetByIdWithFullDataAsync(int seasonId);
 
     /// <summary>
+    /// Gets a season by ID with only the current week loaded.
+    /// </summary>
+    /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
+    Task<Season?> GetByIdWithCurrentWeekAsync(int seasonId);
+
+
+    /// <summary>
     /// Gets all seasons for a league.
     /// </summary>
     /// <returns><placeholder>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>

@@ -113,6 +113,7 @@ builder.Services.AddScoped<IPlayByPlayRepository, PlayByPlayRepository>();
 builder.Services.AddScoped<IPlayerDataRepository, DatabasePlayerDataRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
+builder.Services.AddScoped<ITransactionManager, GridironTransactionManager>();
 
 // ========================================
 // APPLICATION SERVICES
