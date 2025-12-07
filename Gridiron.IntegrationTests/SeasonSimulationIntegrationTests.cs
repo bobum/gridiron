@@ -159,7 +159,9 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         playByPlay!.PlaysJson.Should().NotBeNullOrEmpty();
         // Log is currently empty because Gridiron.Engine v0.1.0 does not write to the passed ILogger.
         // We assert NotBeNull to ensure the property is present, but allow empty string until engine is updated.
-        playByPlay.PlayByPlayLog.Should().NotBeNull(); 
+        // TODO: Update this assertion to check for non-empty log once Gridiron.Engine supports logging.
+        // See Issue #142 for details.
+        playByPlay.PlayByPlayLog.Should().NotBeNull();
 
         // Act 2: Revert Week
         var revertResult = await seasonController.RevertWeek(season.Id);

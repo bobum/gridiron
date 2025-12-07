@@ -113,10 +113,12 @@ public class SeasonSimulationService : ISeasonSimulationService
                 {
                     GameId = fullGame.Id,
                     Game = fullGame,
-                    PlaysJson = JsonSerializer.Serialize(simResult.Plays, new JsonSerializerOptions 
-                    { 
-                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles 
-                    }),
+                    PlaysJson = simResult.Plays != null 
+                        ? JsonSerializer.Serialize(simResult.Plays, new JsonSerializerOptions 
+                        { 
+                            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles 
+                        }) 
+                        : "[]",
                     PlayByPlayLog = sb.ToString()
                 };
                 await _playByPlayRepository.AddAsync(playByPlay);
