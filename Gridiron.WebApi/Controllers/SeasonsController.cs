@@ -376,7 +376,7 @@ public class SeasonsController : ControllerBase
 
             if (!result.Success)
             {
-                if (result.Error.Contains("concurrent modification"))
+                if (result.IsConcurrencyError)
                 {
                     return Conflict(new { error = result.Error });
                 }

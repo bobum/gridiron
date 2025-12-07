@@ -1,0 +1,85 @@
+using DataAccessLayer.Repositories;
+using DomainObjects;
+using GameManagement.Services;
+using Gridiron.WebApi.Controllers;
+using Gridiron.WebApi.DTOs;
+using Gridiron.WebApi.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Xunit;
+
+namespace Gridiron.WebApi.Tests.Controllers;
+
+public class SeasonsControllerTests
+{
+    private readonly Mock<ISeasonRepository> _mockSeasonRepository;
+    private readonly Mock<ILeagueRepository> _mockLeagueRepository;
+    private readonly Mock<IScheduleGeneratorService> _mockScheduleGeneratorService;
+    private readonly Mock<ISeasonSimulationService> _mockSeasonSimulationService;
+    private readonly Mock<IGridironAuthorizationService> _mockAuthorizationService;
+    private readonly Mock<ILogger<SeasonsController>> _mockLogger;
+    private readonly SeasonsController _controller;
+
+    public SeasonsControllerTests()
+    {
+        _mockSeasonRepository = new Mock<ISeasonRepository>();
+        _mockLeagueRepository = new Mock<ILeagueRepository>();
+        _mockScheduleGeneratorService = new Mock<IScheduleGeneratorService>();
+        _mockSeasonSimulationService = new Mock<ISeasonSimulationService>();
+        _mockAuthorizationService = new Mock<IGridironAuthorizationService>();
+        _mockLogger = new Mock<ILogger<SeasonsController>>();
+
+        _controller = new SeasonsController(
+            _mockSeasonRepository.Object,
+            _mockLeagueRepository.Object,
+            _mockScheduleGeneratorService.Object,
+            _mockSeasonSimulationService.Object,
+            _mockAuthorizationService.Object,
+            _mockLogger.Object);
+
+        // Setup default context
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+    }
+
+    [Fact]
+    public async Task AdvanceWeek_ShouldReturnConflict_WhenConcurrencyErrorOccurs()
+    {
+        // Arrange
+        var seasonId = 1;
+        var leagueId = 10;
+        var userId = "user-id";
+        
+        var season = new Season { Id = seasonId, LeagueId = leagueId };
+        _mockSeasonRepository.Setup(r => r.GetByIdAsync(seasonId)).ReturnsAsync(season);
+
+        SetupUser(userId);
+        _mockAuthorizationService.Setup(a => a.IsCommissionerOfLeagueAsync(userId, leagueId)).ReturnsAsync(true);
+
+        _mockSeasonSimulationService.Setup(s => s.SimulateCurrentWeekAsync(seasonId))
+            .ReturnsAsync(new SeasonSimulationResult 
+            { 
+                Error = "Concurrency error", 
+                IsConcurrencyError = true 
+            });
+
+        // Act
+        var result = await _controller.AdvanceWeek(seasonId);
+
+        // Assert
+        Assert.IsType<ConflictObjectResult>(result.Result);
+    }
+
+    private void SetupUser(string userId)
+    {
+        var claims = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity(new[]
+        {
+            new System.Security.Claims.Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", userId)
+        }));
+        _controller.ControllerContext.HttpContext.User = claims;
+    }
+}

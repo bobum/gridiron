@@ -139,7 +139,11 @@ public class SeasonSimulationService : ISeasonSimulationService
         catch (DbUpdateConcurrencyException)
         {
             _logger.LogWarning("Concurrency conflict simulating week for season {SeasonId}", seasonId);
-            return new SeasonSimulationResult { Error = "Simulation failed due to concurrent modification. Please try again." };
+            return new SeasonSimulationResult 
+            { 
+                Error = "Simulation failed due to concurrent modification. Please try again.",
+                IsConcurrencyError = true
+            };
         }
         catch (Exception ex)
         {

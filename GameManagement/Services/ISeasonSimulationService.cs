@@ -33,6 +33,7 @@ public class SeasonSimulationResult
     public List<GameSimulationResult> GameResults { get; set; } = new();
     public bool SeasonCompleted { get; set; }
     public string? Error { get; set; }
+    public bool IsConcurrencyError { get; set; }
     public bool Success => string.IsNullOrEmpty(Error);
 }
 
