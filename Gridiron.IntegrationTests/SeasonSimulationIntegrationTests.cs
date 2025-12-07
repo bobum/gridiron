@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using DataAccessLayer;
+using DataAccessLayer.Repositories;
 using DomainObjects;
 using FluentAssertions;
 using GameManagement.Services;
@@ -7,10 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 using Xunit;
-using DataAccessLayer;
-using DataAccessLayer.Repositories;
 
 namespace Gridiron.IntegrationTests;
 
@@ -30,7 +30,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var serviceProvider = scope.ServiceProvider;
-        
+
         // 1. Create League and Season FIRST so we have IDs for the user role
         var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
         var league = new League { Name = "Simulation Test League", IsActive = true };
@@ -43,17 +43,17 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // 2. Create User and Assign Commissioner Role
         var userRepo = serviceProvider.GetRequiredService<IUserRepository>();
         var commissionerId = "commissioner-id";
-        var user = new User 
-        { 
+        var user = new User
+        {
             AzureAdObjectId = commissionerId,
             Email = "commish@example.com",
             DisplayName = "Commissioner",
             LeagueRoles = new List<UserLeagueRole>
             {
-                new UserLeagueRole 
-                { 
-                    LeagueId = league.Id, 
-                    Role = UserRole.Commissioner 
+                new UserLeagueRole
+                {
+                    LeagueId = league.Id,
+                    Role = UserRole.Commissioner
                 }
             }
         };
@@ -66,11 +66,11 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
             serviceProvider.GetRequiredService<ISeasonSimulationService>(),
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
-            serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
-        );
+            serviceProvider.GetRequiredService<ILogger<SeasonsController>>());
 
         // Setup Controller Context with User Claims
-        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+            new Claim[]
         {
             new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", commissionerId),
             new Claim("oid", commissionerId) // Add both claim types to be safe
@@ -86,14 +86,14 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var divisionRepo = serviceProvider.GetRequiredService<IDivisionRepository>();
         var teamRepo = serviceProvider.GetRequiredService<ITeamRepository>();
         var teamBuilder = serviceProvider.GetRequiredService<ITeamBuilderService>();
-        
+
         var conference = new Conference { Name = "Test Conference", LeagueId = league.Id };
         await conferenceRepo.AddAsync(conference);
 
         var division = new Division { Name = "Test Division", ConferenceId = conference.Id };
         await divisionRepo.AddAsync(division);
 
-        var homeTeam = new Team { Name = "Home Team", DivisionId = division.Id }; 
+        var homeTeam = new Team { Name = "Home Team", DivisionId = division.Id };
         var awayTeam = new Team { Name = "Away Team", DivisionId = division.Id };
         await teamRepo.AddAsync(homeTeam);
         await teamRepo.AddAsync(awayTeam);
@@ -101,7 +101,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Populate Rosters (Required for simulation)
         homeTeam = teamBuilder.PopulateTeamRoster(homeTeam, seed: 12345);
         awayTeam = teamBuilder.PopulateTeamRoster(awayTeam, seed: 67890);
-        
+
         await teamRepo.UpdateAsync(homeTeam);
         await teamRepo.UpdateAsync(awayTeam);
         await serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>().SaveChangesAsync();
@@ -109,29 +109,30 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // 5. Create Schedule (Week 1 Game)
         var week = new SeasonWeek { SeasonId = season.Id, WeekNumber = 1, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
         season.Weeks.Add(week);
-        
+
         // Create Week 2 (Empty) so we can advance to it
         var week2 = new SeasonWeek { SeasonId = season.Id, WeekNumber = 2, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
         season.Weeks.Add(week2);
-        
-        var game = new Game 
-        { 
-            HomeTeamId = homeTeam.Id, 
-            AwayTeamId = awayTeam.Id, 
+
+        var game = new Game
+        {
+            HomeTeamId = homeTeam.Id,
+            AwayTeamId = awayTeam.Id,
             SeasonWeek = week,
-            IsComplete = false 
+            IsComplete = false
         };
         week.Games.Add(game);
         await seasonRepo.UpdateAsync(season);
 
         // Act 1: Advance Week
         var advanceResult = await seasonController.AdvanceWeek(season.Id);
-        
+
         // Assert 1: Verify Simulation
         if (advanceResult.Result is not OkObjectResult)
         {
             var errorResult = advanceResult.Result as ObjectResult;
             var error = errorResult?.Value;
+
             // This will fail but give us the error message in the test output
             Assert.Fail($"AdvanceWeek failed. Result type: {advanceResult.Result?.GetType().Name}. Error: {error}");
         }
@@ -141,7 +142,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var simResult = okResult!.Value as SeasonSimulationResult;
         simResult!.Success.Should().BeTrue();
         simResult.GamesSimulated.Should().Be(1);
-        
+
         // Verify DB State after Advance
         // Need to detach or reload to get fresh state from DB
         var dbContext = serviceProvider.GetRequiredService<DataAccessLayer.GridironDbContext>();
@@ -152,12 +153,13 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var updatedWeek1 = updatedSeason.Weeks.First(w => w.WeekNumber == 1);
         updatedWeek1.Status.Should().Be(WeekStatus.Completed);
         updatedWeek1.Games.First().IsComplete.Should().BeTrue();
-        
+
         // Verify PlayByPlay was created
         var playByPlayRepo = serviceProvider.GetRequiredService<IPlayByPlayRepository>();
         var playByPlay = await playByPlayRepo.GetByGameIdAsync(updatedWeek1.Games.First().Id);
         playByPlay.Should().NotBeNull("PlayByPlay record should be created");
         playByPlay!.PlaysJson.Should().NotBeNullOrEmpty();
+
         // Log is currently empty because Gridiron.Engine v0.1.0 does not write to the passed ILogger.
         // We assert NotBeNull to ensure the property is present, but allow empty string until engine is updated.
         // TODO: Update this assertion to check for non-empty log once Gridiron.Engine supports logging.
@@ -175,14 +177,14 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Assert 2: Verify Revert
         var revertOkResult = revertResult.Result as OkObjectResult;
         revertOkResult.Should().NotBeNull();
-        
+
         // Verify DB State after Revert
         dbContext.ChangeTracker.Clear();
         var revertedSeason = await seasonRepo.GetByIdWithWeeksAndGamesAsync(season.Id);
         revertedSeason!.CurrentWeek.Should().Be(1); // Should be back to week 1
         var revertedWeek1 = revertedSeason.Weeks.First(w => w.WeekNumber == 1);
         revertedWeek1.Status.Should().Be(WeekStatus.Scheduled);
-        
+
         var revertedGame = revertedWeek1.Games.First();
         revertedGame.IsComplete.Should().BeFalse();
         revertedGame.HomeScore.Should().Be(0);
@@ -204,7 +206,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var serviceProvider = scope.ServiceProvider;
-        
+
         var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
         var league = new League { Name = "Stats Test League", IsActive = true };
         await leagueRepo.AddAsync(league);
@@ -227,7 +229,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var t2 = new Team { Name = "T2", DivisionId = div.Id, Wins = 0, Losses = 0, Ties = 0 };
         await teamRepo.AddAsync(t1);
         await teamRepo.AddAsync(t2);
-        
+
         t1 = teamBuilder.PopulateTeamRoster(t1, 1);
         t2 = teamBuilder.PopulateTeamRoster(t2, 2);
         await teamRepo.UpdateAsync(t1);
@@ -236,9 +238,10 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
 
         var week = new SeasonWeek { SeasonId = season.Id, WeekNumber = 1, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
         season.Weeks.Add(week);
+
         // Add next week so we can advance
         season.Weeks.Add(new SeasonWeek { SeasonId = season.Id, WeekNumber = 2, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason });
-        
+
         var game = new Game { HomeTeamId = t1.Id, AwayTeamId = t2.Id, SeasonWeek = week, IsComplete = false };
         week.Games.Add(game);
         await seasonRepo.UpdateAsync(season);
@@ -252,13 +255,12 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
             seasonSimulationService,
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
-            serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
-        );
+            serviceProvider.GetRequiredService<ILogger<SeasonsController>>());
 
         var userRepo = serviceProvider.GetRequiredService<IUserRepository>();
         var commissionerId = "commish-stats-id";
-        var user = new User 
-        { 
+        var user = new User
+        {
             AzureAdObjectId = commissionerId,
             Email = "commish4@example.com",
             DisplayName = "Commissioner 4",
@@ -266,7 +268,8 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         };
         await userRepo.AddAsync(user);
 
-        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+            new Claim[]
         {
             new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", commissionerId),
             new Claim("oid", commissionerId)
@@ -294,7 +297,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Verify stats updated (non-deterministic result)
         gameUpdated!.IsComplete.Should().BeTrue();
         (gameUpdated.HomeScore + gameUpdated.AwayScore).Should().BeGreaterThanOrEqualTo(0);
-        
+
         (t1Updated!.Wins + t1Updated.Losses + t1Updated.Ties).Should().Be(1);
         (t2Updated!.Wins + t2Updated.Losses + t2Updated.Ties).Should().Be(1);
     }
@@ -391,7 +394,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var serviceProvider = scope.ServiceProvider;
-        
+
         // 1. Create League and Season
         var leagueRepo = serviceProvider.GetRequiredService<ILeagueRepository>();
         var league = new League { Name = "Concurrency Test League", IsActive = true };
@@ -404,8 +407,8 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // 2. Create User and Assign Commissioner Role
         var userRepo = serviceProvider.GetRequiredService<IUserRepository>();
         var commissionerId = "commish-conc-id";
-        var user = new User 
-        { 
+        var user = new User
+        {
             AzureAdObjectId = commissionerId,
             Email = "commish3@example.com",
             DisplayName = "Commissioner 3",
@@ -420,10 +423,10 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
             serviceProvider.GetRequiredService<IScheduleGeneratorService>(),
             serviceProvider.GetRequiredService<ISeasonSimulationService>(),
             serviceProvider.GetRequiredService<IGridironAuthorizationService>(),
-            serviceProvider.GetRequiredService<ILogger<SeasonsController>>()
-        );
+            serviceProvider.GetRequiredService<ILogger<SeasonsController>>());
 
-        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(
+            new Claim[]
         {
             new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", commissionerId),
             new Claim("oid", commissionerId)
@@ -449,7 +452,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         var t2 = new Team { Name = "T2", DivisionId = div.Id };
         await teamRepo.AddAsync(t1);
         await teamRepo.AddAsync(t2);
-        
+
         t1 = teamBuilder.PopulateTeamRoster(t1, 1);
         t2 = teamBuilder.PopulateTeamRoster(t2, 2);
         await teamRepo.UpdateAsync(t1);
@@ -458,9 +461,10 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
 
         var week = new SeasonWeek { SeasonId = season.Id, WeekNumber = 1, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason };
         season.Weeks.Add(week);
+
         // Add next week so we can advance
         season.Weeks.Add(new SeasonWeek { SeasonId = season.Id, WeekNumber = 2, Status = WeekStatus.Scheduled, Phase = SeasonPhase.RegularSeason });
-        
+
         var game = new Game { HomeTeamId = t1.Id, AwayTeamId = t2.Id, SeasonWeek = week, IsComplete = false };
         week.Games.Add(game);
         await seasonRepo.UpdateAsync(season);
@@ -468,7 +472,7 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
         // 5. Verify Concurrency Token works
         // Get the season to have a tracked instance
         var seasonV1 = await seasonRepo.GetByIdAsync(season.Id);
-        
+
         // Modify the season in the database BEHIND THE SCENES
         using (var scope2 = _fixture.ServiceProvider.CreateScope())
         {
@@ -480,8 +484,8 @@ public class SeasonSimulationIntegrationTests : IClassFixture<DatabaseTestFixtur
 
         // Act & Assert: Try to update seasonV1 which has old RowVersion
         seasonV1!.Phase = SeasonPhase.Offseason;
-        
-        await Assert.ThrowsAsync<Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException>(async () => 
+
+        await Assert.ThrowsAsync<Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException>(async () =>
         {
             await seasonRepo.UpdateAsync(seasonV1);
         });

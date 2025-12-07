@@ -151,8 +151,7 @@ public class SeasonSimulationService : ISeasonSimulationService
                             });
                         }
 
-                        // Restore player stats to pre-game state to avoid persisting cumulative stats on the Player object
-                        // This ensures that stats are only stored in PlayerGameStat and aggregated at runtime/end-of-season
+                        // Restore player stats to pre-game state
                         player.Stats = oldStats;
                     }
 

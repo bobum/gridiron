@@ -1,14 +1,14 @@
-using Xunit;
-using DataAccessLayer;
-using DomainObjects;
-using GameManagement.Services;
-using Microsoft.Extensions.Logging;
-using Moq;
-using DataAccessLayer.Repositories;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DataAccessLayer;
+using DataAccessLayer.Repositories;
+using DomainObjects;
+using GameManagement.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Xunit;
 
 namespace GameManagement.Tests.Services;
 
@@ -117,7 +117,7 @@ public class SeasonSimulationServiceErrorTests
 
         Assert.False(result.Success);
         Assert.True(result.IsConcurrencyError);
-        Assert.Contains("Simulation failed due to concurrent modification", result.Error ?? "");
+        Assert.Contains("Simulation failed due to concurrent modification", result.Error ?? string.Empty);
     }
 
     [Fact]
